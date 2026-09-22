@@ -175,9 +175,13 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
           {/* Logo */}
           <div className="flex items-center gap-2 shrink-0">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded bg-primary flex items-center justify-center shrink-0">
-                <span className="material-symbols-outlined text-on-primary" style={{ fontSize: 18 }}>sports_soccer</span>
-              </div>
+              <img
+                src="/logo.png"
+                alt="MyScore24 Logo"
+                width={36}
+                height={36}
+                className="w-8 h-8 sm:w-9 sm:h-9 object-contain shrink-0"
+              />
               <div className="flex flex-col leading-none">
                 <span className="font-geist font-bold text-[15px] sm:text-[16px] tracking-tight text-on-surface">
                   MyScore<span className="text-primary">24</span>

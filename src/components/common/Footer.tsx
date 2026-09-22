@@ -12,9 +12,13 @@ export default function Footer() {
         {/* Brand Info */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary text-on-primary flex items-center justify-center font-extrabold text-lg">
-              24
-            </div>
+            <img
+              src="/logo.png"
+              alt="MyScore24 Logo"
+              width={32}
+              height={32}
+              className="w-8 h-8 object-contain shrink-0"
+            />
             <span className="text-lg font-extrabold text-on-surface tracking-tight">
               MyScore<span className="text-primary">24</span>
             </span>

@@ -21,6 +21,14 @@ export const metadata: Metadata = {
     title: 'MyScore24 - Live Football Scores',
     description: 'Real-time football scores, match timeline, stats, and standings.',
   },
+  icons: {
+    icon: [
+      { url: '/favicon.png', type: 'image/png' },
+      { url: '/logo.png', type: 'image/png' },
+    ],
+    shortcut: '/favicon.png',
+    apple: '/logo.png',
+  },
 }
 
 const websiteJsonLd = {
