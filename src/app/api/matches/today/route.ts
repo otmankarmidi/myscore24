@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
           return new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime()
         })
 
-        return NextResponse.json({
+        const response = NextResponse.json({
           data: matches,
           source: 'MyScore24 Real Feed (API-Football)',
           date: dateParam,
@@ -50,6 +50,8 @@ export async function GET(request: NextRequest) {
           lastUpdated: new Date().toISOString(),
           quotaRemaining: apiRes.remainingQuota || null
         })
+        response.headers.set('Cache-Control', 'public, max-age=15, s-maxage=30, stale-while-revalidate=60')
+        return response
       }
     } catch (apiErr) {
       console.warn('[API /api/matches/today] API-Football error:', apiErr)
@@ -57,11 +59,13 @@ export async function GET(request: NextRequest) {
   }
 
   // Fallback Source: Resilient Mock Matches
-  return NextResponse.json({
+  const fallbackRes = NextResponse.json({
     data: mockMatches,
     source: 'MyScore24 Resilient Feed',
     date: dateParam,
     count: mockMatches.length,
     lastUpdated: new Date().toISOString()
   })
+  fallbackRes.headers.set('Cache-Control', 'public, max-age=30, s-maxage=60')
+  return fallbackRes
 }

@@ -6,12 +6,19 @@ import { useTheme } from '@/hooks/useTheme'
 import { useLanguage } from '@/context/LanguageContext'
 import { useFavorites } from '@/hooks/useFavorites'
 import { useTimezone, TIMEZONE_OPTIONS } from '@/context/TimezoneContext'
+import dynamic from 'next/dynamic'
 import PlayerImage from '@/components/common/PlayerImage'
 import TeamLogo from '@/components/common/TeamLogo'
-import MobileDrawer from '@/components/common/MobileDrawer'
-import NotificationModal from '@/components/common/NotificationModal'
 import { Locale } from '@/types/common'
 import { MatchAlert } from '@/types/alerts'
+
+const MobileDrawer = dynamic(() => import('@/components/common/MobileDrawer'), {
+  ssr: false,
+})
+
+const NotificationModal = dynamic(() => import('@/components/common/NotificationModal'), {
+  ssr: false,
+})
 
 const LOCALES: { code: Locale; name: string }[] = [
   { code: 'en', name: 'English' },
