@@ -7,7 +7,7 @@ export const mockPlayers: Player[] = [
   {
     id: '273005', slug: 'lamine-yamal', name: 'Lamine Yamal',
     firstName: 'Lamine', lastName: 'Yamal',
-    photo: 'https://a.espncdn.com/i/headshots/soccer/players/full/273005.png',
+    photo: 'https://media.api-sports.io/football/players/273005.png',
     nationality: 'Spain', nationalityFlag: '🇪🇸',
     dateOfBirth: '2007-07-13', age: 17,
     height: 180, weight: 73,
@@ -20,7 +20,7 @@ export const mockPlayers: Player[] = [
   {
     id: '249168', slug: 'erling-haaland', name: 'Erling Haaland',
     firstName: 'Erling', lastName: 'Haaland',
-    photo: 'https://a.espncdn.com/i/headshots/soccer/players/full/249168.png',
+    photo: 'https://media.api-sports.io/football/players/249168.png',
     nationality: 'Norway', nationalityFlag: '🇳🇴',
     dateOfBirth: '2000-07-21', age: 24,
     height: 194, weight: 88,
@@ -33,7 +33,7 @@ export const mockPlayers: Player[] = [
   {
     id: '230020', slug: 'kylian-mbappe', name: 'Kylian Mbappé',
     firstName: 'Kylian', lastName: 'Mbappé',
-    photo: 'https://a.espncdn.com/i/headshots/soccer/players/full/230020.png',
+    photo: 'https://media.api-sports.io/football/players/230020.png',
     nationality: 'France', nationalityFlag: '🇫🇷',
     dateOfBirth: '1998-12-20', age: 26,
     height: 178, weight: 73,
@@ -46,7 +46,7 @@ export const mockPlayers: Player[] = [
   {
     id: '260053', slug: 'bukayo-saka', name: 'Bukayo Saka',
     firstName: 'Bukayo', lastName: 'Saka',
-    photo: 'https://a.espncdn.com/i/headshots/soccer/players/full/260053.png',
+    photo: 'https://media.api-sports.io/football/players/260053.png',
     nationality: 'England', nationalityFlag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
     dateOfBirth: '2001-09-05', age: 23,
     height: 178, weight: 72,
@@ -59,7 +59,7 @@ export const mockPlayers: Player[] = [
   {
     id: '234479', slug: 'raphinha', name: 'Raphinha',
     firstName: 'Raphinha', lastName: 'Raphinha',
-    photo: 'https://a.espncdn.com/i/headshots/soccer/players/full/234479.png',
+    photo: 'https://media.api-sports.io/football/players/234479.png',
     nationality: 'Brazil', nationalityFlag: '🇧🇷',
     dateOfBirth: '1996-12-14', age: 27,
     height: 176, weight: 68,
@@ -72,7 +72,7 @@ export const mockPlayers: Player[] = [
   {
     id: '173896', slug: 'mohamed-salah', name: 'Mohamed Salah',
     firstName: 'Mohamed', lastName: 'Salah',
-    photo: 'https://a.espncdn.com/i/headshots/soccer/players/full/173896.png',
+    photo: 'https://media.api-sports.io/football/players/173896.png',
     nationality: 'Egypt', nationalityFlag: '🇪🇬',
     dateOfBirth: '1992-06-15', age: 32,
     height: 175, weight: 71,
@@ -85,7 +85,7 @@ export const mockPlayers: Player[] = [
   {
     id: '249309', slug: 'vinicius-junior', name: 'Vinícius Júnior',
     firstName: 'Vinícius', lastName: 'Júnior',
-    photo: 'https://a.espncdn.com/i/headshots/soccer/players/full/249309.png',
+    photo: 'https://media.api-sports.io/football/players/249309.png',
     nationality: 'Brazil', nationalityFlag: '🇧🇷',
     dateOfBirth: '2000-07-12', age: 24,
     height: 176, weight: 73,
@@ -98,7 +98,7 @@ export const mockPlayers: Player[] = [
   {
     id: '282643', slug: 'jude-bellingham', name: 'Jude Bellingham',
     firstName: 'Jude', lastName: 'Bellingham',
-    photo: 'https://a.espncdn.com/i/headshots/soccer/players/full/282643.png',
+    photo: 'https://media.api-sports.io/football/players/282643.png',
     nationality: 'England', nationalityFlag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
     dateOfBirth: '2003-06-29', age: 21,
     height: 186, weight: 75,
@@ -111,7 +111,7 @@ export const mockPlayers: Player[] = [
   {
     id: '247738', slug: 'achraf-hakimi', name: 'Achraf Hakimi',
     firstName: 'Achraf', lastName: 'Hakimi',
-    photo: 'https://a.espncdn.com/i/headshots/soccer/players/full/247738.png',
+    photo: 'https://media.api-sports.io/football/players/247738.png',
     nationality: 'Morocco', nationalityFlag: '🇲🇦',
     dateOfBirth: '1998-11-04', age: 26,
     height: 181, weight: 73,
@@ -124,7 +124,7 @@ export const mockPlayers: Player[] = [
   {
     id: '287579', slug: 'cole-palmer', name: 'Cole Palmer',
     firstName: 'Cole', lastName: 'Palmer',
-    photo: 'https://a.espncdn.com/i/headshots/soccer/players/full/287579.png',
+    photo: 'https://media.api-sports.io/football/players/287579.png',
     nationality: 'England', nationalityFlag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
     dateOfBirth: '2002-05-06', age: 22,
     height: 189, weight: 74,

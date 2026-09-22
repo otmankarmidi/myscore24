@@ -435,7 +435,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
                 <span className="text-xs font-bold uppercase tracking-wider text-primary">
                   {t('common.notifications', 'Live Match Alerts')}
                 </span>
-                <span className="text-[10px] text-on-surface-variant font-mono">ESPN Feed</span>
+                <span className="text-[10px] text-on-surface-variant font-mono">Live Feed</span>
               </div>
               <NotificationAlertList />
             </div>

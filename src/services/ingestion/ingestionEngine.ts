@@ -1,12 +1,10 @@
 import { IngestionSourceAdapter, IngestionResult, IngestionSourceStatus } from './types'
 import { sofascoreAdapter } from './sofascoreAdapter'
-import { espnAdapter } from './espnAdapter'
 import { openDataFeedAdapter } from './openDataFeedAdapter'
 import { localDb, isSupabaseConfigured, supabaseClient, DbIngestionLog } from '@/lib/supabaseClient'
 
 export class IngestionEngine {
   private adapters: IngestionSourceAdapter[] = [
-    espnAdapter,
     sofascoreAdapter,
     openDataFeedAdapter
   ]

@@ -48,15 +48,15 @@ export function getPlayerImageUrl(playerId?: string | number, photo?: string): s
   // Known slug to API athlete ID mapping
   const resolvedId = KNOWN_API_PLAYER_IDS[idStr] || idStr
 
-  // Numeric ID (e.g. ESPN athlete ID "273005" or API athlete ID)
+  // Numeric ID (e.g. API athlete ID)
   if (/^\d+$/.test(resolvedId)) {
-    return `https://a.espncdn.com/i/headshots/soccer/players/full/${resolvedId}.png`
+    return `https://media.api-sports.io/football/players/${resolvedId}.png`
   }
 
-  // If ID has numeric part like "espn-12345" or "athlete-12345"
+  // If ID has numeric part like "player-12345" or "athlete-12345"
   const digits = resolvedId.match(/\d+/)
   if (digits) {
-    return `https://a.espncdn.com/i/headshots/soccer/players/full/${digits[0]}.png`
+    return `https://media.api-sports.io/football/players/${digits[0]}.png`
   }
 
   return ''

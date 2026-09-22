@@ -1,5 +1,4 @@
 import { MatchAlert, MatchLiveState } from '@/types/alerts'
-import { espnPublicProvider } from '@/services/sports/espnPublicProvider'
 
 // In-memory store for server-side alert state & processed event IDs (durable across requests in server process)
 const liveStateStore = new Map<string, MatchLiveState>()
@@ -28,7 +27,7 @@ export function generateEventId(
 }
 
 /**
- * Server-side Alert Detector: Compare previous live state vs new ESPN data
+ * Server-side Alert Detector: Compare previous live state vs new match data
  */
 export function processMatchAlerts(newMatch: any): MatchAlert[] {
   const newAlerts: MatchAlert[] = []
@@ -36,7 +35,7 @@ export function processMatchAlerts(newMatch: any): MatchAlert[] {
 
   const matchId = String(newMatch.id)
   const homeComp = newMatch.competitors?.find((c: any) => c.homeAway === 'home') || {}
-  const awayComp = newMatch.competitors?.find((c: any) => c.homeAway === 'away') || {}
+  const awayComp = newMatch.competitors?.find((c: any) => c.awayAway === 'away') || {}
 
   const homeScore = parseInt(homeComp.score || '0')
   const awayScore = parseInt(awayComp.score || '0')
@@ -73,7 +72,7 @@ export function processMatchAlerts(newMatch: any): MatchAlert[] {
         awayScore,
         createdAt: new Date().toISOString(),
         priority: 'NORMAL',
-        source: 'espn'
+        source: 'api-football'
       }
       newAlerts.push(alert)
     }
@@ -100,7 +99,7 @@ export function processMatchAlerts(newMatch: any): MatchAlert[] {
         awayScore,
         createdAt: new Date().toISOString(),
         priority: 'NORMAL',
-        source: 'espn'
+        source: 'api-football'
       }
       newAlerts.push(alert)
     }
@@ -127,7 +126,7 @@ export function processMatchAlerts(newMatch: any): MatchAlert[] {
         awayScore,
         createdAt: new Date().toISOString(),
         priority: 'NORMAL',
-        source: 'espn'
+        source: 'api-football'
       }
       newAlerts.push(alert)
     }
@@ -171,7 +170,7 @@ export function processMatchAlerts(newMatch: any): MatchAlert[] {
             minute,
             createdAt: new Date().toISOString(),
             priority: 'HIGH',
-            source: 'espn'
+            source: 'api-football'
           }
           newAlerts.push(alert)
         }
@@ -203,7 +202,7 @@ export function processMatchAlerts(newMatch: any): MatchAlert[] {
             minute,
             createdAt: new Date().toISOString(),
             priority: 'HIGH',
-            source: 'espn'
+            source: 'api-football'
           }
           newAlerts.push(alert)
         }

@@ -38,5 +38,5 @@ export interface MatchAlert {
   playerId?: string
   createdAt: string
   priority: 'HIGH' | 'NORMAL'
-  source: 'espn'
+  source: 'api-football' | 'manual' | 'system'
 }

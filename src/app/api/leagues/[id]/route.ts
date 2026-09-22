@@ -1,26 +1,61 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { espnPublicProvider, LEAGUE_MAP } from '@/services/sports/espnPublicProvider'
+import { apiFootballProvider } from '@/services/sports/apiFootballProvider'
+import {
+  normalizeApiFootballStanding,
+  normalizeApiFootballTopScorer,
+  normalizeApiFootballMatch
+} from '@/services/sports/normalizers'
 import { League } from '@/types/league'
-import { Standing } from '@/types/standing'
-import { Match, MatchStatus } from '@/types/match'
-import { TopScorer } from '@/types/standing'
-
-// Resolve the ESPN code and league meta from slug/id (supports slug like 'premier-league', ESPN code 'eng.1', or numeric id)
-function resolveLeagueMeta(rawId: string) {
-  const key = rawId.toLowerCase()
-  // Try direct match in LEAGUE_MAP
-  if (LEAGUE_MAP[key]) return { code: LEAGUE_MAP[key].code, meta: LEAGUE_MAP[key] }
-  // Try as an ESPN code directly
-  const byCode = Object.values(LEAGUE_MAP).find(v => v.code === key)
-  if (byCode) return { code: byCode.code, meta: byCode }
-  // Default to the ESPN provider's lookup
-  const code = espnPublicProvider.getEspnLeagueCode(key)
-  const meta = espnPublicProvider.getLeagueMeta(key)
-  return { code, meta }
-}
+import { Standing, TopScorer } from '@/types/standing'
+import { Match } from '@/types/match'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
+
+const LEAGUE_SLUG_TO_ID: Record<string, number> = {
+  'premier-league': 39,
+  'eng.1': 39,
+  '39': 39,
+  'la-liga': 140,
+  'esp.1': 140,
+  '140': 140,
+  'serie-a': 135,
+  'ita.1': 135,
+  '135': 135,
+  'bundesliga': 78,
+  'ger.1': 78,
+  '78': 78,
+  'ligue-1': 61,
+  'fra.1': 61,
+  '61': 61,
+  'champions-league': 2,
+  'uefa.champions': 2,
+  '2': 2,
+  'europa-league': 3,
+  '3': 3,
+  'botola-pro': 200,
+  'mar.1': 200,
+  '200': 200,
+  'saudi-pro-league': 307,
+  'ksa.1': 307,
+  '307': 307,
+  'eredivisie': 88,
+  'ned.1': 88,
+  '88': 88,
+  'primeira-liga': 94,
+  'por.1': 94,
+  '94': 94,
+  'mls': 253,
+  'usa.1': 253,
+  '253': 253,
+}
+
+function resolveLeagueId(rawId: string): number {
+  const key = rawId.toLowerCase()
+  if (LEAGUE_SLUG_TO_ID[key]) return LEAGUE_SLUG_TO_ID[key]
+  const parsed = parseInt(rawId, 10)
+  return isNaN(parsed) ? 39 : parsed
+}
 
 export async function GET(
   request: NextRequest,
@@ -28,190 +63,63 @@ export async function GET(
 ) {
   try {
     const { id } = await params
-    const { code, meta } = resolveLeagueMeta(id)
+    const leagueId = resolveLeagueId(id)
+    const currentSeason = 2026
 
-    // Fetch standings, current round fixtures, and top scorers concurrently
-    const [rawEspnEntries, rawEspnMatches, topScorersRaw] = await Promise.all([
-      espnPublicProvider.fetchStandings(code),
-      espnPublicProvider.fetchMatchesForLeague(code),
-      espnPublicProvider.fetchTopScorers(code)
-    ])
+    if (apiFootballProvider.hasValidApiKey()) {
+      try {
+        const [leagueRaw, standingsRaw, topScorersRaw, fixturesRaw] = await Promise.all([
+          apiFootballProvider.getLeagueDetails(leagueId),
+          apiFootballProvider.getLeagueStandings(leagueId, currentSeason),
+          apiFootballProvider.getLeagueTopScorers(leagueId, currentSeason),
+          apiFootballProvider.getLeagueFixtures(leagueId, currentSeason)
+        ])
 
-    // ── Standings ──────────────────────────────────────────────────────────
-    const isFriendly = code === 'fifa.friendly'
-    let standings: Standing[] = []
-    let groups: Array<{ groupName: string; standings: Standing[] }> | undefined = undefined
+        const standings: Standing[] = Array.isArray(standingsRaw)
+          ? standingsRaw.map(normalizeApiFootballStanding)
+          : []
+        const topScorers: TopScorer[] = Array.isArray(topScorersRaw)
+          ? topScorersRaw.map(normalizeApiFootballTopScorer)
+          : []
+        const fixtures: Match[] = Array.isArray(fixturesRaw)
+          ? fixturesRaw.map(normalizeApiFootballMatch)
+          : []
 
-    if (!isFriendly && Array.isArray(rawEspnEntries)) {
-      // Check if rawEspnEntries is array of groups (has 'standings' property)
-      const isGrouped = rawEspnEntries.length > 0 && Boolean(rawEspnEntries[0].standings?.entries)
+        const leagueMeta = leagueRaw?.league || {}
+        const countryMeta = leagueRaw?.country || {}
 
-      if (isGrouped) {
-        groups = rawEspnEntries.map((grp: any) => {
-          const groupName = grp.name || 'Group'
-          const groupEntries = grp.standings?.entries || []
-          const grpStandings: Standing[] = groupEntries.map((e: any, idx: number) => {
-            const statsMap: Record<string, number> = {}
-            e.stats?.forEach((s: any) => { statsMap[s.name] = s.value })
-            const teamId = e.team?.id || String(idx + 1)
-            const teamName = e.team?.displayName || e.team?.name || `Team ${idx + 1}`
-            const teamLogo = e.team?.logos?.[0]?.href || `https://a.espncdn.com/i/teamlogos/soccer/500/${teamId}.png`
-            const gf = statsMap['pointsFor'] ?? statsMap['goalsFor'] ?? 0
-            const ga = statsMap['pointsAgainst'] ?? statsMap['goalsAgainst'] ?? 0
-            return {
-              position: statsMap['rank'] || idx + 1,
-              team: {
-                id: teamId,
-                slug: `team-${teamId}`,
-                name: teamName,
-                shortName: teamName,
-                abbreviation: teamName.substring(0, 3).toUpperCase(),
-                logo: teamLogo,
-                country: meta.country
-              },
-              played: statsMap['gamesPlayed'] || 0,
-              won: statsMap['wins'] || 0,
-              drawn: statsMap['ties'] || 0,
-              lost: statsMap['losses'] || 0,
-              goalsFor: gf,
-              goalsAgainst: ga,
-              goalDifference: gf - ga,
-              points: statsMap['points'] || 0
-            }
-          })
-          return { groupName, standings: grpStandings }
-        })
-        standings = groups[0]?.standings || []
-      } else {
-        standings = rawEspnEntries.map((e: any, idx: number) => {
-          const statsMap: Record<string, number> = {}
-          e.stats?.forEach((s: any) => { statsMap[s.name] = s.value })
-          const teamId = e.team?.id || String(idx + 1)
-          const teamName = e.team?.displayName || e.team?.name || `Club ${idx + 1}`
-          const teamLogo = e.team?.logos?.[0]?.href || `https://a.espncdn.com/i/teamlogos/soccer/500/${teamId}.png`
-          const gf = statsMap['pointsFor'] ?? statsMap['goalsFor'] ?? 0
-          const ga = statsMap['pointsAgainst'] ?? statsMap['goalsAgainst'] ?? 0
-          return {
-            position: statsMap['rank'] || idx + 1,
-            team: {
-              id: teamId,
-              slug: `team-${teamId}`,
-              name: teamName,
-              shortName: teamName,
-              abbreviation: teamName.substring(0, 3).toUpperCase(),
-              logo: teamLogo,
-              country: meta.country
-            },
-            played: statsMap['gamesPlayed'] || 0,
-            won: statsMap['wins'] || 0,
-            drawn: statsMap['ties'] || 0,
-            lost: statsMap['losses'] || 0,
-            goalsFor: gf,
-            goalsAgainst: ga,
-            goalDifference: gf - ga,
-            points: statsMap['points'] || 0,
-            form: ['W', 'D', 'W', 'L', 'W']
-          }
-        })
-      }
-    }
+        const leagueName = leagueMeta.name || 'Football League'
 
-    // ── Fixtures ───────────────────────────────────────────────────────────
-    const fixtures: Match[] = rawEspnMatches.map((m: any) => {
-      const homeComp = m.competitors?.find((c: any) => c.homeAway === 'home')
-      const awayComp = m.competitors?.find((c: any) => c.homeAway === 'away')
-
-      let status: MatchStatus = 'scheduled'
-      if (m.status?.type?.completed) status = 'full_time'
-      else if (m.status?.type?.state === 'in') status = 'live'
-
-      const matchDate = m.date ? new Date(m.date) : new Date()
-
-      return {
-        id: String(m.id),
-        slug: `match-${m.id}`,
-        league: {
-          id: code,
-          slug: code,
-          name: meta.name,
-          shortName: meta.name,
-          logo: meta.logo,
-          country: meta.country,
-          countryCode: meta.country.substring(0, 3).toUpperCase(),
-          season: '2026/2027',
-      currentSeason: '2026/2027',
+        const league: League = {
+          id: String(leagueId),
+          slug: id,
+          name: leagueName,
+          shortName: leagueName.slice(0, 10),
+          logo: leagueMeta.logo || 'https://media.api-sports.io/football/leagues/39.png',
+          country: countryMeta.name || 'Global',
+          countryCode: (countryMeta.code || 'WW').slice(0, 2).toUpperCase(),
+          countryFlag: countryMeta.flag,
+          season: String(currentSeason),
+          currentRound: fixtures.length > 0 ? fixtures[0].round || 'Matchday' : 'Regular Season',
           type: 'league'
-        },
-        homeTeam: {
-          id: String(homeComp?.team?.id || '1'),
-          slug: `team-${homeComp?.team?.id || '1'}`,
-          name: homeComp?.team?.displayName || 'Home Club',
-          shortName: homeComp?.team?.name || 'Home',
-          abbreviation: homeComp?.team?.abbreviation || 'HOM',
-          logo: homeComp?.team?.logo || '',
-          country: meta.country
-        },
-        awayTeam: {
-          id: String(awayComp?.team?.id || '2'),
-          slug: `team-${awayComp?.team?.id || '2'}`,
-          name: awayComp?.team?.displayName || 'Away Club',
-          shortName: awayComp?.team?.name || 'Away',
-          abbreviation: awayComp?.team?.abbreviation || 'AWY',
-          logo: awayComp?.team?.logo || '',
-          country: meta.country
-        },
-        status,
-        minute: m.status?.clock || 0,
-        kickoff: m.date || matchDate.toISOString(),
-        kickoffTime: matchDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        venue: m.venue?.fullName || 'Stadium',
-        round: 'Regular Season',
-        score: {
-          home: parseInt(homeComp?.score || '0'),
-          away: parseInt(awayComp?.score || '0')
         }
+
+        return NextResponse.json({
+          league,
+          standings,
+          topScorers,
+          fixtures,
+          source: 'MyScore24 Real Live Feed (API-Football)'
+        })
+      } catch (apifbErr) {
+        console.warn(`[API /api/leagues/${id}] API-Football query failed:`, apifbErr)
       }
-    })
-
-    // ── Top Scorers ────────────────────────────────────────────────────────
-    const topScorers: TopScorer[] = topScorersRaw.map((s: any) => ({
-      playerId: String(s.playerId || '1'),
-      playerSlug: s.playerSlug || `player-${s.playerId || 1}`,
-      playerName: s.playerName || 'Player',
-      photo: s.photo || '',
-      teamId: String(s.teamId || '1'),
-      teamSlug: s.teamSlug || 'club',
-      teamName: s.teamName || 'Club',
-      teamLogo: s.teamLogo || '',
-      matches: s.matches || 0,
-      goals: s.goals || 0,
-      assists: s.assists || 0,
-      penalties: s.penalties || 0
-    }))
-
-    // ── League Object ──────────────────────────────────────────────────────
-    const league: League = {
-      id: code,
-      slug: code,
-      name: meta.name,
-      shortName: meta.name,
-      logo: meta.logo,
-      country: meta.country,
-      countryCode: meta.country.substring(0, 3).toUpperCase(),
-      season: '2026/2027',
-      currentSeason: '2026/2027',
-      currentRound: fixtures.length > 0 ? 'Matchday' : 'Regular Season',
-      type: 'league'
     }
 
-    return NextResponse.json({
-      league,
-      standings,
-      groups,
-      topScorers,
-      fixtures,
-      source: 'MyScore24 Real ESPN Live Feed'
-    })
+    return NextResponse.json(
+      { error: 'League not found' },
+      { status: 404 }
+    )
   } catch (error: any) {
     return NextResponse.json(
       { error: error?.message || 'League query failed' },
