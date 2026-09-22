@@ -1,44 +1,46 @@
 import Header from '@/components/common/Header'
-import DesktopSidebar from '@/components/common/DesktopSidebar'
-import RightSidebar from '@/components/common/RightSidebar'
-import MobileBottomNavigation from '@/components/common/MobileBottomNavigation'
+import Footer from '@/components/common/Footer'
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-surface text-on-surface pb-20 md:pb-6">
+    <div className="min-h-screen flex flex-col bg-surface text-on-surface">
       <Header />
 
-      <div className="flex-1 max-w-[1440px] w-full mx-auto px-2 md:px-4 py-4 flex gap-4">
-        <DesktopSidebar />
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-8 space-y-6">
+        <div className="bg-surface-container rounded-xl border border-surface-bright p-6 md:p-8 space-y-6">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-on-surface">Terms of Service</h1>
 
-        <main className="flex-1 min-w-0 space-y-4">
-          <div className="bg-surface-container rounded-xl border border-surface-bright p-6 space-y-4">
-            <h1 className="text-headline-xl text-on-surface font-extrabold">Terms of Service</h1>
-            <p className="text-body-sm text-on-surface-variant">Last updated: September 20, 2026</p>
+          <section className="space-y-2">
+            <h2 className="text-lg font-bold text-on-surface">1. Acceptance of Terms</h2>
+            <p className="text-xs md:text-sm text-on-surface-variant leading-relaxed">
+              By accessing and using MyScore24, you agree to comply with and be bound by these Terms of Service. If you do not agree with any part of these terms, please do not use our platform.
+            </p>
+          </section>
 
-            <div className="space-y-4 text-body-sm text-on-surface/90 leading-relaxed font-inter">
-              <h2 className="text-headline-md text-primary font-bold">1. Agreement to Terms</h2>
-              <p>
-                By accessing or using MyScore24, you agree to be bound by these Terms of Service. All live sports scores, match statistics, lineups, and news content are provided for informational and entertainment purposes only.
-              </p>
+          <section className="space-y-2">
+            <h2 className="text-lg font-bold text-on-surface">2. Services Offered</h2>
+            <p className="text-xs md:text-sm text-on-surface-variant leading-relaxed">
+              MyScore24 provides informational sports data including live scores, statistics, league standings, schedules, and news. The service is provided "as is" for personal, non-commercial use.
+            </p>
+          </section>
 
-              <h2 className="text-headline-md text-primary font-bold">2. Intellectual Property</h2>
-              <p>
-                Team names, logos, and league trademarks remain the property of their respective official rights holders.
-              </p>
+          <section className="space-y-2">
+            <h2 className="text-lg font-bold text-on-surface">3. Intellectual Property</h2>
+            <p className="text-xs md:text-sm text-on-surface-variant leading-relaxed">
+              All branding, custom software, UI design, and logos are property of MyScore24. Team logos and trademarks referenced belong to their respective owners and are used purely for identification purposes.
+            </p>
+          </section>
 
-              <h2 className="text-headline-md text-primary font-bold">3. Disclaimer</h2>
-              <p>
-                Live scores and stats are updated in real-time. MyScore24 is provided &ldquo;as is&rdquo; without warranties of uninterrupted real-time streaming transmission.
-              </p>
-            </div>
-          </div>
-        </main>
+          <section className="space-y-2">
+            <h2 className="text-lg font-bold text-on-surface">4. Disclaimer of Warranties</h2>
+            <p className="text-xs md:text-sm text-on-surface-variant leading-relaxed">
+              While we strive to provide real-time and accurate data, MyScore24 does not guarantee absolute completeness or timeliness. We are not liable for decisions made based on sports score information on the site.
+            </p>
+          </section>
+        </div>
+      </main>
 
-        <RightSidebar />
-      </div>
-
-      <MobileBottomNavigation />
+      <Footer />
     </div>
   )
 }

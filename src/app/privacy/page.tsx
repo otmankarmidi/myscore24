@@ -3,6 +3,8 @@ import DesktopSidebar from '@/components/common/DesktopSidebar'
 import RightSidebar from '@/components/common/RightSidebar'
 import MobileBottomNavigation from '@/components/common/MobileBottomNavigation'
 
+import Footer from '@/components/common/Footer'
+
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen flex flex-col bg-surface text-on-surface pb-20 md:pb-6">
@@ -38,7 +40,9 @@ export default function PrivacyPage() {
         <RightSidebar />
       </div>
 
+      <Footer />
       <MobileBottomNavigation />
     </div>
   )
 }
+

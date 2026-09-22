@@ -20,6 +20,24 @@ export interface Standing {
   points: number
   form?: string[]
   tier?: StandingTier
+  home?: {
+    played?: number
+    won?: number
+    drawn?: number
+    lost?: number
+    goalsFor?: number
+    goalsAgainst?: number
+    points?: number
+  }
+  away?: {
+    played?: number
+    won?: number
+    drawn?: number
+    lost?: number
+    goalsFor?: number
+    goalsAgainst?: number
+    points?: number
+  }
 }
 
 export interface TopScorer {

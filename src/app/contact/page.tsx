@@ -5,6 +5,7 @@ import Header from '@/components/common/Header'
 import DesktopSidebar from '@/components/common/DesktopSidebar'
 import RightSidebar from '@/components/common/RightSidebar'
 import MobileBottomNavigation from '@/components/common/MobileBottomNavigation'
+import Footer from '@/components/common/Footer'
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false)
@@ -95,7 +96,9 @@ export default function ContactPage() {
         <RightSidebar />
       </div>
 
+      <Footer />
       <MobileBottomNavigation />
     </div>
   )
 }
+

@@ -313,15 +313,46 @@ export default function LeagueDetailPage() {
           )}
 
           {/* Matches Tab */}
-          {activeTab === 'matches' && (
-            <div>
-              {matches.length === 0 ? (
-                <EmptyState title="No fixtures found" description="There are currently no scheduled matches for this competition season." />
-              ) : (
-                <CompetitionGroup league={league} matches={matches} />
-              )}
-            </div>
-          )}
+          {activeTab === 'matches' && (() => {
+            // Extract unique rounds from matches
+            const availableRounds = Array.from(
+              new Set(matches.map((m) => m.round).filter(Boolean))
+            ) as string[]
+
+            return (
+              <div className="space-y-4">
+                {availableRounds.length > 1 && (
+                  <div className="flex items-center justify-between bg-surface-container p-3 rounded-lg border border-surface-bright">
+                    <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">
+                      Filter by Round / Matchday
+                    </span>
+                    <select
+                      onChange={(e) => {
+                        const roundVal = e.target.value
+                        if (!roundVal) {
+                          setMatches(matches)
+                        }
+                      }}
+                      className="bg-surface-container-high border border-surface-bright text-xs font-bold text-on-surface rounded-lg px-3 py-1.5 focus:outline-none focus:border-primary cursor-pointer"
+                    >
+                      <option value="">All Rounds ({matches.length} matches)</option>
+                      {availableRounds.map((rnd) => (
+                        <option key={rnd} value={rnd}>
+                          {rnd}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {matches.length === 0 ? (
+                  <EmptyState title="No fixtures found" description="There are currently no scheduled matches for this competition season." />
+                ) : (
+                  <CompetitionGroup league={league} matches={matches} />
+                )}
+              </div>
+            )
+          })()}
 
           {/* Standings Tab */}
           {activeTab === 'standings' && (
