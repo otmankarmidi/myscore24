@@ -1,9 +1,10 @@
 import { Player } from '@/types/player'
 import { mockTeams } from './mockTeams'
+import { matchLocalPlayerImage } from '@/lib/playerMatcher'
 
 const t = (id: string) => mockTeams.find(tm => tm.id === id)!
 
-export const mockPlayers: Player[] = [
+const basePlayers: Player[] = [
   {
     id: '273005', slug: 'lamine-yamal', name: 'Lamine Yamal',
     firstName: 'Lamine', lastName: 'Yamal',
@@ -135,6 +136,23 @@ export const mockPlayers: Player[] = [
     seasonStats: { appearances: 28, goals: 18, assists: 12, yellowCards: 3, redCards: 0, minutesPlayed: 2400, rating: 8.3 },
   },
 ]
+
+export const mockPlayers: Player[] = basePlayers.map((p) => {
+  const teamName = p.team?.name || p.teamName || ''
+  const matched = matchLocalPlayerImage(teamName, p.name, p.id, p.number, p.slug)
+  if (matched) {
+    return {
+      ...p,
+      image: matched.imagePath,
+      imagePath: matched.imagePath,
+      imageSourceUrl: matched.imageSourceUrl,
+      squadNumber: matched.squadNumber || p.number,
+      position: matched.position || p.position,
+      slug: matched.slug || p.slug,
+    }
+  }
+  return p
+})
 
 export const getTopScorers = (_leagueId?: string) => {
   return [...mockPlayers].sort((a, b) => (b.stats?.goals ?? 0) - (a.stats?.goals ?? 0))

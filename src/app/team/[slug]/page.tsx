@@ -33,13 +33,17 @@ function FormDot({ result }: { result: string }) {
   )
 }
 
-function PlayerCard({ player }: { player: Player }) {
+function PlayerCard({ player, teamName }: { player: Player; teamName?: string }) {
   return (
     <div className="flex items-center gap-3 p-3 bg-surface-container-high/60 rounded-lg border border-surface-bright hover:border-primary/50 transition-all group">
       <PlayerImage
         playerId={player.id}
         photo={player.photo}
+        image={player.image || player.imagePath}
         name={player.name}
+        teamName={teamName || player.teamName || player.team?.name}
+        squadNumber={player.squadNumber || player.number}
+        slug={player.slug}
         size="lg"
         className="w-11 h-11 min-w-[44px] border border-surface-bright shrink-0"
       />
@@ -49,9 +53,9 @@ function PlayerCard({ player }: { player: Player }) {
           <h4 className="text-body-sm font-bold text-on-surface truncate group-hover:text-primary transition-colors">
             {player.name}
           </h4>
-          {player.number && (
+          {(player.squadNumber || player.number) && (
             <span className="text-[11px] font-mono font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
-              #{player.number}
+              #{player.squadNumber || player.number}
             </span>
           )}
         </div>
@@ -423,7 +427,7 @@ export default function TeamDetailPage() {
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                         {squad.goalkeepers.map((p: Player) => (
-                          <PlayerCard key={p.id} player={p} />
+                          <PlayerCard key={p.id} player={p} teamName={team.name} />
                         ))}
                       </div>
                     </div>
@@ -437,7 +441,7 @@ export default function TeamDetailPage() {
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                         {squad.defenders.map((p: Player) => (
-                          <PlayerCard key={p.id} player={p} />
+                          <PlayerCard key={p.id} player={p} teamName={team.name} />
                         ))}
                       </div>
                     </div>
@@ -451,7 +455,7 @@ export default function TeamDetailPage() {
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                         {squad.midfielders.map((p: Player) => (
-                          <PlayerCard key={p.id} player={p} />
+                          <PlayerCard key={p.id} player={p} teamName={team.name} />
                         ))}
                       </div>
                     </div>
@@ -465,7 +469,7 @@ export default function TeamDetailPage() {
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                         {squad.forwards.map((p: Player) => (
-                          <PlayerCard key={p.id} player={p} />
+                          <PlayerCard key={p.id} player={p} teamName={team.name} />
                         ))}
                       </div>
                     </div>

@@ -25,6 +25,10 @@ export interface Player {
   firstName: string
   lastName: string
   photo?: string
+  image?: string
+  imagePath?: string
+  imageSourceUrl?: string
+  squadNumber?: number
   nationality: string
   nationalityFlag?: string
   countryFlag?: string

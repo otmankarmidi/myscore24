@@ -9,6 +9,7 @@ import {
 import { Team } from '@/types/team'
 import { Match } from '@/types/match'
 import { Player } from '@/types/player'
+import { matchLocalPlayerImage } from '@/lib/playerMatcher'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -38,7 +39,29 @@ export async function GET(
             : []
 
           const squadPlayers: Player[] = Array.isArray(rawSquad)
-            ? rawSquad.map(normalizeApiFootballSquadPlayer)
+            ? rawSquad.map((rawP) => {
+                const baseP = normalizeApiFootballSquadPlayer(rawP)
+                const matched = matchLocalPlayerImage(
+                  team.name,
+                  baseP.name,
+                  baseP.id,
+                  baseP.number,
+                  baseP.slug
+                )
+
+                if (matched) {
+                  return {
+                    ...baseP,
+                    image: matched.imagePath,
+                    imagePath: matched.imagePath,
+                    imageSourceUrl: matched.imageSourceUrl,
+                    squadNumber: matched.squadNumber || baseP.number,
+                    position: matched.position || baseP.position,
+                    slug: matched.slug || baseP.slug,
+                  }
+                }
+                return baseP
+              })
             : []
 
           const goalkeepers = squadPlayers.filter(p => p.position.toLowerCase().includes('goalkeeper'))

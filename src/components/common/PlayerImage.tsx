@@ -1,22 +1,27 @@
 'use client'
 
 import { useState } from 'react'
+import { matchLocalPlayerImage } from '@/lib/playerMatcher'
 
 interface PlayerImageProps {
   playerId?: string | number
   photo?: string
+  image?: string
   name?: string
+  teamName?: string
+  squadNumber?: number
+  slug?: string
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'custom'
   className?: string
   priority?: boolean
 }
 
 const SIZES = {
-  xs: 'w-5 h-5 min-w-[20px]',
-  sm: 'w-7 h-7 min-w-[28px]',
-  md: 'w-9 h-9 min-w-[36px]',
-  lg: 'w-12 h-12 min-w-[48px]',
-  xl: 'w-24 h-24 md:w-32 md:h-32',
+  xs: 'w-6 h-6 min-w-[24px]',
+  sm: 'w-8 h-8 min-w-[32px]',
+  md: 'w-10 h-10 min-w-[40px]',
+  lg: 'w-14 h-14 min-w-[56px]',
+  xl: 'w-28 h-28 md:w-36 md:h-36 min-w-[112px]',
   custom: '',
 }
 
@@ -78,30 +83,58 @@ function PlayerSilhouette({ className = '' }: { className?: string }) {
 export default function PlayerImage({
   playerId,
   photo,
+  image,
   name,
+  teamName,
+  squadNumber,
+  slug,
   size = 'md',
   className = '',
   priority = false,
 }: PlayerImageProps) {
-  const [hasError, setHasError] = useState(false)
-  const resolvedUrl = getPlayerImageUrl(playerId, photo)
+  // Step 1: Check passed `image` prop or match via local manifest
+  let localSrc = image || ''
+  if (!localSrc && (teamName || name || slug)) {
+    const matched = matchLocalPlayerImage(teamName || '', name, playerId, squadNumber, slug)
+    if (matched?.imagePath) {
+      localSrc = matched.imagePath
+    }
+  }
+
+  // Step 2: External API photo fallback
+  const apiSrc = getPlayerImageUrl(playerId, photo)
+
+  // Level 0: Try local image first
+  // Level 1: Try API image
+  // Level 2: Show default silhouette
+  const [attemptLevel, setAttemptLevel] = useState<number>(localSrc ? 0 : apiSrc ? 1 : 2)
+
+  const currentSrc = attemptLevel === 0 ? localSrc : attemptLevel === 1 ? apiSrc : ''
+
+  const handleError = () => {
+    if (attemptLevel === 0 && apiSrc) {
+      setAttemptLevel(1) // fall back to API image
+    } else {
+      setAttemptLevel(2) // fall back to silhouette
+    }
+  }
+
   const sizeClass = SIZES[size] || SIZES.md
 
   return (
     <div
       className={`relative rounded-full overflow-hidden bg-surface-container-high border border-surface-bright/60 flex items-center justify-center shrink-0 select-none ${sizeClass} ${className}`}
-      aria-label={name ? `${name} profile picture` : 'Player photo'}
+      aria-label={name ? `${name} photo` : 'Player photo'}
     >
-      {resolvedUrl && !hasError ? (
+      {currentSrc && attemptLevel < 2 ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={resolvedUrl}
+          src={currentSrc}
           alt={name || 'Player'}
           loading={priority ? 'eager' : 'lazy'}
           decoding="async"
-          crossOrigin="anonymous"
-          className="w-full h-full object-cover object-top"
-          onError={() => setHasError(true)}
+          className="w-full h-full object-contain object-center transition-opacity duration-200"
+          onError={handleError}
         />
       ) : (
         <PlayerSilhouette />

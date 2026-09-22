@@ -86,7 +86,11 @@ export default function PlayerDetailPage() {
             <PlayerImage
               playerId={player.id}
               photo={player.photo}
+              image={player.image || player.imagePath}
               name={player.name}
+              teamName={player.teamName || player.team?.name}
+              squadNumber={player.squadNumber || player.number}
+              slug={player.slug}
               size="xl"
               priority
               className="w-28 h-28 md:w-36 md:h-36 border-4 border-primary/20 shrink-0 shadow-lg"
