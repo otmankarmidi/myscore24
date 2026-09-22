@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { matchLocalPlayerImage } from '@/lib/playerMatcher'
+import { matchLocalPlayerImage, resolvePlayerImagePath } from '@/lib/playerMatcher'
 
 interface PlayerImageProps {
   playerId?: string | number
@@ -93,9 +93,9 @@ export default function PlayerImage({
   priority = false,
 }: PlayerImageProps) {
   // Step 1: Check passed `image` prop or match via local manifest
-  let localSrc = image || ''
+  let localSrc = image ? resolvePlayerImagePath(image) || '' : ''
   if (!localSrc && (teamName || name || slug)) {
-    const matched = matchLocalPlayerImage(teamName || '', name, playerId, squadNumber, slug)
+    const matched = matchLocalPlayerImage(teamName || '', name, playerId, slug)
     if (matched?.imagePath) {
       localSrc = matched.imagePath
     }
@@ -112,8 +112,18 @@ export default function PlayerImage({
   const currentSrc = attemptLevel === 0 ? localSrc : attemptLevel === 1 ? apiSrc : ''
 
   const handleError = () => {
-    if (attemptLevel === 0 && apiSrc) {
-      setAttemptLevel(1) // fall back to API image
+    if (attemptLevel === 0) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn('Local player image failed', {
+          playerName: name || slug || playerId,
+          attemptedPath: localSrc,
+        })
+      }
+      if (apiSrc) {
+        setAttemptLevel(1) // fall back to API image
+      } else {
+        setAttemptLevel(2) // fall back to silhouette
+      }
     } else {
       setAttemptLevel(2) // fall back to silhouette
     }

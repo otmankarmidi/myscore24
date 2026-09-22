@@ -34,6 +34,22 @@ export interface EnrichedPlayerInfo {
 }
 
 /**
+ * Resolves player image path ensuring clean '/images/players/{club}/{filename}' URL.
+ * Converts 'teams/fc-barcelona/players/10-lamine-yamal.webp'
+ * to '/images/players/fc-barcelona/10-lamine-yamal.webp'
+ */
+export function resolvePlayerImagePath(imagePath?: string): string | null {
+  if (!imagePath) return null;
+
+  const cleanPath = imagePath
+    .replace(/^\/?teams\//, '')
+    .replace(/\/players\//, '/')
+    .replace(/^\/+/, '');
+
+  return `/images/players/${cleanPath}`;
+}
+
+/**
  * Normalizes name strings for fuzzy comparison:
  * - Removes accents/diacritics
  * - Lowercase
@@ -63,6 +79,8 @@ const PLAYER_NAME_ALIASES: Record<string, string> = {
   'gavi': 'pablo gavi',
   'pedri': 'pedro gonzalez',
   'szczesny': 'wojciech szczesny',
+  'mbappe': 'kylian mbappe',
+  'bellingham': 'jude bellingham',
 }
 
 const MANIFEST_PLAYERS: ManifestPlayer[] = (manifest.players || []) as ManifestPlayer[]
@@ -73,7 +91,6 @@ const MANIFEST_PLAYERS: ManifestPlayer[] = (manifest.players || []) as ManifestP
 const PLAYER_MAP_BY_ID = new Map<string, ManifestPlayer>()
 const PLAYER_MAP_BY_CLUB_NAME = new Map<string, ManifestPlayer>()
 const PLAYER_MAP_BY_CLUB_SLUG = new Map<string, ManifestPlayer>()
-const PLAYER_MAP_BY_CLUB_NUMBER = new Map<string, ManifestPlayer>()
 
 MANIFEST_PLAYERS.forEach((mp) => {
   if (!mp) return
@@ -91,23 +108,19 @@ MANIFEST_PLAYERS.forEach((mp) => {
 
   // Slug lookup
   if (mp.slug) PLAYER_MAP_BY_CLUB_SLUG.set(`${club}:${mp.slug.toLowerCase()}`, mp)
-
-  // Squad number lookup
-  if (mp.squad_number) PLAYER_MAP_BY_CLUB_NUMBER.set(`${club}:${mp.squad_number}`, mp)
 })
 
 /**
- * Match a player record against local player manifest using specified priority:
- * 1. Existing player ID
- * 2. Club key and normalized full name
- * 3. Club key and player slug
- * 4. Club key and squad number (fallback)
+ * Match a player record against local player manifest using strict priority:
+ * 1. Stable player ID when explicitly mapped
+ * 2. Club key plus exact normalized player name (or explicit alias)
+ * 3. Club key plus exact slug
+ * (Squad-number-only matching removed to prevent false positives)
  */
 export function matchLocalPlayerImage(
   clubInput: string,
   playerName?: string,
   playerId?: string | number,
-  squadNumber?: number,
   playerSlug?: string
 ): EnrichedPlayerInfo | null {
   const normClub = clubInput ? clubInput.toLowerCase().trim() : ''
@@ -160,23 +173,11 @@ export function matchLocalPlayerImage(
     }
   }
 
-  // Priority 4: Match by Squad Number (Fallback)
-  if (squadNumber) {
-    const key = `${clubKey}:${squadNumber}`
-    if (PLAYER_MAP_BY_CLUB_NUMBER.has(key)) {
-      return formatResult(PLAYER_MAP_BY_CLUB_NUMBER.get(key)!)
-    }
-  }
-
   return null
 }
 
 function formatResult(mp: ManifestPlayer): EnrichedPlayerInfo {
-  // Convert manifest image path "teams/fc-barcelona/players/10-lamine-yamal.webp"
-  // to public application path "/images/players/fc-barcelona/10-lamine-yamal.webp"
-  const publicPath = mp.image_path.startsWith('/')
-    ? `/images/players/${mp.image_path.replace(/^\/teams\//, '').replace(/^teams\//, '')}`
-    : `/images/players/${mp.image_path.replace(/^teams\//, '')}`
+  const publicPath = resolvePlayerImagePath(mp.image_path) || `/images/players/${mp.club_key}/${mp.slug}.webp`
 
   return {
     image: publicPath,

@@ -139,7 +139,7 @@ const basePlayers: Player[] = [
 
 export const mockPlayers: Player[] = basePlayers.map((p) => {
   const teamName = p.team?.name || p.teamName || ''
-  const matched = matchLocalPlayerImage(teamName, p.name, p.id, p.number, p.slug)
+  const matched = matchLocalPlayerImage(teamName, p.name, p.id, p.slug)
   if (matched) {
     return {
       ...p,
