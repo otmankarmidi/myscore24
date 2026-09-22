@@ -135,19 +135,6 @@ export default function HomePage() {
           {/* Banner Ad */}
           <AdvertisementPlaceholder variant="banner" />
 
-          {/* Temporary Live API Debug Indicator */}
-          <div className="px-3 py-1.5 rounded-lg bg-surface-container border border-surface-bright flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono">
-            <div className="flex items-center gap-2">
-              <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-on-surface-variant font-semibold">{t('common.dataSource', 'Data Source')}:</span>
-              <span className="text-primary font-bold uppercase">{dataSource}</span>
-            </div>
-            <div className="flex items-center gap-4 text-on-surface-variant">
-              <span>{t('common.fixturesCount', 'Fixtures')}: <strong className="text-on-surface">{apiCount}</strong></span>
-              {lastUpdated && <span>{t('common.updated', 'Updated')}: <strong className="text-on-surface">{lastUpdated}</strong></span>}
-            </div>
-          </div>
-
           {/* Calendar Strip */}
           <DateSelector selectedDate={selectedDate} onSelectDate={setSelectedDate} />
 
