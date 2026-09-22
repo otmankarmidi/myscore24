@@ -2,43 +2,21 @@
  * Server-side API-Football Provider
  * ───────────────
  * Executes secure HTTP requests to API-Football (api-sports.io or RapidAPI).
- * Runs strictly on the server side (Node.js/Edge) inside Next.js Route Handlers.
+ * Integrated with Layered CacheEngine (SWR, Request Coalescing, Namespacing)
+ * and ApiTelemetry quota tracking.
  */
+
+import { cacheEngine, CACHE_TTLS, formatCacheKey } from './cacheEngine'
+import { apiTelemetry } from './apiTelemetry'
 
 const DEFAULT_KEY = 'c26d748e926e82946cc6acb2eee6943e'
 const API_KEY = process.env.FOOTBALL_API_KEY || DEFAULT_KEY
 const API_HOST = process.env.FOOTBALL_API_HOST || 'v3.football.api-sports.io'
 const DEFAULT_TIMEZONE = 'Africa/Casablanca'
 
-// ── In-Memory Cache for API-Football Quota Preservation (100 req/day) ────────
-interface CacheItem<T> {
-  data: T
-  expiresAt: number
-}
+let lastLiveCount = 0
 
-const apiFootballCache = new Map<string, CacheItem<any>>()
-
-function getFromCache<T>(key: string): T | null {
-  const item = apiFootballCache.get(key)
-  if (!item) return null
-  if (Date.now() > item.expiresAt) {
-    apiFootballCache.delete(key)
-    return null
-  }
-  return item.data
-}
-
-function setToCache<T>(key: string, data: T, ttlMs: number): void {
-  if (apiFootballCache.size > 200) {
-    const now = Date.now()
-    for (const [k, v] of apiFootballCache.entries()) {
-      if (now > v.expiresAt) apiFootballCache.delete(k)
-    }
-  }
-  apiFootballCache.set(key, { data, expiresAt: Date.now() + ttlMs })
-}
-
-async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = 5000): Promise<Response> {
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = 6000): Promise<Response> {
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), timeoutMs)
   try {
@@ -50,6 +28,28 @@ async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutM
   } finally {
     clearTimeout(timeout)
   }
+}
+
+async function fetchWithRetry(url: string, options: RequestInit, retries = 2, delayMs = 500): Promise<Response> {
+  let attempt = 0
+  while (attempt <= retries) {
+    attempt++
+    try {
+      const res = await fetchWithTimeout(url, options, 6000)
+      if (res.status === 429) {
+        const err: any = new Error('HTTP 429 Rate Limit Exceeded')
+        err.status = 429
+        throw err
+      }
+      if (res.ok || attempt > retries || (res.status >= 400 && res.status < 500)) {
+        return res
+      }
+    } catch (err: any) {
+      if (err.status === 429 || attempt > retries) throw err
+    }
+    await new Promise((resolve) => setTimeout(resolve, delayMs * Math.pow(2, attempt - 1)))
+  }
+  throw new Error(`Fetch failed after ${retries} retries`)
 }
 
 export interface ApiFootballEventRaw {
@@ -170,33 +170,26 @@ export const apiFootballProvider = {
   },
 
   async getFixturesByDate(dateString: string): Promise<ApiFootballResult<ApiFootballFixtureRaw[]>> {
-    const cacheKey = `apifb_fixtures_${dateString}`
-    const cached = getFromCache<ApiFootballFixtureRaw[]>(cacheKey)
-    if (cached) {
-      return { data: cached, status: 200, resultsCount: cached.length, url: 'cache' }
-    }
+    const todayStr = new Date().toISOString().split('T')[0]
+    const isToday = dateString === todayStr
+    const ttl = isToday ? CACHE_TTLS.TODAY_FIXTURES : CACHE_TTLS.DATE_FIXTURES
 
-    const url = this.getUrl(`fixtures?date=${dateString}`, true)
-    if (!this.hasValidApiKey()) {
-      console.warn('[API-Football] No valid API Key configured.')
-      return { data: [], status: 401, resultsCount: 0, errors: { key: 'API Key missing' }, url }
-    }
+    return cacheEngine.fetchWithCache('fixtures', dateString, ttl, async () => {
+      const url = this.getUrl(`fixtures?date=${dateString}`, true)
+      if (!this.hasValidApiKey()) {
+        return { data: [], status: 401, resultsCount: 0, errors: { key: 'API Key missing' }, url }
+      }
 
-    try {
-      const res = await fetchWithTimeout(url, {
+      const res = await fetchWithRetry(url, {
         headers: this.getHeaders(),
         cache: 'no-store',
-      }, 5000)
+      })
 
       const remainingQuota = res.headers.get('x-ratelimit-requests-remaining')
       const status = res.status
       const json = await res.json()
 
       const list: ApiFootballFixtureRaw[] = Array.isArray(json.response) ? json.response : []
-      if (list.length > 0) {
-        setToCache(cacheKey, list, 90000) // 90 seconds cache to preserve 100 req/day quota
-      }
-
       return {
         data: list,
         status,
@@ -205,38 +198,29 @@ export const apiFootballProvider = {
         remainingQuota,
         url,
       }
-    } catch (err: any) {
-      console.warn('[API-Football Error]:', err.message || err)
-      return { data: [], status: 500, resultsCount: 0, errors: { fetch: err.message }, url }
-    }
+    })
   },
 
   async getLiveFixtures(): Promise<ApiFootballResult<ApiFootballFixtureRaw[]>> {
-    const cacheKey = 'apifb_live'
-    const cached = getFromCache<ApiFootballFixtureRaw[]>(cacheKey)
-    if (cached) {
-      return { data: cached, status: 200, resultsCount: cached.length, url: 'cache' }
-    }
+    const ttl = lastLiveCount > 0 ? CACHE_TTLS.LIVE_MATCHES : CACHE_TTLS.LIVE_MATCHES_IDLE
 
-    const url = this.getUrl('fixtures?live=all', true)
-    if (!this.hasValidApiKey()) {
-      return { data: [], status: 401, resultsCount: 0, errors: { key: 'API Key missing' }, url }
-    }
+    return cacheEngine.fetchWithCache('live', 'all', ttl, async () => {
+      const url = this.getUrl('fixtures?live=all', true)
+      if (!this.hasValidApiKey()) {
+        return { data: [], status: 401, resultsCount: 0, errors: { key: 'API Key missing' }, url }
+      }
 
-    try {
-      const res = await fetchWithTimeout(url, {
+      const res = await fetchWithRetry(url, {
         headers: this.getHeaders(),
         cache: 'no-store',
-      }, 5000)
+      })
 
       const remainingQuota = res.headers.get('x-ratelimit-requests-remaining')
       const status = res.status
       const json = await res.json()
 
       const list: ApiFootballFixtureRaw[] = Array.isArray(json.response) ? json.response : []
-      if (list.length > 0) {
-        setToCache(cacheKey, list, 30000) // 30s cache for live
-      }
+      lastLiveCount = list.length
 
       return {
         data: list,
@@ -246,39 +230,26 @@ export const apiFootballProvider = {
         remainingQuota,
         url,
       }
-    } catch (err: any) {
-      console.warn('[API-Football Live Error]:', err.message || err)
-      return { data: [], status: 500, resultsCount: 0, errors: { fetch: err.message }, url }
-    }
+    })
   },
 
   async getFixtureDetails(id: string | number): Promise<ApiFootballResult<ApiFootballFixtureRaw | null>> {
-    const cacheKey = `apifb_details_${id}`
-    const cached = getFromCache<ApiFootballFixtureRaw>(cacheKey)
-    if (cached) {
-      return { data: cached, status: 200, resultsCount: 1, url: 'cache' }
-    }
+    const keyStr = String(id)
+    return cacheEngine.fetchWithCache('fixture_details', keyStr, CACHE_TTLS.LIVE_MATCH_DETAILS, async () => {
+      const url = this.getUrl(`fixtures?id=${id}`, true)
+      if (!this.hasValidApiKey()) {
+        return { data: null, status: 401, resultsCount: 0, errors: { key: 'API Key missing' }, url }
+      }
 
-    const url = this.getUrl(`fixtures?id=${id}`, true)
-    if (!this.hasValidApiKey()) {
-      return { data: null, status: 401, resultsCount: 0, errors: { key: 'API Key missing' }, url }
-    }
-
-    try {
-      const res = await fetchWithTimeout(url, {
+      const res = await fetchWithRetry(url, {
         headers: this.getHeaders(),
         cache: 'no-store',
-      }, 5000)
+      })
 
       const status = res.status
       const json = await res.json()
       const list = json.response || []
       const match = list[0] || null
-
-      if (match) {
-        const isCompleted = match.fixture?.status?.short === 'FT' || match.fixture?.status?.short === 'AET' || match.fixture?.status?.short === 'PEN'
-        setToCache(cacheKey, match, isCompleted ? 600000 : 30000)
-      }
 
       return {
         data: match,
@@ -287,206 +258,128 @@ export const apiFootballProvider = {
         errors: json.errors && Object.keys(json.errors).length > 0 ? json.errors : undefined,
         url,
       }
-    } catch (err: any) {
-      console.warn(`[API-Football Details Error ${id}]:`, err.message || err)
-      return { data: null, status: 500, resultsCount: 0, errors: { fetch: err.message }, url }
-    }
+    })
   },
 
   async getH2H(team1Id: string | number, team2Id: string | number): Promise<ApiFootballFixtureRaw[]> {
-    if (!this.hasValidApiKey()) return []
-
-    try {
-      const res = await fetch(this.getUrl(`fixtures/headtohead?h2h=${team1Id}-${team2Id}&last=10`, true), {
-        headers: this.getHeaders(),
-        next: { revalidate: 300 },
-      })
-
+    const keyStr = `${team1Id}_${team2Id}`
+    return cacheEngine.fetchWithCache('h2h', keyStr, CACHE_TTLS.DATE_FIXTURES, async () => {
+      if (!this.hasValidApiKey()) return []
+      const url = this.getUrl(`fixtures/headtohead?h2h=${team1Id}-${team2Id}&last=10`, true)
+      const res = await fetchWithRetry(url, { headers: this.getHeaders() })
       if (!res.ok) return []
       const json = await res.json()
       return json.response || []
-    } catch (err) {
-      console.error(`API-Football getH2H error:`, err)
-      return []
-    }
+    })
   },
 
   async getLeagueDetails(leagueId: string | number): Promise<any | null> {
-    if (!this.hasValidApiKey()) return null
-
-    try {
+    const keyStr = String(leagueId)
+    return cacheEngine.fetchWithCache('league', keyStr, CACHE_TTLS.ENTITY_INFO, async () => {
+      if (!this.hasValidApiKey()) return null
       const url = this.getUrl(`leagues?id=${leagueId}`, false)
-      const res = await fetch(url, {
-        headers: this.getHeaders(),
-        next: { revalidate: 3600 },
-      })
-
+      const res = await fetchWithRetry(url, { headers: this.getHeaders() })
       if (!res.ok) return null
       const json = await res.json()
-      if (json.errors && Object.keys(json.errors).length > 0) {
-        console.error(`[API-Football Error getLeagueDetails ${leagueId}]:`, json.errors)
-      }
       return json.response?.[0] || null
-    } catch (err) {
-      console.error(`API-Football getLeagueDetails error:`, err)
-      return null
-    }
+    })
   },
 
   async getLeagueStandings(leagueId: string | number, season: number): Promise<any[]> {
-    if (!this.hasValidApiKey()) return []
-
-    try {
+    const keyStr = `${leagueId}_${season}`
+    return cacheEngine.fetchWithCache('standings', keyStr, CACHE_TTLS.STANDINGS, async () => {
+      if (!this.hasValidApiKey()) return []
       const url = this.getUrl(`standings?league=${leagueId}&season=${season}`, false)
-      const res = await fetch(url, {
-        headers: this.getHeaders(),
-        next: { revalidate: 600 },
-      })
-
+      const res = await fetchWithRetry(url, { headers: this.getHeaders() })
       if (!res.ok) return []
       const json = await res.json()
       const standingsObj = json.response?.[0]?.league?.standings
       if (!standingsObj) return []
       return Array.isArray(standingsObj[0]) ? standingsObj[0] : standingsObj
-    } catch (err) {
-      console.error(`API-Football getLeagueStandings error:`, err)
-      return []
-    }
+    })
   },
 
   async getLeagueTopScorers(leagueId: string | number, season: number): Promise<any[]> {
-    if (!this.hasValidApiKey()) return []
-
-    try {
+    const keyStr = `${leagueId}_${season}`
+    return cacheEngine.fetchWithCache('topscorers', keyStr, CACHE_TTLS.ENTITY_INFO, async () => {
+      if (!this.hasValidApiKey()) return []
       const url = this.getUrl(`players/topscorers?league=${leagueId}&season=${season}`, false)
-      const res = await fetch(url, {
-        headers: this.getHeaders(),
-        next: { revalidate: 1800 },
-      })
-
+      const res = await fetchWithRetry(url, { headers: this.getHeaders() })
       if (!res.ok) return []
       const json = await res.json()
       return json.response || []
-    } catch (err) {
-      console.error(`API-Football getLeagueTopScorers error:`, err)
-      return []
-    }
+    })
   },
 
   async getLeagueFixtures(leagueId: string | number, season: number): Promise<ApiFootballFixtureRaw[]> {
-    if (!this.hasValidApiKey()) return []
-
-    try {
+    const keyStr = `${leagueId}_${season}`
+    return cacheEngine.fetchWithCache('league_fixtures', keyStr, CACHE_TTLS.DATE_FIXTURES, async () => {
+      if (!this.hasValidApiKey()) return []
       const url = this.getUrl(`fixtures?league=${leagueId}&season=${season}`, true)
-      const res = await fetch(url, {
-        headers: this.getHeaders(),
-        next: { revalidate: 300 },
-      })
-
+      const res = await fetchWithRetry(url, { headers: this.getHeaders() })
       if (!res.ok) return []
       const json = await res.json()
       return json.response || []
-    } catch (err) {
-      console.error(`API-Football getLeagueFixtures error:`, err)
-      return []
-    }
+    })
   },
 
   async getTeamDetails(teamId: string | number): Promise<any | null> {
-    if (!this.hasValidApiKey()) return null
-
-    try {
+    const keyStr = String(teamId)
+    return cacheEngine.fetchWithCache('team', keyStr, CACHE_TTLS.ENTITY_INFO, async () => {
+      if (!this.hasValidApiKey()) return null
       const url = this.getUrl(`teams?id=${teamId}`, false)
-      const res = await fetch(url, {
-        headers: this.getHeaders(),
-        next: { revalidate: 3600 },
-      })
-
+      const res = await fetchWithRetry(url, { headers: this.getHeaders() })
       if (!res.ok) return null
       const json = await res.json()
-      if (json.errors && Object.keys(json.errors).length > 0) {
-        console.error(`[API-Football Error getTeamDetails ${teamId}]:`, json.errors)
-      }
       return json.response?.[0] || null
-    } catch (err) {
-      console.error(`API-Football getTeamDetails error:`, err)
-      return null
-    }
+    })
   },
 
   async getTeamSeasons(teamId: string | number): Promise<number[]> {
-    if (!this.hasValidApiKey()) return []
-
-    try {
+    const keyStr = String(teamId)
+    return cacheEngine.fetchWithCache('team_seasons', keyStr, CACHE_TTLS.ENTITY_INFO, async () => {
+      if (!this.hasValidApiKey()) return []
       const url = this.getUrl(`teams/seasons?team=${teamId}`, false)
-      const res = await fetch(url, {
-        headers: this.getHeaders(),
-        next: { revalidate: 3600 },
-      })
-
+      const res = await fetchWithRetry(url, { headers: this.getHeaders() })
       if (!res.ok) return []
       const json = await res.json()
       return json.response || []
-    } catch (err) {
-      console.error(`API-Football getTeamSeasons error:`, err)
-      return []
-    }
+    })
   },
 
   async getTeamFixtures(teamId: string | number, season: number): Promise<ApiFootballFixtureRaw[]> {
-    if (!this.hasValidApiKey()) return []
-
-    try {
+    const keyStr = `${teamId}_${season}`
+    return cacheEngine.fetchWithCache('team_fixtures', keyStr, CACHE_TTLS.DATE_FIXTURES, async () => {
+      if (!this.hasValidApiKey()) return []
       const url = this.getUrl(`fixtures?team=${teamId}&season=${season}`, true)
-      const res = await fetch(url, {
-        headers: this.getHeaders(),
-        next: { revalidate: 300 },
-      })
-
+      const res = await fetchWithRetry(url, { headers: this.getHeaders() })
       if (!res.ok) return []
       const json = await res.json()
       return json.response || []
-    } catch (err) {
-      console.error(`API-Football getTeamFixtures error:`, err)
-      return []
-    }
+    })
   },
 
   async getTeamSquad(teamId: string | number): Promise<any[]> {
-    if (!this.hasValidApiKey()) return []
-
-    try {
+    const keyStr = String(teamId)
+    return cacheEngine.fetchWithCache('squad', keyStr, CACHE_TTLS.ENTITY_INFO, async () => {
+      if (!this.hasValidApiKey()) return []
       const url = this.getUrl(`players/squads?team=${teamId}`, false)
-      const res = await fetch(url, {
-        headers: this.getHeaders(),
-        next: { revalidate: 3600 },
-      })
-
+      const res = await fetchWithRetry(url, { headers: this.getHeaders() })
       if (!res.ok) return []
       const json = await res.json()
       return json.response?.[0]?.players || []
-    } catch (err) {
-      console.error(`API-Football getTeamSquad error:`, err)
-      return []
-    }
+    })
   },
 
   async getTeamStatistics(teamId: string | number, leagueId: string | number, season: number): Promise<any | null> {
-    if (!this.hasValidApiKey()) return null
-
-    try {
+    const keyStr = `${teamId}_${leagueId}_${season}`
+    return cacheEngine.fetchWithCache('team_stats', keyStr, CACHE_TTLS.STANDINGS, async () => {
+      if (!this.hasValidApiKey()) return null
       const url = this.getUrl(`teams/statistics?team=${teamId}&league=${leagueId}&season=${season}`, false)
-      const res = await fetch(url, {
-        headers: this.getHeaders(),
-        next: { revalidate: 1800 },
-      })
-
+      const res = await fetchWithRetry(url, { headers: this.getHeaders() })
       if (!res.ok) return null
       const json = await res.json()
       return json.response || null
-    } catch (err) {
-      console.error(`API-Football getTeamStatistics error:`, err)
-      return null
-    }
+    })
   },
 }
