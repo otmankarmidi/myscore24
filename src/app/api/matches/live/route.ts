@@ -1,0 +1,81 @@
+import { NextResponse } from 'next/server'
+import { espnPublicProvider } from '@/services/sports/espnPublicProvider'
+import { getLeagueCountry } from '@/services/sports/databaseNormalizer'
+import { Match, MatchStatus } from '@/types/match'
+
+export async function GET() {
+  try {
+    const rawAllMatches = await espnPublicProvider.fetchAllTodayMatches()
+
+    // Filter live matches where state is 'in' or status is live / 1H / 2H / HT
+    const liveRaw = rawAllMatches.filter(m => m.status?.type?.state === 'in')
+
+    const liveMatches: Match[] = liveRaw.map((m: any) => {
+      const homeComp = m.competitors?.find((c: any) => c.homeAway === 'home')
+      const awayComp = m.competitors?.find((c: any) => c.homeAway === 'away')
+      const country = getLeagueCountry(m.leagueName || m.leagueId)
+
+      let status: MatchStatus = 'live'
+      if (m.status?.period === 1) status = 'live'
+      else if (m.status?.period === 2) status = 'live'
+
+      const matchDate = m.date ? new Date(m.date) : new Date()
+
+      return {
+        id: String(m.id),
+        slug: `match-${m.id}`,
+        league: {
+          id: String(m.leagueId || '39'),
+          slug: m.leagueId || 'league',
+          name: m.leagueName || 'Premier League',
+          shortName: m.leagueName || 'League',
+          logo: m.leagueLogo || 'https://media.api-sports.io/football/leagues/39.png',
+          country: country,
+          countryCode: country.substring(0, 3).toUpperCase(),
+          season: '2026/2027',
+          type: 'league'
+        },
+        homeTeam: {
+          id: String(homeComp?.team?.id || '1'),
+          slug: `team-${homeComp?.team?.id || '1'}`,
+          name: homeComp?.team?.displayName || 'Home Team',
+          shortName: homeComp?.team?.name || 'Home',
+          abbreviation: homeComp?.team?.abbreviation || 'HOM',
+          logo: homeComp?.team?.logo || '',
+          country: country
+        },
+        awayTeam: {
+          id: String(awayComp?.team?.id || '2'),
+          slug: `team-${awayComp?.team?.id || '2'}`,
+          name: awayComp?.team?.displayName || 'Away Team',
+          shortName: awayComp?.team?.name || 'Away',
+          abbreviation: awayComp?.team?.abbreviation || 'AWY',
+          logo: awayComp?.team?.logo || '',
+          country: country
+        },
+        status,
+        minute: m.status?.clock || 0,
+        kickoff: m.date || matchDate.toISOString(),
+        kickoffTime: matchDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        venue: m.venue?.fullName || 'Stadium',
+        round: 'Regular Season',
+        score: {
+          home: parseInt(homeComp?.score || '0'),
+          away: parseInt(awayComp?.score || '0')
+        }
+      }
+    })
+
+    return NextResponse.json({
+      data: liveMatches,
+      source: 'MyScore24 Real Live Matches Feed (ESPN)',
+      count: liveMatches.length,
+      lastUpdated: new Date().toISOString()
+    })
+  } catch (error: any) {
+    return NextResponse.json(
+      { data: [], error: error?.message || 'Failed to fetch live matches' },
+      { status: 500 }
+    )
+  }
+}

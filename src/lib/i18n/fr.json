@@ -1,0 +1,192 @@
+{
+  "nav": {
+    "scores": "Scores",
+    "live": "En Direct",
+    "fixtures": "Calendrier",
+    "results": "Résultats",
+    "competitions": "Compétitions",
+    "favorites": "Favoris",
+    "news": "Actualités"
+  },
+  "filters": {
+    "all": "Tous",
+    "live": "En Direct",
+    "upcoming": "À venir",
+    "finished": "Terminés"
+  },
+  "match": {
+    "status": {
+      "live": "EN DIRECT",
+      "half_time": "MT",
+      "full_time": "FT",
+      "extra_time": "PROL",
+      "penalties": "T.A.B",
+      "scheduled": "Prévu",
+      "postponed": "REP",
+      "cancelled": "ANN",
+      "suspended": "SUSP"
+    },
+    "tabs": {
+      "overview": "Aperçu",
+      "summary": "Résumé",
+      "timeline": "Chronologie",
+      "stats": "Stats",
+      "lineups": "Compositions",
+      "h2h": "Face-à-face",
+      "standings": "Classement",
+      "commentary": "Commentaires",
+      "matches": "Matchs",
+      "top_scorers": "Buteurs",
+      "news": "Actualités"
+    },
+    "stats": {
+      "matchStats": "Statistiques",
+      "possession": "Possession",
+      "shots": "Tirs",
+      "shotsOnTarget": "Tirs cadrés",
+      "corners": "Corners",
+      "fouls": "Fautes",
+      "yellowCards": "Cartons jaunes",
+      "redCards": "Cartons rouges",
+      "offsides": "Hors-jeu",
+      "xG": "Expected Goals (xG)",
+      "passes": "Passes",
+      "passAccuracy": "Précision passes"
+    },
+    "lineup": {
+      "tacticalPitch": "Terrain tactique",
+      "listView": "Vue liste",
+      "starters": "Titulaires",
+      "bench": "Remplaçants",
+      "manager": "Entraîneur"
+    },
+    "h2h": {
+      "previousMeetings": "Confrontations précédentes",
+      "noPrevious": "Aucun match précédent trouvé entre ces deux équipes"
+    },
+    "stages": {
+      "regularSeason": "Saison Régulière",
+      "groupStage": "Phase de Groupes",
+      "qualification": "Qualifications",
+      "playoffs": "Barrages",
+      "quarterFinals": "Quarts de finale",
+      "semiFinals": "Demi-finales",
+      "final": "Finale"
+    }
+  },
+  "positions": {
+    "GK": "GB",
+    "G": "GB",
+    "DEF": "DÉF",
+    "MID": "MIL",
+    "FWD": "ATT",
+    "CB": "DC",
+    "LB": "DG",
+    "RB": "DD",
+    "LWB": "DLG",
+    "RWB": "DLD",
+    "DM": "MDC",
+    "CM": "MC",
+    "AM": "MOC",
+    "LM": "MG",
+    "RM": "MD",
+    "LW": "AG",
+    "RW": "AD",
+    "ST": "BU",
+    "CF": "AC",
+    "F": "ATT"
+  },
+  "standings": {
+    "title": "Classement",
+    "fullStandings": "Classement complet",
+    "columns": {
+      "position": "#",
+      "team": "Équipe",
+      "played": "MJ",
+      "won": "V",
+      "drawn": "N",
+      "lost": "D",
+      "goalsFor": "BP",
+      "goalsAgainst": "BC",
+      "goalDifference": "DB",
+      "points": "Pts",
+      "form": "Forme"
+    }
+  },
+  "common": {
+    "search_placeholder": "Rechercher équipes, joueurs, ligues...",
+    "today": "AUJOURD'HUI",
+    "standings": "Classement",
+    "favorite_leagues": "Ligues Favorites",
+    "countries": "Pays",
+    "noLiveMatches": "Aucun match en direct pour le moment",
+    "noMatchesScheduled": "Aucun match prévu pour cette date",
+    "noFavorites": "Aucun favori enregistré",
+    "noFavoritesDesc": "Cliquez sur l'étoile pour épingler un match ou une ligue ici.",
+    "noSearchResults": "Aucun résultat trouvé",
+    "errorLive": "Les scores en direct sont temporairement indisponibles",
+    "errorLiveDesc": "Les données sont temporairement indisponibles. Veuillez patienter.",
+    "tryAgain": "Réessayer",
+    "addFavorite": "Ajouter aux favoris",
+    "removeFavorite": "Retirer des favoris",
+    "viewStandings": "Classement",
+    "pinLeague": "Épingler la ligue",
+    "unpinLeague": "Détacher la ligue",
+    "sound": "Son",
+    "odds": "Cotes",
+    "on": "ON",
+    "off": "OFF",
+    "saved": "ENREGISTRÉ",
+    "savedMatches": "MATCHS ENREGISTRÉS",
+    "yourFavorited": "Vos Matchs et Ligues Favoris",
+    "yourFavoritedDesc": "Accès rapide à vos matchs, clubs et compétitions épinglés",
+    "dataSource": "Source de données",
+    "fixturesCount": "Matchs",
+    "updated": "Mis à jour",
+    "loading": "Chargement...",
+    "matchCenter": "Chargement du centre de match...",
+    "notifications": "Alertes de Match en Direct",
+    "noAlerts": "Aucune alerte récente",
+    "displayTimezone": "Fuseau horaire",
+    "timezoneAuto": "Auto",
+    "allCompetitions": "Toutes les compétitions",
+    "referee": "Arbitre"
+  },
+  "countries": {
+    "Morocco": "Maroc",
+    "England": "Angleterre",
+    "Spain": "Espagne",
+    "France": "France",
+    "Italy": "Italie",
+    "Germany": "Allemagne",
+    "Portugal": "Portugal",
+    "Netherlands": "Pays-Bas",
+    "USA": "États-Unis",
+    "Saudi Arabia": "Arabie Saoudite",
+    "Africa": "Afrique",
+    "Europe": "Europe",
+    "International": "International",
+    "World": "Monde"
+  },
+  "news": {
+    "readMore": "Lire la suite",
+    "readTime": "min de lecture",
+    "categories": {
+      "transfers": "Transferts",
+      "match_report": "Rapport de match",
+      "analysis": "Analyse",
+      "breaking": "Flash",
+      "interviews": "Interviews",
+      "tactics": "Tactique"
+    }
+  },
+  "topScorers": {
+    "title": "Meilleurs Buteurs",
+    "player": "Joueur",
+    "team": "Équipe",
+    "goals": "Buts",
+    "assists": "Passes D.",
+    "penalties": "Pénaltys",
+    "apps": "Matchs"
+  }
+}

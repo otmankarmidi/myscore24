@@ -27,7 +27,11 @@ export interface MatchEvent {
   type: 'goal' | 'yellow_card' | 'red_card' | 'second_yellow' | 'substitution' | 'var' | 'penalty_scored' | 'penalty_missed'
   team: 'home' | 'away'
   playerName: string
+  playerId?: string
+  playerPhoto?: string
   playerNameSecondary?: string
+  playerIdSecondary?: string
+  playerPhotoSecondary?: string
   detail?: string
 }
 
@@ -50,26 +54,43 @@ export interface LineupPlayer {
   name: string
   number: number
   position: string
-  positionX: number // 0-100 % on pitch width
-  positionY: number // 0-100 % on pitch height (0=top/away goal, 100=bottom/home goal)
+  positionX: number
+  positionY: number
+  formationPlace?: string | number
   rating?: number
+  ratingIsLive?: boolean
+  ratingUpdatedAt?: string
+  photo?: string
+  subbedIn?: boolean
+  subbedOut?: boolean
+  minutesPlayed?: number
   yellowCard?: boolean
   redCard?: boolean
   substituted?: boolean
   substituteMinute?: number
 }
 
+export interface MatchLineup {
+  formation: string
+  starters?: LineupPlayer[]
+  startingXI?: LineupPlayer[]
+  bench?: LineupPlayer[]
+  substitutes?: LineupPlayer[]
+  coach?: string
+}
+
 export interface Lineup {
-  home: {
-    formation: string
-    startingXI: LineupPlayer[]
-    substitutes: LineupPlayer[]
-  }
-  away: {
-    formation: string
-    startingXI: LineupPlayer[]
-    substitutes: LineupPlayer[]
-  }
+  home: MatchLineup
+  away: MatchLineup
+}
+
+export interface MatchCommentaryItem {
+  id: string
+  minute: number
+  extraMinute?: number
+  type: 'goal' | 'card' | 'var' | 'sub' | 'comment' | 'whistle'
+  text: string
+  isImportant?: boolean
 }
 
 export interface Match {
@@ -82,11 +103,23 @@ export interface Match {
   status: MatchStatus
   minute?: number
   kickoff: string
+  kickoffTime?: string
   venue?: string
   referee?: string
   round?: string
   events?: MatchEvent[]
   statistics?: MatchStatistics
+  lineups?: Lineup
   lineup?: Lineup
+  commentary?: MatchCommentaryItem[]
   isFavorited?: boolean
+  highestRatedPlayer?: {
+    id: string
+    name: string
+    photo?: string
+    teamName: string
+    teamLogo?: string
+    rating: number
+    isLive?: boolean
+  }
 }

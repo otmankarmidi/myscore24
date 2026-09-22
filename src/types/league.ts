@@ -1,3 +1,9 @@
+export interface LeagueSeasonItem {
+  year: number
+  current: boolean
+  label: string
+}
+
 export interface League {
   id: string
   slug: string
@@ -8,6 +14,9 @@ export interface League {
   countryCode: string
   countryFlag?: string
   season: string
+  currentSeason?: string
+  selectedSeason?: string
+  seasons?: LeagueSeasonItem[]
   currentRound?: string
   type: 'league' | 'cup' | 'international'
   continent?: string

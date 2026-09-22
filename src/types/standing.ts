@@ -4,7 +4,12 @@ export type StandingTier = 'champions_league' | 'europa_league' | 'conference_le
 
 export interface Standing {
   position: number
+  rank?: number
   team: Team
+  teamId?: string
+  teamName?: string
+  teamSlug?: string
+  teamLogo?: string
   played: number
   won: number
   drawn: number
@@ -17,8 +22,31 @@ export interface Standing {
   tier?: StandingTier
 }
 
+export interface TopScorer {
+  playerId: string
+  playerSlug: string
+  playerName: string
+  photo?: string
+  teamId?: string
+  teamSlug: string
+  teamName: string
+  teamLogo?: string
+  matches: number
+  goals: number
+  assists: number
+  penalties: number
+}
+
+export interface GroupedStanding {
+  groupName: string
+  standings: Standing[]
+}
+
 export interface LeagueStandings {
   leagueId: string
   season: string
   standings: Standing[]
+  groups?: GroupedStanding[]
 }
+
+export type LeagueStanding = Standing

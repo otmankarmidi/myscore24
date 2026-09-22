@@ -1,69 +1,208 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
+import { useState, useMemo, useEffect } from 'react'
+import Header from '@/components/common/Header'
+import DesktopSidebar from '@/components/common/DesktopSidebar'
+import RightSidebar from '@/components/common/RightSidebar'
+import MobileBottomNavigation from '@/components/common/MobileBottomNavigation'
+import DateSelector from '@/components/common/DateSelector'
+import MatchFilters from '@/components/common/MatchFilters'
+import CompetitionGroup from '@/components/match/CompetitionGroup'
+import SkeletonMatchRow from '@/components/common/SkeletonLoader'
+import EmptyState from '@/components/common/EmptyState'
+import ErrorState from '@/components/common/ErrorState'
+import AdvertisementPlaceholder from '@/components/common/AdvertisementPlaceholder'
+import { sportsService } from '@/services/sports/sportsService'
+import { useLanguage } from '@/context/LanguageContext'
+import { Match } from '@/types/match'
+import { League } from '@/types/league'
+
+export default function HomePage() {
+  const { t } = useLanguage()
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
+  const [activeFilter, setActiveFilter] = useState<'all' | 'live' | 'upcoming' | 'finished'>('all')
+  const [soundOn, setSoundOn] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
+  const [hasError, setHasError] = useState(false)
+  const [apiErrorMessage, setApiErrorMessage] = useState<string | null>(null)
+  const [matches, setMatches] = useState<Match[]>([])
+  const [leagues, setLeagues] = useState<League[]>([])
+
+  // Diagnostic states
+  const [dataSource, setDataSource] = useState<string>('LIVE API')
+  const [apiCount, setApiCount] = useState<number>(0)
+  const [lastUpdated, setLastUpdated] = useState<string>('')
+
+  // Load data
+  useEffect(() => {
+    async function loadData() {
+      setIsLoading(true)
+      setHasError(false)
+      setApiErrorMessage(null)
+
+      try {
+        const [result, leagueData] = await Promise.all([
+          sportsService.getMatchesByDateWithSource(selectedDate),
+          sportsService.getTopLeagues(),
+        ])
+
+        setMatches(result.matches)
+        setDataSource(result.source || 'LIVE API')
+        setApiCount(result.count || result.matches.length)
+        setLastUpdated(new Date(result.lastUpdated || Date.now()).toLocaleTimeString())
+        setLeagues(leagueData)
+
+        if (result.error) {
+          setApiErrorMessage(result.error)
+          if (result.matches.length === 0) {
+            setHasError(true)
+          }
+        }
+      } catch (err: any) {
+        console.error('Failed to load home page data:', err)
+        setHasError(true)
+        setApiErrorMessage(err.message || 'Failed to fetch live matches.')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadData()
+  }, [selectedDate])
+
+  // Filter matches based on tab & search query
+  const filteredMatches = useMemo(() => {
+    return matches.filter((match) => {
+      // Status filter
+      if (activeFilter === 'live' && match.status !== 'live' && match.status !== 'half_time') return false
+      if (activeFilter === 'upcoming' && match.status !== 'scheduled') return false
+      if (activeFilter === 'finished' && match.status !== 'full_time' && match.status !== 'extra_time' && match.status !== 'penalties') return false
+
+      // Search query filter
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase()
+        const homeMatch = match.homeTeam.name.toLowerCase().includes(q)
+        const awayMatch = match.awayTeam.name.toLowerCase().includes(q)
+        const leagueMatch = match.league.name.toLowerCase().includes(q)
+        if (!homeMatch && !awayMatch && !leagueMatch) return false
+      }
+
+      return true
+    })
+  }, [matches, activeFilter, searchQuery])
+
+  // Group matches by league
+  const groupedByLeague = useMemo(() => {
+    const map = new Map<string, { league: League; matches: Match[] }>()
+
+    filteredMatches.forEach((match) => {
+      const leagueId = match.league.id
+      if (!map.has(leagueId)) {
+        map.set(leagueId, { league: match.league, matches: [] })
+      }
+      map.get(leagueId)!.matches.push(match)
+    })
+
+    return Array.from(map.values())
+  }, [filteredMatches])
+
+  // Status counts for tabs badge
+  const counts = useMemo(() => {
+    return {
+      all: matches.length,
+      live: matches.filter((m) => m.status === 'live' || m.status === 'half_time').length,
+      upcoming: matches.filter((m) => m.status === 'scheduled').length,
+      finished: matches.filter((m) => m.status === 'full_time' || m.status === 'extra_time' || m.status === 'penalties').length,
+    }
+  }, [matches])
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+    <div className="min-h-screen flex flex-col bg-surface text-on-surface pb-20 md:pb-6">
+      {/* Header */}
+      <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+
+      {/* Main Layout Grid */}
+      <div className="flex-1 max-w-[1440px] w-full mx-auto px-2 md:px-4 py-4 flex gap-4">
+        {/* Left Navigation Sidebar */}
+        <DesktopSidebar />
+
+        {/* Center Main Content Stream */}
+        <main className="flex-1 min-w-0 space-y-3">
+          {/* Banner Ad */}
+          <AdvertisementPlaceholder variant="banner" />
+
+          {/* Temporary Live API Debug Indicator */}
+          <div className="px-3 py-1.5 rounded-lg bg-surface-container border border-surface-bright flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono">
+            <div className="flex items-center gap-2">
+              <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-on-surface-variant font-semibold">{t('common.dataSource', 'Data Source')}:</span>
+              <span className="text-primary font-bold uppercase">{dataSource}</span>
+            </div>
+            <div className="flex items-center gap-4 text-on-surface-variant">
+              <span>{t('common.fixturesCount', 'Fixtures')}: <strong className="text-on-surface">{apiCount}</strong></span>
+              {lastUpdated && <span>{t('common.updated', 'Updated')}: <strong className="text-on-surface">{lastUpdated}</strong></span>}
+            </div>
+          </div>
+
+          {/* Calendar Strip */}
+          <DateSelector selectedDate={selectedDate} onSelectDate={setSelectedDate} />
+
+          {/* Filter Bar */}
+          <MatchFilters
+            activeFilter={activeFilter}
+            onFilterChange={setActiveFilter}
+            counts={counts}
+            soundOn={soundOn}
+            onToggleSound={() => setSoundOn(!soundOn)}
+          />
+
+          {/* Content States */}
+          {isLoading ? (
+            <div className="space-y-3 bg-surface-container rounded-lg p-3">
+              <SkeletonMatchRow />
+              <SkeletonMatchRow />
+              <SkeletonMatchRow />
+              <SkeletonMatchRow />
+            </div>
+          ) : hasError ? (
+            <ErrorState
+              title={t('common.errorLive', 'Live football data is temporarily unavailable.')}
+              description={apiErrorMessage || t('common.errorLiveDesc', 'Please try selecting a different date or click retry.')}
+              onRetry={() => setSelectedDate(new Date(selectedDate))}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+          ) : groupedByLeague.length === 0 ? (
+            <EmptyState
+              title={
+                searchQuery
+                  ? t('common.noSearchResults', 'No search results')
+                  : activeFilter === 'live'
+                  ? t('common.noLiveMatches', 'No live matches right now')
+                  : t('common.noMatchesScheduled', 'No matches scheduled for this date')
+              }
+              description={
+                searchQuery
+                  ? `${t('common.noSearchResults', 'No matches matching')} "${searchQuery}".`
+                  : activeFilter === 'live'
+                  ? t('common.noLiveMatches', 'There are no matches currently in play.')
+                  : t('common.noMatchesScheduled', 'Check other dates or filters for upcoming matches.')
+              }
+            />
+          ) : (
+            <div className="space-y-3">
+              {groupedByLeague.map(({ league, matches: leagueMatches }) => (
+                <CompetitionGroup key={league.id} league={league} matches={leagueMatches} />
+              ))}
+            </div>
+          )}
+        </main>
+
+        {/* Right Sidebar Widgets */}
+        <RightSidebar />
+      </div>
+
+      {/* Mobile Navigation Bar */}
+      <MobileBottomNavigation />
     </div>
-  );
+  )
 }

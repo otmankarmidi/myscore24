@@ -1,0 +1,192 @@
+{
+  "nav": {
+    "scores": "النتائج",
+    "live": "مباشر",
+    "fixtures": "المباريات",
+    "results": "النتائج النهائية",
+    "competitions": "البطولات",
+    "favorites": "المفضلة",
+    "news": "أخبار كرة القدم"
+  },
+  "filters": {
+    "all": "الكل",
+    "live": "مباشر",
+    "upcoming": "قادمة",
+    "finished": "منتهية"
+  },
+  "match": {
+    "status": {
+      "live": "مباشر",
+      "half_time": "إ.ن",
+      "full_time": "نهاية",
+      "extra_time": "إضافي",
+      "penalties": "ركلات",
+      "scheduled": "مجدولة",
+      "postponed": "مؤجلة",
+      "cancelled": "ملغاة",
+      "suspended": "معلقة"
+    },
+    "tabs": {
+      "overview": "نظرة عامة",
+      "summary": "ملخص",
+      "timeline": "الأحداث",
+      "stats": "الإحصائيات",
+      "lineups": "التشكيلات",
+      "h2h": "المواجهات",
+      "standings": "الترتيب",
+      "commentary": "التعليق المباشر",
+      "matches": "المباريات",
+      "top_scorers": "الهدافون",
+      "news": "الأخبار"
+    },
+    "stats": {
+      "matchStats": "إحصائيات المباراة",
+      "possession": "الاستحواذ",
+      "shots": "التسديدات",
+      "shotsOnTarget": "التسديدات على المرمى",
+      "corners": "الركنيات",
+      "fouls": "الأخطاء",
+      "yellowCards": "البطاقات الصفراء",
+      "redCards": "البطاقات الحمراء",
+      "offsides": "التسلل",
+      "xG": "الأهداف المتوقعة (xG)",
+      "passes": "التمريرات",
+      "passAccuracy": "دقة التمرير"
+    },
+    "lineup": {
+      "tacticalPitch": "الرسم التكتيكي",
+      "listView": "عرض القائمة",
+      "starters": "التشكيلة الأساسية",
+      "bench": "البدلاء",
+      "manager": "المدرب"
+    },
+    "h2h": {
+      "previousMeetings": "المواجهات السابقة",
+      "noPrevious": "لا توجد مواجهات سابقة بين هذين الفريقين"
+    },
+    "stages": {
+      "regularSeason": "الموسم المنتظم",
+      "groupStage": "دور المجموعات",
+      "qualification": "التصفيات",
+      "playoffs": "الملحق",
+      "quarterFinals": "ربع النهائي",
+      "semiFinals": "نصف النهائي",
+      "final": "النهائي"
+    }
+  },
+  "positions": {
+    "GK": "حارس",
+    "G": "حارس",
+    "DEF": "دفاع",
+    "MID": "وسط",
+    "FWD": "هجوم",
+    "CB": "قلب دفاع",
+    "LB": "ظهير أيسر",
+    "RB": "ظهير أيمن",
+    "LWB": "جناح دفاعي أيسر",
+    "RWB": "جناح دفاعي أيمن",
+    "DM": "وسط دفاعي",
+    "CM": "وسط محوري",
+    "AM": "وسط هجومي",
+    "LM": "جناح أيسر",
+    "RM": "جناح أيمن",
+    "LW": "مهاجم جناح أيسر",
+    "RW": "مهاجم جناح أيمن",
+    "ST": "رأس حربة",
+    "CF": "قلب هجوم",
+    "F": "مهاجم"
+  },
+  "standings": {
+    "title": "جدول الترتيب",
+    "fullStandings": "الترتيب الكامل",
+    "columns": {
+      "position": "#",
+      "team": "الفريق",
+      "played": "لعب",
+      "won": "ف",
+      "drawn": "ت",
+      "lost": "خ",
+      "goalsFor": "له",
+      "goalsAgainst": "عليه",
+      "goalDifference": "فارق",
+      "points": "نقاط",
+      "form": "النتائج"
+    }
+  },
+  "common": {
+    "search_placeholder": "ابحث عن فرق، لاعبين، بطولات...",
+    "today": "اليوم",
+    "standings": "الترتيب",
+    "favorite_leagues": "الدوريات المفضلة",
+    "countries": "الدول",
+    "noLiveMatches": "لا توجد مباريات مباشرة الآن",
+    "noMatchesScheduled": "لا توجد مباريات مجدولة لهذا اليوم",
+    "noFavorites": "لا توجد عناصر محفوظة في المفضلة بعد",
+    "noFavoritesDesc": "انقر على رمز النجمة بجانب أي مباراة أو دوري لتثبيتها هنا للوصول السريع.",
+    "noSearchResults": "لا توجد نتائج بحث مطابقة",
+    "errorLive": "النتائج المباشرة غير متاحة مؤقتاً",
+    "errorLiveDesc": "بيانات كرة القدم المباشرة غير متاحة مؤقتاً. يرجى إعادة المحاولة لاحقاً.",
+    "tryAgain": "إعادة المحاولة",
+    "addFavorite": "إضافة إلى المفضلة",
+    "removeFavorite": "إزالة من المفضلة",
+    "viewStandings": "عرض الترتيب",
+    "pinLeague": "تثبيت الدوري",
+    "unpinLeague": "إلغاء تثبيت الدوري",
+    "sound": "الصوت",
+    "odds": "الاحتمالات",
+    "on": "تشغيل",
+    "off": "إيقاف",
+    "saved": "محفوظ",
+    "savedMatches": "المباريات المحفوظة",
+    "yourFavorited": "مبارياتك ودورياتك المفضلة",
+    "yourFavoritedDesc": "وصول سريع إلى مبارياتك، أنديتك، وبطولاتك المثبتة",
+    "dataSource": "مصدر البيانات",
+    "fixturesCount": "المباريات",
+    "updated": "تم التحديث",
+    "loading": "جار التحميل...",
+    "matchCenter": "جار تحميل مركز المباراة...",
+    "notifications": "تنبيهات المباريات المباشرة",
+    "noAlerts": "لا توجد تنبيهات مباريات حديثة",
+    "displayTimezone": "المنطقة الزمنية",
+    "timezoneAuto": "تلقائي",
+    "allCompetitions": "جميع البطولات",
+    "referee": "الحكم"
+  },
+  "countries": {
+    "Morocco": "المغرب",
+    "England": "إنجلترا",
+    "Spain": "إسبانيا",
+    "France": "فرنسا",
+    "Italy": "إيطاليا",
+    "Germany": "ألمانيا",
+    "Portugal": "البرتغال",
+    "Netherlands": "هولندا",
+    "USA": "الولايات المتحدة",
+    "Saudi Arabia": "المملكة العربية السعودية",
+    "Africa": "إفريقيا",
+    "Europe": "أوروبا",
+    "International": "دولي",
+    "World": "العالم"
+  },
+  "news": {
+    "readMore": "اقرأ المزيد",
+    "readTime": "دقيقة قراءة",
+    "categories": {
+      "transfers": "الانتقالات",
+      "match_report": "تقرير المباراة",
+      "analysis": "التحليلات",
+      "breaking": "عاجل",
+      "interviews": "المقابلات",
+      "tactics": "التكتيك"
+    }
+  },
+  "topScorers": {
+    "title": "قائمة الهدافين",
+    "player": "اللاعب",
+    "team": "الفريق",
+    "goals": "الأهداف",
+    "assists": "التمريرات الحاسمة",
+    "penalties": "ضربات الجزاء",
+    "apps": "المباريات"
+  }
+}
