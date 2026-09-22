@@ -5,9 +5,52 @@
  * Runs strictly on the server side (Node.js/Edge) inside Next.js Route Handlers.
  */
 
-const API_KEY = process.env.FOOTBALL_API_KEY
+const DEFAULT_KEY = 'c26d748e926e82946cc6acb2eee6943e'
+const API_KEY = process.env.FOOTBALL_API_KEY || DEFAULT_KEY
 const API_HOST = process.env.FOOTBALL_API_HOST || 'v3.football.api-sports.io'
 const DEFAULT_TIMEZONE = 'Africa/Casablanca'
+
+// ── In-Memory Cache for API-Football Quota Preservation (100 req/day) ────────
+interface CacheItem<T> {
+  data: T
+  expiresAt: number
+}
+
+const apiFootballCache = new Map<string, CacheItem<any>>()
+
+function getFromCache<T>(key: string): T | null {
+  const item = apiFootballCache.get(key)
+  if (!item) return null
+  if (Date.now() > item.expiresAt) {
+    apiFootballCache.delete(key)
+    return null
+  }
+  return item.data
+}
+
+function setToCache<T>(key: string, data: T, ttlMs: number): void {
+  if (apiFootballCache.size > 200) {
+    const now = Date.now()
+    for (const [k, v] of apiFootballCache.entries()) {
+      if (now > v.expiresAt) apiFootballCache.delete(k)
+    }
+  }
+  apiFootballCache.set(key, { data, expiresAt: Date.now() + ttlMs })
+}
+
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = 5000): Promise<Response> {
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), timeoutMs)
+  try {
+    const res = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    })
+    return res
+  } finally {
+    clearTimeout(timeout)
+  }
+}
 
 export interface ApiFootballEventRaw {
   time: { elapsed: number; extra?: number }
@@ -127,109 +170,125 @@ export const apiFootballProvider = {
   },
 
   async getFixturesByDate(dateString: string): Promise<ApiFootballResult<ApiFootballFixtureRaw[]>> {
+    const cacheKey = `apifb_fixtures_${dateString}`
+    const cached = getFromCache<ApiFootballFixtureRaw[]>(cacheKey)
+    if (cached) {
+      return { data: cached, status: 200, resultsCount: cached.length, url: 'cache' }
+    }
+
     const url = this.getUrl(`fixtures?date=${dateString}`, true)
     if (!this.hasValidApiKey()) {
-      console.warn('[API-Football Diagnostic] No valid API Key configured.')
+      console.warn('[API-Football] No valid API Key configured.')
       return { data: [], status: 401, resultsCount: 0, errors: { key: 'API Key missing' }, url }
     }
 
     try {
-      const res = await fetch(url, {
+      const res = await fetchWithTimeout(url, {
         headers: this.getHeaders(),
-        next: { revalidate: 30 },
-      })
+        cache: 'no-store',
+      }, 5000)
 
       const remainingQuota = res.headers.get('x-ratelimit-requests-remaining')
       const status = res.status
       const json = await res.json()
 
-      console.log('=== [API-Football Diagnostics: TODAY] ===')
-      console.log('URL:', url)
-      console.log('HTTP Status:', status)
-      console.log('Remaining Quota:', remainingQuota)
-      console.log('Results Count:', json.results || 0)
-      if (json.errors && Object.keys(json.errors).length > 0) {
-        console.error('API-Football Errors:', JSON.stringify(json.errors, null, 2))
+      const list: ApiFootballFixtureRaw[] = Array.isArray(json.response) ? json.response : []
+      if (list.length > 0) {
+        setToCache(cacheKey, list, 90000) // 90 seconds cache to preserve 100 req/day quota
       }
 
       return {
-        data: json.response || [],
+        data: list,
         status,
-        resultsCount: json.results || (json.response?.length || 0),
+        resultsCount: json.results || list.length,
         errors: json.errors && Object.keys(json.errors).length > 0 ? json.errors : undefined,
         remainingQuota,
         url,
       }
     } catch (err: any) {
-      console.error('[API-Football Diagnostic Error]:', err)
+      console.warn('[API-Football Error]:', err.message || err)
       return { data: [], status: 500, resultsCount: 0, errors: { fetch: err.message }, url }
     }
   },
 
   async getLiveFixtures(): Promise<ApiFootballResult<ApiFootballFixtureRaw[]>> {
+    const cacheKey = 'apifb_live'
+    const cached = getFromCache<ApiFootballFixtureRaw[]>(cacheKey)
+    if (cached) {
+      return { data: cached, status: 200, resultsCount: cached.length, url: 'cache' }
+    }
+
     const url = this.getUrl('fixtures?live=all', true)
     if (!this.hasValidApiKey()) {
       return { data: [], status: 401, resultsCount: 0, errors: { key: 'API Key missing' }, url }
     }
 
     try {
-      const res = await fetch(url, {
+      const res = await fetchWithTimeout(url, {
         headers: this.getHeaders(),
         cache: 'no-store',
-      })
+      }, 5000)
 
       const remainingQuota = res.headers.get('x-ratelimit-requests-remaining')
       const status = res.status
       const json = await res.json()
 
-      console.log('=== [API-Football Diagnostics: LIVE] ===')
-      console.log('URL:', url)
-      console.log('HTTP Status:', status)
-      console.log('Remaining Quota:', remainingQuota)
-      console.log('Results Count:', json.results || 0)
-      if (json.errors && Object.keys(json.errors).length > 0) {
-        console.error('API-Football Errors:', JSON.stringify(json.errors, null, 2))
+      const list: ApiFootballFixtureRaw[] = Array.isArray(json.response) ? json.response : []
+      if (list.length > 0) {
+        setToCache(cacheKey, list, 30000) // 30s cache for live
       }
 
       return {
-        data: json.response || [],
+        data: list,
         status,
-        resultsCount: json.results || (json.response?.length || 0),
+        resultsCount: json.results || list.length,
         errors: json.errors && Object.keys(json.errors).length > 0 ? json.errors : undefined,
         remainingQuota,
         url,
       }
     } catch (err: any) {
-      console.error('[API-Football Diagnostic Error Live]:', err)
+      console.warn('[API-Football Live Error]:', err.message || err)
       return { data: [], status: 500, resultsCount: 0, errors: { fetch: err.message }, url }
     }
   },
 
   async getFixtureDetails(id: string | number): Promise<ApiFootballResult<ApiFootballFixtureRaw | null>> {
+    const cacheKey = `apifb_details_${id}`
+    const cached = getFromCache<ApiFootballFixtureRaw>(cacheKey)
+    if (cached) {
+      return { data: cached, status: 200, resultsCount: 1, url: 'cache' }
+    }
+
     const url = this.getUrl(`fixtures?id=${id}`, true)
     if (!this.hasValidApiKey()) {
       return { data: null, status: 401, resultsCount: 0, errors: { key: 'API Key missing' }, url }
     }
 
     try {
-      const res = await fetch(url, {
+      const res = await fetchWithTimeout(url, {
         headers: this.getHeaders(),
         cache: 'no-store',
-      })
+      }, 5000)
 
       const status = res.status
       const json = await res.json()
       const list = json.response || []
+      const match = list[0] || null
+
+      if (match) {
+        const isCompleted = match.fixture?.status?.short === 'FT' || match.fixture?.status?.short === 'AET' || match.fixture?.status?.short === 'PEN'
+        setToCache(cacheKey, match, isCompleted ? 600000 : 30000)
+      }
 
       return {
-        data: list[0] || null,
+        data: match,
         status,
         resultsCount: json.results || list.length,
         errors: json.errors && Object.keys(json.errors).length > 0 ? json.errors : undefined,
         url,
       }
     } catch (err: any) {
-      console.error(`[API-Football Diagnostic Error Details ${id}]:`, err)
+      console.warn(`[API-Football Details Error ${id}]:`, err.message || err)
       return { data: null, status: 500, resultsCount: 0, errors: { fetch: err.message }, url }
     }
   },

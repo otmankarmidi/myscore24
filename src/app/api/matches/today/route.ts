@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { apiFootballProvider } from '@/services/sports/apiFootballProvider'
+import { normalizeApiFootballMatch } from '@/services/sports/normalizers'
 import { espnPublicProvider } from '@/services/sports/espnPublicProvider'
 import { getLeagueCountry } from '@/services/sports/databaseNormalizer'
 import { Match, MatchStatus } from '@/types/match'
@@ -73,8 +75,52 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const dateParam = searchParams.get('date') || new Date().toISOString().split('T')[0]
 
+  // 1. Primary Source: API-Football (v3.football.api-sports.io)
+  if (apiFootballProvider.hasValidApiKey()) {
+    try {
+      const apiRes = await apiFootballProvider.getFixturesByDate(dateParam)
+      if (apiRes.data && apiRes.data.length > 0) {
+        const matches: Match[] = apiRes.data.map(normalizeApiFootballMatch)
+
+        try {
+          apiRes.data.forEach(m => processMatchAlerts(m as any))
+        } catch {}
+
+        // Sort: Live first, then scheduled by kickoff time, then completed
+        const statusOrder: Record<string, number> = {
+          live: 1,
+          half_time: 2,
+          extra_time: 3,
+          penalties: 4,
+          scheduled: 5,
+          full_time: 6,
+          postponed: 7,
+          cancelled: 8,
+          suspended: 9
+        }
+        matches.sort((a, b) => {
+          const ordA = statusOrder[a.status] || 5
+          const ordB = statusOrder[b.status] || 5
+          if (ordA !== ordB) return ordA - ordB
+          return new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime()
+        })
+
+        return NextResponse.json({
+          data: matches,
+          source: 'MyScore24 Real Feed (API-Football)',
+          date: dateParam,
+          count: matches.length,
+          lastUpdated: new Date().toISOString(),
+          quotaRemaining: apiRes.remainingQuota || null
+        })
+      }
+    } catch (apiErr) {
+      console.warn('[API /api/matches/today] API-Football error, falling back to ESPN:', apiErr)
+    }
+  }
+
+  // 2. Secondary Fallback Source: ESPN Public Endpoints
   try {
-    // Fetch real matches for this date across all top global & international competitions
     const leagues = ['eng.1', 'esp.1', 'ger.1', 'ita.1', 'fra.1', 'uefa.champions', 'mar.1', 'ksa.1', 'por.1', 'ned.1', 'usa.1', 'fifa.friendly', 'caf.nations_qual']
     const results = await Promise.allSettled(
       leagues.map(code => espnPublicProvider.fetchMatchesForLeague(code, dateParam))
@@ -87,8 +133,7 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // If no matches found for the specific calendar day (e.g. midweek off-day),
-    // fall back to the active matchday round from ESPN scoreboard
+    // If no matches found for the specific calendar day, fallback to active matchday round
     let isRoundFallback = false
     if (rawEspnMatches.length === 0) {
       const activeRoundResults = await Promise.allSettled(
@@ -104,16 +149,16 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Process alerts server-side by comparing live states
+    // Process alerts server-side
     const alertsList: any[] = []
     rawEspnMatches.forEach(m => {
       const generated = processMatchAlerts(m)
       if (generated.length > 0) alertsList.push(...generated)
     })
 
-    let matches = mapEspnToMatches(rawEspnMatches)
+    const matches = mapEspnToMatches(rawEspnMatches)
 
-    // Resilient fallback if ESPN returned no matches or is unreachable
+    // 3. Tertiary Fallback Source: Resilient Mock Matches
     if (matches.length === 0) {
       return NextResponse.json({
         data: mockMatches,

@@ -113,7 +113,9 @@ export function normalizeApiFootballMatch(raw: ApiFootballFixtureRaw): Match {
     status: mapApiFootballStatus(raw?.fixture?.status?.short),
     minute: raw?.fixture?.status?.elapsed,
     kickoff: raw?.fixture?.date || new Date().toISOString(),
-    kickoffTime: raw?.fixture?.date || new Date().toISOString(),
+    kickoffTime: raw?.fixture?.date
+      ? new Date(raw.fixture.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      : '20:00',
     venue: raw?.fixture?.venue?.name,
     referee: raw?.fixture?.referee,
     round: raw?.league?.round,
@@ -136,12 +138,12 @@ function parseGridCoordinate(grid?: string, isHome = true): { x: number; y: numb
 }
 
 function normalizeEvents(rawEvents?: ApiFootballEventRaw[], homeTeamId?: number): MatchEvent[] {
-  if (!rawEvents || rawEvents.length === 0) return []
+  if (!rawEvents || !Array.isArray(rawEvents) || rawEvents.length === 0) return []
 
   return rawEvents.map((evt, idx) => {
     let type: MatchEvent['type'] = 'goal'
-    const evtType = evt.type.toLowerCase()
-    const detail = evt.detail.toLowerCase()
+    const evtType = (evt?.type || '').toLowerCase()
+    const detail = (evt?.detail || '').toLowerCase()
 
     if (evtType.includes('goal')) {
       type = detail.includes('penalty') ? 'penalty_scored' : 'goal'
@@ -154,19 +156,19 @@ function normalizeEvents(rawEvents?: ApiFootballEventRaw[], homeTeamId?: number)
       type = 'var'
     }
 
-    const isHome = homeTeamId ? evt.team.id === homeTeamId : true
+    const isHome = homeTeamId ? evt?.team?.id === homeTeamId : true
 
     return {
-      id: `evt-${idx}-${evt.time.elapsed}`,
-      minute: evt.time.elapsed,
-      extraMinute: evt.time.extra,
+      id: `evt-${idx}-${evt?.time?.elapsed || idx}`,
+      minute: evt?.time?.elapsed || 0,
+      extraMinute: evt?.time?.extra,
       type,
       team: isHome ? 'home' : 'away',
-      playerName: evt.player.name || 'Player',
-      playerId: evt.player.id ? String(evt.player.id) : undefined,
-      playerNameSecondary: evt.assist?.name,
-      playerIdSecondary: evt.assist?.id ? String(evt.assist.id) : undefined,
-      detail: evt.detail,
+      playerName: evt?.player?.name || 'Player',
+      playerId: evt?.player?.id ? String(evt.player.id) : undefined,
+      playerNameSecondary: evt?.assist?.name,
+      playerIdSecondary: evt?.assist?.id ? String(evt.assist.id) : undefined,
+      detail: evt?.detail || '',
     }
   })
 }
@@ -183,20 +185,26 @@ function normalizeCommentary(events: MatchEvent[]): MatchCommentaryItem[] {
 }
 
 function normalizeStatistics(rawStats?: ApiFootballTeamStatsRaw[]): MatchStatistics | undefined {
-  if (!rawStats || rawStats.length < 2) return undefined
+  if (!rawStats || !Array.isArray(rawStats) || rawStats.length < 2) return undefined
 
   const homeMap = new Map<string, number>()
   const awayMap = new Map<string, number>()
 
-  rawStats[0].statistics.forEach((s) => {
-    const val = typeof s.value === 'string' ? parseInt(s.value.replace('%', ''), 10) || 0 : (s.value || 0)
-    homeMap.set(s.type.toLowerCase(), val)
-  })
+  if (Array.isArray(rawStats[0]?.statistics)) {
+    rawStats[0].statistics.forEach((s) => {
+      if (!s?.type) return
+      const val = typeof s.value === 'string' ? parseInt(s.value.replace('%', ''), 10) || 0 : (s.value || 0)
+      homeMap.set(s.type.toLowerCase(), val)
+    })
+  }
 
-  rawStats[1].statistics.forEach((s) => {
-    const val = typeof s.value === 'string' ? parseInt(s.value.replace('%', ''), 10) || 0 : (s.value || 0)
-    awayMap.set(s.type.toLowerCase(), val)
-  })
+  if (Array.isArray(rawStats[1]?.statistics)) {
+    rawStats[1].statistics.forEach((s) => {
+      if (!s?.type) return
+      const val = typeof s.value === 'string' ? parseInt(s.value.replace('%', ''), 10) || 0 : (s.value || 0)
+      awayMap.set(s.type.toLowerCase(), val)
+    })
+  }
 
   return {
     possession: { home: homeMap.get('ball possession') || 50, away: awayMap.get('ball possession') || 50 },
@@ -213,19 +221,21 @@ function normalizeStatistics(rawStats?: ApiFootballTeamStatsRaw[]): MatchStatist
 }
 
 function normalizeLineups(rawLineups?: ApiFootballLineupRaw[]): Lineup | undefined {
-  if (!rawLineups || rawLineups.length < 2) return undefined
+  if (!rawLineups || !Array.isArray(rawLineups) || rawLineups.length < 2) return undefined
 
   const homeRaw = rawLineups[0]
   const awayRaw = rawLineups[1]
+  if (!homeRaw || !awayRaw) return undefined
 
-  const parsePlayers = (list: typeof homeRaw.startXI, isHome = true): LineupPlayer[] => {
+  const parsePlayers = (list?: typeof homeRaw.startXI, isHome = true): LineupPlayer[] => {
+    if (!list || !Array.isArray(list)) return []
     return list.map((item, idx) => {
-      const coords = parseGridCoordinate(item.player.grid, isHome)
+      const coords = parseGridCoordinate(item?.player?.grid, isHome)
       return {
-        id: String(item.player.id || idx),
-        name: item.player.name,
-        number: item.player.number,
-        position: item.player.pos,
+        id: String(item?.player?.id || idx),
+        name: item?.player?.name || 'Player',
+        number: item?.player?.number || (idx + 1),
+        position: item?.player?.pos || 'M',
         positionX: coords.x,
         positionY: coords.y,
         rating: 7.0,
@@ -233,12 +243,13 @@ function normalizeLineups(rawLineups?: ApiFootballLineupRaw[]): Lineup | undefin
     })
   }
 
-  const parseBench = (list: typeof homeRaw.substitutes): LineupPlayer[] => {
+  const parseBench = (list?: typeof homeRaw.substitutes): LineupPlayer[] => {
+    if (!list || !Array.isArray(list)) return []
     return list.map((item, idx) => ({
-      id: String(item.player.id || idx),
-      name: item.player.name,
-      number: item.player.number,
-      position: item.player.pos,
+      id: String(item?.player?.id || idx),
+      name: item?.player?.name || 'Player',
+      number: item?.player?.number || (idx + 1),
+      position: item?.player?.pos || 'SUB',
       positionX: 50,
       positionY: 50,
     }))

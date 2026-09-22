@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server'
+import { apiFootballProvider } from '@/services/sports/apiFootballProvider'
+import { normalizeApiFootballMatch } from '@/services/sports/normalizers'
 import { espnPublicProvider } from '@/services/sports/espnPublicProvider'
 import { getLeagueCountry } from '@/services/sports/databaseNormalizer'
 import { Match, MatchStatus } from '@/types/match'
@@ -8,6 +10,25 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 export async function GET() {
+  // 1. Primary Source: API-Football Live Fixtures
+  if (apiFootballProvider.hasValidApiKey()) {
+    try {
+      const apiRes = await apiFootballProvider.getLiveFixtures()
+      if (apiRes.data && apiRes.data.length > 0) {
+        const liveMatches: Match[] = apiRes.data.map(normalizeApiFootballMatch)
+        return NextResponse.json({
+          data: liveMatches,
+          source: 'MyScore24 Real Live Matches Feed (API-Football)',
+          count: liveMatches.length,
+          lastUpdated: new Date().toISOString()
+        })
+      }
+    } catch (err: any) {
+      console.warn('[API /api/matches/live] API-Football live fetch failed, attempting ESPN fallback:', err?.message || err)
+    }
+  }
+
+  // 2. Secondary Fallback Source: ESPN Public Endpoints
   try {
     const rawAllMatches = await espnPublicProvider.fetchAllTodayMatches()
 
@@ -43,7 +64,7 @@ export async function GET() {
           id: String(homeComp?.team?.id || '1'),
           slug: `team-${homeComp?.team?.id || '1'}`,
           name: homeComp?.team?.displayName || 'Home Team',
-          shortName: homeComp?.team?.name || 'Home',
+          shortName: homeComp?.team?.name || homeComp?.team?.displayName || 'Home',
           abbreviation: homeComp?.team?.abbreviation || 'HOM',
           logo: homeComp?.team?.logo || '',
           country: country
@@ -52,7 +73,7 @@ export async function GET() {
           id: String(awayComp?.team?.id || '2'),
           slug: `team-${awayComp?.team?.id || '2'}`,
           name: awayComp?.team?.displayName || 'Away Team',
-          shortName: awayComp?.team?.name || 'Away',
+          shortName: awayComp?.team?.name || awayComp?.team?.displayName || 'Away',
           abbreviation: awayComp?.team?.abbreviation || 'AWY',
           logo: awayComp?.team?.logo || '',
           country: country
@@ -70,10 +91,21 @@ export async function GET() {
       }
     })
 
+    if (liveMatches.length > 0) {
+      return NextResponse.json({
+        data: liveMatches,
+        source: 'MyScore24 Real Live Matches Feed (ESPN)',
+        count: liveMatches.length,
+        lastUpdated: new Date().toISOString()
+      })
+    }
+
+    // 3. Tertiary Fallback Source: Mock matches live subset
+    const fallbackLive = mockMatches.filter(m => m.status === 'live' || m.status === 'half_time')
     return NextResponse.json({
-      data: liveMatches,
-      source: 'MyScore24 Real Live Matches Feed (ESPN)',
-      count: liveMatches.length,
+      data: fallbackLive,
+      source: 'MyScore24 Live Matches Feed (Fallback)',
+      count: fallbackLive.length,
       lastUpdated: new Date().toISOString()
     })
   } catch (error: any) {
