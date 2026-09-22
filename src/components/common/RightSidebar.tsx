@@ -130,7 +130,7 @@ export default function RightSidebar() {
   }, [])
 
   return (
-    <aside className="w-full lg:w-80 shrink-0 flex flex-col gap-4">
+    <aside className="hidden lg:flex w-80 shrink-0 flex-col gap-4">
       {/* Top Matches Widget */}
       <div className="bg-surface-container rounded-lg border border-surface-bright overflow-hidden shadow-sm">
         <div className="px-3.5 py-2.5 bg-surface-container-high border-b border-surface-bright flex items-center justify-between">

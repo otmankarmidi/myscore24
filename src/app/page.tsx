@@ -121,17 +121,17 @@ export default function HomePage() {
   }, [matches])
 
   return (
-    <div className="min-h-screen flex flex-col bg-surface text-on-surface pb-20 md:pb-6">
+    <div className="min-h-screen min-h-[100dvh] flex flex-col bg-surface text-on-surface pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-6">
       {/* Header */}
       <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
       {/* Main Layout Grid */}
-      <div className="flex-1 max-w-[1440px] w-full mx-auto px-2 md:px-4 py-4 flex gap-4">
+      <div className="flex-1 w-full max-w-[1440px] mx-auto px-3 sm:px-4 py-3 md:py-4 flex gap-4">
         {/* Left Navigation Sidebar */}
         <DesktopSidebar />
 
         {/* Center Main Content Stream */}
-        <main className="flex-1 min-w-0 space-y-3">
+        <main className="flex-1 min-w-0 w-full space-y-3">
           {/* Banner Ad */}
           <AdvertisementPlaceholder variant="banner" />
 

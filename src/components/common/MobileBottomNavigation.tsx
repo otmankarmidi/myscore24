@@ -17,7 +17,7 @@ export default function MobileBottomNavigation() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 md:hidden h-14 bg-surface/95 backdrop-blur-md border-t border-surface-bright/40 flex items-stretch"
+      className="fixed bottom-0 left-0 right-0 z-30 md:hidden h-14 bg-surface/95 backdrop-blur-md border-t border-surface-bright/40 flex items-stretch pb-[env(safe-area-inset-bottom)]"
       aria-label="Mobile navigation"
     >
       {tabs.map(tab => {
@@ -27,14 +27,14 @@ export default function MobileBottomNavigation() {
             key={tab.href}
             href={tab.href}
             aria-current={isActive ? 'page' : undefined}
-            className={`flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors min-h-[44px] ${
+            className={`flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors min-h-[44px] touch-manipulation ${
               isActive ? 'text-primary-container' : 'text-on-surface-variant'
             }`}
           >
             <div className="relative">
               <span
                 className="material-symbols-outlined"
-                style={{ fontSize: 22, fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
+                style={{ fontSize: 20, fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
               >
                 {tab.icon}
               </span>
@@ -42,7 +42,7 @@ export default function MobileBottomNavigation() {
                 <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-error border-2 border-surface" />
               )}
             </div>
-            <span className={`font-geist text-[10px] font-${isActive ? '700' : '500'} tracking-tight`}>
+            <span className={`font-geist text-[9px] sm:text-[10px] font-${isActive ? '700' : '500'} tracking-tight truncate max-w-full px-0.5`}>
               {tab.label}
             </span>
           </Link>
