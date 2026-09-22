@@ -16,10 +16,16 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
   const { isFavoriteMatch, toggleMatch, isFavoriteLeague, toggleLeague } = useFavorites()
   const { t } = useLanguage()
 
-  const isFavorited = isFavoriteLeague(league.slug) || isFavoriteLeague(league.id)
+  if (!league) return null
+
+  const safeSlug = league.slug || league.id || 'league'
+  const safeName = league.name || 'League'
+  const isFavorited = (league.slug && isFavoriteLeague(league.slug)) || (league.id && isFavoriteLeague(league.id))
   const localizedCountry = league.country && league.country !== 'Europe' && league.country !== 'Africa' && league.country !== 'World'
     ? t(`countries.${league.country}`, league.country)
     : ''
+
+  const safeMatches = (matches || []).filter(Boolean)
 
   return (
     <div className="bg-surface-container-low rounded overflow-hidden shadow-sm animate-fade-in">
@@ -31,7 +37,7 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
           )}
           <span className="font-geist text-[10px] uppercase font-bold text-on-surface tracking-wider truncate">
             {localizedCountry ? `${localizedCountry}: ` : ''}
-            {league.name}
+            {safeName}
           </span>
           {league.currentRound && (
             <span className="font-geist text-[10px] text-outline font-semibold shrink-0">{league.currentRound}</span>
@@ -40,12 +46,12 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => {
-              toggleLeague(league.slug)
+              if (league.slug) toggleLeague(league.slug)
               if (league.id && league.id !== league.slug) toggleLeague(league.id)
             }}
             className="text-outline hover:text-primary-container transition-colors"
             title={isFavorited ? t('common.unpinLeague', 'Unpin League') : t('common.pinLeague', 'Pin League')}
-            aria-label={`${isFavorited ? 'Unpin' : 'Pin'} ${league.name}`}
+            aria-label={`${isFavorited ? 'Unpin' : 'Pin'} ${safeName}`}
           >
             <span
               className="material-symbols-outlined"
@@ -59,9 +65,9 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
             </span>
           </button>
           <Link
-            href={`/league/${league.slug}`}
+            href={`/league/${safeSlug}`}
             className="font-geist text-[10px] uppercase font-bold text-primary-container hover:underline flex items-center gap-0.5"
-            aria-label={`${t('common.viewStandings', 'View')} ${league.name} ${t('common.standings', 'standings')}`}
+            aria-label={`${t('common.viewStandings', 'View')} ${safeName} ${t('common.standings', 'standings')}`}
           >
             <span>{t('common.standings', 'Standings')}</span>
             <span className="material-symbols-outlined rtl:rotate-180" style={{ fontSize: 12 }}>chevron_right</span>
@@ -71,7 +77,7 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
 
       {/* Match rows */}
       <div className="flex flex-col divide-y divide-surface-bright/20">
-        {matches.map(match => (
+        {safeMatches.map(match => (
           <MatchRow
             key={match.id}
             match={match}

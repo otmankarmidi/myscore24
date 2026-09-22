@@ -72,7 +72,7 @@ export function LiveAlertManager() {
               {activeAlert.title}
             </span>
             <h4 className="font-bold text-body-md text-on-surface leading-tight">
-              {activeAlert.homeTeamName} {activeAlert.homeScore}–{activeAlert.awayScore} {activeAlert.awayTeamName}
+              {activeAlert.homeTeamName || 'Home'} {activeAlert.homeScore ?? 0}–{activeAlert.awayScore ?? 0} {activeAlert.awayTeamName || 'Away'}
             </h4>
             {activeAlert.scorerName && (
               <p className="text-xs text-on-surface-variant font-medium mt-0.5">

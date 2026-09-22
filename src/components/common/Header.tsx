@@ -52,7 +52,7 @@ function NotificationAlertList() {
         >
           <div className="flex items-center justify-between text-[11px]">
             <span className="font-bold text-primary">{a.title}</span>
-            <span className="text-on-surface-variant font-mono">{a.createdAt.split('T')[1]?.slice(0, 5)}</span>
+            <span className="text-on-surface-variant font-mono">{a.createdAt && a.createdAt.includes('T') ? a.createdAt.split('T')[1]?.slice(0, 5) : ''}</span>
           </div>
           <span className="text-xs font-medium text-on-surface">
             {a.homeTeamName} {a.homeScore}–{a.awayScore} {a.awayTeamName}

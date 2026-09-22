@@ -14,7 +14,14 @@ function loadFavorites(): Favorites {
   if (typeof window === 'undefined') return { matches: [], teams: [], leagues: [] }
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    if (raw) return JSON.parse(raw)
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      return {
+        matches: Array.isArray(parsed?.matches) ? parsed.matches : [],
+        teams: Array.isArray(parsed?.teams) ? parsed.teams : [],
+        leagues: Array.isArray(parsed?.leagues) ? parsed.leagues : [],
+      }
+    }
   } catch {
     // ignore
   }
@@ -92,9 +99,9 @@ export function useFavorites() {
     })
   }, [])
 
-  const isFavoriteMatch = useCallback((id: string) => favorites.matches.includes(id), [favorites])
-  const isFavoriteTeam = useCallback((slug: string) => favorites.teams.includes(slug), [favorites])
-  const isFavoriteLeague = useCallback((slug: string) => favorites.leagues.includes(slug), [favorites])
+  const isFavoriteMatch = useCallback((id: string) => Array.isArray(favorites?.matches) && favorites.matches.includes(id), [favorites])
+  const isFavoriteTeam = useCallback((slug: string) => Array.isArray(favorites?.teams) && favorites.teams.includes(slug), [favorites])
+  const isFavoriteLeague = useCallback((slug: string) => Array.isArray(favorites?.leagues) && favorites.leagues.includes(slug), [favorites])
 
   return {
     favorites,
@@ -110,6 +117,6 @@ export function useFavorites() {
     isMatchFavorite: isFavoriteMatch,
     isTeamFavorite: isFavoriteTeam,
     isLeagueFavorite: isFavoriteLeague,
-    totalFavorites: favorites.matches.length + favorites.teams.length + favorites.leagues.length,
+    totalFavorites: (favorites?.matches?.length || 0) + (favorites?.teams?.length || 0) + (favorites?.leagues?.length || 0),
   }
 }

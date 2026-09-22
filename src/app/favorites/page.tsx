@@ -40,15 +40,20 @@ export default function FavoritesPage() {
 
   // Filter matches that are in favorites.matches, favorites.leagues, or where a team is favorited
   const favoritedMatchesList = useMemo(() => {
-    return allMatches.filter(
+    const list = (allMatches || []).filter(Boolean)
+    const favMatches = Array.isArray(favorites?.matches) ? favorites.matches : []
+    const favLeagues = Array.isArray(favorites?.leagues) ? favorites.leagues : []
+    const favTeams = Array.isArray(favorites?.teams) ? favorites.teams : []
+
+    return list.filter(
       m =>
-        favorites.matches.includes(m.id) ||
-        favorites.leagues.includes(m.league.slug) ||
-        favorites.leagues.includes(m.league.id) ||
-        favorites.teams.includes(m.homeTeam.id) ||
-        favorites.teams.includes(m.homeTeam.slug) ||
-        favorites.teams.includes(m.awayTeam.id) ||
-        favorites.teams.includes(m.awayTeam.slug)
+        favMatches.includes(m.id) ||
+        (m.league?.slug && favLeagues.includes(m.league.slug)) ||
+        (m.league?.id && favLeagues.includes(m.league.id)) ||
+        (m.homeTeam?.id && favTeams.includes(m.homeTeam.id)) ||
+        (m.homeTeam?.slug && favTeams.includes(m.homeTeam.slug)) ||
+        (m.awayTeam?.id && favTeams.includes(m.awayTeam.id)) ||
+        (m.awayTeam?.slug && favTeams.includes(m.awayTeam.slug))
     )
   }, [allMatches, favorites])
 
@@ -57,16 +62,17 @@ export default function FavoritesPage() {
     const q = searchQuery.toLowerCase()
     return favoritedMatchesList.filter(
       m =>
-        m.homeTeam.name.toLowerCase().includes(q) ||
-        m.awayTeam.name.toLowerCase().includes(q) ||
-        m.league.name.toLowerCase().includes(q)
+        (m.homeTeam?.name || '').toLowerCase().includes(q) ||
+        (m.awayTeam?.name || '').toLowerCase().includes(q) ||
+        (m.league?.name || '').toLowerCase().includes(q)
     )
   }, [favoritedMatchesList, searchQuery])
 
   const groupedByLeague = useMemo(() => {
     const map = new Map<string, { league: League; matches: Match[] }>()
     filteredMatches.forEach(match => {
-      const leagueId = match.league.id
+      if (!match?.league) return
+      const leagueId = match.league.id || match.league.slug || 'league'
       if (!map.has(leagueId)) {
         map.set(leagueId, { league: match.league, matches: [] })
       }

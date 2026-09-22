@@ -73,7 +73,8 @@ export default function HomePage() {
 
   // Filter matches based on tab & search query
   const filteredMatches = useMemo(() => {
-    return matches.filter((match) => {
+    return (matches || []).filter((match) => {
+      if (!match) return false
       // Status filter
       if (activeFilter === 'live' && match.status !== 'live' && match.status !== 'half_time') return false
       if (activeFilter === 'upcoming' && match.status !== 'scheduled') return false
@@ -82,9 +83,9 @@ export default function HomePage() {
       // Search query filter
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase()
-        const homeMatch = match.homeTeam.name.toLowerCase().includes(q)
-        const awayMatch = match.awayTeam.name.toLowerCase().includes(q)
-        const leagueMatch = match.league.name.toLowerCase().includes(q)
+        const homeMatch = (match.homeTeam?.name || '').toLowerCase().includes(q)
+        const awayMatch = (match.awayTeam?.name || '').toLowerCase().includes(q)
+        const leagueMatch = (match.league?.name || '').toLowerCase().includes(q)
         if (!homeMatch && !awayMatch && !leagueMatch) return false
       }
 
@@ -97,7 +98,8 @@ export default function HomePage() {
     const map = new Map<string, { league: League; matches: Match[] }>()
 
     filteredMatches.forEach((match) => {
-      const leagueId = match.league.id
+      if (!match?.league) return
+      const leagueId = match.league.id || match.league.slug || 'league'
       if (!map.has(leagueId)) {
         map.set(leagueId, { league: match.league, matches: [] })
       }
@@ -109,11 +111,12 @@ export default function HomePage() {
 
   // Status counts for tabs badge
   const counts = useMemo(() => {
+    const list = matches || []
     return {
-      all: matches.length,
-      live: matches.filter((m) => m.status === 'live' || m.status === 'half_time').length,
-      upcoming: matches.filter((m) => m.status === 'scheduled').length,
-      finished: matches.filter((m) => m.status === 'full_time' || m.status === 'extra_time' || m.status === 'penalties').length,
+      all: list.length,
+      live: list.filter((m) => m && (m.status === 'live' || m.status === 'half_time')).length,
+      upcoming: list.filter((m) => m && m.status === 'scheduled').length,
+      finished: list.filter((m) => m && (m.status === 'full_time' || m.status === 'extra_time' || m.status === 'penalties')).length,
     }
   }, [matches])
 

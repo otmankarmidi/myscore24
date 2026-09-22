@@ -46,20 +46,22 @@ export default function FixturesPage() {
   }, [selectedDate])
 
   const filteredMatches = useMemo(() => {
-    if (!searchQuery.trim()) return matches
+    const list = (matches || []).filter(Boolean)
+    if (!searchQuery.trim()) return list
     const q = searchQuery.toLowerCase()
-    return matches.filter(
+    return list.filter(
       m =>
-        m.homeTeam.name.toLowerCase().includes(q) ||
-        m.awayTeam.name.toLowerCase().includes(q) ||
-        m.league.name.toLowerCase().includes(q)
+        (m.homeTeam?.name || '').toLowerCase().includes(q) ||
+        (m.awayTeam?.name || '').toLowerCase().includes(q) ||
+        (m.league?.name || '').toLowerCase().includes(q)
     )
   }, [matches, searchQuery])
 
   const groupedByLeague = useMemo(() => {
     const map = new Map<string, { league: League; matches: Match[] }>()
     filteredMatches.forEach(match => {
-      const leagueId = match.league.id
+      if (!match?.league) return
+      const leagueId = match.league.id || match.league.slug || 'league'
       if (!map.has(leagueId)) {
         map.set(leagueId, { league: match.league, matches: [] })
       }
