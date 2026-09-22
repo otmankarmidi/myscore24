@@ -58,14 +58,14 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // Fallback Source: Resilient Mock Matches
-  const fallbackRes = NextResponse.json({
-    data: mockMatches,
-    source: 'MyScore24 Resilient Feed',
+  // Return clean response with 0 matches when API has no matches
+  const emptyRes = NextResponse.json({
+    data: [],
+    source: 'MyScore24 Real Feed',
     date: dateParam,
-    count: mockMatches.length,
+    count: 0,
     lastUpdated: new Date().toISOString()
   })
-  fallbackRes.headers.set('Cache-Control', 'public, max-age=30, s-maxage=60')
-  return fallbackRes
+  emptyRes.headers.set('Cache-Control', 'public, max-age=30, s-maxage=60')
+  return emptyRes
 }

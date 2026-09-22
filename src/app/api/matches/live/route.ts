@@ -26,12 +26,11 @@ export async function GET() {
     }
   }
 
-  // Fallback Source: Mock matches live subset
-  const fallbackLive = mockMatches.filter(m => m.status === 'live' || m.status === 'half_time')
+  // Return clean empty array if no live matches exist in API
   return NextResponse.json({
-    data: fallbackLive,
-    source: 'MyScore24 Resilient Fallback Feed',
-    count: fallbackLive.length,
+    data: [],
+    source: 'MyScore24 Real Live Matches Feed',
+    count: 0,
     lastUpdated: new Date().toISOString()
   })
 }

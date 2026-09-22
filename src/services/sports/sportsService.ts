@@ -89,14 +89,8 @@ export const sportsService = {
   async getMatchesByStatus(status: string): Promise<Match[]> {
     return (await provider.getMatchesByStatus(status)).map(normalizeMatch)
   },
-  async getH2H(teamAId: string, teamBId: string): Promise<Match[]> {
-    return mockMatches
-      .filter(
-        (m) =>
-          (m.homeTeam.id === teamAId && m.awayTeam.id === teamBId) ||
-          (m.homeTeam.id === teamBId && m.awayTeam.id === teamAId)
-      )
-      .map(normalizeMatch)
+  async getH2H(_teamAId: string, _teamBId: string): Promise<Match[]> {
+    return []
   },
 
   // ── Teams ─────────────────────────────────────────────────────────────────
@@ -230,35 +224,59 @@ export const sportsService = {
     const d = await provider.getPlayerBySlug(normSlug)
     if (d) return normalizePlayer(d)
 
+    // Search in CSV statistics database (src/data/player_stats_db.json)
+    const csvStatsList: any[] = (await import('@/data/player_stats_db.json')).default
+    const normSearch = normSlug.replace(/-/g, ' ')
+    const csvMatch = csvStatsList.find((p) => {
+      const pId = String(p.Id).toLowerCase()
+      const pName = (p.Name || '').toLowerCase()
+      const pFull = `${p.Firstname || ''} ${p.Lastname || ''}`.toLowerCase()
+      return (
+        pId === normSlug ||
+        pName.includes(normSearch) ||
+        pFull.includes(normSearch) ||
+        normSearch.includes(pName)
+      )
+    })
+
     // Manifest fallback for FC Barcelona & Real Madrid players
     const allManifest = (await import('@/lib/playerMatcher')).getAllManifestPlayers()
     const match = allManifest.find(
       (mp) => mp.slug === normSlug || mp.id.toLowerCase() === normSlug || mp.full_name.toLowerCase().includes(normSlug)
     )
 
-    if (match) {
-      const publicPath = `/images/players/${match.club_key}/${match.slug}.webp`
+    if (match || csvMatch) {
+      const publicPath = match ? `/images/players/${match.club_key}/${match.slug}.webp` : (csvMatch?.Photo || '')
+      const name = csvMatch?.Name || (match ? match.display_name || match.full_name : 'Player')
+      const appearances = Number(csvMatch?.['Games appearences']) || 26
+      const goals = Number(csvMatch?.['Goals total']) || 12
+      const assists = Number(csvMatch?.['Goals assists']) || 8
+      const yellowCards = Number(csvMatch?.['Cards yellow']) || 2
+      const redCards = Number(csvMatch?.['Cards red']) || 0
+      const minutesPlayed = Number(csvMatch?.['Games minutes']) || 2100
+      const rating = Number(csvMatch?.['Games rating']) || 7.5
+
       return {
-        id: match.id,
-        slug: match.slug,
-        name: match.display_name || match.full_name,
-        firstName: match.display_name.split(' ')[0] || '',
-        lastName: match.display_name.split(' ').slice(1).join(' ') || '',
-        photo: publicPath,
-        image: publicPath,
+        id: csvMatch?.Id || match?.id || normSlug,
+        slug: match?.slug || normSlug,
+        name,
+        firstName: csvMatch?.Firstname || name.split(' ')[0] || '',
+        lastName: csvMatch?.Lastname || name.split(' ').slice(1).join(' ') || '',
+        photo: publicPath || csvMatch?.Photo,
+        image: publicPath || csvMatch?.Photo,
         imagePath: publicPath,
-        imageSourceUrl: match.image_source_url,
-        squadNumber: match.squad_number,
-        nationality: 'Global',
-        dateOfBirth: '',
-        age: 0,
-        position: match.position,
-        number: match.squad_number,
-        teamName: match.club,
-        teamSlug: match.club_key,
+        imageSourceUrl: match?.image_source_url,
+        squadNumber: Number(csvMatch?.['Games number']) || match?.squad_number || 10,
+        nationality: csvMatch?.Nationality || 'Global',
+        dateOfBirth: csvMatch?.['Birth date'] || '',
+        age: Number(csvMatch?.Age) || 24,
+        position: csvMatch?.['Games position'] || match?.position || 'Forward',
+        number: Number(csvMatch?.['Games number']) || match?.squad_number || 10,
+        teamName: csvMatch?.['Team name'] || match?.club || 'Team',
+        teamSlug: match?.club_key || 'team',
         marketValue: '€80M',
-        stats: { appearances: 26, goals: 12, assists: 8, yellowCards: 2, redCards: 0, minutesPlayed: 2100, rating: 8.2 },
-        seasonStats: { appearances: 26, goals: 12, assists: 8, yellowCards: 2, redCards: 0, minutesPlayed: 2100, rating: 8.2 },
+        stats: { appearances, goals, assists, yellowCards, redCards, minutesPlayed, rating },
+        seasonStats: { appearances, goals, assists, yellowCards, redCards, minutesPlayed, rating },
       }
     }
 
