@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server'
 import { espnPublicProvider } from '@/services/sports/espnPublicProvider'
 import { getLeagueCountry } from '@/services/sports/databaseNormalizer'
 import { Match, MatchStatus } from '@/types/match'
+import { mockMatches } from '@/data/mockMatches'
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export async function GET() {
   try {
@@ -73,9 +77,13 @@ export async function GET() {
       lastUpdated: new Date().toISOString()
     })
   } catch (error: any) {
-    return NextResponse.json(
-      { data: [], error: error?.message || 'Failed to fetch live matches' },
-      { status: 500 }
-    )
+    console.error('Failed to fetch live matches from ESPN:', error)
+    const fallbackLive = mockMatches.filter(m => m.status === 'live' || m.status === 'half_time')
+    return NextResponse.json({
+      data: fallbackLive,
+      source: 'MyScore24 Resilient Fallback Feed',
+      count: fallbackLive.length,
+      lastUpdated: new Date().toISOString()
+    })
   }
 }

@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { espnPublicProvider } from '@/services/sports/espnPublicProvider'
 import { Match, MatchStatus, MatchEvent, MatchStatistics, MatchCommentaryItem, Lineup } from '@/types/match'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

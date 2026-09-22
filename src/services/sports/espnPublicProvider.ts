@@ -6,6 +6,12 @@
 
 export const CURRENT_SEASON = '2026/2027'
 
+const ESPN_FETCH_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+  'Accept': 'application/json, text/plain, */*',
+  'Accept-Language': 'en-US,en;q=0.9',
+}
+
 export interface EspnMatch {
   id: string
   date: string
@@ -151,7 +157,7 @@ export const espnPublicProvider = {
         url += `?dates=${formattedDate}`
       }
 
-      const res = await fetch(url, { cache: 'no-store' })
+      const res = await fetch(url, { headers: ESPN_FETCH_HEADERS, cache: 'no-store' })
       if (!res.ok) return []
       const json = await res.json()
 
@@ -185,7 +191,7 @@ export const espnPublicProvider = {
   },
 
   async fetchAllTodayMatches(): Promise<EspnMatch[]> {
-    const leagues = ['eng.1', 'esp.1', 'ger.1', 'ita.1', 'fra.1', 'uefa.champions', 'mar.1', 'ksa.1', 'por.1', 'ned.1', 'usa.1']
+    const leagues = ['eng.1', 'esp.1', 'ger.1', 'ita.1', 'fra.1', 'uefa.champions', 'mar.1', 'ksa.1', 'por.1', 'ned.1', 'usa.1', 'fifa.friendly', 'caf.nations_qual']
     const results = await Promise.allSettled(leagues.map(code => this.fetchMatchesForLeague(code)))
     const allMatches: EspnMatch[] = []
 
@@ -202,7 +208,7 @@ export const espnPublicProvider = {
     try {
       const espnLeague = this.getEspnLeagueCode(leagueCode)
       const url = `https://site.api.espn.com/apis/v2/sports/soccer/${espnLeague}/standings`
-      const res = await fetch(url, { cache: 'no-store' })
+      const res = await fetch(url, { headers: ESPN_FETCH_HEADERS, cache: 'no-store' })
       if (!res.ok) return []
       const json = await res.json()
       if (json.children && json.children.length > 0) {
@@ -224,7 +230,7 @@ export const espnPublicProvider = {
       try {
         const stRes = await fetch(
           `https://site.api.espn.com/apis/v2/sports/soccer/${espnLeague}/standings`,
-          { cache: 'no-store' }
+          { headers: ESPN_FETCH_HEADERS, cache: 'no-store' }
         )
         if (stRes.ok) {
           const stJson = await stRes.json()
@@ -235,24 +241,24 @@ export const espnPublicProvider = {
       // Try type=1 (regular season) first, then type=2, then previous season
       let res = await fetch(
         `https://sports.core.api.espn.com/v2/sports/soccer/leagues/${espnLeague}/seasons/${seasonYear}/types/1/leaders`,
-        { cache: 'no-store' }
+        { headers: ESPN_FETCH_HEADERS, cache: 'no-store' }
       )
       if (!res.ok) {
         res = await fetch(
           `https://sports.core.api.espn.com/v2/sports/soccer/leagues/${espnLeague}/seasons/${seasonYear}/types/2/leaders`,
-          { cache: 'no-store' }
+          { headers: ESPN_FETCH_HEADERS, cache: 'no-store' }
         )
       }
       if (!res.ok) {
         res = await fetch(
           `https://sports.core.api.espn.com/v2/sports/soccer/leagues/${espnLeague}/seasons/${seasonYear - 1}/types/1/leaders`,
-          { cache: 'no-store' }
+          { headers: ESPN_FETCH_HEADERS, cache: 'no-store' }
         )
       }
       if (!res.ok) {
         res = await fetch(
           `https://sports.core.api.espn.com/v2/sports/soccer/leagues/${espnLeague}/seasons/${seasonYear - 1}/types/2/leaders`,
-          { cache: 'no-store' }
+          { headers: ESPN_FETCH_HEADERS, cache: 'no-store' }
         )
       }
       if (!res.ok) return []
@@ -296,8 +302,8 @@ export const espnPublicProvider = {
           let teamName = 'Club'
           try {
             const [athRes, teamRes] = await Promise.all([
-              athleteRef ? fetch(athleteRef, { cache: 'no-store' }) : Promise.resolve(null),
-              teamRef ? fetch(teamRef, { cache: 'no-store' }) : Promise.resolve(null)
+              athleteRef ? fetch(athleteRef, { headers: ESPN_FETCH_HEADERS, cache: 'no-store' }) : Promise.resolve(null),
+              teamRef ? fetch(teamRef, { headers: ESPN_FETCH_HEADERS, cache: 'no-store' }) : Promise.resolve(null)
             ])
             if (athRes?.ok) {
               const ath = await athRes.json()
@@ -341,7 +347,7 @@ export const espnPublicProvider = {
   async fetchMatchSummary(eventId: string): Promise<any> {
     try {
       const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary?event=${eventId}`
-      const res = await fetch(url, { cache: 'no-store' })
+      const res = await fetch(url, { headers: ESPN_FETCH_HEADERS, cache: 'no-store' })
       if (!res.ok) return null
       return await res.json()
     } catch (err) {
