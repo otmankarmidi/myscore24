@@ -1,0 +1,21 @@
+{
+  "short_name": "MyScore24",
+  "name": "MyScore24 - Live Football Scores & Results",
+  "icons": [
+    {
+      "src": "/leagues/premier-league.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/leagues/premier-league.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0c1321",
+  "theme_color": "#0c1321",
+  "display": "standalone",
+  "orientation": "portrait"
+}
