@@ -132,6 +132,52 @@ function extractIdFromRef(ref: string): string {
   return match ? match[1] : ''
 }
 
+// ── In-Memory Server Cache & Timeout Utilities ──────────────────────────────
+interface CacheEntry<T> {
+  data: T
+  expiresAt: number
+}
+
+const memoryCache = new Map<string, CacheEntry<any>>()
+
+function getCached<T>(key: string): T | null {
+  const entry = memoryCache.get(key)
+  if (!entry) return null
+  if (Date.now() > entry.expiresAt) {
+    memoryCache.delete(key)
+    return null
+  }
+  return entry.data
+}
+
+function setCache<T>(key: string, data: T, ttlMs: number): void {
+  if (memoryCache.size > 250) {
+    const now = Date.now()
+    for (const [k, v] of memoryCache.entries()) {
+      if (now > v.expiresAt) memoryCache.delete(k)
+    }
+  }
+  memoryCache.set(key, { data, expiresAt: Date.now() + ttlMs })
+}
+
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = 4500): Promise<Response> {
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), timeoutMs)
+  try {
+    const res = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+      headers: {
+        ...ESPN_FETCH_HEADERS,
+        ...(options.headers || {})
+      }
+    })
+    return res
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
 export const espnPublicProvider = {
   getEspnLeagueCode(slugOrId: string): string {
     const key = (slugOrId || '').toLowerCase()
@@ -149,88 +195,131 @@ export const espnPublicProvider = {
   },
 
   async fetchMatchesForLeague(leagueCode: string, dateStr?: string): Promise<EspnMatch[]> {
+    const espnLeague = this.getEspnLeagueCode(leagueCode)
+    const formattedDate = dateStr ? dateStr.replace(/-/g, '') : ''
+    const cacheKey = `matches_${espnLeague}_${formattedDate || 'active'}`
+
+    const cached = getCached<EspnMatch[]>(cacheKey)
+    if (cached) return cached
+
     try {
-      const espnLeague = this.getEspnLeagueCode(leagueCode)
       let url = `https://site.api.espn.com/apis/site/v2/sports/soccer/${espnLeague}/scoreboard`
-      if (dateStr) {
-        const formattedDate = dateStr.replace(/-/g, '')
+      if (formattedDate) {
         url += `?dates=${formattedDate}`
       }
 
-      const res = await fetch(url, { headers: ESPN_FETCH_HEADERS, cache: 'no-store' })
+      const res = await fetchWithTimeout(url, { cache: 'no-store' }, 4500)
       if (!res.ok) return []
       const json = await res.json()
+
+      if (!json || typeof json !== 'object' || !Array.isArray(json.events)) {
+        return []
+      }
 
       const leagueName = json.leagues?.[0]?.name || 'Football League'
       const leagueLogo = json.leagues?.[0]?.logos?.[0]?.href || ''
 
-      return (json.events || []).map((ev: any) => {
-        const competition = ev.competitions?.[0] || {}
-        const status = competition.status || ev.status || {}
-        if (status.clock) {
-          status.clock = formatElapsedMinutes(status.clock)
-        }
+      const matches: EspnMatch[] = json.events
+        .filter((ev: any) => ev && ev.id && Array.isArray(ev.competitions) && ev.competitions.length > 0)
+        .map((ev: any) => {
+          const competition = ev.competitions[0] || {}
+          const status = competition.status || ev.status || {}
+          if (status.clock) {
+            status.clock = formatElapsedMinutes(status.clock)
+          }
 
-        return {
-          id: ev.id,
-          date: ev.date,
-          name: ev.name,
-          shortName: ev.shortName,
-          leagueId: espnLeague,
-          leagueName,
-          leagueLogo,
-          status,
-          competitors: competition.competitors || [],
-          venue: competition.venue
-        }
-      })
-    } catch (err) {
-      console.error(`[EspnProvider] Error fetching matches for ${leagueCode}:`, err)
+          return {
+            id: String(ev.id),
+            date: ev.date || new Date().toISOString(),
+            name: ev.name || 'Match',
+            shortName: ev.shortName || ev.name || 'Match',
+            leagueId: espnLeague,
+            leagueName,
+            leagueLogo,
+            status,
+            competitors: Array.isArray(competition.competitors) ? competition.competitors : [],
+            venue: competition.venue
+          }
+        })
+
+      // Cache matches: 45s for live/active round, 3m for specific date
+      const ttl = formattedDate ? 180000 : 45000
+      setCache(cacheKey, matches, ttl)
+      return matches
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        console.warn(`[ESPN] Timeout fetching matches for ${espnLeague}`)
+      } else {
+        console.warn(`[ESPN] Error fetching matches for ${espnLeague}:`, err.message || err)
+      }
       return []
     }
   },
 
   async fetchAllTodayMatches(): Promise<EspnMatch[]> {
+    const cacheKey = 'all_today_matches'
+    const cached = getCached<EspnMatch[]>(cacheKey)
+    if (cached && cached.length > 0) return cached
+
     const leagues = ['eng.1', 'esp.1', 'ger.1', 'ita.1', 'fra.1', 'uefa.champions', 'mar.1', 'ksa.1', 'por.1', 'ned.1', 'usa.1', 'fifa.friendly', 'caf.nations_qual']
     const results = await Promise.allSettled(leagues.map(code => this.fetchMatchesForLeague(code)))
     const allMatches: EspnMatch[] = []
 
     results.forEach(res => {
-      if (res.status === 'fulfilled') {
+      if (res.status === 'fulfilled' && Array.isArray(res.value)) {
         allMatches.push(...res.value)
       }
     })
+
+    if (allMatches.length > 0) {
+      setCache(cacheKey, allMatches, 45000) // 45s cache
+    }
 
     return allMatches
   },
 
   async fetchStandings(leagueCode: string): Promise<any> {
+    const espnLeague = this.getEspnLeagueCode(leagueCode)
+    const cacheKey = `standings_${espnLeague}`
+    const cached = getCached<any>(cacheKey)
+    if (cached) return cached
+
     try {
-      const espnLeague = this.getEspnLeagueCode(leagueCode)
       const url = `https://site.api.espn.com/apis/v2/sports/soccer/${espnLeague}/standings`
-      const res = await fetch(url, { headers: ESPN_FETCH_HEADERS, cache: 'no-store' })
+      const res = await fetchWithTimeout(url, { cache: 'no-store' }, 4500)
       if (!res.ok) return []
       const json = await res.json()
-      if (json.children && json.children.length > 0) {
-        return json.children
+      if (!json || typeof json !== 'object') return []
+
+      let data: any = []
+      if (Array.isArray(json.children) && json.children.length > 0) {
+        data = json.children
+      } else if (Array.isArray(json.children?.[0]?.standings?.entries)) {
+        data = json.children[0].standings.entries
       }
-      return json.children?.[0]?.standings?.entries || []
-    } catch (err) {
-      console.error(`[EspnProvider] Error fetching standings for ${leagueCode}:`, err)
+
+      setCache(cacheKey, data, 300000) // 5 minutes cache
+      return data
+    } catch (err: any) {
+      console.warn(`[ESPN] Error fetching standings for ${espnLeague}:`, err.message || err)
       return []
     }
   },
 
   async fetchTopScorers(leagueCode: string): Promise<any[]> {
-    try {
-      const espnLeague = this.getEspnLeagueCode(leagueCode)
+    const espnLeague = this.getEspnLeagueCode(leagueCode)
+    const cacheKey = `topscorers_${espnLeague}`
+    const cached = getCached<any[]>(cacheKey)
+    if (cached) return cached
 
+    try {
       // Get active season year from standings
       let seasonYear = new Date().getFullYear()
       try {
-        const stRes = await fetch(
+        const stRes = await fetchWithTimeout(
           `https://site.api.espn.com/apis/v2/sports/soccer/${espnLeague}/standings`,
-          { headers: ESPN_FETCH_HEADERS, cache: 'no-store' }
+          { cache: 'no-store' },
+          3500
         )
         if (stRes.ok) {
           const stJson = await stRes.json()
@@ -239,33 +328,36 @@ export const espnPublicProvider = {
       } catch {}
 
       // Try type=1 (regular season) first, then type=2, then previous season
-      let res = await fetch(
+      let res = await fetchWithTimeout(
         `https://sports.core.api.espn.com/v2/sports/soccer/leagues/${espnLeague}/seasons/${seasonYear}/types/1/leaders`,
-        { headers: ESPN_FETCH_HEADERS, cache: 'no-store' }
+        { cache: 'no-store' },
+        3500
       )
       if (!res.ok) {
-        res = await fetch(
+        res = await fetchWithTimeout(
           `https://sports.core.api.espn.com/v2/sports/soccer/leagues/${espnLeague}/seasons/${seasonYear}/types/2/leaders`,
-          { headers: ESPN_FETCH_HEADERS, cache: 'no-store' }
+          { cache: 'no-store' },
+          3500
         )
       }
       if (!res.ok) {
-        res = await fetch(
+        res = await fetchWithTimeout(
           `https://sports.core.api.espn.com/v2/sports/soccer/leagues/${espnLeague}/seasons/${seasonYear - 1}/types/1/leaders`,
-          { headers: ESPN_FETCH_HEADERS, cache: 'no-store' }
+          { cache: 'no-store' },
+          3500
         )
       }
       if (!res.ok) {
-        res = await fetch(
+        res = await fetchWithTimeout(
           `https://sports.core.api.espn.com/v2/sports/soccer/leagues/${espnLeague}/seasons/${seasonYear - 1}/types/2/leaders`,
-          { headers: ESPN_FETCH_HEADERS, cache: 'no-store' }
+          { cache: 'no-store' },
+          3500
         )
       }
       if (!res.ok) return []
 
       const json = await res.json()
 
-      // Find goals category — ESPN uses different names per league
       const goalsCat = json.categories?.find(
         (c: any) =>
           c.name === 'goalsLeaders' ||
@@ -276,7 +368,7 @@ export const espnPublicProvider = {
 
       const leadersSlice: any[] = goalsCat.leaders.slice(0, 10)
 
-      // Resolve all player+team names in parallel
+      // Resolve player+team names in parallel
       const scorers = await Promise.all(
         leadersSlice.map(async (l: any, i: number) => {
           let athleteRef: string = l.athlete?.['$ref'] || ''
@@ -287,7 +379,6 @@ export const espnPublicProvider = {
           const athleteId = extractIdFromRef(athleteRef)
           const teamId = extractIdFromRef(teamRef)
 
-          // Parse goal/appearance counts from displayValue e.g. "Matches: 4, Goals: 4"
           let goals = typeof l.value === 'number' ? l.value : 0
           let appearances = 0
           if (l.displayValue) {
@@ -297,13 +388,12 @@ export const espnPublicProvider = {
             if (mm) appearances = parseInt(mm[1])
           }
 
-          // Fetch player and team names in parallel
           let playerName = `Player ${i + 1}`
           let teamName = 'Club'
           try {
             const [athRes, teamRes] = await Promise.all([
-              athleteRef ? fetch(athleteRef, { headers: ESPN_FETCH_HEADERS, cache: 'no-store' }) : Promise.resolve(null),
-              teamRef ? fetch(teamRef, { headers: ESPN_FETCH_HEADERS, cache: 'no-store' }) : Promise.resolve(null)
+              athleteRef ? fetchWithTimeout(athleteRef, { cache: 'no-store' }, 2500) : Promise.resolve(null),
+              teamRef ? fetchWithTimeout(teamRef, { cache: 'no-store' }, 2500) : Promise.resolve(null)
             ])
             if (athRes?.ok) {
               const ath = await athRes.json()
@@ -319,7 +409,6 @@ export const espnPublicProvider = {
             playerId: athleteId || String(i + 1),
             playerSlug: `player-${athleteId || i + 1}`,
             playerName,
-            // Build ESPN CDN URLs directly from IDs — no extra fetches needed
             photo: athleteId
               ? `https://a.espncdn.com/i/headshots/soccer/players/full/${athleteId}.png`
               : '',
@@ -337,21 +426,33 @@ export const espnPublicProvider = {
         })
       )
 
-      return scorers.filter(s => s.goals > 0)
-    } catch (err) {
-      console.error(`[EspnProvider] Error fetching top scorers for ${leagueCode}:`, err)
+      const validScorers = scorers.filter(s => s.goals > 0)
+      setCache(cacheKey, validScorers, 600000) // 10 minutes cache
+      return validScorers
+    } catch (err: any) {
+      console.warn(`[ESPN] Error fetching top scorers for ${espnLeague}:`, err.message || err)
       return []
     }
   },
 
   async fetchMatchSummary(eventId: string): Promise<any> {
+    const cacheKey = `summary_${eventId}`
+    const cached = getCached<any>(cacheKey)
+    if (cached) return cached
+
     try {
       const url = `https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary?event=${eventId}`
-      const res = await fetch(url, { headers: ESPN_FETCH_HEADERS, cache: 'no-store' })
+      const res = await fetchWithTimeout(url, { cache: 'no-store' }, 4500)
       if (!res.ok) return null
-      return await res.json()
-    } catch (err) {
-      console.error(`[EspnProvider] Error fetching match summary for ${eventId}:`, err)
+      const json = await res.json()
+      if (!json || typeof json !== 'object') return null
+
+      // Cache live matches for 30s, finished matches for 10 minutes
+      const isCompleted = Boolean(json.header?.competitions?.[0]?.status?.type?.completed)
+      setCache(cacheKey, json, isCompleted ? 600000 : 30000)
+      return json
+    } catch (err: any) {
+      console.warn(`[ESPN] Error fetching match summary for ${eventId}:`, err.message || err)
       return null
     }
   }
