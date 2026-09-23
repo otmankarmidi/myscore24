@@ -5,68 +5,55 @@ import Header from '@/components/common/Header'
 import DesktopSidebar from '@/components/common/DesktopSidebar'
 import RightSidebar from '@/components/common/RightSidebar'
 import MobileBottomNavigation from '@/components/common/MobileBottomNavigation'
+import DateSelector from '@/components/common/DateSelector'
 import CompetitionGroup from '@/components/match/CompetitionGroup'
 import SkeletonMatchRow from '@/components/common/SkeletonLoader'
 import EmptyState from '@/components/common/EmptyState'
 import AdvertisementPlaceholder from '@/components/common/AdvertisementPlaceholder'
-import { useFavorites } from '@/hooks/useFavorites'
 import { useLanguage } from '@/context/LanguageContext'
 import { Match } from '@/types/match'
 import { League } from '@/types/league'
 
-export default function FavoritesPage() {
-  const { favorites, totalFavorites } = useFavorites()
+export default function FixturesClient() {
   const { t } = useLanguage()
-
-  const [allMatches, setAllMatches] = useState<Match[]>([])
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
+  const [matches, setMatches] = useState<Match[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
-    async function loadMatches() {
+    async function loadFixtures() {
       try {
         setIsLoading(true)
-        const res = await fetch('/api/matches/today')
+        const y = selectedDate.getFullYear()
+        const mo = String(selectedDate.getMonth() + 1).padStart(2, '0')
+        const d = String(selectedDate.getDate()).padStart(2, '0')
+        const dateStr = `${y}-${mo}-${d}`
+        const res = await fetch(`/api/matches/today?date=${dateStr}`)
         const json = await res.json()
-        setAllMatches(json.data || [])
+        const raw = json.data || []
+        const scheduled = raw.filter((m: Match) => m.status === 'scheduled')
+        setMatches(scheduled.length > 0 ? scheduled : raw)
       } catch (err) {
-        console.error('Error loading favorites matches:', err)
+        console.error('Error fetching fixtures:', err)
       } finally {
         setIsLoading(false)
       }
     }
-    loadMatches()
-  }, [])
-
-  // Filter matches that are in favorites.matches, favorites.leagues, or where a team is favorited
-  const favoritedMatchesList = useMemo(() => {
-    const list = (allMatches || []).filter(Boolean)
-    const favMatches = Array.isArray(favorites?.matches) ? favorites.matches : []
-    const favLeagues = Array.isArray(favorites?.leagues) ? favorites.leagues : []
-    const favTeams = Array.isArray(favorites?.teams) ? favorites.teams : []
-
-    return list.filter(
-      m =>
-        favMatches.includes(m.id) ||
-        (m.league?.slug && favLeagues.includes(m.league.slug)) ||
-        (m.league?.id && favLeagues.includes(m.league.id)) ||
-        (m.homeTeam?.id && favTeams.includes(m.homeTeam.id)) ||
-        (m.homeTeam?.slug && favTeams.includes(m.homeTeam.slug)) ||
-        (m.awayTeam?.id && favTeams.includes(m.awayTeam.id)) ||
-        (m.awayTeam?.slug && favTeams.includes(m.awayTeam.slug))
-    )
-  }, [allMatches, favorites])
+    loadFixtures()
+  }, [selectedDate])
 
   const filteredMatches = useMemo(() => {
-    if (!searchQuery.trim()) return favoritedMatchesList
+    const list = (matches || []).filter(Boolean)
+    if (!searchQuery.trim()) return list
     const q = searchQuery.toLowerCase()
-    return favoritedMatchesList.filter(
+    return list.filter(
       m =>
         (m.homeTeam?.name || '').toLowerCase().includes(q) ||
         (m.awayTeam?.name || '').toLowerCase().includes(q) ||
         (m.league?.name || '').toLowerCase().includes(q)
     )
-  }, [favoritedMatchesList, searchQuery])
+  }, [matches, searchQuery])
 
   const groupedByLeague = useMemo(() => {
     const map = new Map<string, { league: League; matches: Match[] }>()
@@ -95,32 +82,41 @@ export default function FavoritesPage() {
           <div className="flex items-center justify-between bg-surface-container border border-surface-bright/40 rounded-lg p-4">
             <div>
               <h1 className="text-xl font-bold text-on-surface flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary-container" aria-hidden="true">star</span>
-                {t('common.yourFavorited', 'Your Favorited Matches & Leagues')}
+                <span className="material-symbols-outlined text-primary-container" aria-hidden="true">calendar_month</span>
+                Football Fixtures & Upcoming Matches
               </h1>
               <p className="text-xs text-on-surface-variant mt-0.5">
-                {t('common.yourFavoritedDesc', 'Quick access to your pinned matches, clubs, and favorite competitions')}
+                Complete match schedule and kickoff times across top global leagues
               </p>
             </div>
             <span className="bg-primary-container/10 text-primary-container px-3 py-1 rounded-full text-xs font-bold font-geist border border-primary-container/20">
-              {totalFavorites} {t('common.saved', 'SAVED')}
+              {matches.length} {t('common.fixturesCount', 'FIXTURES')}
             </span>
           </div>
 
-          {/* Content States */}
+          {/* Date Selector Strip */}
+          <DateSelector selectedDate={selectedDate} onSelectDate={setSelectedDate} />
+
+          {/* Matches List */}
           {isLoading ? (
             <div className="space-y-3 bg-surface-container rounded-lg p-3">
               <SkeletonMatchRow />
+              <SkeletonMatchRow />
+              <SkeletonMatchRow />
             </div>
-          ) : favoritedMatchesList.length === 0 ? (
+          ) : groupedByLeague.length === 0 ? (
             <EmptyState
-              title={t('common.noFavorites', 'No Favorites Saved Yet')}
-              description={t('common.noFavoritesDesc', 'Click the star icon on any match or league row across the app to pin it here for instant access.')}
+              title={t('common.noMatchesScheduled', 'No matches scheduled for this date')}
+              description={t('common.selectAnotherDate', 'Select another date on the calendar above to view upcoming fixtures.')}
             />
           ) : (
-            <div className="space-y-3">
-              {groupedByLeague.map(({ league, matches: leagueMatches }) => (
-                <CompetitionGroup key={league.id} league={league} matches={leagueMatches} />
+            <div className="space-y-4">
+              {groupedByLeague.map(({ league, matches }) => (
+                <CompetitionGroup
+                  key={league.id || league.slug}
+                  league={league}
+                  matches={matches}
+                />
               ))}
             </div>
           )}

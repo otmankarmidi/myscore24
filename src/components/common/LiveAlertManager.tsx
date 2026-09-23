@@ -57,7 +57,7 @@ export function LiveAlertManager() {
   return (
     <div
       onClick={() => {
-        router.push(`/match/${activeAlert.matchSlug || activeAlert.matchId}`)
+        router.push(`/match/${activeAlert.matchId || activeAlert.matchSlug}`)
         setActiveAlert(null)
       }}
       className="fixed bottom-20 md:bottom-6 right-4 z-50 max-w-sm w-full bg-surface-container/95 backdrop-blur border-2 border-primary/40 rounded-xl p-3.5 shadow-2xl cursor-pointer hover:border-primary transition-all animate-bounce"

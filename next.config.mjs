@@ -17,6 +17,14 @@ const nextConfig = {
     ],
   },
   reactStrictMode: true,
+  async rewrites() {
+    return [
+      {
+        source: '/competition/:slug*',
+        destination: '/league/:slug*',
+      },
+    ]
+  },
 }
 
 export default nextConfig

@@ -151,10 +151,16 @@ export default function RightSidebar() {
           ) : (
             topMatches.map((match) => {
               const isScheduled = match.status === 'scheduled'
+              const hasValidId = Boolean(match.id && String(match.id).trim() !== '' && String(match.id) !== 'undefined')
+              const matchHref = hasValidId ? `/match/${match.id}` : '#'
+
               return (
                 <Link
                   key={match.id}
-                  href={`/match/${match.id}`}
+                  href={matchHref}
+                  onClick={(e) => {
+                    if (!hasValidId) e.preventDefault()
+                  }}
                   className="p-3 flex items-center justify-between hover:bg-surface-container-high/60 transition-colors group"
                 >
                   {/* Teams & Scores Column */}

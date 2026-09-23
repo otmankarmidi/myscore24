@@ -111,6 +111,7 @@ export function formatDbMatchToAppMatch(m: any): Match {
     venue: m.venueName ? `${m.venueName}${m.venueCity ? ', ' + m.venueCity : ''}` : undefined,
     referee: m.referee || undefined,
     round: m.round || undefined,
+    isFinal: Boolean(m.isFinal),
   }
 }
 
@@ -199,5 +200,29 @@ export async function getStoredMatchesByCompetition(competitionProviderId: numbe
     return records.map(formatDbMatchToAppMatch)
   } catch {
     return []
+  }
+}
+
+/**
+ * Retrieves a single stored match by providerFixtureId.
+ */
+export async function getStoredMatchByFixtureId(providerFixtureId: number): Promise<Match | null> {
+  try {
+    const record = await prisma.match.findUnique({
+      where: { providerFixtureId },
+      include: {
+        competition: {
+          include: { country: true },
+        },
+        season: true,
+        homeTeam: true,
+        awayTeam: true,
+      },
+    })
+    if (!record) return null
+    return formatDbMatchToAppMatch(record)
+  } catch (err) {
+    console.error(`[Football Persistence] Error querying match by fixtureId ${providerFixtureId}:`, err)
+    return null
   }
 }

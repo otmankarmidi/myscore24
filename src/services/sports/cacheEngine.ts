@@ -131,7 +131,7 @@ class CacheEngine {
       if (!existing.isRevalidating && !apiTelemetry.isQuotaProtectionMode()) {
         existing.isRevalidating = true
         apiTelemetry.recordRevalidation()
-        this.runCoalescedFetch(key, fetchFn)
+        this.runCoalescedFetch(key, fetchFn, namespace, id, ttl.freshMs)
           .then((freshData) => {
             if (freshData) this.setEntry(key, freshData, ttl)
           })
@@ -156,7 +156,7 @@ class CacheEngine {
     apiTelemetry.recordCacheMiss()
 
     try {
-      const freshData = await this.runCoalescedFetch(key, fetchFn)
+      const freshData = await this.runCoalescedFetch(key, fetchFn, namespace, id, ttl.freshMs)
       if (freshData !== null && freshData !== undefined) {
         this.setEntry(key, freshData, ttl)
         return freshData
@@ -177,7 +177,13 @@ class CacheEngine {
   /**
    * Request Coalescing (Single-Flight): Deduplicates concurrent requests for the exact same key
    */
-  private async runCoalescedFetch<T>(key: string, fetchFn: () => Promise<T>): Promise<T> {
+  private async runCoalescedFetch<T>(
+    key: string,
+    fetchFn: () => Promise<T>,
+    endpoint?: string,
+    resourceId?: string,
+    freshWindowMs?: number
+  ): Promise<T> {
     if (inFlightRequests.has(key)) {
       apiTelemetry.recordCoalescedRequest()
       return inFlightRequests.get(key)!
@@ -185,7 +191,11 @@ class CacheEngine {
 
     const promise = (async () => {
       try {
-        apiTelemetry.recordExternalCall()
+        if (endpoint) {
+          apiTelemetry.recordProviderRequest(endpoint, resourceId ? `${endpoint}:${resourceId}` : key, freshWindowMs)
+        } else {
+          apiTelemetry.recordExternalCall()
+        }
         const result = await fetchFn()
         apiTelemetry.recordApiSuccess()
         return result
@@ -206,6 +216,15 @@ class CacheEngine {
     }
   }
 
+  public getStats(): { l1Size: number; l2Size: number; inFlight: number; isHealthy: boolean } {
+    return {
+      l1Size: l1Cache.size,
+      l2Size: l2Storage.size,
+      inFlight: inFlightRequests.size,
+      isHealthy: true,
+    }
+  }
+
   public invalidateNamespace(namespace: string): void {
     const prefix = `myscore24:${CURRENT_CACHE_VERSION}:${namespace}:`
     for (const k of l1Cache.keys()) {
@@ -214,6 +233,19 @@ class CacheEngine {
     for (const k of l2Storage.keys()) {
       if (k.startsWith(prefix)) l2Storage.delete(k)
     }
+  }
+
+  public get<T>(namespace: string, id: string): T | null {
+    const key = formatCacheKey(namespace, id)
+    const entry = this.getEntry<T>(key)
+    if (!entry) return null
+    if (Date.now() > entry.staleUntil) return null
+    return entry.data
+  }
+
+  public set<T>(namespace: string, id: string, data: T, ttl: TTLConfig): void {
+    const key = formatCacheKey(namespace, id)
+    this.setEntry(key, data, ttl)
   }
 
   public clearAllCache(): void {

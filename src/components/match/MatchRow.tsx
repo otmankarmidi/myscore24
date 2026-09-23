@@ -43,10 +43,15 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
   const awayReds = events?.filter(e => e && (e.type === 'red_card' || e.type === 'second_yellow') && e.team === 'away') || []
   const homeReds = events?.filter(e => e && (e.type === 'red_card' || e.type === 'second_yellow') && e.team === 'home') || []
   const hasEvents = (homeGoals.length > 0 || awayGoals.length > 0)
+  const hasValidId = Boolean(match.id && String(match.id).trim() !== '' && String(match.id) !== 'undefined')
+  const matchHref = hasValidId ? `/match/${match.id}` : '#'
 
   return (
     <Link
-      href={`/match/${match.id}`}
+      href={matchHref}
+      onClick={(e) => {
+        if (!hasValidId) e.preventDefault()
+      }}
       className="match-row block p-2 group"
       aria-label={`${safeHome.name} vs ${safeAway.name}, ${status || 'scheduled'}`}
     >

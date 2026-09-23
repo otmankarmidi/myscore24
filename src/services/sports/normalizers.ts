@@ -61,10 +61,11 @@ export function normalizeApiFootballMatch(raw: ApiFootballFixtureRaw): Match {
   const homeName = raw?.teams?.home?.name || 'Home Team'
   const awayName = raw?.teams?.away?.name || 'Away Team'
   const leagueName = raw?.league?.name || 'League'
+  const fixtureId = raw?.fixture?.id != null ? String(raw.fixture.id) : ''
   const matchSlug = `${slugify(homeName)}-vs-${slugify(awayName)}`
 
   return {
-    id: String(raw?.fixture?.id || Math.random().toString(36).substring(7)),
+    id: fixtureId,
     slug: matchSlug,
     league: {
       id: String(raw?.league?.id || '0'),

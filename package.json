@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate",
-    "db:test": "node scripts/db-test.js"
+    "db:test": "node scripts/db-test.js",
+    "test:integrity": "npx tsx scripts/test-integrity-monitoring.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

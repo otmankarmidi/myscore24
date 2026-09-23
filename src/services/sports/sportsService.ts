@@ -61,18 +61,29 @@ export const sportsService = {
     const res = await this.getMatchesByDateWithSource(date)
     return res.matches
   },
-  async getMatchBySlug(slugOrId: string): Promise<{ match: Match | null; h2h: Match[] }> {
+  async getMatchBySlug(slugOrId: string): Promise<{ match: Match | null; h2h: Match[]; error?: string; errorCode?: string }> {
     try {
       const res = await fetch(`/api/matches/${slugOrId}`)
-      if (!res.ok) throw new Error('Failed to fetch match details')
-      const json = await res.json()
+      const json = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        return {
+          match: null,
+          h2h: [],
+          error: json.error || 'Match unavailable. No record found for this fixture ID.',
+          errorCode: json.code || (res.status === 404 ? 'MATCH_NOT_FOUND' : 'PROVIDER_ERROR'),
+        }
+      }
       return {
         match: json.match || null,
         h2h: json.h2h || [],
       }
-    } catch {
-      const d = await provider.getMatchBySlug(slugOrId)
-      return { match: d ? normalizeMatch(d) : null, h2h: [] }
+    } catch (err: any) {
+      return {
+        match: null,
+        h2h: [],
+        error: 'Network connection failed. Please check your connection and retry.',
+        errorCode: 'PROVIDER_ERROR',
+      }
     }
   },
   async getMatchesByLeague(leagueId: string): Promise<Match[]> {

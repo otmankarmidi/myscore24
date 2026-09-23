@@ -122,4 +122,5 @@ export interface Match {
     rating: number
     isLive?: boolean
   }
+  isFinal?: boolean
 }

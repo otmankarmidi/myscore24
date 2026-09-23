@@ -56,7 +56,7 @@ function NotificationAlertList() {
       {alerts.map((a) => (
         <Link
           key={a.id}
-          href={`/match/${a.matchSlug || a.matchId}`}
+          href={`/match/${a.matchId || a.matchSlug}`}
           className="p-2 flex flex-col gap-0.5 hover:bg-surface-container-high rounded transition-colors"
         >
           <div className="flex items-center justify-between text-[11px]">

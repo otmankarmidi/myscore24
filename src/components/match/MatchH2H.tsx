@@ -79,12 +79,19 @@ export default function MatchH2H({ homeTeamName, awayTeamName, homeTeamLogo, awa
           {history.length === 0 ? (
             <div className="p-4 text-center text-xs text-on-surface-variant">No previous matches found between these teams</div>
           ) : (
-            history.map((match) => (
-              <Link
-                key={match.id}
-                href={`/match/${match.id}`}
-                className="p-3 flex items-center justify-between hover:bg-surface-container-high/50 transition-colors"
-              >
+            history.map((match) => {
+              const hasValidId = Boolean(match.id && String(match.id).trim() !== '' && String(match.id) !== 'undefined')
+              const matchHref = hasValidId ? `/match/${match.id}` : '#'
+
+              return (
+                <Link
+                  key={match.id}
+                  href={matchHref}
+                  onClick={(e) => {
+                    if (!hasValidId) e.preventDefault()
+                  }}
+                  className="p-3 flex items-center justify-between hover:bg-surface-container-high/50 transition-colors"
+                >
                 <div className="flex items-center gap-2 text-xs text-on-surface-variant shrink-0 w-28">
                   <span>{formatDate(match.kickoff || match.kickoffTime, undefined, activeTimezone)}</span>
                 </div>
@@ -105,8 +112,8 @@ export default function MatchH2H({ homeTeamName, awayTeamName, homeTeamLogo, awa
                   <MatchStatusBadge status={match.status} size="sm" />
                 </div>
               </Link>
-            ))
-          )}
+            )
+          }))}
         </div>
       </div>
     </div>
