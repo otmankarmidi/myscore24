@@ -64,15 +64,21 @@ export async function GET(
   try {
     const { id } = await params
     const leagueId = resolveLeagueId(id)
-    const currentSeason = 2026
+    const { searchParams } = new URL(request.url)
+    const seasonQuery = searchParams.get('season')
+    const requestedSeason = seasonQuery ? parseInt(seasonQuery, 10) : 2024
+
+    // ── 1. Database-First Check for Stored Competition Matches ───────────────
+    const { getStoredMatchesByCompetition } = await import('@/lib/football/persistence/queries')
+    const storedMatches = await getStoredMatchesByCompetition(leagueId, requestedSeason)
 
     if (apiFootballProvider.hasValidApiKey()) {
       try {
         const [leagueRaw, standingsRaw, topScorersRaw, fixturesRaw] = await Promise.all([
           apiFootballProvider.getLeagueDetails(leagueId),
-          apiFootballProvider.getLeagueStandings(leagueId, currentSeason),
-          apiFootballProvider.getLeagueTopScorers(leagueId, currentSeason),
-          apiFootballProvider.getLeagueFixtures(leagueId, currentSeason)
+          apiFootballProvider.getLeagueStandings(leagueId, requestedSeason),
+          apiFootballProvider.getLeagueTopScorers(leagueId, requestedSeason),
+          apiFootballProvider.getLeagueFixtures(leagueId, requestedSeason).catch(() => [])
         ])
 
         const standings: Standing[] = Array.isArray(standingsRaw)
@@ -81,14 +87,19 @@ export async function GET(
         const topScorers: TopScorer[] = Array.isArray(topScorersRaw)
           ? topScorersRaw.map(normalizeApiFootballTopScorer)
           : []
-        const fixtures: Match[] = Array.isArray(fixturesRaw)
+        let fixtures: Match[] = Array.isArray(fixturesRaw) && fixturesRaw.length > 0
           ? fixturesRaw.map(normalizeApiFootballMatch)
-          : []
+          : storedMatches
 
         const leagueMeta = leagueRaw?.league || {}
         const countryMeta = leagueRaw?.country || {}
+        const leagueName = leagueMeta.name || 'Premier League'
 
-        const leagueName = leagueMeta.name || 'Football League'
+        const seasonsList = [
+          { year: 2024, current: true, label: '2024/2025' },
+          { year: 2023, current: false, label: '2023/2024' },
+          { year: 2022, current: false, label: '2022/2023' }
+        ]
 
         const league: League = {
           id: String(leagueId),
@@ -96,11 +107,14 @@ export async function GET(
           name: leagueName,
           shortName: leagueName.slice(0, 10),
           logo: leagueMeta.logo || 'https://media.api-sports.io/football/leagues/39.png',
-          country: countryMeta.name || 'Global',
-          countryCode: (countryMeta.code || 'WW').slice(0, 2).toUpperCase(),
+          country: countryMeta.name || 'England',
+          countryCode: (countryMeta.code || 'GB').slice(0, 2).toUpperCase(),
           countryFlag: countryMeta.flag,
-          season: String(currentSeason),
-          currentRound: fixtures.length > 0 ? fixtures[0].round || 'Matchday' : 'Regular Season',
+          season: String(requestedSeason),
+          currentSeason: '2024',
+          selectedSeason: String(requestedSeason),
+          seasons: seasonsList,
+          currentRound: fixtures.length > 0 ? fixtures[fixtures.length - 1].round || 'Regular Season' : 'Regular Season',
           type: 'league'
         }
 
@@ -109,11 +123,44 @@ export async function GET(
           standings,
           topScorers,
           fixtures,
-          source: 'MyScore24 Real Live Feed (API-Football)'
+          source: 'MyScore24 Real Live Feed (API-Football & Database Synced)'
         })
       } catch (apifbErr) {
         console.warn(`[API /api/leagues/${id}] API-Football query failed:`, apifbErr)
       }
+    }
+
+    // ── 2. Fallback to MySQL Persistent Database ─────────────────────────────
+    if (storedMatches.length > 0) {
+      const firstMatch = storedMatches[0]
+      const league: League = {
+        id: String(leagueId),
+        slug: id,
+        name: firstMatch.league.name,
+        shortName: firstMatch.league.shortName,
+        logo: firstMatch.league.logo,
+        country: firstMatch.league.country,
+        countryCode: firstMatch.league.countryCode,
+        countryFlag: firstMatch.league.countryFlag,
+        season: String(requestedSeason),
+        currentSeason: '2024',
+        selectedSeason: String(requestedSeason),
+        seasons: [
+          { year: 2024, current: true, label: '2024/2025' },
+          { year: 2023, current: false, label: '2023/2024' },
+          { year: 2022, current: false, label: '2022/2023' }
+        ],
+        currentRound: 'Regular Season',
+        type: 'league'
+      }
+
+      return NextResponse.json({
+        league,
+        standings: [],
+        topScorers: [],
+        fixtures: storedMatches,
+        source: 'MyScore24 Persistent Database (Historical)'
+      })
     }
 
     return NextResponse.json(

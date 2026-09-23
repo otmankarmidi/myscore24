@@ -15,11 +15,42 @@ export async function GET(
     const { id } = await params
     const cleanId = id.replace(/^match-/, '')
 
+    // 0. Database-First Strategy: Check if match is already final in MySQL
+    if (!isNaN(Number(cleanId))) {
+      const { prisma } = await import('@/lib/prisma')
+      const { formatDbMatchToAppMatch } = await import('@/lib/football/persistence/queries')
+
+      const stored = await prisma.match.findUnique({
+        where: { providerFixtureId: Number(cleanId) },
+        include: {
+          competition: { include: { country: true } },
+          season: true,
+          homeTeam: true,
+          awayTeam: true,
+        },
+      })
+
+      if (stored && stored.isFinal) {
+        return NextResponse.json({
+          match: formatDbMatchToAppMatch(stored),
+          h2h: [],
+          source: 'MyScore24 Persistent Database (Historical Final)',
+          quotaSaved: true,
+        })
+      }
+    }
+
     // 1. Primary Source: API-Football match details
     if (apiFootballProvider.hasValidApiKey() && !isNaN(Number(cleanId))) {
       try {
         const fixtureRes = await apiFootballProvider.getFixtureDetails(cleanId)
         if (fixtureRes.data) {
+          // Persist the fixture into MySQL database
+          const { upsertFixture } = await import('@/lib/football/persistence/fixtures')
+          upsertFixture(fixtureRes.data).catch((err) =>
+            console.error(`[Persistence] Error upserting match ${cleanId}:`, err)
+          )
+
           const match = normalizeApiFootballMatchDetails(fixtureRes.data)
           let h2h: Match[] = []
           const homeId = fixtureRes.data.teams?.home?.id
@@ -36,7 +67,7 @@ export async function GET(
           return NextResponse.json({
             match,
             h2h,
-            source: 'MyScore24 Live Match Summary (API-Football Real Feed)'
+            source: 'MyScore24 Live Match Summary (API-Football & Database Synced)'
           })
         }
       } catch (apifbErr) {
@@ -44,14 +75,28 @@ export async function GET(
       }
     }
 
-    // 2. Fallback Source: Mock matches
-    const mockMatch = mockMatches.find(m => m.id === id || m.slug === id || m.id === cleanId)
-    if (mockMatch) {
-      return NextResponse.json({
-        match: mockMatch,
-        h2h: [],
-        source: 'MyScore24 Match Details (Fallback Feed)'
+    // 2. Fallback Source: MySQL Stored Record
+    if (!isNaN(Number(cleanId))) {
+      const { prisma } = await import('@/lib/prisma')
+      const { formatDbMatchToAppMatch } = await import('@/lib/football/persistence/queries')
+
+      const stored = await prisma.match.findUnique({
+        where: { providerFixtureId: Number(cleanId) },
+        include: {
+          competition: { include: { country: true } },
+          season: true,
+          homeTeam: true,
+          awayTeam: true,
+        },
       })
+
+      if (stored) {
+        return NextResponse.json({
+          match: formatDbMatchToAppMatch(stored),
+          h2h: [],
+          source: 'MyScore24 Persistent Database (Fallback)'
+        })
+      }
     }
 
     return NextResponse.json({ error: 'Match summary not found' }, { status: 404 })

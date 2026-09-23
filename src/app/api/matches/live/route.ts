@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { apiFootballProvider } from '@/services/sports/apiFootballProvider'
 import { normalizeApiFootballMatch } from '@/services/sports/normalizers'
 import { Match } from '@/types/match'
-import { mockMatches } from '@/data/mockMatches'
+import { persistFixturesBatch } from '@/lib/football/persistence/fixtures'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -13,12 +13,17 @@ export async function GET() {
     try {
       const apiRes = await apiFootballProvider.getLiveFixtures()
       if (apiRes.data && apiRes.data.length > 0) {
+        // Persist live fixtures and update elapsed/scores in MySQL in the background
+        persistFixturesBatch(apiRes.data).catch((err) =>
+          console.error('[Persistence] Background live upsert error:', err)
+        )
+
         const liveMatches: Match[] = apiRes.data.map(normalizeApiFootballMatch)
         return NextResponse.json({
           data: liveMatches,
-          source: 'MyScore24 Real Live Matches Feed (API-Football)',
+          source: 'MyScore24 Real Live Matches Feed (API-Football & Database Synced)',
           count: liveMatches.length,
-          lastUpdated: new Date().toISOString()
+          lastUpdated: new Date().toISOString(),
         })
       }
     } catch (err: any) {

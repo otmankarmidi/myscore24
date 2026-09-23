@@ -1,0 +1,172 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Country {
+  id           String        @id @default(cuid())
+  name         String
+  code         String?
+  flag         String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  competitions Competition[]
+
+  @@map("countries")
+}
+
+model Competition {
+  id          String    @id @default(cuid())
+  providerId  Int       @unique
+  name        String
+  type        String?
+  logo        String?
+  countryId   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  country     Country?  @relation(fields: [countryId], references: [id], onDelete: SetNull)
+  seasons     Season[]
+  matches     Match[]
+
+  @@index([countryId])
+  @@map("competitions")
+}
+
+model Season {
+  id            String      @id @default(cuid())
+  competitionId String
+  year          Int
+  startDate     DateTime?
+  endDate       DateTime?
+  current       Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  matches       Match[]
+
+  @@unique([competitionId, year])
+  @@index([competitionId])
+  @@map("seasons")
+}
+
+model Team {
+  id            String    @id @default(cuid())
+  providerId    Int       @unique
+  name          String
+  code          String?
+  country       String?
+  founded       Int?
+  national      Boolean   @default(false)
+  logo          String?
+
+  venueId       Int?
+  venueName     String?
+  venueAddress  String?
+  venueCity     String?
+  venueCapacity Int?
+  venueSurface  String?
+  venueImage    String?
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lastSyncedAt  DateTime?
+
+  homeMatches   Match[]   @relation("HomeTeamMatches")
+  awayMatches   Match[]   @relation("AwayTeamMatches")
+
+  @@map("teams")
+}
+
+model Match {
+  id                 String      @id @default(cuid())
+  providerFixtureId  Int         @unique
+
+  competitionId      String
+  seasonId           String
+
+  homeTeamId         String
+  awayTeamId         String
+
+  kickoff            DateTime
+  timezone           String?
+  round              String?
+
+  status             String
+  statusLong         String?
+  elapsed            Int?
+
+  homeScore          Int?
+  awayScore          Int?
+
+  halftimeHome       Int?
+  halftimeAway       Int?
+
+  fulltimeHome       Int?
+  fulltimeAway       Int?
+
+  extraTimeHome      Int?
+  extraTimeAway      Int?
+
+  penaltyHome        Int?
+  penaltyAway        Int?
+
+  venueId            Int?
+  venueName          String?
+  venueCity          String?
+
+  referee            String?
+
+  isFinal            Boolean     @default(false)
+
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+  lastSyncedAt       DateTime?
+
+  competition        Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  season             Season      @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  homeTeam           Team        @relation("HomeTeamMatches", fields: [homeTeamId], references: [id], onDelete: Cascade)
+  awayTeam           Team        @relation("AwayTeamMatches", fields: [awayTeamId], references: [id], onDelete: Cascade)
+
+  // Performance Indexes for high-frequency queries
+  @@index([kickoff])
+  @@index([status])
+  @@index([competitionId])
+  @@index([seasonId])
+  @@index([homeTeamId])
+  @@index([awayTeamId])
+  @@index([status, kickoff])
+  @@index([competitionId, kickoff])
+  @@map("matches")
+}
+
+model ImportJob {
+  id                    String    @id @default(cuid())
+  provider              String    @default("api-football")
+  competitionProviderId Int
+  season                Int
+  status                String    @default("PENDING") // PENDING, RUNNING, PAUSED, COMPLETED, FAILED
+
+  fixturesProcessed     Int       @default(0)
+  fixturesCreated       Int       @default(0)
+  fixturesUpdated       Int       @default(0)
+  fixturesSkipped       Int       @default(0)
+
+  requestsUsed          Int       @default(0)
+  lastError             String?   @db.Text
+
+  startedAt             DateTime?
+  completedAt           DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([competitionProviderId, season])
+  @@index([status])
+  @@map("import_jobs")
+}

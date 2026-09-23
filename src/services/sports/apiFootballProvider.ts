@@ -319,6 +319,13 @@ export const apiFootballProvider = {
       const res = await fetchWithRetry(url, { headers: this.getHeaders() })
       if (!res.ok) return []
       const json = await res.json()
+      if (json.errors && Object.keys(json.errors).length > 0) {
+        const errorMsg = Object.entries(json.errors).map(([k, v]) => `${k}: ${v}`).join(', ')
+        console.warn(`[API-Football] getLeagueFixtures error: ${errorMsg}`)
+        const err: any = new Error(`API-Football error: ${errorMsg}`)
+        err.errors = json.errors
+        throw err
+      }
       return json.response || []
     })
   },
