@@ -49,6 +49,7 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
   return (
     <Link
       href={matchHref}
+      prefetch={false}
       onClick={(e) => {
         if (!hasValidId) e.preventDefault()
       }}

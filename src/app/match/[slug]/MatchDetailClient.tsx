@@ -8,6 +8,7 @@ import RightSidebar from '@/components/common/RightSidebar'
 import MobileBottomNavigation from '@/components/common/MobileBottomNavigation'
 import MatchStatusBadge from '@/components/common/MatchStatusBadge'
 import TeamLogo from '@/components/common/TeamLogo'
+import CompetitionLogo from '@/components/common/CompetitionLogo'
 import FavoriteButton from '@/components/common/FavoriteButton'
 import MatchTimeline from '@/components/match/MatchTimeline'
 import MatchStatistics from '@/components/match/MatchStatistics'
@@ -187,10 +188,18 @@ export default function MatchDetailClient({ slug, initialMatch }: MatchDetailCli
             {/* Top Bar: League Info & Favorite */}
             <div className="flex items-center justify-between pb-3 border-b border-surface-bright/60">
               <Link
-                href={`/league/${match.league.slug || match.league.id}`}
+                href={`/competition/${match.league.id || match.league.slug}`}
+                prefetch={false}
                 className="flex items-center gap-2 text-body-sm font-semibold text-on-surface hover:text-primary transition-colors"
               >
-                {match.league.countryFlag && <span>{match.league.countryFlag}</span>}
+                <CompetitionLogo
+                  logo={match.league.logo}
+                  name={match.league.name}
+                  countryFlag={match.league.countryFlag}
+                  providerId={match.league.id}
+                  slug={match.league.slug}
+                  size={20}
+                />
                 <span>{match.league.country ? t(`countries.${match.league.country}`, match.league.country) : ''}</span>
                 <span className="text-on-surface-variant">•</span>
                 <span>{match.league.name}</span>

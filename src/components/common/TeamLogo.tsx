@@ -28,6 +28,8 @@ export default function TeamLogo({ name, abbreviation, logo, size = 'sm' }: Team
         alt={`${name} badge`}
         width={s.img}
         height={s.img}
+        loading="lazy"
+        decoding="async"
         className={`${s.container} object-contain`}
         onError={() => setImgError(true)}
       />

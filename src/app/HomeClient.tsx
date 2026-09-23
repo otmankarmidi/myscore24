@@ -16,6 +16,7 @@ import { sportsService } from '@/services/sports/sportsService'
 import { useLanguage } from '@/context/LanguageContext'
 import { Match } from '@/types/match'
 import { League } from '@/types/league'
+import { isApprovedCompetition, getCompetitionPriority } from '@/config/competitions'
 
 export default function HomeClient() {
   const { t } = useLanguage()
@@ -27,50 +28,52 @@ export default function HomeClient() {
   const [hasError, setHasError] = useState(false)
   const [apiErrorMessage, setApiErrorMessage] = useState<string | null>(null)
   const [matches, setMatches] = useState<Match[]>([])
-  const [leagues, setLeagues] = useState<League[]>([])
 
-  // Diagnostic states
-  const [dataSource, setDataSource] = useState<string>('LIVE API')
-  const [apiCount, setApiCount] = useState<number>(0)
-  const [lastUpdated, setLastUpdated] = useState<string>('')
-
-  // Load data
+  // Load data for the selected date (uses client-side memory cache for returning visits)
   useEffect(() => {
+    let isCancelled = false
+
     async function loadData() {
       setIsLoading(true)
       setHasError(false)
       setApiErrorMessage(null)
 
       try {
-        const [result, leagueData] = await Promise.all([
-          sportsService.getMatchesByDateWithSource(selectedDate),
-          sportsService.getTopLeagues(),
-        ])
+        const result = await sportsService.getMatchesByDateWithSource(selectedDate)
+        if (isCancelled) return
 
-        setMatches(result.matches)
-        setDataSource(result.source)
-        setApiCount(result.count)
-        setLastUpdated(result.lastUpdated)
+        setMatches(result.matches || [])
         if (result.error) {
           setApiErrorMessage(result.error)
         }
-        setLeagues(leagueData)
       } catch (err: any) {
+        if (isCancelled) return
         console.error('Failed to load home matches:', err)
         setHasError(true)
         setApiErrorMessage(err?.message || 'Failed to fetch match data')
       } finally {
-        setIsLoading(false)
+        if (!isCancelled) {
+          setIsLoading(false)
+        }
       }
     }
 
     loadData()
+
+    return () => {
+      isCancelled = true
+    }
   }, [selectedDate])
 
-  // Filter matches based on tab & search query
+  // 1. Filter dataset BEFORE rendering: Only approved competitions (Big 5, Europe, International)
+  const approvedMatches = useMemo(() => {
+    return matches.filter((m) => isApprovedCompetition(m.league))
+  }, [matches])
+
+  // 2. Filter matches based on active tab & search query on the already-loaded data (0 extra requests)
   const filteredMatches = useMemo(() => {
-    return matches.filter((m) => {
-      // 1. Status Filter
+    return approvedMatches.filter((m) => {
+      // Status Filter
       if (activeFilter === 'live') {
         const isLive = m.status === 'live' || m.status === 'half_time' || m.status === 'extra_time'
         if (!isLive) return false
@@ -81,7 +84,7 @@ export default function HomeClient() {
         if (!isFinished) return false
       }
 
-      // 2. Search Query Filter
+      // Search Query Filter
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim()
         const matchHome = m.homeTeam?.name?.toLowerCase().includes(q)
@@ -92,35 +95,45 @@ export default function HomeClient() {
 
       return true
     })
-  }, [matches, activeFilter, searchQuery])
+  }, [approvedMatches, activeFilter, searchQuery])
 
-  // Group filtered matches by League
+  // 3. Group filtered matches by League & Sort by Priority (Big 5 highest, then Europe, then International)
   const groupedByLeague = useMemo(() => {
     const map = new Map<string, { league: League; matches: Match[] }>()
 
     filteredMatches.forEach((match) => {
-      const leagueId = match.league?.id || 'misc'
-      if (!map.has(leagueId)) {
-        map.set(leagueId, {
+      const leagueKey = String(match.league?.id || match.league?.slug || 'misc')
+      if (!map.has(leagueKey)) {
+        map.set(leagueKey, {
           league: match.league,
           matches: [],
         })
       }
-      map.get(leagueId)!.matches.push(match)
+      map.get(leagueKey)!.matches.push(match)
     })
 
-    return Array.from(map.values())
+    const groups = Array.from(map.values())
+
+    // Prioritize Big 5 (1-5), Europe (10-12), International (20-27)
+    groups.sort((a, b) => {
+      const pA = getCompetitionPriority(a.league)
+      const pB = getCompetitionPriority(b.league)
+      if (pA !== pB) return pA - pB
+      return (a.league.name || '').localeCompare(b.league.name || '')
+    })
+
+    return groups
   }, [filteredMatches])
 
-  // Counts for filter badges
+  // 4. Counts for filter badges calculated strictly on approved matches
   const counts = useMemo(() => {
     return {
-      all: matches.length,
-      live: matches.filter((m) => m.status === 'live' || m.status === 'half_time' || m.status === 'extra_time').length,
-      upcoming: matches.filter((m) => m.status === 'scheduled').length,
-      finished: matches.filter((m) => m.status === 'full_time' || m.status === 'penalties').length,
+      all: approvedMatches.length,
+      live: approvedMatches.filter((m) => m.status === 'live' || m.status === 'half_time' || m.status === 'extra_time').length,
+      upcoming: approvedMatches.filter((m) => m.status === 'scheduled').length,
+      finished: approvedMatches.filter((m) => m.status === 'full_time' || m.status === 'penalties').length,
     }
-  }, [matches])
+  }, [approvedMatches])
 
   return (
     <div className="min-h-screen flex flex-col bg-surface text-on-surface pb-20 md:pb-6">

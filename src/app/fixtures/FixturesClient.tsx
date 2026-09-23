@@ -13,6 +13,8 @@ import AdvertisementPlaceholder from '@/components/common/AdvertisementPlacehold
 import { useLanguage } from '@/context/LanguageContext'
 import { Match } from '@/types/match'
 import { League } from '@/types/league'
+import { sportsService } from '@/services/sports/sportsService'
+import { getCompetitionPriority } from '@/config/competitions'
 
 export default function FixturesClient() {
   const { t } = useLanguage()
@@ -25,13 +27,7 @@ export default function FixturesClient() {
     async function loadFixtures() {
       try {
         setIsLoading(true)
-        const y = selectedDate.getFullYear()
-        const mo = String(selectedDate.getMonth() + 1).padStart(2, '0')
-        const d = String(selectedDate.getDate()).padStart(2, '0')
-        const dateStr = `${y}-${mo}-${d}`
-        const res = await fetch(`/api/matches/today?date=${dateStr}`)
-        const json = await res.json()
-        const raw = json.data || []
+        const raw = await sportsService.getMatchesByDate(selectedDate)
         const scheduled = raw.filter((m: Match) => m.status === 'scheduled')
         setMatches(scheduled.length > 0 ? scheduled : raw)
       } catch (err) {
@@ -65,7 +61,9 @@ export default function FixturesClient() {
       }
       map.get(leagueId)!.matches.push(match)
     })
-    return Array.from(map.values())
+    const groups = Array.from(map.values())
+    groups.sort((a, b) => getCompetitionPriority(a.league) - getCompetitionPriority(b.league))
+    return groups
   }, [filteredMatches])
 
   return (

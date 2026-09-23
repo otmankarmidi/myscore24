@@ -12,6 +12,7 @@ import AdvertisementPlaceholder from '@/components/common/AdvertisementPlacehold
 import { useLanguage } from '@/context/LanguageContext'
 import { Match } from '@/types/match'
 import { League } from '@/types/league'
+import { getCompetitionPriority } from '@/config/competitions'
 
 export default function LiveClient() {
   const { t } = useLanguage()
@@ -62,7 +63,9 @@ export default function LiveClient() {
       }
       map.get(leagueId)!.matches.push(match)
     })
-    return Array.from(map.values())
+    const groups = Array.from(map.values())
+    groups.sort((a, b) => getCompetitionPriority(a.league) - getCompetitionPriority(b.league))
+    return groups
   }, [filteredMatches])
 
   return (

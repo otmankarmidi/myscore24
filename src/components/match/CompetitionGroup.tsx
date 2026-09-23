@@ -1,8 +1,10 @@
 'use client'
+
 import Link from 'next/link'
 import { Match } from '@/types/match'
 import { League } from '@/types/league'
 import MatchRow from './MatchRow'
+import CompetitionLogo from '@/components/common/CompetitionLogo'
 import { useFavorites } from '@/hooks/useFavorites'
 import { useLanguage } from '@/context/LanguageContext'
 
@@ -18,31 +20,53 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
 
   if (!league) return null
 
-  const safeSlug = league.slug || league.id || 'league'
-  const safeName = league.name || 'League'
-  const isFavorited = (league.slug && isFavoriteLeague(league.slug)) || (league.id && isFavoriteLeague(league.id))
-  const localizedCountry = league.country && league.country !== 'Europe' && league.country !== 'Africa' && league.country !== 'World'
-    ? t(`countries.${league.country}`, league.country)
-    : ''
+  const providerCompetitionId = league.id || league.slug || '39'
+  const competitionHref = `/competition/${providerCompetitionId}`
+  const safeName = league.name || 'Competition'
+  const isFavorited =
+    (league.slug && isFavoriteLeague(league.slug)) ||
+    (league.id && isFavoriteLeague(league.id))
 
   const safeMatches = (matches || []).filter(Boolean)
 
   return (
     <div className="bg-surface-container-low rounded overflow-hidden shadow-sm animate-fade-in">
       {/* Competition header */}
-      <div className="h-8 bg-surface-container px-3 flex items-center justify-between text-on-surface-variant">
+      <div className="h-9 bg-surface-container px-3 flex items-center justify-between text-on-surface-variant">
         <div className="flex items-center gap-2 min-w-0">
-          {league.countryFlag && (
-            <span className="text-[14px] leading-none shrink-0" aria-hidden="true">{league.countryFlag}</span>
-          )}
-          <span className="font-geist text-[10px] uppercase font-bold text-on-surface tracking-wider truncate">
-            {localizedCountry ? `${localizedCountry}: ` : ''}
+          {/* Clickable Competition Logo with fallback chain */}
+          <Link
+            href={competitionHref}
+            prefetch={false}
+            className="flex items-center shrink-0 hover:opacity-80 transition-opacity"
+            aria-label={`${safeName} details`}
+          >
+            <CompetitionLogo
+              logo={league.logo}
+              name={safeName}
+              countryFlag={league.countryFlag}
+              providerId={league.id}
+              slug={league.slug}
+              size={20}
+            />
+          </Link>
+
+          {/* Clickable Competition Title */}
+          <Link
+            href={competitionHref}
+            prefetch={false}
+            className="font-geist text-[11px] uppercase font-bold text-on-surface hover:text-primary transition-colors tracking-wider truncate"
+          >
             {safeName}
-          </span>
+          </Link>
+
           {league.currentRound && (
-            <span className="font-geist text-[10px] text-outline font-semibold shrink-0">{league.currentRound}</span>
+            <span className="font-geist text-[10px] text-outline font-semibold shrink-0">
+              • {league.currentRound}
+            </span>
           )}
         </div>
+
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => {
@@ -64,20 +88,24 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
               star
             </span>
           </button>
+
           <Link
-            href={`/league/${safeSlug}`}
+            href={competitionHref}
+            prefetch={false}
             className="font-geist text-[10px] uppercase font-bold text-primary-container hover:underline flex items-center gap-0.5"
             aria-label={`${t('common.viewStandings', 'View')} ${safeName} ${t('common.standings', 'standings')}`}
           >
             <span>{t('common.standings', 'Standings')}</span>
-            <span className="material-symbols-outlined rtl:rotate-180" style={{ fontSize: 12 }}>chevron_right</span>
+            <span className="material-symbols-outlined rtl:rotate-180" style={{ fontSize: 12 }}>
+              chevron_right
+            </span>
           </Link>
         </div>
       </div>
 
       {/* Match rows */}
       <div className="flex flex-col divide-y divide-surface-bright/20">
-        {safeMatches.map(match => (
+        {safeMatches.map((match) => (
           <MatchRow
             key={match.id}
             match={match}

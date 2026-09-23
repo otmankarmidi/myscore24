@@ -9,6 +9,7 @@ import { useTimezone, TIMEZONE_OPTIONS } from '@/context/TimezoneContext'
 import dynamic from 'next/dynamic'
 import PlayerImage from '@/components/common/PlayerImage'
 import TeamLogo from '@/components/common/TeamLogo'
+import CompetitionLogo from '@/components/common/CompetitionLogo'
 import { Locale } from '@/types/common'
 import { MatchAlert } from '@/types/alerts'
 
@@ -317,14 +318,20 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
                       {searchResults.leagues.map((lItem) => (
                         <Link
                           key={lItem.id}
-                          href={`/league/${lItem.slug || lItem.id}`}
+                          href={`/competition/${lItem.id || lItem.slug}`}
+                          prefetch={false}
                           onClick={() => {
                             setIsOpen(false)
                             setIsMobileSearchOpen(false)
                           }}
                           className="flex items-center gap-2.5 p-1.5 rounded-lg hover:bg-surface-container-high transition-colors group"
                         >
-                          <span className="text-sm">{lItem.countryFlag || '🏆'}</span>
+                          <CompetitionLogo
+                            competitionId={lItem.id}
+                            countryFlag={lItem.countryFlag}
+                            size={18}
+                            showBackground={false}
+                          />
                           <span className="text-xs font-bold text-on-surface group-hover:text-primary transition-colors truncate">
                             {lItem.name}
                           </span>
@@ -581,14 +588,20 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
                       {searchResults.leagues.map((lItem) => (
                         <Link
                           key={lItem.id}
-                          href={`/league/${lItem.slug || lItem.id}`}
+                          href={`/competition/${lItem.id || lItem.slug}`}
+                          prefetch={false}
                           onClick={() => {
                             setIsOpen(false)
                             setIsMobileSearchOpen(false)
                           }}
                           className="flex items-center gap-2.5 p-1.5 rounded-lg hover:bg-surface-container-high transition-colors group"
                         >
-                          <span className="text-sm">{lItem.countryFlag || '🏆'}</span>
+                          <CompetitionLogo
+                            competitionId={lItem.id}
+                            countryFlag={lItem.countryFlag}
+                            size={18}
+                            showBackground={false}
+                          />
                           <span className="text-xs font-bold text-on-surface group-hover:text-primary transition-colors truncate">
                             {lItem.name}
                           </span>

@@ -6,6 +6,7 @@ import DesktopSidebar from '@/components/common/DesktopSidebar'
 import RightSidebar from '@/components/common/RightSidebar'
 import MobileBottomNavigation from '@/components/common/MobileBottomNavigation'
 import CompetitionGroup from '@/components/match/CompetitionGroup'
+import CompetitionLogo from '@/components/common/CompetitionLogo'
 import StandingsTable from '@/components/standings/StandingsTable'
 import TopScorersTable from '@/components/league/TopScorersTable'
 import NewsCard from '@/components/news/NewsCard'
@@ -138,26 +139,26 @@ export default function LeagueClient({ slug }: LeagueClientProps) {
           <div className="bg-surface-container rounded-xl border border-surface-bright p-4 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="relative w-16 h-16 md:w-20 md:h-20 bg-surface-container-high rounded-lg p-2 flex items-center justify-center border border-surface-bright shrink-0">
-                {league.logo && !logoError ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={league.logo}
-                    alt={league.name}
-                    width={64}
-                    height={64}
-                    className="object-contain max-h-16"
-                    onError={() => setLogoError(true)}
-                  />
-                ) : league.countryFlag ? (
-                  <span className="text-4xl">{league.countryFlag}</span>
-                ) : (
-                  <span className="material-symbols-outlined text-4xl text-primary" aria-hidden="true">trophy</span>
-                )}
+                <CompetitionLogo
+                  logo={league.logo}
+                  name={league.name}
+                  countryFlag={league.countryFlag}
+                  providerId={league.id}
+                  slug={league.slug}
+                  size={56}
+                />
               </div>
 
               <div>
                 <div className="flex items-center gap-2 text-xs font-semibold text-primary uppercase tracking-wider">
-                  {league.countryFlag && <span>{league.countryFlag}</span>}
+                  {league.countryFlag && (
+                    league.countryFlag.startsWith('http') || league.countryFlag.endsWith('.svg') || league.countryFlag.endsWith('.png') ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={league.countryFlag} alt="" className="w-3.5 h-3.5 object-contain inline-block shrink-0" loading="lazy" />
+                    ) : (
+                      <span>{league.countryFlag}</span>
+                    )
+                  )}
                   <span>{league.country}</span>
                   <span>•</span>
                   <span>Season {league.season}</span>

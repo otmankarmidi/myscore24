@@ -47,7 +47,13 @@ export default function PlayerClient({ player }: PlayerClientProps) {
                 <span className="px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-medium text-xs uppercase">
                   {player.position}
                 </span>
-                {player.countryFlag && <span className="text-base">{player.countryFlag}</span>}
+                {player.countryFlag && (
+                  player.countryFlag.startsWith('http') || player.countryFlag.endsWith('.svg') || player.countryFlag.endsWith('.png') ? (
+                    <img src={player.countryFlag} alt="" className="w-4 h-4 object-contain inline-block shrink-0" loading="lazy" />
+                  ) : (
+                    <span className="text-base">{player.countryFlag}</span>
+                  )
+                )}
                 <span className="text-xs text-on-surface-variant font-medium">{player.nationality}</span>
               </div>
 

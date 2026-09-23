@@ -9,6 +9,7 @@ import RightSidebar from '@/components/common/RightSidebar'
 import MobileBottomNavigation from '@/components/common/MobileBottomNavigation'
 import PlayerImage from '@/components/common/PlayerImage'
 import TeamLogo from '@/components/common/TeamLogo'
+import CompetitionLogo from '@/components/common/CompetitionLogo'
 import EmptyState from '@/components/common/EmptyState'
 import { useLanguage } from '@/context/LanguageContext'
 
@@ -36,6 +37,7 @@ interface SearchLeague {
   id: string
   slug: string
   name: string
+  logo?: string
   countryFlag?: string
 }
 
@@ -192,12 +194,17 @@ function SearchContent() {
             {leagues.map(league => (
               <Link
                 key={league.id}
-                href={`/league/${league.slug || league.id}`}
+                href={`/competition/${league.id || league.slug}`}
+                prefetch={false}
                 className="flex items-center gap-3 p-3 bg-surface-container-high/60 rounded-lg border border-surface-bright hover:border-primary/50 transition-all group"
               >
-                <div className="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-base">
-                  {league.countryFlag || '🏆'}
-                </div>
+                <CompetitionLogo
+                  logo={league.logo}
+                  name={league.name}
+                  countryFlag={league.countryFlag}
+                  providerId={league.id}
+                  size={24}
+                />
                 <span className="text-body-sm font-bold text-on-surface truncate group-hover:text-primary transition-colors">
                   {league.name}
                 </span>

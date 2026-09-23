@@ -13,6 +13,8 @@ import AdvertisementPlaceholder from '@/components/common/AdvertisementPlacehold
 import { useLanguage } from '@/context/LanguageContext'
 import { Match } from '@/types/match'
 import { League } from '@/types/league'
+import { sportsService } from '@/services/sports/sportsService'
+import { getCompetitionPriority } from '@/config/competitions'
 
 export default function ResultsClient() {
   const { t } = useLanguage()
@@ -25,13 +27,7 @@ export default function ResultsClient() {
     async function loadResults() {
       try {
         setIsLoading(true)
-        const y = selectedDate.getFullYear()
-        const mo = String(selectedDate.getMonth() + 1).padStart(2, '0')
-        const d = String(selectedDate.getDate()).padStart(2, '0')
-        const dateStr = `${y}-${mo}-${d}`
-        const res = await fetch(`/api/matches/today?date=${dateStr}`)
-        const json = await res.json()
-        const raw = json.data || []
+        const raw = await sportsService.getMatchesByDate(selectedDate)
         const finished = raw.filter((m: Match) => m.status === 'full_time' || m.status === 'extra_time' || m.status === 'penalties')
         setMatches(finished.length > 0 ? finished : raw)
       } catch (err) {
@@ -65,7 +61,9 @@ export default function ResultsClient() {
       }
       map.get(leagueId)!.matches.push(match)
     })
-    return Array.from(map.values())
+    const groups = Array.from(map.values())
+    groups.sort((a, b) => getCompetitionPriority(a.league) - getCompetitionPriority(b.league))
+    return groups
   }, [filteredMatches])
 
   return (

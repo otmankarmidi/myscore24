@@ -7,14 +7,12 @@ import AdvertisementPlaceholder from '@/components/common/AdvertisementPlacehold
 import { Match } from '@/types/match'
 
 const QUICK_LINKS = [
-  { name: 'Premier League', href: '/league/premier-league', icon: '/leagues/premier-league.png' },
-  { name: 'LaLiga', href: '/league/la-liga', icon: '/leagues/laliga.png' },
-  { name: 'Bundesliga', href: '/league/bundesliga', icon: '/leagues/bundesliga.png' },
-  { name: 'Serie A', href: '/league/serie-a', icon: '/leagues/serie-a.png' },
-  { name: 'Ligue 1', href: '/league/ligue-1', icon: '/leagues/ligue-1.png' },
-  { name: 'Champions League', href: '/league/champions-league', icon: '/leagues/champions-league.png' },
-  { name: 'Botola Pro', href: '/league/botola-pro', icon: '/leagues/botola-pro.png' },
-  { name: 'Saudi Pro League', href: '/league/saudi-pro-league', icon: '/leagues/saudi-pro-league.svg' },
+  { name: 'Premier League', href: '/competition/39', icon: '/leagues/premier-league.png' },
+  { name: 'LaLiga', href: '/competition/140', icon: '/leagues/laliga.png' },
+  { name: 'Bundesliga', href: '/competition/78', icon: '/leagues/bundesliga.png' },
+  { name: 'Serie A', href: '/competition/135', icon: '/leagues/serie-a.png' },
+  { name: 'Ligue 1', href: '/competition/61', icon: '/leagues/ligue-1.png' },
+  { name: 'Champions League', href: '/competition/2', icon: '/leagues/champions-league.png' },
 ]
 
 const TOP_LEAGUE_KEYWORDS = [
@@ -158,6 +156,7 @@ export default function RightSidebar() {
                 <Link
                   key={match.id}
                   href={matchHref}
+                  prefetch={false}
                   onClick={(e) => {
                     if (!hasValidId) e.preventDefault()
                   }}
@@ -231,6 +230,7 @@ export default function RightSidebar() {
             <Link
               key={link.name}
               href={link.href}
+              prefetch={false}
               className="px-2.5 py-1.5 rounded text-xs font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high flex items-center gap-2.5 transition-colors group"
             >
               <img
@@ -238,6 +238,8 @@ export default function RightSidebar() {
                 alt={link.name}
                 width={20}
                 height={20}
+                loading="lazy"
+                decoding="async"
                 className="w-5 h-5 object-contain shrink-0"
                 onError={(e) => {
                   (e.currentTarget as HTMLElement).style.visibility = 'hidden'
