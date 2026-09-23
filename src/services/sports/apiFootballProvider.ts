@@ -9,7 +9,7 @@
 import { cacheEngine, CACHE_TTLS, formatCacheKey } from './cacheEngine'
 import { apiTelemetry } from './apiTelemetry'
 
-const DEFAULT_KEY = 'c26d748e926e82946cc6acb2eee6943e'
+const DEFAULT_KEY = '24f7ff23b96dcf9af3ef36a3bac17c15'
 const API_KEY = process.env.FOOTBALL_API_KEY || DEFAULT_KEY
 const API_HOST = process.env.FOOTBALL_API_HOST || 'v3.football.api-sports.io'
 const DEFAULT_TIMEZONE = 'Africa/Casablanca'
