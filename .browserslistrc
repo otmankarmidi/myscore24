@@ -1,0 +1,7 @@
+# Modern browser targets (removes legacy polyfills for Array.prototype.at, flat, Object.hasOwn, etc.)
+Chrome >= 100
+Firefox >= 100
+Safari >= 15.4
+Edge >= 100
+iOS >= 15.4
+not dead

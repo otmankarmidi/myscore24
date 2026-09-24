@@ -41,9 +41,17 @@ export default function DesktopSidebar() {
         setLiveCount(0)
       }
     }
-    fetchLiveCount()
-    const id = setInterval(fetchLiveCount, 30000)
-    return () => clearInterval(id)
+
+    let id: NodeJS.Timeout
+    const initialTimer = setTimeout(() => {
+      fetchLiveCount()
+      id = setInterval(fetchLiveCount, 30000)
+    }, 4000)
+
+    return () => {
+      clearTimeout(initialTimer)
+      if (id) clearInterval(id)
+    }
   }, [])
 
   const favoriteLeagues = mockLeagues.slice(0, 6)

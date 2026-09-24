@@ -125,6 +125,24 @@ export default function HomeClient() {
     return groups
   }, [filteredMatches])
 
+  // Progressive rendering for long lists: first 8 groups mount immediately, rest mount after first paint
+  const [renderLimit, setRenderLimit] = useState<number>(8)
+
+  useEffect(() => {
+    if (groupedByLeague.length > 8) {
+      const timer = setTimeout(() => {
+        setRenderLimit(groupedByLeague.length)
+      }, 120)
+      return () => clearTimeout(timer)
+    } else {
+      setRenderLimit(8)
+    }
+  }, [groupedByLeague.length])
+
+  const visibleGroups = useMemo(() => {
+    return groupedByLeague.slice(0, renderLimit)
+  }, [groupedByLeague, renderLimit])
+
   // 4. Counts for filter badges calculated strictly on approved matches
   const counts = useMemo(() => {
     return {
@@ -213,7 +231,7 @@ export default function HomeClient() {
             />
           ) : (
             <div className="space-y-4">
-              {groupedByLeague.map(({ league, matches }) => (
+              {visibleGroups.map(({ league, matches }) => (
                 <CompetitionGroup
                   key={league.id || league.slug}
                   league={league}

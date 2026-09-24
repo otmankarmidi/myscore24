@@ -28,57 +28,6 @@ const LOCALES: { code: Locale; name: string }[] = [
   { code: 'ar', name: 'العربية' },
 ]
 
-function NotificationAlertList() {
-  const [alerts, setAlerts] = useState<MatchAlert[]>([])
-  const { t } = useLanguage()
-
-  useEffect(() => {
-    async function loadAlerts() {
-      try {
-        const res = await fetch('/api/alerts?limit=10')
-        if (res.ok) {
-          const data = await res.json()
-          setAlerts(data.alerts || [])
-        }
-      } catch {}
-    }
-    loadAlerts()
-  }, [])
-
-  if (alerts.length === 0) {
-    return (
-      <div className="py-6 text-center text-xs text-on-surface-variant">
-        {t('common.noAlerts', 'No recent match alerts')}
-      </div>
-    )
-  }
-
-  return (
-    <div className="divide-y divide-surface-bright/40">
-      {alerts.map((a) => (
-        <Link
-          key={a.id}
-          href={`/match/${a.matchId || a.matchSlug}`}
-          className="p-2 flex flex-col gap-0.5 hover:bg-surface-container-high rounded transition-colors"
-        >
-          <div className="flex items-center justify-between text-[11px]">
-            <span className="font-bold text-primary">{a.title}</span>
-            <span className="text-on-surface-variant font-mono">{a.createdAt && a.createdAt.includes('T') ? a.createdAt.split('T')[1]?.slice(0, 5) : ''}</span>
-          </div>
-          <span className="text-xs font-medium text-on-surface">
-            {a.homeTeamName} {a.homeScore}–{a.awayScore} {a.awayTeamName}
-          </span>
-          {a.scorerName && (
-            <span className="text-[11px] text-on-surface-variant">
-              {a.scorerName} {a.minute ? `(${a.minute}')` : ''}
-            </span>
-          )}
-        </Link>
-      ))}
-    </div>
-  )
-}
-
 interface HeaderProps {
   searchQuery?: string
   onSearchChange?: (query: string) => void

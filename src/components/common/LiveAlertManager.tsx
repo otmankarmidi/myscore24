@@ -36,11 +36,18 @@ export function LiveAlertManager() {
     }
   }, [isMatchFavorite, isTeamFavorite, activeAlert])
 
-  // Poll for alerts every 15 seconds
+  // Poll for alerts every 15 seconds (deferred after initial page load)
   useEffect(() => {
-    checkAlerts()
-    const interval = setInterval(checkAlerts, 15000)
-    return () => clearInterval(interval)
+    let interval: NodeJS.Timeout
+    const initialTimer = setTimeout(() => {
+      checkAlerts()
+      interval = setInterval(checkAlerts, 15000)
+    }, 6000)
+
+    return () => {
+      clearTimeout(initialTimer)
+      if (interval) clearInterval(interval)
+    }
   }, [checkAlerts])
 
   // Auto-dismiss toast after 6 seconds

@@ -50,8 +50,13 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   function applyDocumentLocale(l: Locale) {
     if (typeof document !== 'undefined') {
-      document.documentElement.lang = l
-      document.documentElement.dir = localeDirections[l]
+      const targetDir = localeDirections[l]
+      if (document.documentElement.lang !== l) {
+        document.documentElement.lang = l
+      }
+      if (document.documentElement.dir !== targetDir) {
+        document.documentElement.dir = targetDir
+      }
     }
   }
 

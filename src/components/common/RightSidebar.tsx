@@ -110,6 +110,11 @@ export default function RightSidebar() {
   const [topMatches, setTopMatches] = useState<Match[]>([])
 
   useEffect(() => {
+    // Avoid fetching if sidebar is hidden on mobile screens
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      return
+    }
+
     async function fetchSidebar() {
       try {
         // Fetch matches from cached backend route (0ms hit via CacheEngine)
@@ -124,7 +129,8 @@ export default function RightSidebar() {
       }
     }
 
-    fetchSidebar()
+    const timer = setTimeout(fetchSidebar, 2000)
+    return () => clearTimeout(timer)
   }, [])
 
   return (

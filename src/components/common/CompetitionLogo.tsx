@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { getLocalLeagueLogo } from '@/config/competitions'
+import { getOptimizedImageUrl } from '@/lib/image'
 
 interface CompetitionLogoProps {
   logo?: string | null
@@ -49,10 +50,11 @@ export default function CompetitionLogo({
   // Step 0: Try primary competition logo if valid URL
   if (fallbackStep === 0) {
     if (logo && isUrlString(logo)) {
+      const src = getOptimizedImageUrl(logo, size)
       return (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={logo}
+          src={src}
           alt={`${name} logo`}
           width={size}
           height={size}

@@ -15,9 +15,12 @@ export function useTheme() {
   }, [])
 
   function applyTheme(t: Theme) {
+    if (typeof document === 'undefined') return
     const root = document.documentElement
-    root.classList.remove('dark', 'light')
-    root.classList.add(t)
+    if (!root.classList.contains(t)) {
+      root.classList.remove(t === 'dark' ? 'light' : 'dark')
+      root.classList.add(t)
+    }
   }
 
   function toggle() {

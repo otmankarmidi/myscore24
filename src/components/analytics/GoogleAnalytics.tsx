@@ -1,23 +1,41 @@
 'use client'
 
 import Script from 'next/script'
-import { Suspense } from 'react'
-import { GA_MEASUREMENT_ID } from '@/lib/analytics'
+import { Suspense, useEffect, useState } from 'react'
+import { GA_MEASUREMENT_ID, CONSENT_STORAGE_KEY } from '@/lib/analytics'
 import AnalyticsPageViewTracker from './AnalyticsPageViewTracker'
 
 export default function GoogleAnalytics() {
+  const [shouldLoad, setShouldLoad] = useState<boolean>(true)
+
+  useEffect(() => {
+    try {
+      const consent = localStorage.getItem(CONSENT_STORAGE_KEY)
+      // If user explicitly denied consent, do not download gtag script
+      if (consent === 'denied') {
+        setShouldLoad(false)
+      }
+    } catch {
+      // Default to allowed
+    }
+  }, [])
+
+  if (!shouldLoad) {
+    return null
+  }
+
   return (
     <>
-      {/* 1. Google Consent Mode v2 Default Configuration */}
+      {/* 1. Google Consent Mode v2 Default Configuration (lazyOnload for zero critical path impact) */}
       <Script
         id="google-consent-mode"
-        strategy="beforeInteractive"
+        strategy="lazyOnload"
         dangerouslySetInnerHTML={{
           __html: `
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             try {
-              var userConsent = localStorage.getItem('myscore24_cookie_consent');
+              var userConsent = localStorage.getItem('${CONSENT_STORAGE_KEY}');
               var analyticsGranted = userConsent === 'denied' ? 'denied' : 'granted';
               gtag('consent', 'default', {
                 'analytics_storage': analyticsGranted,
@@ -37,17 +55,17 @@ export default function GoogleAnalytics() {
         }}
       />
 
-      {/* 2. Load GA4 Library (Async, After Interactive - zero blocking) */}
+      {/* 2. Load GA4 Library (lazyOnload - loads during idle time after all critical resources) */}
       <Script
         id="google-analytics-script"
-        strategy="afterInteractive"
+        strategy="lazyOnload"
         src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
       />
 
-      {/* 3. Initialize GA4 Data Layer */}
+      {/* 3. Initialize GA4 (send_page_view: false to prevent duplicate page_view events) */}
       <Script
         id="google-analytics-init"
-        strategy="afterInteractive"
+        strategy="lazyOnload"
         dangerouslySetInnerHTML={{
           __html: `
             window.dataLayer = window.dataLayer || [];
@@ -56,7 +74,7 @@ export default function GoogleAnalytics() {
               gtag('js', new Date());
               gtag('config', '${GA_MEASUREMENT_ID}', {
                 page_path: window.location.pathname,
-                send_page_view: true
+                send_page_view: false
               });
               window._gaInitialized = true;
             }
@@ -64,7 +82,7 @@ export default function GoogleAnalytics() {
         }}
       />
 
-      {/* 4. Client-side Navigation Tracker for Next.js App Router */}
+      {/* 4. Single Source of Truth Navigation Tracker */}
       <Suspense fallback={null}>
         <AnalyticsPageViewTracker />
       </Suspense>

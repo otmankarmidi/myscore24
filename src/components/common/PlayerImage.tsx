@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { matchLocalPlayerImage, resolvePlayerImagePath } from '@/lib/playerMatcher'
+import { getOptimizedImageUrl } from '@/lib/image'
 
 interface PlayerImageProps {
   playerId?: string | number
@@ -102,7 +103,8 @@ export default function PlayerImage({
   }
 
   // Step 2: External API photo fallback
-  const apiSrc = getPlayerImageUrl(playerId, photo)
+  const rawApiSrc = getPlayerImageUrl(playerId, photo)
+  const apiSrc = rawApiSrc ? getOptimizedImageUrl(rawApiSrc, 80) : ''
 
   // Level 0: Try local image first
   // Level 1: Try API image

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { getOptimizedImageUrl } from '@/lib/image'
 
 interface TeamLogoProps {
   name: string
@@ -21,10 +22,11 @@ export default function TeamLogo({ name, abbreviation, logo, size = 'sm' }: Team
   const s = sizes[size]
 
   if (logo && !imgError) {
+    const src = getOptimizedImageUrl(logo, s.img)
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
-        src={logo}
+        src={src}
         alt={`${name} badge`}
         width={s.img}
         height={s.img}

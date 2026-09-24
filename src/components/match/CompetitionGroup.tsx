@@ -30,7 +30,7 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
   const safeMatches = (matches || []).filter(Boolean)
 
   return (
-    <div className="bg-surface-container-low rounded overflow-hidden shadow-sm animate-fade-in">
+    <div className="competition-group-container bg-surface-container-low rounded overflow-hidden shadow-sm animate-fade-in">
       {/* Competition header */}
       <div className="h-9 bg-surface-container px-3 flex items-center justify-between text-on-surface-variant">
         <div className="flex items-center gap-2 min-w-0">
