@@ -6,30 +6,48 @@ import { formatDate } from '@/lib/utils'
 export const dynamic = 'force-dynamic'
 
 export default async function AdminDashboardPage() {
-  const [
-    totalArticles,
-    publishedCount,
-    draftCount,
-    scheduledCount,
-    totalViewsAgg,
-    recentArticles,
-  ] = await Promise.all([
-    prisma.article.count(),
-    prisma.article.count({ where: { status: 'PUBLISHED' } }),
-    prisma.article.count({ where: { status: 'DRAFT' } }),
-    prisma.article.count({ where: { status: 'SCHEDULED' } }),
-    prisma.article.aggregate({ _sum: { views: true } }),
-    prisma.article.findMany({
-      take: 6,
-      orderBy: { updatedAt: 'desc' },
-      include: {
-        category: { select: { name: true } },
-        author: { select: { name: true } },
-      },
-    }),
-  ])
+  let totalArticles = 0
+  let publishedCount = 0
+  let draftCount = 0
+  let scheduledCount = 0
+  let totalViews = 0
+  let recentArticles: any[] = []
+  let dbError: string | null = null
 
-  const totalViews = totalViewsAgg._sum.views || 0
+  try {
+    const [
+      total,
+      published,
+      draft,
+      scheduled,
+      totalViewsAgg,
+      recent,
+    ] = await Promise.all([
+      prisma.article.count(),
+      prisma.article.count({ where: { status: 'PUBLISHED' } }),
+      prisma.article.count({ where: { status: 'DRAFT' } }),
+      prisma.article.count({ where: { status: 'SCHEDULED' } }),
+      prisma.article.aggregate({ _sum: { views: true } }),
+      prisma.article.findMany({
+        take: 6,
+        orderBy: { updatedAt: 'desc' },
+        include: {
+          category: { select: { name: true } },
+          author: { select: { name: true } },
+        },
+      }),
+    ])
+
+    totalArticles = total
+    publishedCount = published
+    draftCount = draft
+    scheduledCount = scheduled
+    totalViews = totalViewsAgg._sum.views || 0
+    recentArticles = recent
+  } catch (err: any) {
+    console.error('[Admin Dashboard] Query error:', err)
+    dbError = err.message || 'Database error'
+  }
 
   const statusBadgeClass = (status: string) => {
     switch (status) {
@@ -72,6 +90,16 @@ export default async function AdminDashboardPage() {
           </Link>
         </div>
       </div>
+
+      {dbError && (
+        <div className="p-4 rounded-xl bg-[#93000a]/20 border border-[#ffb4ab]/30 text-[#ffb4ab] text-xs flex items-center gap-3">
+          <span className="material-symbols-outlined text-xl shrink-0">database</span>
+          <div>
+            <p className="font-bold">Database Status Warning</p>
+            <p className="text-[11px] text-[#ffb4ab]/80 mt-0.5">{dbError}</p>
+          </div>
+        </div>
+      )}
 
       {/* Metrics Grid */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
