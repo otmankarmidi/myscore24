@@ -1,5 +1,8 @@
 import { Metadata } from 'next'
 import NewsClient from './NewsClient'
+import { getPublishedArticles } from '@/lib/articles'
+
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Football News, Transfer Rumours & Tactical Analysis | MyScore24',
@@ -33,7 +36,9 @@ export const metadata: Metadata = {
   },
 }
 
-export default function NewsPage() {
+export default async function NewsPage() {
+  const articles = await getPublishedArticles()
+
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -59,7 +64,7 @@ export default function NewsPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
-      <NewsClient />
+      <NewsClient initialArticles={articles} />
     </>
   )
 }

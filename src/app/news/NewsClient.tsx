@@ -6,19 +6,28 @@ import DesktopSidebar from '@/components/common/DesktopSidebar'
 import RightSidebar from '@/components/common/RightSidebar'
 import MobileBottomNavigation from '@/components/common/MobileBottomNavigation'
 import NewsCard from '@/components/news/NewsCard'
-import { mockNews } from '@/data/mockNews'
+import { NewsArticle } from '@/types/news'
 
-export default function NewsClient() {
+interface NewsClientProps {
+  initialArticles: NewsArticle[]
+}
+
+export default function NewsClient({ initialArticles }: NewsClientProps) {
   const [activeCategory, setActiveCategory] = useState<string>('all')
 
-  const categories = ['all', 'transfers', 'premier league', 'champions league', 'analysis']
+  // Collect distinct categories from articles
+  const categorySet = new Set<string>()
+  initialArticles.forEach((a) => {
+    if (a.category) categorySet.add(a.category.toLowerCase())
+  })
+  const categories = ['all', ...Array.from(categorySet)]
 
   const filteredNews =
     activeCategory === 'all'
-      ? mockNews
-      : mockNews.filter((n) => n.category.toLowerCase() === activeCategory.toLowerCase())
+      ? initialArticles
+      : initialArticles.filter((n) => n.category.toLowerCase() === activeCategory.toLowerCase())
 
-  const featured = mockNews[0]
+  const featured = filteredNews[0]
   const listNews = filteredNews.filter((n) => n.id !== featured?.id)
 
   return (
@@ -60,16 +69,22 @@ export default function NewsClient() {
           </div>
 
           {/* Featured Hero Article */}
-          {featured && activeCategory === 'all' && (
+          {featured && (
             <NewsCard article={featured} variant="featured" />
           )}
 
           {/* News Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {listNews.map((article) => (
-              <NewsCard key={article.id} article={article} variant="standard" />
-            ))}
-          </div>
+          {listNews.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {listNews.map((article) => (
+                <NewsCard key={article.id} article={article} variant="standard" />
+              ))}
+            </div>
+          ) : !featured ? (
+            <div className="bg-surface-container rounded-xl border border-surface-bright p-8 text-center text-on-surface-variant text-sm">
+              No articles found in this category.
+            </div>
+          ) : null}
         </main>
 
         <RightSidebar />

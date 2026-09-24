@@ -1,7 +1,9 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { mockNews } from '@/data/mockNews'
+import { getArticleBySlug, getPublishedArticles } from '@/lib/articles'
 import NewsArticleClient from './NewsArticleClient'
+
+export const dynamic = 'force-dynamic'
 
 interface NewsArticlePageProps {
   params: Promise<{ slug: string }>
@@ -9,7 +11,7 @@ interface NewsArticlePageProps {
 
 export async function generateMetadata({ params }: NewsArticlePageProps): Promise<Metadata> {
   const { slug } = await params
-  const article = mockNews.find((n) => n.slug === slug)
+  const { article, metaTitle, metaDescription } = await getArticleBySlug(slug)
 
   if (!article) {
     return {
@@ -19,8 +21,8 @@ export async function generateMetadata({ params }: NewsArticlePageProps): Promis
     }
   }
 
-  const title = `${article.title} | MyScore24`
-  const description = article.excerpt
+  const title = metaTitle || `${article.title} | MyScore24`
+  const description = metaDescription || article.excerpt
   const canonical = `https://myscore24.com/news/${slug}`
   const imageUrl = article.imageUrl || article.image || '/og-image.png'
 
@@ -57,13 +59,16 @@ export async function generateMetadata({ params }: NewsArticlePageProps): Promis
 
 export default async function NewsArticlePage({ params }: NewsArticlePageProps) {
   const { slug } = await params
-  const article = mockNews.find((n) => n.slug === slug)
+  const { article, competition, team, playerId, matchId } = await getArticleBySlug(slug)
 
   if (!article) {
     notFound()
   }
 
-  const relatedNews = mockNews.filter((n) => n.id !== article.id).slice(0, 2)
+  // Fetch related articles
+  const allArticles = await getPublishedArticles()
+  const relatedNews = allArticles.filter((n) => n.id !== article.id).slice(0, 2)
+
   const authorName =
     typeof article.author === 'string'
       ? article.author
@@ -77,7 +82,7 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
     description: article.excerpt,
     image: [imageUrl],
     datePublished: article.publishedAt,
-    dateModified: article.publishedAt,
+    dateModified: article.updatedAt || article.publishedAt,
     author: [
       {
         '@type': 'Person',
@@ -133,7 +138,11 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
-      <NewsArticleClient article={article} relatedNews={relatedNews} />
+      <NewsArticleClient
+        article={article}
+        relatedNews={relatedNews}
+        linkedEntity={{ competition, team, playerId, matchId }}
+      />
     </>
   )
 }

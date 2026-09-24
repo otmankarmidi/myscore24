@@ -171,3 +171,102 @@ model ImportJob {
   @@index([status])
   @@map("import_jobs")
 }
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+  SCHEDULED
+  ARCHIVED
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?   @db.Text
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  articles    Article[]
+
+  @@map("categories")
+}
+
+model Author {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  role      String?   @default("Staff Writer")
+  avatar    String?
+  bio       String?   @db.Text
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  articles  Article[]
+
+  @@map("authors")
+}
+
+model Tag {
+  id        String       @id @default(cuid())
+  name      String
+  slug      String       @unique
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  articles  ArticleTag[]
+
+  @@map("tags")
+}
+
+model ArticleTag {
+  articleId String
+  tagId     String
+
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, tagId])
+  @@index([tagId])
+  @@map("article_tags")
+}
+
+model Article {
+  id              String        @id @default(cuid())
+  title           String        @db.VarChar(255)
+  slug            String        @unique @db.VarChar(255)
+  excerpt         String        @db.Text
+  content         String        @db.LongText
+  featuredImage   String?       @db.VarChar(500)
+  status          ArticleStatus @default(DRAFT)
+  publishedAt     DateTime?
+  scheduledAt     DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  views           Int           @default(0)
+
+  metaTitle       String?       @db.VarChar(255)
+  metaDescription String?       @db.VarChar(500)
+
+  categoryId      String?
+  authorId        String?
+
+  category        Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  author          Author?       @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  tags            ArticleTag[]
+
+  // Optional football entity links
+  competitionId   String?       @db.VarChar(100)
+  teamId          String?       @db.VarChar(100)
+  playerId        String?       @db.VarChar(100)
+  matchId         String?       @db.VarChar(100)
+
+  @@index([status])
+  @@index([publishedAt])
+  @@index([categoryId])
+  @@index([authorId])
+  @@index([competitionId])
+  @@index([teamId])
+  @@map("articles")
+}
+

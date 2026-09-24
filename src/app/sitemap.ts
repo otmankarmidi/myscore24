@@ -129,13 +129,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('[Sitemap Generator] Database query failed, using static sitemap only:', err)
   }
 
-  // 3. News Articles (Local/Static Data)
-  const newsRoutes: MetadataRoute.Sitemap = mockNews.map((article) => ({
-    url: `${BASE_URL}/news/${article.slug}`,
-    lastModified: article.publishedAt ? new Date(article.publishedAt) : now,
-    changeFrequency: 'monthly' as const,
-    priority: 0.7,
-  }))
+  // 3. News Articles (Dynamic from MySQL, fallback to mockNews)
+  let newsRoutes: MetadataRoute.Sitemap = []
+  try {
+    const dbArticles = await prisma.article.findMany({
+      where: { status: 'PUBLISHED' },
+      select: { slug: true, publishedAt: true, updatedAt: true },
+      take: 500,
+    })
+
+    if (dbArticles.length > 0) {
+      newsRoutes = dbArticles.map((article: any) => ({
+        url: `${BASE_URL}/news/${article.slug}`,
+        lastModified: article.updatedAt || article.publishedAt || now,
+        changeFrequency: 'daily' as const,
+        priority: 0.7,
+      }))
+    } else {
+      newsRoutes = mockNews.map((article) => ({
+        url: `${BASE_URL}/news/${article.slug}`,
+        lastModified: article.publishedAt ? new Date(article.publishedAt) : now,
+        changeFrequency: 'monthly' as const,
+        priority: 0.7,
+      }))
+    }
+  } catch (err) {
+    console.error('[Sitemap Generator] Article query failed, using fallback:', err)
+    newsRoutes = mockNews.map((article) => ({
+      url: `${BASE_URL}/news/${article.slug}`,
+      lastModified: article.publishedAt ? new Date(article.publishedAt) : now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    }))
+  }
 
   // 4. Key Manifest Players
   let playerRoutes: MetadataRoute.Sitemap = []
