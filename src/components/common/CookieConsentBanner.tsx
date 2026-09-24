@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { CONSENT_STORAGE_KEY, updateAnalyticsConsent } from '@/lib/analytics'
+import { CONSENT_STORAGE_KEY, COOKIE_SETTINGS_EVENT, updateAnalyticsConsent } from '@/lib/analytics'
 import { useLanguage } from '@/context/LanguageContext'
 
 export default function CookieConsentBanner() {
@@ -20,6 +20,15 @@ export default function CookieConsentBanner() {
     } catch {
       // Ignore storage errors
     }
+  }, [])
+
+  // Listen for manual trigger from Footer or Cookie Policy page
+  useEffect(() => {
+    const handleOpenSettings = () => {
+      setIsVisible(true)
+    }
+    window.addEventListener(COOKIE_SETTINGS_EVENT, handleOpenSettings)
+    return () => window.removeEventListener(COOKIE_SETTINGS_EVENT, handleOpenSettings)
   }, [])
 
   if (!isVisible) return null
@@ -47,13 +56,20 @@ export default function CookieConsentBanner() {
           </span>{' '}
           {t(
             'cookie.description',
-            'We use cookies and Google Analytics to analyze platform traffic and improve your live football experience. You can choose whether to enable performance analytics.'
+            'We use essential cookies for core functionality and optional Google Analytics to measure performance and improve your experience. You can choose whether to enable optional performance analytics.'
           )}{' '}
           <Link
-            href="/privacy"
+            href="/cookie-policy"
             className="text-primary underline hover:text-primary-container transition-colors ml-1"
           >
-            {t('cookie.learnMore', 'Privacy Policy')}
+            {t('cookie.cookiePolicy', 'Cookie Policy')}
+          </Link>
+          {' · '}
+          <Link
+            href="/privacy-policy"
+            className="text-primary underline hover:text-primary-container transition-colors"
+          >
+            {t('cookie.privacyPolicy', 'Privacy Policy')}
           </Link>
         </div>
 

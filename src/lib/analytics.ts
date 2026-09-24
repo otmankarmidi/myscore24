@@ -28,6 +28,16 @@ export function isAnalyticsConsentGranted(): boolean {
   }
 }
 
+export const COOKIE_SETTINGS_EVENT = 'myscore24_open_cookie_settings'
+
+/**
+ * Dispatches an event to open/reopen the cookie consent preferences banner
+ */
+export function openCookieSettings(): void {
+  if (typeof window === 'undefined') return
+  window.dispatchEvent(new CustomEvent(COOKIE_SETTINGS_EVENT))
+}
+
 /**
  * Update Google Consent Mode v2 state dynamically
  */

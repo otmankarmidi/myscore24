@@ -141,7 +141,7 @@ export default function MobileDrawer({ isOpen, onClose, onOpenNotifications }: M
           </Link>
 
           <Link
-            href="/privacy"
+            href="/privacy-policy"
             onClick={onClose}
             className="px-3 py-2 rounded-lg bg-surface-container-low hover:bg-surface-container-high flex items-center justify-between text-xs font-medium text-on-surface min-h-[44px]"
           >
