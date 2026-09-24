@@ -34,6 +34,7 @@ model Competition {
   country     Country?  @relation(fields: [countryId], references: [id], onDelete: SetNull)
   seasons     Season[]
   matches     Match[]
+  playerSeasonStatistics PlayerSeasonStatistic[]
 
   @@index([countryId])
   @@map("competitions")
@@ -81,6 +82,10 @@ model Team {
 
   homeMatches   Match[]   @relation("HomeTeamMatches")
   awayMatches   Match[]   @relation("AwayTeamMatches")
+
+  clubPlayers            Player[]                @relation("PlayerCurrentClub")
+  nationalPlayers        Player[]                @relation("PlayerCurrentNationalTeam")
+  playerSeasonStatistics PlayerSeasonStatistic[]
 
   @@map("teams")
 }
@@ -269,4 +274,118 @@ model Article {
   @@index([teamId])
   @@map("articles")
 }
+
+model Player {
+  id                     String    @id @default(cuid())
+  providerPlayerId       Int       @unique
+  name                   String
+  firstname              String?
+  lastname               String?
+  photo                  String?
+  currentClubId          String?
+  currentClubProviderId  Int?
+  currentNationalTeamId  String?
+  currentNationalProviderId Int?
+  currentSquadNumber     Int?
+  currentPosition        String?
+  nationality            String?
+  nationalityFlag        String?
+  dateOfBirth            String?
+  age                    Int?
+  height                 String?
+  weight                 String?
+  preferredFoot          String?
+  marketValue            String?
+  lastSyncedAt           DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  currentClub            Team?     @relation("PlayerCurrentClub", fields: [currentClubId], references: [id], onDelete: SetNull)
+  currentNationalTeam    Team?     @relation("PlayerCurrentNationalTeam", fields: [currentNationalTeamId], references: [id], onDelete: SetNull)
+  seasonStatistics       PlayerSeasonStatistic[]
+
+  @@index([currentClubId])
+  @@index([currentNationalTeamId])
+  @@index([currentClubProviderId])
+  @@map("players")
+}
+
+model PlayerSeasonStatistic {
+  id                 String       @id @default(cuid())
+  playerId           String
+  teamId             String?
+  competitionId      String?
+
+  providerPlayerId   Int
+  providerTeamId     Int
+  providerLeagueId   Int
+  season             Int
+
+  leagueName         String
+  leagueLogo         String?
+  leagueCountry      String?
+  leagueFlag         String?
+  isCalendarYear     Boolean      @default(false)
+
+  teamName           String
+  teamLogo           String?
+
+  appearances        Int?
+  lineups            Int?
+  minutes            Int?
+  number             Int?
+  position           String?
+  rating             Float?
+  captain            Boolean      @default(false)
+
+  goals              Int?
+  conceded           Int?
+  assists            Int?
+  saves              Int?
+
+  shotsTotal         Int?
+  shotsOnTarget      Int?
+
+  passesTotal        Int?
+  passesKey          Int?
+  passesAccuracy     Int?
+
+  tacklesTotal       Int?
+  blocks             Int?
+  interceptions      Int?
+
+  duelsTotal         Int?
+  duelsWon           Int?
+
+  dribblesAttempts   Int?
+  dribblesSuccess    Int?
+
+  foulsDrawn         Int?
+  foulsCommitted     Int?
+
+  yellowCards        Int?
+  yellowRedCards     Int?
+  redCards           Int?
+
+  penaltyWon         Int?
+  penaltyCommited    Int?
+  penaltyScored      Int?
+  penaltyMissed      Int?
+  penaltySaved       Int?
+
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  player             Player       @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  team               Team?        @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  competition        Competition? @relation(fields: [competitionId], references: [id], onDelete: SetNull)
+
+  @@unique([providerPlayerId, providerTeamId, providerLeagueId, season], map: "player_season_stat_unique")
+  @@index([playerId])
+  @@index([season])
+  @@index([providerTeamId])
+  @@index([providerLeagueId])
+  @@map("player_season_statistics")
+}
+
 

@@ -42,11 +42,11 @@ function PlayerCard({ player, teamName }: { player: Player; teamName?: string })
     >
       <PlayerImage
         playerId={player.id}
-        photo={player.photo}
-        image={player.image || player.imagePath}
+        photo={player.photo || undefined}
+        image={player.image || player.imagePath || undefined}
         name={player.name}
-        teamName={teamName || player.teamName || player.team?.name}
-        squadNumber={player.squadNumber || player.number}
+        teamName={teamName || player.teamName || player.team?.name || undefined}
+        squadNumber={player.squadNumber || player.number || undefined}
         slug={player.slug}
         size="lg"
         className="w-11 h-11 min-w-[44px] border border-surface-bright shrink-0"

@@ -402,7 +402,19 @@ export const apiFootballProvider = {
     })
   },
 
-  async getPlayerDetailsAndStats(playerId: string | number, season: number = 2024): Promise<any | null> {
+  async getPlayerSquads(playerId: string | number): Promise<any[]> {
+    const keyStr = String(playerId)
+    return cacheEngine.fetchWithCache('player_squads', keyStr, CACHE_TTLS.ENTITY_INFO, async () => {
+      if (!this.hasValidApiKey()) return []
+      const url = this.getUrl(`players/squads?player=${playerId}`, false)
+      const res = await fetchWithRetry(url, { headers: this.getHeaders() })
+      if (!res.ok) return []
+      const json = await res.json()
+      return json.response || []
+    })
+  },
+
+  async getPlayerDetailsAndStats(playerId: string | number, season: number = 2026): Promise<any | null> {
     const keyStr = `${playerId}_${season}`
     return cacheEngine.fetchWithCache('player_stats', keyStr, CACHE_TTLS.ENTITY_INFO, async () => {
       if (!this.hasValidApiKey()) return null

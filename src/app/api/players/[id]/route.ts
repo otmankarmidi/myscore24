@@ -18,17 +18,17 @@ export async function GET(
     }
 
     const { searchParams } = new URL(request.url)
-    const season = parseInt(searchParams.get('season') || '2024', 10)
+    const season = parseInt(searchParams.get('season') || '2026', 10)
 
     const numericId = resolveApiFootballPlayerId(id)
 
-    if (numericId && apiFootballProvider.hasValidApiKey()) {
-      const raw = await apiFootballProvider.getPlayerDetailsAndStats(numericId, season)
-      if (raw && raw.player) {
-        const player = normalizeApiFootballPlayerFull(raw)
+    if (numericId) {
+      const { getOrSyncPlayerProfile } = await import('@/services/sports/playerService')
+      const player = await getOrSyncPlayerProfile(Number(numericId), id)
+      if (player) {
         return NextResponse.json({
           player,
-          source: 'API-FOOTBALL',
+          source: 'DATABASE_OR_SYNC',
         })
       }
     }

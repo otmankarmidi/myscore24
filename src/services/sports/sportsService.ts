@@ -293,19 +293,19 @@ export const sportsService = {
       // Non-fatal
     }
 
-    // 3. Fetch real current season player stats & photo from API-Football
-    if (numericPlayerId && apiFootballProvider.hasValidApiKey()) {
+    // 3. Database-first fetch & sync via playerService with 2026 season
+    if (numericPlayerId) {
       try {
-        const rawPlayer = await apiFootballProvider.getPlayerDetailsAndStats(numericPlayerId, 2024)
-        if (rawPlayer && rawPlayer.player) {
-          const normalized = normalizeApiFootballPlayerFull(rawPlayer)
+        const { getOrSyncPlayerProfile } = await import('./playerService')
+        const player = await getOrSyncPlayerProfile(Number(numericPlayerId), normSlug)
+        if (player) {
           if (!/^\d+$/.test(normSlug)) {
-            normalized.slug = normSlug
+            player.slug = normSlug
           }
-          return normalized
+          return player
         }
       } catch (err) {
-        console.error(`Failed to fetch real stats for player ${numericPlayerId}:`, err)
+        console.error(`Failed to fetch/sync stats for player ${numericPlayerId}:`, err)
       }
     }
 
