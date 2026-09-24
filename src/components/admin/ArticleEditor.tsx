@@ -43,6 +43,7 @@ export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) 
   const [excerpt, setExcerpt] = useState('')
   const [content, setContent] = useState('')
   const [featuredImage, setFeaturedImage] = useState<string | null>(null)
+  const [localPreview, setLocalPreview] = useState<string | null>(null)
   const [status, setStatus] = useState<'DRAFT' | 'PUBLISHED' | 'SCHEDULED' | 'ARCHIVED'>('DRAFT')
   const [scheduledAt, setScheduledAt] = useState<string>('')
   const [categoryId, setCategoryId] = useState<string>('')
@@ -166,8 +167,15 @@ export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) 
 
   // Handle Featured Image Upload
   const handleFeaturedImageUpload = async (file: File) => {
+    // 1. Instant 0ms visual preview
+    try {
+      const objUrl = URL.createObjectURL(file)
+      setLocalPreview(objUrl)
+    } catch {}
+
     setUploadingImage(true)
     setErrorMessage(null)
+
     try {
       const formData = new FormData()
       formData.append('file', file)
@@ -181,9 +189,11 @@ export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) 
       if (res.ok && data.url) {
         setFeaturedImage(data.url)
       } else {
+        setLocalPreview(null)
         setErrorMessage(data.error || 'Failed to upload image')
       }
     } catch {
+      setLocalPreview(null)
       setErrorMessage('Network error during image upload')
     } finally {
       setUploadingImage(false)
@@ -488,10 +498,13 @@ export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) 
               <label className="text-xs font-bold uppercase tracking-wider text-[#c2cab0]">
                 Featured Image
               </label>
-              {featuredImage && (
+              {(featuredImage || localPreview) && (
                 <button
                   type="button"
-                  onClick={() => setFeaturedImage(null)}
+                  onClick={() => {
+                    setFeaturedImage(null)
+                    setLocalPreview(null)
+                  }}
                   className="text-[11px] text-[#ffb4ab] hover:underline"
                 >
                   Remove Image
@@ -499,18 +512,29 @@ export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) 
               )}
             </div>
 
-            {featuredImage ? (
+            {(featuredImage || localPreview) ? (
               <div className="relative aspect-[16/9] w-full rounded-lg overflow-hidden bg-[#0c1321] border border-[#232a39]">
                 <Image
-                  src={featuredImage}
+                  src={localPreview || featuredImage || ''}
                   alt="Featured Article Preview"
                   fill
+                  unoptimized
+                  priority
                   className="object-cover"
                 />
+
+                {uploadingImage && (
+                  <div className="absolute inset-0 bg-[#070e1c]/70 backdrop-blur-sm flex flex-col items-center justify-center gap-2 z-10">
+                    <div className="w-7 h-7 border-2 border-[#ccff80] border-t-transparent rounded-full animate-spin" />
+                    <span className="text-xs font-bold text-[#ccff80]">Uploading to server...</span>
+                  </div>
+                )}
+
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="absolute bottom-3 right-3 px-3 py-1.5 rounded-lg bg-[#0c1321]/80 backdrop-blur border border-[#232a39] text-xs font-semibold text-[#dce2f6] hover:bg-[#19202e] transition-all flex items-center gap-1.5"
+                  disabled={uploadingImage}
+                  className="absolute bottom-3 right-3 px-3 py-1.5 rounded-lg bg-[#0c1321]/80 backdrop-blur border border-[#232a39] text-xs font-semibold text-[#dce2f6] hover:bg-[#19202e] transition-all flex items-center gap-1.5 z-20 disabled:opacity-50"
                 >
                   <span className="material-symbols-outlined text-sm">photo_camera</span>
                   <span>Change Image</span>
@@ -523,7 +547,7 @@ export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) 
               >
                 <span className="material-symbols-outlined text-3xl text-[#8c947c]">add_photo_alternate</span>
                 <p className="text-xs font-semibold text-[#dce2f6]">
-                  {uploadingImage ? 'Uploading image...' : 'Click or drop featured image here'}
+                  Click or drop featured image here
                 </p>
                 <p className="text-[11px] text-[#8c947c]">Supports JPG, PNG, WEBP, GIF up to 10MB</p>
               </div>

@@ -76,7 +76,7 @@ function ArticleBodyRenderer({ content }: { content: string }) {
           return (
             <div key={idx} className="my-6 rounded-xl overflow-hidden border border-surface-bright bg-surface-container">
               <div className="relative aspect-[16/9] w-full">
-                <Image src={src} alt={alt || 'Article photo'} fill className="object-cover" />
+                <Image src={src} alt={alt || 'Article photo'} fill unoptimized className="object-cover" />
               </div>
               {alt && <p className="p-2 text-center text-xs text-on-surface-variant italic">{alt}</p>}
             </div>
@@ -255,7 +255,7 @@ export default function NewsArticleClient({
           {/* Featured Image */}
           <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-surface-container-high border border-surface-bright">
             {imageUrl ? (
-              <Image src={imageUrl} alt={article.title} fill className="object-cover" priority />
+              <Image src={imageUrl} alt={article.title} fill unoptimized className="object-cover" priority />
             ) : (
               <div className="w-full h-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
                 <span className="material-symbols-outlined text-4xl">feed</span>

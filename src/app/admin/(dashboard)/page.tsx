@@ -189,6 +189,7 @@ export default async function AdminDashboardPage() {
                         src={art.featuredImage}
                         alt={art.title}
                         fill
+                        unoptimized
                         className="object-cover"
                       />
                     ) : (

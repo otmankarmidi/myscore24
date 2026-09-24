@@ -28,6 +28,7 @@ export default function NewsCard({ article, variant = 'standard' }: NewsCardProp
             src={imageUrl}
             alt={article.title}
             fill
+            unoptimized
             className="object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
@@ -67,7 +68,7 @@ export default function NewsCard({ article, variant = 'standard' }: NewsCardProp
       >
         <div className="relative w-20 h-16 rounded overflow-hidden bg-surface-container-high shrink-0">
           {imageUrl ? (
-            <Image src={imageUrl} alt={article.title} fill className="object-cover group-hover:scale-105 transition-transform" />
+            <Image src={imageUrl} alt={article.title} fill unoptimized className="object-cover group-hover:scale-105 transition-transform" />
           ) : (
             <div className="w-full h-full bg-surface-container-highest" />
           )}
@@ -89,7 +90,7 @@ export default function NewsCard({ article, variant = 'standard' }: NewsCardProp
     >
       <div className="relative w-full aspect-[16/9] bg-surface-container-high overflow-hidden">
         {imageUrl ? (
-          <Image src={imageUrl} alt={article.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+          <Image src={imageUrl} alt={article.title} fill unoptimized className="object-cover group-hover:scale-105 transition-transform duration-300" />
         ) : (
           <div className="w-full h-full bg-surface-container-highest" />
         )}
