@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getArticleBySlug, getPublishedArticles } from '@/lib/articles'
+import ArticleBodyRenderer from '@/components/news/ArticleBodyRenderer'
 import NewsArticleClient from './NewsArticleClient'
 
 export const dynamic = 'force-dynamic'
@@ -142,7 +143,9 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
         article={article}
         relatedNews={relatedNews}
         linkedEntity={{ competition, team, playerId, matchId }}
-      />
+      >
+        <ArticleBodyRenderer content={article.content} />
+      </NewsArticleClient>
     </>
   )
 }

@@ -401,4 +401,16 @@ export const apiFootballProvider = {
       return json.response || []
     })
   },
+
+  async getPlayerDetailsAndStats(playerId: string | number, season: number = 2024): Promise<any | null> {
+    const keyStr = `${playerId}_${season}`
+    return cacheEngine.fetchWithCache('player_stats', keyStr, CACHE_TTLS.ENTITY_INFO, async () => {
+      if (!this.hasValidApiKey()) return null
+      const url = this.getUrl(`players?id=${playerId}&season=${season}`, false)
+      const res = await fetchWithRetry(url, { headers: this.getHeaders() })
+      if (!res.ok) return null
+      const json = await res.json()
+      return json.response?.[0] || null
+    })
+  },
 }

@@ -41,6 +41,20 @@ export interface EnrichedPlayerInfo {
 export function resolvePlayerImagePath(imagePath?: string): string | null {
   if (!imagePath) return null;
 
+  // Remote URLs or data URLs should be returned as-is
+  if (
+    imagePath.startsWith('http://') ||
+    imagePath.startsWith('https://') ||
+    imagePath.startsWith('data:')
+  ) {
+    return imagePath;
+  }
+
+  // Already a valid absolute path under /images/ or /api/
+  if (imagePath.startsWith('/images/') || imagePath.startsWith('/api/')) {
+    return imagePath;
+  }
+
   const cleanPath = imagePath
     .replace(/^\/?teams\//, '')
     .replace(/\/players\//, '/')

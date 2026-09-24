@@ -18,6 +18,24 @@ export interface PlayerStats {
   shotsTotal?: number
 }
 
+export interface PlayerCompetitionItem {
+  leagueId?: number | string
+  leagueName: string
+  leagueLogo?: string
+  leagueCountry?: string
+  teamName: string
+  teamLogo?: string
+  season?: number | string
+  appearances: number
+  lineups?: number
+  minutes: number
+  goals: number
+  assists: number
+  yellowCards: number
+  redCards: number
+  rating?: number
+}
+
 export interface Player {
   id: string
   slug: string
@@ -39,6 +57,7 @@ export interface Player {
   position: string
   number?: number
   team?: Team
+  teamId?: string
   teamSlug?: string
   teamName?: string
   teamLogo?: string
@@ -46,6 +65,7 @@ export interface Player {
   marketValue?: string
   stats?: PlayerStats
   seasonStats?: PlayerStats
+  competitions?: PlayerCompetitionItem[]
   recentMatches?: Array<{
     matchId: string
     matchSlug: string

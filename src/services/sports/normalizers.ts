@@ -1,7 +1,7 @@
 import { Match, MatchStatus, MatchEvent, MatchStatistics, Lineup, LineupPlayer, MatchCommentaryItem } from '@/types/match'
 import { Team } from '@/types/team'
 import { League } from '@/types/league'
-import { Player } from '@/types/player'
+import { Player, PlayerStats, PlayerCompetitionItem } from '@/types/player'
 import { Standing, TopScorer } from '@/types/standing'
 import { NewsArticle } from '@/types/news'
 import { ApiFootballFixtureRaw, ApiFootballEventRaw, ApiFootballLineupRaw, ApiFootballTeamStatsRaw } from './apiFootballProvider'
@@ -419,4 +419,143 @@ export function normalizeApiFootballTeamStats(raw: any) {
     biggestLoss: raw?.biggest?.loses?.home ? `Home: ${raw.biggest.loses.home}` : raw?.biggest?.loses?.away ? `Away: ${raw.biggest.loses.away}` : null,
   }
 }
+
+export function normalizeApiFootballPlayerFull(raw: any): Player {
+  const p = raw?.player || {}
+  const statsList: any[] = Array.isArray(raw?.statistics) ? raw.statistics : []
+
+  // Collect individual competition statistics
+  const competitions: PlayerCompetitionItem[] = []
+  let primaryStat = statsList[0]
+  let maxApps = -1
+
+  for (const st of statsList) {
+    const apps = Number(st?.games?.appearences) || 0
+    const mins = Number(st?.games?.minutes) || 0
+    const gls = Number(st?.goals?.total) || 0
+    const ast = Number(st?.goals?.assists) || 0
+    const yel = (Number(st?.cards?.yellow) || 0) + (Number(st?.cards?.yellowred) || 0)
+    const red = Number(st?.cards?.red) || 0
+    const r = st?.games?.rating ? Number(parseFloat(st.games.rating).toFixed(2)) : undefined
+
+    if (apps > maxApps) {
+      maxApps = apps
+      primaryStat = st
+    }
+
+    if (apps > 0 || mins > 0) {
+      competitions.push({
+        leagueId: st?.league?.id,
+        leagueName: st?.league?.name || 'Competition',
+        leagueLogo: st?.league?.logo,
+        leagueCountry: st?.league?.country,
+        teamName: st?.team?.name || 'Club',
+        teamLogo: st?.team?.logo,
+        season: st?.league?.season || 2024,
+        appearances: apps,
+        lineups: Number(st?.games?.lineups) || 0,
+        minutes: mins,
+        goals: gls,
+        assists: ast,
+        yellowCards: yel,
+        redCards: red,
+        rating: r,
+      })
+    }
+  }
+
+  // Aggregate stats across competitions
+  let appearances = 0
+  let minutesPlayed = 0
+  let goals = 0
+  let assists = 0
+  let yellowCards = 0
+  let redCards = 0
+  let saves = 0
+  let shotsTotal = 0
+  let shotsOnTarget = 0
+  let dribbles = 0
+
+  let totalRatingWeighted = 0
+  let totalRatingApps = 0
+
+  for (const st of statsList) {
+    const apps = Number(st?.games?.appearences) || 0
+    appearances += apps
+    minutesPlayed += Number(st?.games?.minutes) || 0
+    goals += Number(st?.goals?.total) || 0
+    assists += Number(st?.goals?.assists) || 0
+    yellowCards += (Number(st?.cards?.yellow) || 0) + (Number(st?.cards?.yellowred) || 0)
+    redCards += Number(st?.cards?.red) || 0
+    saves += Number(st?.goals?.saves) || 0
+    shotsTotal += Number(st?.shots?.total) || 0
+    shotsOnTarget += Number(st?.shots?.on) || 0
+    dribbles += Number(st?.dribbles?.success) || 0
+
+    const r = parseFloat(st?.games?.rating)
+    if (!isNaN(r) && r > 0 && apps > 0) {
+      totalRatingWeighted += r * apps
+      totalRatingApps += apps
+    }
+  }
+
+  const rating = totalRatingApps > 0 ? Number((totalRatingWeighted / totalRatingApps).toFixed(2)) : undefined
+
+  const heightVal = p?.height ? parseInt(String(p.height).replace(/[^\d]/g, ''), 10) || undefined : undefined
+  const weightVal = p?.weight ? parseInt(String(p.weight).replace(/[^\d]/g, ''), 10) || undefined : undefined
+
+  const teamName = primaryStat?.team?.name || ''
+  const teamId = primaryStat?.team?.id ? String(primaryStat.team.id) : undefined
+  const teamLogo = primaryStat?.team?.logo || undefined
+
+  const squadNumber = primaryStat?.games?.number || undefined
+  const position = primaryStat?.games?.position || 'Forward'
+
+  const playerName = p?.name || `${p?.firstname || ''} ${p?.lastname || ''}`.trim() || 'Player'
+  const playerSlug = slugify(playerName)
+
+  const aggregatedStats: PlayerStats = {
+    appearances,
+    matches: appearances,
+    goals,
+    assists,
+    yellowCards,
+    redCards,
+    minutesPlayed,
+    minutes: minutesPlayed,
+    rating,
+    saves: saves > 0 ? saves : undefined,
+    shotsTotal: shotsTotal > 0 ? shotsTotal : undefined,
+    shotsOnTarget: shotsOnTarget > 0 ? shotsOnTarget : undefined,
+    dribbles: dribbles > 0 ? dribbles : undefined,
+  }
+
+  return {
+    id: String(p?.id || ''),
+    slug: playerSlug,
+    name: playerName,
+    firstName: p?.firstname || playerName.split(' ')[0] || '',
+    lastName: p?.lastname || playerName.split(' ').slice(1).join(' ') || '',
+    photo: p?.photo,
+    image: p?.photo,
+    imagePath: p?.photo,
+    squadNumber,
+    number: squadNumber,
+    nationality: p?.nationality || 'Global',
+    countryFlag: primaryStat?.league?.flag,
+    dateOfBirth: p?.birth?.date || '',
+    age: p?.age || 0,
+    height: heightVal,
+    weight: weightVal,
+    position,
+    teamId,
+    teamName,
+    teamSlug: teamName ? slugify(teamName) : undefined,
+    teamLogo,
+    stats: aggregatedStats,
+    seasonStats: aggregatedStats,
+    competitions,
+  }
+}
+
 

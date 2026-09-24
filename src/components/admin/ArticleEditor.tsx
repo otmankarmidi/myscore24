@@ -4,6 +4,13 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
+import SocialEmbed from '@/components/social/SocialEmbed'
+import {
+  detectAndValidateSocialUrl,
+  parseSocialEmbedBlock,
+  formatSocialEmbedBlock,
+} from '@/lib/socialEmbed/validate'
+import { SocialProvider, ValidatedSocialEmbed } from '@/lib/socialEmbed/types'
 
 interface Category {
   id: string
@@ -77,6 +84,52 @@ export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) 
   // Quick category creation modal state
   const [showNewCategory, setShowNewCategory] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState('')
+
+  // Social Embed Modal State
+  const [showEmbedModal, setShowEmbedModal] = useState(false)
+  const [embedProviderOption, setEmbedProviderOption] = useState<SocialProvider | 'auto'>('auto')
+  const [embedUrlInput, setEmbedUrlInput] = useState('')
+  const [embedValidated, setEmbedValidated] = useState<ValidatedSocialEmbed | null>(null)
+  const [editingTargetBlock, setEditingTargetBlock] = useState<string | null>(null)
+  const [showEmbedDropdown, setShowEmbedDropdown] = useState(false)
+
+  // Live validate embed URL
+  useEffect(() => {
+    if (!embedUrlInput.trim()) {
+      setEmbedValidated(null)
+      return
+    }
+    const val = detectAndValidateSocialUrl(embedUrlInput)
+    setEmbedValidated(val)
+  }, [embedUrlInput])
+
+  const handleInsertEmbed = () => {
+    if (!embedValidated) return
+    const formattedBlock = formatSocialEmbedBlock(embedValidated)
+
+    if (editingTargetBlock) {
+      setContent((prev) => prev.replace(editingTargetBlock, formattedBlock))
+      setEditingTargetBlock(null)
+    } else {
+      insertMarkdown(`\n\n${formattedBlock}\n\n`)
+    }
+
+    setShowEmbedModal(false)
+    setEmbedUrlInput('')
+    setEmbedValidated(null)
+  }
+
+  const handleRemoveEmbedBlock = (blockText: string) => {
+    if (confirm('Are you sure you want to remove this social embed?')) {
+      setContent((prev) => prev.replace(blockText, '').trim())
+    }
+  }
+
+  const handleEditEmbedBlock = (blockText: string, currentUrl: string) => {
+    setEditingTargetBlock(blockText)
+    setEmbedUrlInput(currentUrl)
+    setShowEmbedModal(true)
+  }
 
   // Load Categories & Authors
   useEffect(() => {
@@ -694,6 +747,95 @@ export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) 
                       if (file) handleInlineImageUpload(file)
                     }}
                   />
+
+                  {/* + Embed Dropdown */}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      title="Insert Social Media Embed"
+                      onClick={() => setShowEmbedDropdown((prev) => !prev)}
+                      className="flex items-center gap-1 px-2.5 py-1 rounded bg-[#19202e] hover:bg-[#232a39] text-[#ccff80] font-bold text-xs border border-[#232a39] transition-all"
+                    >
+                      <span className="material-symbols-outlined text-sm font-bold">add</span>
+                      <span>Embed</span>
+                      <span className="material-symbols-outlined text-xs">arrow_drop_down</span>
+                    </button>
+                    {showEmbedDropdown && (
+                      <div className="absolute top-full left-0 mt-1 w-48 rounded-xl bg-[#151b2a] border border-[#232a39] shadow-2xl py-1.5 z-40 animate-fade-in">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEmbedProviderOption('auto')
+                            setEmbedUrlInput('')
+                            setEditingTargetBlock(null)
+                            setShowEmbedModal(true)
+                            setShowEmbedDropdown(false)
+                          }}
+                          className="w-full text-left px-3 py-1.5 text-xs text-[#dce2f6] hover:bg-[#232a39] flex items-center gap-2"
+                        >
+                          <span className="material-symbols-outlined text-sm text-[#ccff80]">auto_awesome</span>
+                          <span className="font-semibold">Paste Social URL</span>
+                        </button>
+                        <div className="h-px bg-[#232a39] my-1" />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEmbedProviderOption('x')
+                            setEmbedUrlInput('')
+                            setEditingTargetBlock(null)
+                            setShowEmbedModal(true)
+                            setShowEmbedDropdown(false)
+                          }}
+                          className="w-full text-left px-3 py-1.5 text-xs text-[#dce2f6] hover:bg-[#232a39] flex items-center gap-2.5"
+                        >
+                          <span className="text-[12px] font-bold text-white w-4 text-center">𝕏</span>
+                          <span>X / Twitter</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEmbedProviderOption('youtube')
+                            setEmbedUrlInput('')
+                            setEditingTargetBlock(null)
+                            setShowEmbedModal(true)
+                            setShowEmbedDropdown(false)
+                          }}
+                          className="w-full text-left px-3 py-1.5 text-xs text-[#dce2f6] hover:bg-[#232a39] flex items-center gap-2.5"
+                        >
+                          <span className="material-symbols-outlined text-sm text-red-500 w-4 text-center">smart_display</span>
+                          <span>YouTube / Shorts</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEmbedProviderOption('instagram')
+                            setEmbedUrlInput('')
+                            setEditingTargetBlock(null)
+                            setShowEmbedModal(true)
+                            setShowEmbedDropdown(false)
+                          }}
+                          className="w-full text-left px-3 py-1.5 text-xs text-[#dce2f6] hover:bg-[#232a39] flex items-center gap-2.5"
+                        >
+                          <span className="material-symbols-outlined text-sm text-pink-500 w-4 text-center">photo_camera</span>
+                          <span>Instagram Post/Reel</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEmbedProviderOption('tiktok')
+                            setEmbedUrlInput('')
+                            setEditingTargetBlock(null)
+                            setShowEmbedModal(true)
+                            setShowEmbedDropdown(false)
+                          }}
+                          className="w-full text-left px-3 py-1.5 text-xs text-[#dce2f6] hover:bg-[#232a39] flex items-center gap-2.5"
+                        >
+                          <span className="material-symbols-outlined text-sm text-cyan-400 w-4 text-center">music_note</span>
+                          <span>TikTok Video</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -711,8 +853,104 @@ export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) 
             ) : (
               <div className="p-6 bg-[#0c1321] min-h-[350px] text-sm text-[#dce2f6] space-y-4">
                 {content ? (
-                  <div className="prose prose-invert max-w-none space-y-3 whitespace-pre-wrap">
-                    {content}
+                  <div className="space-y-4 text-body-md leading-relaxed text-[#dce2f6]/90 font-inter">
+                    {content.split(/\n\s*\n/).map((block, idx) => {
+                      const trimmed = block.trim()
+                      if (!trimmed) return null
+
+                      const embed =
+                        parseSocialEmbedBlock(trimmed) ||
+                        (trimmed.startsWith('https://') && !trimmed.includes('\n') && !trimmed.includes(' ')
+                          ? detectAndValidateSocialUrl(trimmed)
+                          : null)
+
+                      if (embed) {
+                        return (
+                          <div
+                            key={idx}
+                            className="relative group border border-dashed border-[#ccff80]/40 rounded-xl p-3 bg-[#151b2a]/80 my-4"
+                          >
+                            <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#232a39] text-xs">
+                              <span className="font-bold text-[#ccff80] flex items-center gap-1.5">
+                                <span className="material-symbols-outlined text-sm">integration_instructions</span>
+                                Social Embed ({embed.provider.toUpperCase()})
+                              </span>
+                              <div className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => handleEditEmbedBlock(trimmed, embed.url)}
+                                  className="px-2.5 py-1 rounded text-[11px] font-semibold bg-[#232a39] hover:bg-[#323949] text-[#dce2f6] transition-colors"
+                                >
+                                  Edit URL
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveEmbedBlock(trimmed)}
+                                  className="px-2.5 py-1 rounded text-[11px] font-semibold bg-[#93000a]/30 hover:bg-[#93000a]/60 text-[#ffb4ab] transition-colors"
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                            </div>
+                            <SocialEmbed url={embed.url} />
+                          </div>
+                        )
+                      }
+
+                      if (trimmed.startsWith('## ')) {
+                        return (
+                          <h2 key={idx} className="text-xl font-bold text-[#dce2f6] pt-4 pb-1 border-b border-[#232a39]">
+                            {trimmed.replace(/^##\s+/, '')}
+                          </h2>
+                        )
+                      }
+
+                      if (trimmed.startsWith('### ')) {
+                        return (
+                          <h3 key={idx} className="text-lg font-bold text-[#dce2f6] pt-2">
+                            {trimmed.replace(/^###\s+/, '')}
+                          </h3>
+                        )
+                      }
+
+                      if (trimmed.startsWith('>')) {
+                        return (
+                          <blockquote key={idx} className="border-l-4 border-[#ccff80] pl-4 py-2 italic text-[#dce2f6] font-medium bg-[#19202e] rounded-r my-4">
+                            &ldquo;{trimmed.replace(/^>\s*/gm, '')}&rdquo;
+                          </blockquote>
+                        )
+                      }
+
+                      const imgMatch = trimmed.match(/^!\[(.*?)\]\((.*?)\)$/)
+                      if (imgMatch) {
+                        const [, alt, src] = imgMatch
+                        return (
+                          <div key={idx} className="my-4 rounded-xl overflow-hidden border border-[#232a39] bg-[#0c1321]">
+                            <div className="relative aspect-[16/9] w-full">
+                              <Image src={src} alt={alt || 'Article photo'} fill unoptimized className="object-cover" />
+                            </div>
+                            {alt && <p className="p-2 text-center text-xs text-[#8c947c] italic">{alt}</p>}
+                          </div>
+                        )
+                      }
+
+                      if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+                        const items = trimmed.split('\n').filter((l) => l.trim().startsWith('- ') || l.trim().startsWith('* '))
+                        return (
+                          <ul key={idx} className="list-disc list-inside space-y-1 pl-2 text-[#dce2f6]/90">
+                            {items.map((item, itemIdx) => (
+                              <li key={itemIdx}>{item.replace(/^[-*]\s+/, '')}</li>
+                            ))}
+                          </ul>
+                        )
+                      }
+
+                      return (
+                        <p key={idx} className="leading-relaxed">
+                          {trimmed}
+                        </p>
+                      )
+                    })}
                   </div>
                 ) : (
                   <p className="text-xs text-[#8c947c] italic">
@@ -963,6 +1201,135 @@ export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) 
           </div>
         </div>
       </div>
+
+      {/* Social Embed Modal */}
+      {showEmbedModal && (
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#151b2a] border border-[#232a39] rounded-2xl max-w-xl w-full p-6 space-y-4 shadow-2xl animate-fade-in max-h-[92vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-[#232a39] pb-3">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-xl text-[#ccff80]">add_link</span>
+                <h3 className="text-sm font-bold text-[#dce2f6]">
+                  {editingTargetBlock ? 'Edit Social Media Embed' : 'Insert Social Media Embed'}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowEmbedModal(false)
+                  setEditingTargetBlock(null)
+                  setEmbedUrlInput('')
+                }}
+                className="text-[#8c947c] hover:text-[#dce2f6] p-1 transition-colors"
+              >
+                <span className="material-symbols-outlined text-base">close</span>
+              </button>
+            </div>
+
+            {/* Provider Filter Tabs */}
+            <div className="flex items-center gap-1.5 p-1 bg-[#0c1321] rounded-xl border border-[#232a39] flex-wrap">
+              {[
+                { id: 'auto', label: 'Auto Detect' },
+                { id: 'x', label: '𝕏 / Twitter' },
+                { id: 'youtube', label: 'YouTube' },
+                { id: 'instagram', label: 'Instagram' },
+                { id: 'tiktok', label: 'TikTok' },
+              ].map((opt) => (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => setEmbedProviderOption(opt.id as any)}
+                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                    embedProviderOption === opt.id
+                      ? 'bg-[#232a39] text-[#ccff80] font-bold shadow-sm'
+                      : 'text-[#8c947c] hover:text-[#dce2f6]'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs text-[#c2cab0] font-semibold mb-1">
+                  Social Post or Video URL <span className="text-[#ffb4ab]">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={embedUrlInput}
+                  onChange={(e) => setEmbedUrlInput(e.target.value)}
+                  placeholder={
+                    embedProviderOption === 'x'
+                      ? 'https://x.com/beINSPORTS/status/123456789'
+                      : embedProviderOption === 'youtube'
+                      ? 'https://www.youtube.com/watch?v=... or https://youtube.com/shorts/...'
+                      : embedProviderOption === 'instagram'
+                      ? 'https://www.instagram.com/p/... or /reel/...'
+                      : embedProviderOption === 'tiktok'
+                      ? 'https://www.tiktok.com/@user/video/123456789'
+                      : 'Paste post URL from X, YouTube, Instagram, or TikTok'
+                  }
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-[#0c1321] border border-[#232a39] text-xs font-mono text-[#dce2f6] placeholder-[#424936] focus:outline-none focus:border-[#ccff80]"
+                  autoFocus
+                />
+              </div>
+
+              {/* Validation Status */}
+              {embedValidated ? (
+                <div className="p-3 rounded-lg bg-[#ccff80]/10 border border-[#ccff80]/30 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2 text-[#ccff80] font-bold">
+                    <span className="material-symbols-outlined text-base">verified</span>
+                    <span>
+                      Detected: {embedValidated.provider.toUpperCase()} {embedValidated.isShorts ? '(Shorts)' : ''}
+                    </span>
+                  </div>
+                  <span className="text-[11px] font-mono text-[#8c947c]">ID: {embedValidated.id}</span>
+                </div>
+              ) : embedUrlInput.trim() ? (
+                <div className="p-3 rounded-lg bg-[#ffb4ab]/10 border border-[#ffb4ab]/30 text-xs text-[#ffb4ab] flex items-center gap-2">
+                  <span className="material-symbols-outlined text-base shrink-0">warning</span>
+                  <span>Please enter a valid https link from x.com, youtube.com, instagram.com, or tiktok.com</span>
+                </div>
+              ) : null}
+
+              {/* Live Preview Inside Modal */}
+              {embedValidated && (
+                <div className="border border-[#232a39] rounded-xl p-3 bg-[#0c1321]/60 space-y-2">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-[#8c947c]">
+                    Live Embed Preview
+                  </p>
+                  <div className="max-h-[320px] overflow-y-auto">
+                    <SocialEmbed url={embedValidated.url} />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#232a39]">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowEmbedModal(false)
+                  setEditingTargetBlock(null)
+                  setEmbedUrlInput('')
+                }}
+                className="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-[#8c947c] hover:text-[#dce2f6] hover:bg-[#19202e] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={!embedValidated}
+                onClick={handleInsertEmbed}
+                className="px-4 py-1.5 rounded-lg text-xs font-bold text-[#213600] bg-[#ccff80] hover:bg-[#b2f746] disabled:opacity-50 transition-all shadow"
+              >
+                {editingTargetBlock ? 'Update Embed' : 'Insert into Article'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

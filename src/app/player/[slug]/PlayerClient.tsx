@@ -180,6 +180,65 @@ export default function PlayerClient({ player }: PlayerClientProps) {
               </div>
             </div>
           </div>
+
+          {/* Competitions Breakdown (Current Season) */}
+          {player.competitions && player.competitions.length > 0 && (
+            <div className="bg-surface-container p-5 rounded-xl border border-surface-bright space-y-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-body-md font-bold text-on-surface">2024/2025 Competition Breakdown</h2>
+                <span className="text-xs text-on-surface-variant font-medium">Official Season Stats</span>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className="border-b border-surface-bright text-on-surface-variant font-semibold">
+                      <th className="py-2 px-3">Tournament</th>
+                      <th className="py-2 px-3">Team</th>
+                      <th className="py-2 px-3 text-center">Apps</th>
+                      <th className="py-2 px-3 text-center">Mins</th>
+                      <th className="py-2 px-3 text-center">Goals</th>
+                      <th className="py-2 px-3 text-center">Assists</th>
+                      <th className="py-2 px-3 text-center">Cards</th>
+                      <th className="py-2 px-3 text-right">Rating</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-surface-bright/50">
+                    {player.competitions.map((comp, idx) => (
+                      <tr key={idx} className="hover:bg-surface-container-high/40 transition-colors">
+                        <td className="py-2.5 px-3 font-medium text-on-surface">
+                          <div className="flex items-center gap-2">
+                            {comp.leagueLogo && (
+                              <img src={comp.leagueLogo} alt="" className="w-4 h-4 object-contain inline-block shrink-0" loading="lazy" />
+                            )}
+                            <span>{comp.leagueName}</span>
+                          </div>
+                        </td>
+                        <td className="py-2.5 px-3 text-on-surface-variant">
+                          <div className="flex items-center gap-1.5">
+                            {comp.teamLogo && (
+                              <img src={comp.teamLogo} alt="" className="w-4 h-4 object-contain inline-block shrink-0" loading="lazy" />
+                            )}
+                            <span>{comp.teamName}</span>
+                          </div>
+                        </td>
+                        <td className="py-2.5 px-3 text-center font-bold text-on-surface">{comp.appearances}</td>
+                        <td className="py-2.5 px-3 text-center font-mono text-on-surface-variant">{comp.minutes.toLocaleString()}</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-emerald-400">{comp.goals}</td>
+                        <td className="py-2.5 px-3 text-center font-bold text-primary">{comp.assists}</td>
+                        <td className="py-2.5 px-3 text-center">
+                          <span className="text-amber-400 font-bold">{comp.yellowCards}</span>
+                          {comp.redCards > 0 && <span className="text-rose-500 font-bold ml-1.5">/ {comp.redCards}</span>}
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-mono font-bold text-amber-400">
+                          {comp.rating ? comp.rating.toFixed(2) : '-'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </main>
 
         <RightSidebar />

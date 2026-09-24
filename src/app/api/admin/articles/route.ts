@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { isRequestAdminAuthenticated } from '@/lib/adminAuth'
 import { ArticleStatus } from '@prisma/client'
+import { sanitizeArticleContent } from '@/lib/socialEmbed/serverSanitizer'
 
 export const dynamic = 'force-dynamic'
 
@@ -118,6 +119,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Article title is required' }, { status: 400 })
     }
 
+    const sanitizeResult = sanitizeArticleContent(content || '')
+    if (!sanitizeResult.valid) {
+      return NextResponse.json({ error: sanitizeResult.error }, { status: 400 })
+    }
+
     let finalSlug = slugify(customSlug || title)
     if (!finalSlug) {
       finalSlug = `article-${Date.now()}`
@@ -162,7 +168,7 @@ export async function POST(req: NextRequest) {
         title: title.trim(),
         slug: finalSlug,
         excerpt: excerpt?.trim() || title.trim(),
-        content: content?.trim() || '',
+        content: sanitizeResult.sanitizedContent,
         featuredImage: featuredImage?.trim() || null,
         status: status as ArticleStatus,
         publishedAt: finalPublishedAt,

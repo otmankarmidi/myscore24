@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import Link from 'next/link'
 import Header from '@/components/common/Header'
 import DesktopSidebar from '@/components/common/DesktopSidebar'
 import RightSidebar from '@/components/common/RightSidebar'
@@ -33,8 +34,12 @@ function FormDot({ result }: { result: string }) {
 }
 
 function PlayerCard({ player, teamName }: { player: Player; teamName?: string }) {
+  const playerLink = `/player/${player.id || player.slug}`
   return (
-    <div className="flex items-center gap-3 p-3 bg-surface-container-high/60 rounded-lg border border-surface-bright hover:border-primary/50 transition-all group">
+    <Link
+      href={playerLink}
+      className="flex items-center gap-3 p-3 bg-surface-container-high/60 rounded-lg border border-surface-bright hover:border-primary/50 hover:bg-surface-container transition-all group"
+    >
       <PlayerImage
         playerId={player.id}
         photo={player.photo}
@@ -63,7 +68,7 @@ function PlayerCard({ player, teamName }: { player: Player; teamName?: string })
           {player.age > 0 && <span>• {player.age} yrs</span>}
         </p>
       </div>
-    </div>
+    </Link>
   )
 }
 

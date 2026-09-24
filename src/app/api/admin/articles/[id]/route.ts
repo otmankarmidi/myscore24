@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { isRequestAdminAuthenticated } from '@/lib/adminAuth'
 import { ArticleStatus } from '@prisma/client'
+import { sanitizeArticleContent } from '@/lib/socialEmbed/serverSanitizer'
 
 export const dynamic = 'force-dynamic'
 
@@ -109,6 +110,16 @@ export async function PUT(req: NextRequest, { params }: Params) {
 
     const finalScheduledAt = scheduledAt ? new Date(scheduledAt) : null
 
+    // Validate and sanitize content if updating
+    let finalContent = existingArticle.content
+    if (content !== undefined) {
+      const sanitizeResult = sanitizeArticleContent(content || '')
+      if (!sanitizeResult.valid) {
+        return NextResponse.json({ error: sanitizeResult.error }, { status: 400 })
+      }
+      finalContent = sanitizeResult.sanitizedContent
+    }
+
     // Update article
     const updated = await prisma.article.update({
       where: { id },
@@ -116,7 +127,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
         title: title !== undefined ? title.trim() : existingArticle.title,
         slug: newSlug,
         excerpt: excerpt !== undefined ? excerpt.trim() : existingArticle.excerpt,
-        content: content !== undefined ? content : existingArticle.content,
+        content: finalContent,
         featuredImage: featuredImage !== undefined ? (featuredImage ? featuredImage.trim() : null) : existingArticle.featuredImage,
         status: status ? (status as ArticleStatus) : existingArticle.status,
         publishedAt: finalPublishedAt,

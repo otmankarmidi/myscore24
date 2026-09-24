@@ -21,8 +21,8 @@ export function getOptimizedImageUrl(
 
   // Proxy remote API-Sports or external HTTP(S) logos
   if (url.startsWith('http://') || url.startsWith('https://')) {
-    // Determine retina size (2x requested display size capped at 96 for badges)
-    const targetWidth = Math.min(Math.max(width * 2, 24), 96)
+    // Determine retina size (2x requested display size capped at 256 for player photos / badges)
+    const targetWidth = Math.min(Math.max(width * 2, 24), 256)
     return `/api/image?url=${encodeURIComponent(url)}&w=${targetWidth}`
   }
 

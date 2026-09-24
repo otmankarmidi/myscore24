@@ -12,6 +12,8 @@ import { formatDate } from '@/lib/utils'
 import { NewsArticle } from '@/types/news'
 import { trackArticleOpen } from '@/lib/analytics'
 
+import ArticleBodyRenderer from '@/components/news/ArticleBodyRenderer'
+
 interface LinkedEntity {
   competition?: { id: string; name: string; logo: string | null } | null
   team?: { id: string; name: string; logo: string | null } | null
@@ -23,93 +25,14 @@ interface NewsArticleClientProps {
   article: NewsArticle
   relatedNews: NewsArticle[]
   linkedEntity?: LinkedEntity
-}
-
-// Simple, secure parser for article markdown blocks
-function ArticleBodyRenderer({ content }: { content: string }) {
-  if (!content) return null
-
-  // Split by double newline to form blocks
-  const blocks = content.split(/\n\s*\n/)
-
-  return (
-    <div className="space-y-4 text-body-md leading-relaxed text-on-surface/90 font-inter">
-      {blocks.map((block, idx) => {
-        const trimmed = block.trim()
-        if (!trimmed) return null
-
-        // H2
-        if (trimmed.startsWith('## ')) {
-          return (
-            <h2 key={idx} className="text-xl font-bold text-on-surface pt-4 pb-1 border-b border-surface-bright">
-              {trimmed.replace(/^##\s+/, '')}
-            </h2>
-          )
-        }
-
-        // H3
-        if (trimmed.startsWith('### ')) {
-          return (
-            <h3 key={idx} className="text-lg font-bold text-on-surface pt-2">
-              {trimmed.replace(/^###\s+/, '')}
-            </h3>
-          )
-        }
-
-        // Blockquote
-        if (trimmed.startsWith('>')) {
-          const quoteText = trimmed.replace(/^>\s*/gm, '')
-          return (
-            <blockquote
-              key={idx}
-              className="border-l-4 border-primary pl-4 py-2 italic text-on-surface font-medium bg-surface-container/60 rounded-r my-4"
-            >
-              &ldquo;{quoteText}&rdquo;
-            </blockquote>
-          )
-        }
-
-        // Image: ![alt](url)
-        const imgMatch = trimmed.match(/^!\[(.*?)\]\((.*?)\)$/)
-        if (imgMatch) {
-          const [, alt, src] = imgMatch
-          return (
-            <div key={idx} className="my-6 rounded-xl overflow-hidden border border-surface-bright bg-surface-container">
-              <div className="relative aspect-[16/9] w-full">
-                <Image src={src} alt={alt || 'Article photo'} fill unoptimized className="object-cover" />
-              </div>
-              {alt && <p className="p-2 text-center text-xs text-on-surface-variant italic">{alt}</p>}
-            </div>
-          )
-        }
-
-        // Unordered list
-        if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
-          const items = trimmed.split('\n').filter((l) => l.trim().startsWith('- ') || l.trim().startsWith('* '))
-          return (
-            <ul key={idx} className="list-disc list-inside space-y-1 pl-2 text-on-surface/90">
-              {items.map((item, itemIdx) => (
-                <li key={itemIdx}>{item.replace(/^[-*]\s+/, '')}</li>
-              ))}
-            </ul>
-          )
-        }
-
-        // Regular paragraph (basic inline bold & italic replacement)
-        return (
-          <p key={idx} className="leading-relaxed">
-            {trimmed}
-          </p>
-        )
-      })}
-    </div>
-  )
+  children?: React.ReactNode
 }
 
 export default function NewsArticleClient({
   article,
   relatedNews,
   linkedEntity,
+  children,
 }: NewsArticleClientProps) {
   const [copied, setCopied] = useState(false)
 
@@ -312,7 +235,7 @@ export default function NewsArticleClient({
 
           {/* Article Main Body */}
           <article className="prose prose-invert max-w-none">
-            <ArticleBodyRenderer content={article.content} />
+            {children || <ArticleBodyRenderer content={article.content} />}
           </article>
 
           {/* Tags */}

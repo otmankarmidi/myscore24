@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { matchLocalPlayerImage, resolvePlayerImagePath } from '@/lib/playerMatcher'
 import { getOptimizedImageUrl } from '@/lib/image'
+import { resolveApiFootballPlayerId, KNOWN_API_PLAYER_IDS } from '@/data/knownPlayerIds'
 
 interface PlayerImageProps {
   playerId?: string | number
@@ -26,41 +27,21 @@ const SIZES = {
   custom: '',
 }
 
-const KNOWN_API_PLAYER_IDS: Record<string, string> = {
-  'lamine-yamal': '273005',
-  'erling-haaland': '249168',
-  'kylian-mbappe': '230020',
-  'bukayo-saka': '260053',
-  'raphinha': '234479',
-  'mohamed-salah': '173896',
-  'vinicius-junior': '249309',
-  'jude-bellingham': '282643',
-  'achraf-hakimi': '247738',
-  'cole-palmer': '287579',
-}
-
 /**
  * Resolves player headshot URL using the player's unique API ID.
- * Never constructs or queries images by player name.
  */
 export function getPlayerImageUrl(playerId?: string | number, photo?: string): string {
-  if (photo && typeof photo === 'string' && photo.startsWith('http')) {
+  if (photo && typeof photo === 'string' && (photo.startsWith('http://') || photo.startsWith('https://'))) {
     return photo
   }
   if (!playerId) return ''
-  const idStr = String(playerId).trim().toLowerCase()
-  if (!idStr) return ''
-
-  // Known slug to API athlete ID mapping
-  const resolvedId = KNOWN_API_PLAYER_IDS[idStr] || idStr
-
-  // Numeric ID (e.g. API athlete ID)
-  if (/^\d+$/.test(resolvedId)) {
+  const resolvedId = resolveApiFootballPlayerId(playerId)
+  if (resolvedId) {
     return `https://media.api-sports.io/football/players/${resolvedId}.png`
   }
 
-  // If ID has numeric part like "player-12345" or "athlete-12345"
-  const digits = resolvedId.match(/\d+/)
+  const idStr = String(playerId).trim()
+  const digits = idStr.match(/\d+/)
   if (digits) {
     return `https://media.api-sports.io/football/players/${digits[0]}.png`
   }
@@ -93,9 +74,20 @@ export default function PlayerImage({
   className = '',
   priority = false,
 }: PlayerImageProps) {
-  // Step 1: Check passed `image` prop or match via local manifest
-  let localSrc = image ? resolvePlayerImagePath(image) || '' : ''
-  if (!localSrc && (teamName || name || slug)) {
+  // Direct remote photo from API or external source
+  const directRemote =
+    photo && typeof photo === 'string' && photo.startsWith('http')
+      ? photo
+      : image && typeof image === 'string' && image.startsWith('http')
+      ? image
+      : ''
+
+  // Step 1: Check passed local `image` prop or match via local manifest
+  let localSrc = ''
+  if (!directRemote && image) {
+    localSrc = resolvePlayerImagePath(image) || ''
+  }
+  if (!directRemote && !localSrc && (teamName || name || slug || playerId)) {
     const matched = matchLocalPlayerImage(teamName || '', name, playerId, slug)
     if (matched?.imagePath) {
       localSrc = matched.imagePath
@@ -103,31 +95,50 @@ export default function PlayerImage({
   }
 
   // Step 2: External API photo fallback
-  const rawApiSrc = getPlayerImageUrl(playerId, photo)
-  const apiSrc = rawApiSrc ? getOptimizedImageUrl(rawApiSrc, 80) : ''
+  const rawApiSrc = directRemote || getPlayerImageUrl(playerId || slug, photo)
+  const apiProxySrc = rawApiSrc && rawApiSrc.startsWith('http') ? getOptimizedImageUrl(rawApiSrc, 120) : ''
 
-  // Level 0: Try local image first
-  // Level 1: Try API image
-  // Level 2: Show default silhouette
-  const [attemptLevel, setAttemptLevel] = useState<number>(localSrc ? 0 : apiSrc ? 1 : 2)
+  // Fallback levels:
+  // Level 0: Local player headshot (if present)
+  // Level 1: Optimized API proxy image (/api/image?url=...)
+  // Level 2: Direct CDN image (https://media.api-sports.io/...)
+  // Level 3: Fallback silhouette SVG
+  const initialLevel = directRemote
+    ? apiProxySrc
+      ? 1
+      : 2
+    : localSrc
+    ? 0
+    : apiProxySrc
+    ? 1
+    : rawApiSrc
+    ? 2
+    : 3
 
-  const currentSrc = attemptLevel === 0 ? localSrc : attemptLevel === 1 ? apiSrc : ''
+  const [attemptLevel, setAttemptLevel] = useState<number>(initialLevel)
+
+  const currentSrc =
+    attemptLevel === 0
+      ? localSrc
+      : attemptLevel === 1
+      ? apiProxySrc
+      : attemptLevel === 2
+      ? rawApiSrc
+      : ''
 
   const handleError = () => {
     if (attemptLevel === 0) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.warn('Local player image failed', {
-          playerName: name || slug || playerId,
-          attemptedPath: localSrc,
-        })
-      }
-      if (apiSrc) {
-        setAttemptLevel(1) // fall back to API image
+      if (apiProxySrc) setAttemptLevel(1)
+      else if (rawApiSrc) setAttemptLevel(2)
+      else setAttemptLevel(3)
+    } else if (attemptLevel === 1) {
+      if (rawApiSrc && rawApiSrc !== apiProxySrc) {
+        setAttemptLevel(2) // fall back to direct CDN URL
       } else {
-        setAttemptLevel(2) // fall back to silhouette
+        setAttemptLevel(3) // fall back to silhouette
       }
     } else {
-      setAttemptLevel(2) // fall back to silhouette
+      setAttemptLevel(3) // fall back to silhouette
     }
   }
 
@@ -138,7 +149,7 @@ export default function PlayerImage({
       className={`relative rounded-full overflow-hidden bg-surface-container-high border border-surface-bright/60 flex items-center justify-center shrink-0 select-none ${sizeClass} ${className}`}
       aria-label={name ? `${name} photo` : 'Player photo'}
     >
-      {currentSrc && attemptLevel < 2 ? (
+      {currentSrc && attemptLevel < 3 ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={currentSrc}
@@ -149,7 +160,14 @@ export default function PlayerImage({
           onError={handleError}
         />
       ) : (
-        <PlayerSilhouette />
+        <div className="w-full h-full flex flex-col items-center justify-center relative bg-surface-container-highest">
+          <PlayerSilhouette />
+          {squadNumber && (
+            <span className="absolute bottom-0.5 right-1 text-[9px] font-bold text-on-surface-variant/80 font-mono">
+              {squadNumber}
+            </span>
+          )}
+        </div>
       )}
     </div>
   )

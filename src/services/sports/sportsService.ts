@@ -8,7 +8,10 @@ import { mockSportsProvider } from './mockSportsProvider'
 import {
   normalizeMatch, normalizeTeam, normalizeLeague,
   normalizePlayer, normalizeStanding, normalizeNewsArticle,
+  normalizeApiFootballPlayerFull,
 } from './normalizers'
+import { apiFootballProvider } from './apiFootballProvider'
+import { resolveApiFootballPlayerId } from '@/data/knownPlayerIds'
 import { mockMatches } from '@/data/mockMatches'
 
 const provider = mockSportsProvider
@@ -261,43 +264,75 @@ export const sportsService = {
   // ── Players ───────────────────────────────────────────────────────────────
   async getPlayerBySlug(slug: string): Promise<Player | null> {
     const normSlug = slug.toLowerCase().trim()
-    const d = await provider.getPlayerBySlug(normSlug)
-    if (d) return normalizePlayer(d)
 
-    // Search in CSV statistics database (src/data/player_stats_db.json)
-    const csvStatsList: any[] = (await import('@/data/player_stats_db.json')).default
-    const normSearch = normSlug.replace(/-/g, ' ')
-    const csvMatch = csvStatsList.find((p) => {
-      const pId = String(p.Id).toLowerCase()
-      const pName = (p.Name || '').toLowerCase()
-      const pFull = `${p.Firstname || ''} ${p.Lastname || ''}`.toLowerCase()
-      return (
-        pId === normSlug ||
-        pName.includes(normSearch) ||
-        pFull.includes(normSearch) ||
-        normSearch.includes(pName)
+    // 1. Try to resolve API-Football numeric ID
+    let numericPlayerId = resolveApiFootballPlayerId(normSlug)
+
+    // 2. If not directly in known IDs, check CSV player database for an ID match or name match
+    let csvMatch: any = null
+    try {
+      const csvStatsList: any[] = (await import('@/data/player_stats_db.json')).default
+      const normSearch = normSlug.replace(/-/g, ' ')
+      csvMatch = csvStatsList.find((p) => {
+        const pId = String(p.Id).toLowerCase()
+        const pName = (p.Name || '').toLowerCase()
+        const pFull = `${p.Firstname || ''} ${p.Lastname || ''}`.toLowerCase()
+        return (
+          pId === normSlug ||
+          pName === normSearch ||
+          pFull === normSearch ||
+          pName.includes(normSearch) ||
+          pFull.includes(normSearch) ||
+          normSearch.includes(pName)
+        )
+      })
+      if (!numericPlayerId && csvMatch?.Id && /^\d+$/.test(String(csvMatch.Id))) {
+        numericPlayerId = String(csvMatch.Id)
+      }
+    } catch {
+      // Non-fatal
+    }
+
+    // 3. Fetch real current season player stats & photo from API-Football
+    if (numericPlayerId && apiFootballProvider.hasValidApiKey()) {
+      try {
+        const rawPlayer = await apiFootballProvider.getPlayerDetailsAndStats(numericPlayerId, 2024)
+        if (rawPlayer && rawPlayer.player) {
+          const normalized = normalizeApiFootballPlayerFull(rawPlayer)
+          if (!/^\d+$/.test(normSlug)) {
+            normalized.slug = normSlug
+          }
+          return normalized
+        }
+      } catch (err) {
+        console.error(`Failed to fetch real stats for player ${numericPlayerId}:`, err)
+      }
+    }
+
+    // 4. Manifest fallback for FC Barcelona & Real Madrid players
+    let match: any = null
+    try {
+      const allManifest = (await import('@/lib/playerMatcher')).getAllManifestPlayers()
+      match = allManifest.find(
+        (mp) => mp.slug === normSlug || mp.id.toLowerCase() === normSlug || mp.full_name.toLowerCase().includes(normSlug)
       )
-    })
-
-    // Manifest fallback for FC Barcelona & Real Madrid players
-    const allManifest = (await import('@/lib/playerMatcher')).getAllManifestPlayers()
-    const match = allManifest.find(
-      (mp) => mp.slug === normSlug || mp.id.toLowerCase() === normSlug || mp.full_name.toLowerCase().includes(normSlug)
-    )
+    } catch {
+      // Non-fatal
+    }
 
     if (match || csvMatch) {
       const publicPath = match ? `/images/players/${match.club_key}/${match.slug}.webp` : (csvMatch?.Photo || '')
       const name = csvMatch?.Name || (match ? match.display_name || match.full_name : 'Player')
-      const appearances = Number(csvMatch?.['Games appearences']) || 26
-      const goals = Number(csvMatch?.['Goals total']) || 12
-      const assists = Number(csvMatch?.['Goals assists']) || 8
-      const yellowCards = Number(csvMatch?.['Cards yellow']) || 2
+      const appearances = Number(csvMatch?.['Games appearences']) || 0
+      const goals = Number(csvMatch?.['Goals total']) || 0
+      const assists = Number(csvMatch?.['Goals assists']) || 0
+      const yellowCards = Number(csvMatch?.['Cards yellow']) || 0
       const redCards = Number(csvMatch?.['Cards red']) || 0
-      const minutesPlayed = Number(csvMatch?.['Games minutes']) || 2100
-      const rating = Number(csvMatch?.['Games rating']) || 7.5
+      const minutesPlayed = Number(csvMatch?.['Games minutes']) || 0
+      const rating = Number(csvMatch?.['Games rating']) || undefined
 
       return {
-        id: csvMatch?.Id || match?.id || normSlug,
+        id: numericPlayerId || csvMatch?.Id || match?.id || normSlug,
         slug: match?.slug || normSlug,
         name,
         firstName: csvMatch?.Firstname || name.split(' ')[0] || '',
@@ -306,19 +341,23 @@ export const sportsService = {
         image: publicPath || csvMatch?.Photo,
         imagePath: publicPath,
         imageSourceUrl: match?.image_source_url,
-        squadNumber: Number(csvMatch?.['Games number']) || match?.squad_number || 10,
+        squadNumber: Number(csvMatch?.['Games number']) || match?.squad_number || undefined,
         nationality: csvMatch?.Nationality || 'Global',
         dateOfBirth: csvMatch?.['Birth date'] || '',
-        age: Number(csvMatch?.Age) || 24,
+        age: Number(csvMatch?.Age) || 20,
         position: csvMatch?.['Games position'] || match?.position || 'Forward',
-        number: Number(csvMatch?.['Games number']) || match?.squad_number || 10,
+        number: Number(csvMatch?.['Games number']) || match?.squad_number || undefined,
         teamName: csvMatch?.['Team name'] || match?.club || 'Team',
         teamSlug: match?.club_key || 'team',
-        marketValue: '€80M',
+        marketValue: undefined,
         stats: { appearances, goals, assists, yellowCards, redCards, minutesPlayed, rating },
         seasonStats: { appearances, goals, assists, yellowCards, redCards, minutesPlayed, rating },
       }
     }
+
+    // 5. Final fallback to mock provider only if nothing else found
+    const d = await provider.getPlayerBySlug(normSlug)
+    if (d) return normalizePlayer(d)
 
     return null
   },
