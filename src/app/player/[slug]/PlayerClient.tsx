@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import Link from 'next/link'
 import Header from '@/components/common/Header'
 import DesktopSidebar from '@/components/common/DesktopSidebar'
@@ -8,12 +9,24 @@ import MobileBottomNavigation from '@/components/common/MobileBottomNavigation'
 import TeamLogo from '@/components/common/TeamLogo'
 import PlayerImage from '@/components/common/PlayerImage'
 import { Player } from '@/types/player'
+import { trackPlayerOpen } from '@/lib/analytics'
 
 interface PlayerClientProps {
   player: Player
 }
 
 export default function PlayerClient({ player }: PlayerClientProps) {
+  useEffect(() => {
+    if (player) {
+      trackPlayerOpen({
+        playerId: player.id,
+        playerName: player.name,
+        teamName: player.teamName || player.team?.name,
+        position: player.position,
+      })
+    }
+  }, [player])
+
   return (
     <div className="min-h-screen flex flex-col bg-surface text-on-surface pb-20 md:pb-6">
       <Header />

@@ -1,6 +1,8 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
 
+import { trackFavoriteMatch, trackFavoriteTeam } from '@/lib/analytics'
+
 interface Favorites {
   matches: string[]
   teams: string[]
@@ -71,20 +73,24 @@ export function useFavorites() {
 
   const toggleMatch = useCallback((id: string) => {
     setFavorites(prev => {
-      const next = prev.matches.includes(id)
-        ? { ...prev, matches: prev.matches.filter(m => m !== id) }
-        : { ...prev, matches: [...prev.matches, id] }
+      const isAdding = !prev.matches.includes(id)
+      const next = isAdding
+        ? { ...prev, matches: [...prev.matches, id] }
+        : { ...prev, matches: prev.matches.filter(m => m !== id) }
       saveFavorites(next)
+      trackFavoriteMatch(id, isAdding)
       return next
     })
   }, [])
 
   const toggleTeam = useCallback((slug: string) => {
     setFavorites(prev => {
-      const next = prev.teams.includes(slug)
-        ? { ...prev, teams: prev.teams.filter(t => t !== slug) }
-        : { ...prev, teams: [...prev.teams, slug] }
+      const isAdding = !prev.teams.includes(slug)
+      const next = isAdding
+        ? { ...prev, teams: [...prev.teams, slug] }
+        : { ...prev, teams: prev.teams.filter(t => t !== slug) }
       saveFavorites(next)
+      trackFavoriteTeam(slug, isAdding)
       return next
     })
   }, [])

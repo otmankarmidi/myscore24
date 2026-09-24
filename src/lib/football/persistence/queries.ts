@@ -226,3 +226,108 @@ export async function getStoredMatchByFixtureId(providerFixtureId: number): Prom
     return null
   }
 }
+
+/**
+ * Gets the verified current season year for a competition from MySQL.
+ */
+export async function getCurrentSeasonForCompetition(competitionProviderId: number): Promise<number | null> {
+  try {
+    const season = await prisma.season.findFirst({
+      where: {
+        competition: { providerId: competitionProviderId },
+        current: true,
+      },
+      select: { year: true },
+    })
+    return season?.year || null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Gets all available seasons for a competition from MySQL.
+ */
+export async function getAvailableSeasonsForCompetition(
+  competitionProviderId: number
+): Promise<Array<{ year: number; current: boolean; label: string }>> {
+  try {
+    const seasons = await prisma.season.findMany({
+      where: {
+        competition: { providerId: competitionProviderId },
+      },
+      orderBy: { year: 'desc' },
+      select: { year: true, current: true },
+    })
+
+    return seasons.map((s: { year: number; current: boolean }) => ({
+      year: s.year,
+      current: s.current,
+      label: `${s.year}/${s.year + 1}`,
+    }))
+  } catch {
+    return []
+  }
+}
+
+/**
+ * Retrieves stored matches for a specific team by team providerId.
+ */
+export async function getStoredMatchesByTeam(teamProviderId: number, seasonYear?: number): Promise<Match[]> {
+  try {
+    const records = await prisma.match.findMany({
+      where: {
+        OR: [
+          { homeTeam: { providerId: teamProviderId } },
+          { awayTeam: { providerId: teamProviderId } },
+        ],
+        ...(seasonYear ? { season: { year: seasonYear } } : {}),
+      },
+      include: {
+        competition: {
+          include: { country: true },
+        },
+        season: true,
+        homeTeam: true,
+        awayTeam: true,
+      },
+      orderBy: {
+        kickoff: 'asc',
+      },
+    })
+    return records.map(formatDbMatchToAppMatch)
+  } catch {
+    return []
+  }
+}
+
+/**
+ * Retrieves distinct teams that have matches in a competition season.
+ */
+export async function getStoredTeamsByCompetition(competitionProviderId: number, seasonYear?: number): Promise<any[]> {
+  try {
+    const matches = await prisma.match.findMany({
+      where: {
+        competition: { providerId: competitionProviderId },
+        ...(seasonYear ? { season: { year: seasonYear } } : {}),
+      },
+      select: {
+        homeTeam: true,
+        awayTeam: true,
+      },
+    })
+
+    const teamMap = new Map<number, any>()
+    for (const m of matches) {
+      if (m.homeTeam?.providerId && !teamMap.has(m.homeTeam.providerId)) {
+        teamMap.set(m.homeTeam.providerId, m.homeTeam)
+      }
+      if (m.awayTeam?.providerId && !teamMap.has(m.awayTeam.providerId)) {
+        teamMap.set(m.awayTeam.providerId, m.awayTeam)
+      }
+    }
+    return Array.from(teamMap.values())
+  } catch {
+    return []
+  }
+}

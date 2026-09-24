@@ -19,6 +19,7 @@ import { League } from '@/types/league'
 import { Match } from '@/types/match'
 import { LeagueStanding, TopScorer } from '@/types/standing'
 import { NewsArticle } from '@/types/news'
+import { trackCompetitionOpen } from '@/lib/analytics'
 
 type LeagueTab = 'overview' | 'matches' | 'standings' | 'top_scorers' | 'news'
 
@@ -54,6 +55,11 @@ export default function LeagueClient({ slug }: LeagueClientProps) {
         }
 
         setLeague(fullData.league)
+        trackCompetitionOpen({
+          competitionId: fullData.league.id,
+          competitionName: fullData.league.name,
+          country: fullData.league.country,
+        })
         setMatches(fullData.fixtures)
         setStandings(fullData.standings)
         setTopScorers(fullData.topScorers)

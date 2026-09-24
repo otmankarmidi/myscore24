@@ -40,26 +40,66 @@ export async function GET(
   try {
     const { id } = await params
     const rawSlugOrId = id.replace(/^team-/, '').toLowerCase()
+    const { searchParams } = new URL(request.url)
+    const seasonQuery = searchParams.get('season')
 
     // 1. Resolve team provider numeric ID or keep numeric string
     const mappedProviderId = TEAM_PROVIDER_IDS[rawSlugOrId] || (parseInt(rawSlugOrId, 10) ? parseInt(rawSlugOrId, 10) : null)
     const teamId = mappedProviderId || rawSlugOrId
-    const currentSeason = 2026
+
+    const { getStoredMatchesByTeam } = await import('@/lib/football/persistence/queries')
+    const numTeamId = typeof teamId === 'number' ? teamId : parseInt(String(teamId), 10)
+
+    // Check MySQL first for team's stored matches
+    let dbMatches: Match[] = []
+    if (!isNaN(numTeamId)) {
+      dbMatches = await getStoredMatchesByTeam(numTeamId, seasonQuery ? parseInt(seasonQuery, 10) : undefined)
+    }
+
+    // Determine current season dynamically from DB matches, or API, without hardcoding
+    let currentSeason = seasonQuery ? parseInt(seasonQuery, 10) : null
+    if (!currentSeason && dbMatches.length > 0) {
+      currentSeason = parseInt(dbMatches[0].league.season, 10) || new Date().getFullYear()
+    }
+    if (!currentSeason) {
+      currentSeason = new Date().getFullYear()
+    }
 
     // 2. Fetch from API-Football if valid key and numeric ID exists
     if (typeof teamId === 'number' && apiFootballProvider.hasValidApiKey()) {
       try {
-        const [rawDetails, rawSquad, rawFixtures] = await Promise.all([
+        const promises: Promise<any>[] = [
           apiFootballProvider.getTeamDetails(teamId),
           apiFootballProvider.getTeamSquad(teamId),
-          apiFootballProvider.getTeamFixtures(teamId, currentSeason)
-        ])
+        ]
 
-        if (rawDetails) {
-          const team: Team = normalizeApiFootballTeamDetails(rawDetails)
-          const allFixtures: Match[] = Array.isArray(rawFixtures)
-            ? rawFixtures.map(normalizeApiFootballMatch)
-            : []
+        // Only fetch team fixtures from API if not already stored in MySQL
+        if (dbMatches.length === 0) {
+          promises.push(apiFootballProvider.getTeamFixtures(teamId, currentSeason))
+        } else {
+          promises.push(Promise.resolve([]))
+        }
+
+        const [rawDetails, rawSquad, rawFixtures] = await Promise.all(promises)
+
+        if (rawDetails || dbMatches.length > 0) {
+          const isHome = dbMatches[0]?.homeTeam.id === String(teamId)
+          const base = isHome ? dbMatches[0]?.homeTeam : dbMatches[0]?.awayTeam
+          const team: Team = rawDetails
+            ? normalizeApiFootballTeamDetails(rawDetails)
+            : {
+                id: String(teamId),
+                slug: base?.slug || `team-${teamId}`,
+                name: base?.name || 'Team',
+                shortName: base?.shortName || base?.name?.slice(0, 10) || 'Team',
+                abbreviation: base?.abbreviation || 'TEA',
+                country: base?.country || 'Global',
+                logo: base?.logo,
+              }
+
+          const allFixtures: Match[] = dbMatches.length > 0
+            ? dbMatches
+            : (Array.isArray(rawFixtures) ? rawFixtures.map(normalizeApiFootballMatch) : [])
 
           const squadPlayers: Player[] = Array.isArray(rawSquad)
             ? rawSquad.map((rawP) => {

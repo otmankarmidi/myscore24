@@ -10,6 +10,7 @@ import dynamic from 'next/dynamic'
 import PlayerImage from '@/components/common/PlayerImage'
 import TeamLogo from '@/components/common/TeamLogo'
 import CompetitionLogo from '@/components/common/CompetitionLogo'
+import { trackSearch } from '@/lib/analytics'
 import { Locale } from '@/types/common'
 import { MatchAlert } from '@/types/alerts'
 
@@ -346,6 +347,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
                   <Link
                     href={`/search?q=${encodeURIComponent(internalQuery.trim())}`}
                     onClick={() => {
+                      trackSearch(internalQuery.trim())
                       setIsOpen(false)
                       setIsMobileSearchOpen(false)
                     }}
@@ -616,6 +618,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
                   <Link
                     href={`/search?q=${encodeURIComponent(internalQuery.trim())}`}
                     onClick={() => {
+                      trackSearch(internalQuery.trim())
                       setIsOpen(false)
                       setIsMobileSearchOpen(false)
                     }}

@@ -10,6 +10,7 @@ import {
   localeShortLabels,
   Dictionary,
 } from '@/lib/i18n/dictionaries'
+import { trackLanguageChange } from '@/lib/analytics'
 
 const STORAGE_KEY = 'myscore24_locale'
 
@@ -64,6 +65,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('myscore24_locale_changed', { detail: newLocale }))
     }
+    trackLanguageChange(newLocale)
   }, [])
 
   const currentDict = useMemo<Dictionary>(() => {

@@ -23,6 +23,7 @@ import { useLanguage } from '@/context/LanguageContext'
 import PlayerImage from '@/components/common/PlayerImage'
 import { Match } from '@/types/match'
 import { LeagueStanding } from '@/types/standing'
+import { trackMatchOpen } from '@/lib/analytics'
 import { formatDate } from '@/lib/utils'
 
 type MatchTab = 'summary' | 'lineups' | 'h2h' | 'commentary' | 'standings'
@@ -64,6 +65,13 @@ export default function MatchDetailClient({ slug, initialMatch }: MatchDetailCli
         }
 
         setMatch(res.match)
+        trackMatchOpen({
+          matchId: res.match.id,
+          homeTeam: res.match.homeTeam?.name || 'Home',
+          awayTeam: res.match.awayTeam?.name || 'Away',
+          competition: res.match.league?.name,
+          status: res.match.status,
+        })
         if (res.h2h && res.h2h.length > 0) {
           setH2hHistory(res.h2h)
         }

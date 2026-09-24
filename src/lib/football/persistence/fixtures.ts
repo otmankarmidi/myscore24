@@ -76,23 +76,53 @@ export async function upsertCompetition(leagueRaw: ApiFootballFixtureRaw['league
 /**
  * Upsert Season record based on competition ID and year.
  */
-export async function upsertSeason(competitionDbId: string, seasonYear?: number | string) {
+export async function upsertSeason(
+  competitionDbId: string,
+  seasonYear?: number | string,
+  isCurrent?: boolean,
+  startDate?: Date | null,
+  endDate?: Date | null
+) {
   const year = Number(seasonYear) || new Date().getFullYear()
 
-  return prisma.season.upsert({
+  if (isCurrent === true) {
+    await prisma.season.updateMany({
+      where: {
+        competitionId: competitionDbId,
+        year: { not: year },
+        current: true,
+      },
+      data: { current: false },
+    })
+  }
+
+  const existing = await prisma.season.findUnique({
     where: {
       competitionId_year: {
         competitionId: competitionDbId,
         year,
       },
     },
-    update: {
-      current: true,
-    },
-    create: {
+  })
+
+  if (existing) {
+    return prisma.season.update({
+      where: { id: existing.id },
+      data: {
+        ...(isCurrent !== undefined ? { current: isCurrent } : {}),
+        ...(startDate ? { startDate } : {}),
+        ...(endDate ? { endDate } : {}),
+      },
+    })
+  }
+
+  return prisma.season.create({
+    data: {
       competitionId: competitionDbId,
       year,
-      current: true,
+      current: isCurrent ?? false,
+      startDate: startDate || null,
+      endDate: endDate || null,
     },
   })
 }

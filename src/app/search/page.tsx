@@ -12,6 +12,7 @@ import TeamLogo from '@/components/common/TeamLogo'
 import CompetitionLogo from '@/components/common/CompetitionLogo'
 import EmptyState from '@/components/common/EmptyState'
 import { useLanguage } from '@/context/LanguageContext'
+import { trackSearch } from '@/lib/analytics'
 
 interface SearchPlayer {
   id: string
@@ -69,6 +70,8 @@ function SearchContent() {
         setPlayers(data.players || [])
         setTeams(data.teams || [])
         setLeagues(data.leagues || [])
+        const totalCount = (data.players?.length || 0) + (data.teams?.length || 0) + (data.leagues?.length || 0)
+        trackSearch(q, totalCount)
       })
       .catch(err => {
         console.error('Search error:', err)

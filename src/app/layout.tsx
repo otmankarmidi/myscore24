@@ -3,6 +3,8 @@ import './globals.css'
 import { LiveAlertManager } from '@/components/common/LiveAlertManager'
 import { TimezoneProvider } from '@/context/TimezoneContext'
 import { LanguageProvider } from '@/context/LanguageContext'
+import GoogleAnalytics from '@/components/analytics/GoogleAnalytics'
+import CookieConsentBanner from '@/components/common/CookieConsentBanner'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://myscore24.com'),
@@ -95,10 +97,12 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-surface text-on-surface font-inter antialiased">
+        <GoogleAnalytics />
         <LanguageProvider>
           <TimezoneProvider>
             {children}
             <LiveAlertManager />
+            <CookieConsentBanner />
           </TimezoneProvider>
         </LanguageProvider>
       </body>

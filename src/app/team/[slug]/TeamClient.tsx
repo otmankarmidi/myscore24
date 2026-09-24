@@ -15,6 +15,7 @@ import { useFavorites } from '@/hooks/useFavorites'
 import { Match } from '@/types/match'
 import { Player } from '@/types/player'
 import PlayerImage from '@/components/common/PlayerImage'
+import { trackTeamOpen } from '@/lib/analytics'
 
 type TeamTab = 'overview' | 'fixtures' | 'results' | 'squad' | 'stats'
 
@@ -93,6 +94,11 @@ export default function TeamClient({ slug }: TeamClientProps) {
         }
 
         setTeamData(fullData)
+        trackTeamOpen({
+          teamId: fullData.team.id,
+          teamName: fullData.team.name,
+          country: fullData.team.country,
+        })
         setSelectedSeason(fullData.team.selectedSeason || fullData.team.currentSeason)
       } catch (err) {
         console.error('Failed to load team details:', err)

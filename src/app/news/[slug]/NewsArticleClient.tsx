@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import Image from 'next/image'
 import Header from '@/components/common/Header'
 import DesktopSidebar from '@/components/common/DesktopSidebar'
@@ -8,6 +9,7 @@ import MobileBottomNavigation from '@/components/common/MobileBottomNavigation'
 import NewsCard from '@/components/news/NewsCard'
 import { formatDate } from '@/lib/utils'
 import { NewsArticle } from '@/types/news'
+import { trackArticleOpen } from '@/lib/analytics'
 
 interface NewsArticleClientProps {
   article: NewsArticle
@@ -15,6 +17,15 @@ interface NewsArticleClientProps {
 }
 
 export default function NewsArticleClient({ article, relatedNews }: NewsArticleClientProps) {
+  useEffect(() => {
+    if (article) {
+      trackArticleOpen({
+        articleId: article.id || article.slug,
+        articleTitle: article.title,
+        category: article.category,
+      })
+    }
+  }, [article])
   const authorName =
     typeof article.author === 'string'
       ? article.author
