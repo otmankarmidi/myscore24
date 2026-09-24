@@ -6,6 +6,7 @@ import { TimezoneProvider } from '@/context/TimezoneContext'
 import { LanguageProvider } from '@/context/LanguageContext'
 import GoogleAnalytics from '@/components/analytics/GoogleAnalytics'
 import CookieConsentBanner from '@/components/common/CookieConsentBanner'
+import Footer from '@/components/common/Footer'
 
 const geist = Geist({
   subsets: ['latin'],
@@ -108,11 +109,14 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-screen bg-surface text-on-surface font-inter antialiased">
+      <body className="min-h-screen bg-surface text-on-surface font-inter antialiased flex flex-col">
         <GoogleAnalytics />
         <LanguageProvider>
           <TimezoneProvider>
-            {children}
+            <div className="flex-1 flex flex-col">
+              {children}
+            </div>
+            <Footer />
             <LiveAlertManager />
             <CookieConsentBanner />
           </TimezoneProvider>

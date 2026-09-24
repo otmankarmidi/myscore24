@@ -1,7 +1,6 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import Header from '@/components/common/Header'
-import Footer from '@/components/common/Footer'
 
 export const metadata: Metadata = {
   title: 'About MyScore24 | Football Scores, News & Statistics',
@@ -155,8 +154,6 @@ export default function AboutPage() {
           </Link>
         </section>
       </main>
-
-      <Footer />
     </div>
   )
 }

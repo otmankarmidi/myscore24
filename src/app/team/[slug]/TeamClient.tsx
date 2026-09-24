@@ -166,10 +166,31 @@ export default function TeamClient({ slug }: TeamClientProps) {
   const { team, fixtures = [], results = [], squad = [], stats } = teamData
   const isFavorited = isTeamFavorite(team.id)
 
-  const defenders = squad.filter((p: Player) => p.position === 'Defender')
-  const midfielders = squad.filter((p: Player) => p.position === 'Midfielder')
-  const attackers = squad.filter((p: Player) => p.position === 'Attacker')
-  const goalkeepers = squad.filter((p: Player) => p.position === 'Goalkeeper')
+  const rawSquad = squad
+  const squadList: Player[] = Array.isArray(rawSquad)
+    ? rawSquad
+    : Array.isArray(rawSquad?.all)
+    ? rawSquad.all
+    : []
+
+  const defenders: Player[] = Array.isArray(rawSquad?.defenders) && rawSquad.defenders.length > 0
+    ? rawSquad.defenders
+    : squadList.filter((p: Player) => (p.position || '').toLowerCase().includes('defender'))
+
+  const midfielders: Player[] = Array.isArray(rawSquad?.midfielders) && rawSquad.midfielders.length > 0
+    ? rawSquad.midfielders
+    : squadList.filter((p: Player) => (p.position || '').toLowerCase().includes('midfielder'))
+
+  const attackers: Player[] = Array.isArray(rawSquad?.forwards) && rawSquad.forwards.length > 0
+    ? rawSquad.forwards
+    : squadList.filter((p: Player) => {
+        const pos = (p.position || '').toLowerCase()
+        return pos.includes('attacker') || pos.includes('forward') || pos.includes('winger') || pos.includes('striker')
+      })
+
+  const goalkeepers: Player[] = Array.isArray(rawSquad?.goalkeepers) && rawSquad.goalkeepers.length > 0
+    ? rawSquad.goalkeepers
+    : squadList.filter((p: Player) => (p.position || '').toLowerCase().includes('goalkeeper'))
 
   return (
     <div className="min-h-screen flex flex-col bg-surface text-on-surface pb-20 md:pb-6">
@@ -379,7 +400,7 @@ export default function TeamClient({ slug }: TeamClientProps) {
           {/* Tab Content: SQUAD */}
           {activeTab === 'squad' && (
             <div className="space-y-6">
-              {squad.length === 0 ? (
+              {squadList.length === 0 ? (
                 <EmptyState
                   title={
                     team.squadSupported === false
@@ -462,19 +483,19 @@ export default function TeamClient({ slug }: TeamClientProps) {
                     <div className="grid grid-cols-4 gap-2 text-center font-mono">
                       <div className="bg-surface-container-high p-3 rounded-lg border border-surface-bright">
                         <span className="block text-[11px] text-on-surface-variant font-sans">PLAYED</span>
-                        <span className="text-headline-sm font-extrabold text-on-surface">{stats.fixtures.played}</span>
+                        <span className="text-headline-sm font-extrabold text-on-surface">{stats.fixtures?.played ?? stats.played ?? 0}</span>
                       </div>
                       <div className="bg-surface-container-high p-3 rounded-lg border border-surface-bright">
                         <span className="block text-[11px] text-on-surface-variant font-sans">WINS</span>
-                        <span className="text-headline-sm font-extrabold text-emerald-400">{stats.fixtures.wins}</span>
+                        <span className="text-headline-sm font-extrabold text-emerald-400">{stats.fixtures?.wins ?? stats.wins ?? 0}</span>
                       </div>
                       <div className="bg-surface-container-high p-3 rounded-lg border border-surface-bright">
                         <span className="block text-[11px] text-on-surface-variant font-sans">DRAWS</span>
-                        <span className="text-headline-sm font-extrabold text-slate-300">{stats.fixtures.draws}</span>
+                        <span className="text-headline-sm font-extrabold text-slate-300">{stats.fixtures?.draws ?? stats.draws ?? 0}</span>
                       </div>
                       <div className="bg-surface-container-high p-3 rounded-lg border border-surface-bright">
                         <span className="block text-[11px] text-on-surface-variant font-sans">LOSSES</span>
-                        <span className="text-headline-sm font-extrabold text-rose-400">{stats.fixtures.loses}</span>
+                        <span className="text-headline-sm font-extrabold text-rose-400">{stats.fixtures?.loses ?? stats.losses ?? 0}</span>
                       </div>
                     </div>
                   </div>
@@ -485,19 +506,19 @@ export default function TeamClient({ slug }: TeamClientProps) {
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center font-mono">
                       <div className="bg-surface-container-high p-3 rounded-lg border border-surface-bright">
                         <span className="block text-[11px] text-on-surface-variant font-sans">GOALS FOR</span>
-                        <span className="text-headline-sm font-extrabold text-primary">{stats.goals.for}</span>
+                        <span className="text-headline-sm font-extrabold text-primary">{stats.goals?.for ?? stats.goalsScored ?? 0}</span>
                       </div>
                       <div className="bg-surface-container-high p-3 rounded-lg border border-surface-bright">
                         <span className="block text-[11px] text-on-surface-variant font-sans">GOALS AGAINST</span>
-                        <span className="text-headline-sm font-extrabold text-rose-400">{stats.goals.against}</span>
+                        <span className="text-headline-sm font-extrabold text-rose-400">{stats.goals?.against ?? stats.goalsConceded ?? 0}</span>
                       </div>
                       <div className="bg-surface-container-high p-3 rounded-lg border border-surface-bright">
                         <span className="block text-[11px] text-on-surface-variant font-sans">CLEAN SHEETS</span>
-                        <span className="text-headline-sm font-extrabold text-emerald-400">{stats.cleanSheets}</span>
+                        <span className="text-headline-sm font-extrabold text-emerald-400">{stats.cleanSheets ?? 0}</span>
                       </div>
                       <div className="bg-surface-container-high p-3 rounded-lg border border-surface-bright">
                         <span className="block text-[11px] text-on-surface-variant font-sans">FAILED TO SCORE</span>
-                        <span className="text-headline-sm font-extrabold text-slate-400">{stats.failedToScore}</span>
+                        <span className="text-headline-sm font-extrabold text-slate-400">{stats.failedToScore ?? 0}</span>
                       </div>
                     </div>
                   </div>

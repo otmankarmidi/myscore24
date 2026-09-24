@@ -1,14 +1,21 @@
 'use client'
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { openCookieSettings } from '@/lib/analytics'
 import { useLanguage } from '@/context/LanguageContext'
 
 export default function Footer() {
+  const pathname = usePathname()
   const { t } = useLanguage()
 
+  // Do not render public consumer footer on CMS / admin portal pages
+  if (pathname?.startsWith('/admin') || pathname?.startsWith('/api')) {
+    return null
+  }
+
   return (
-    <footer className="w-full bg-surface-container border-t border-surface-bright mt-auto py-10 px-4 text-on-surface-variant">
+    <footer className="w-full bg-surface-container border-t border-surface-bright mt-auto pt-10 pb-24 md:pb-10 px-4 text-on-surface-variant relative z-10">
       <div className="max-w-[1440px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
         {/* Brand Info */}
         <div className="space-y-3 sm:col-span-2 lg:col-span-1">
@@ -41,7 +48,7 @@ export default function Footer() {
         {/* Navigation */}
         <div>
           <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface mb-3">
-            {t('nav.scores', 'Navigation')}
+            {t('nav.scores', 'Scores')}
           </h3>
           <ul className="space-y-2 text-xs">
             <li>
@@ -79,27 +86,27 @@ export default function Footer() {
           </h3>
           <ul className="space-y-2 text-xs">
             <li>
-              <Link href="/competition/39" className="hover:text-primary transition-colors">
+              <Link href="/league/39" className="hover:text-primary transition-colors">
                 Premier League
               </Link>
             </li>
             <li>
-              <Link href="/competition/140" className="hover:text-primary transition-colors">
+              <Link href="/league/140" className="hover:text-primary transition-colors">
                 La Liga
               </Link>
             </li>
             <li>
-              <Link href="/competition/2" className="hover:text-primary transition-colors">
+              <Link href="/league/2" className="hover:text-primary transition-colors">
                 UEFA Champions League
               </Link>
             </li>
             <li>
-              <Link href="/competition/135" className="hover:text-primary transition-colors">
+              <Link href="/league/135" className="hover:text-primary transition-colors">
                 Serie A
               </Link>
             </li>
             <li>
-              <Link href="/competition/78" className="hover:text-primary transition-colors">
+              <Link href="/league/78" className="hover:text-primary transition-colors">
                 Bundesliga
               </Link>
             </li>

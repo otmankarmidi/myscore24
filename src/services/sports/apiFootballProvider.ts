@@ -389,4 +389,16 @@ export const apiFootballProvider = {
       return json.response || null
     })
   },
+
+  async searchTeams(query: string): Promise<any[]> {
+    const keyStr = query.toLowerCase().trim()
+    return cacheEngine.fetchWithCache('team_search', keyStr, CACHE_TTLS.ENTITY_INFO, async () => {
+      if (!this.hasValidApiKey() || query.trim().length < 3) return []
+      const url = this.getUrl(`teams?search=${encodeURIComponent(query.trim())}`, false)
+      const res = await fetchWithRetry(url, { headers: this.getHeaders() })
+      if (!res.ok) return []
+      const json = await res.json()
+      return json.response || []
+    })
+  },
 }

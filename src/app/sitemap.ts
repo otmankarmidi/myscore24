@@ -1,6 +1,5 @@
 import { MetadataRoute } from 'next'
 import { prisma } from '@/lib/prisma'
-import { mockNews } from '@/data/mockNews'
 
 const BASE_URL = 'https://myscore24.com'
 
@@ -135,7 +134,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('[Sitemap Generator] Database query failed, using static sitemap only:', err)
   }
 
-  // 3. News Articles (Dynamic from MySQL, fallback to mockNews)
+  // 3. News Articles (Dynamic from MySQL published articles only)
   let newsRoutes: MetadataRoute.Sitemap = []
   try {
     const dbArticles = await prisma.article.findMany({
@@ -151,22 +150,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: 'daily' as const,
         priority: 0.7,
       }))
-    } else {
-      newsRoutes = mockNews.map((article) => ({
-        url: `${BASE_URL}/news/${article.slug}`,
-        lastModified: article.publishedAt ? new Date(article.publishedAt) : now,
-        changeFrequency: 'monthly' as const,
-        priority: 0.7,
-      }))
     }
   } catch (err) {
-    console.error('[Sitemap Generator] Article query failed, using fallback:', err)
-    newsRoutes = mockNews.map((article) => ({
-      url: `${BASE_URL}/news/${article.slug}`,
-      lastModified: article.publishedAt ? new Date(article.publishedAt) : now,
-      changeFrequency: 'monthly' as const,
-      priority: 0.7,
-    }))
+    console.error('[Sitemap Generator] Article query failed:', err)
   }
 
   // 4. Key Manifest Players

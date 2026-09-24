@@ -1,7 +1,6 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import Header from '@/components/common/Header'
-import Footer from '@/components/common/Footer'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy | MyScore24',
@@ -295,8 +294,6 @@ export default function PrivacyPolicyPage() {
           </div>
         </section>
       </main>
-
-      <Footer />
     </div>
   )
 }

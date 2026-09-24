@@ -1,5 +1,4 @@
 import { prisma } from '@/lib/prisma'
-import { mockNews } from '@/data/mockNews'
 import { NewsArticle } from '@/types/news'
 
 function estimateReadTime(text: string): number {
@@ -25,8 +24,8 @@ function mapPrismaToNewsArticle(art: any): NewsArticle {
     tags: art.tags ? art.tags.map((t: any) => t.tag?.name || t.name) : [],
     imageUrl: art.featuredImage || '/og-image.png',
     image: art.featuredImage || '/og-image.png',
-    readTimeMinutes: estimateReadTime(art.content),
-    readTime: estimateReadTime(art.content),
+    readTimeMinutes: estimateReadTime(art.content || ''),
+    readTime: estimateReadTime(art.content || ''),
   }
 }
 
@@ -52,11 +51,11 @@ export async function getPublishedArticles(): Promise<NewsArticle[]> {
       return dbArticles.map(mapPrismaToNewsArticle)
     }
   } catch (err) {
-    console.error('[getPublishedArticles] MySQL query failed, falling back to mockNews:', err)
+    console.error('[getPublishedArticles] MySQL query failed:', err)
   }
 
-  // Graceful fallback to mockNews if no articles published in DB yet
-  return mockNews
+  // Only return real articles published via CMS
+  return []
 }
 
 export async function getArticleBySlug(slug: string): Promise<{
@@ -110,12 +109,6 @@ export async function getArticleBySlug(slug: string): Promise<{
     }
   } catch (err) {
     console.error(`[getArticleBySlug] MySQL query for slug "${slug}" failed:`, err)
-  }
-
-  // Fallback to mockNews
-  const mock = mockNews.find((n) => n.slug === slug)
-  if (mock) {
-    return { article: mock }
   }
 
   return { article: null }

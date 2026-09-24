@@ -338,19 +338,64 @@ export const sportsService = {
 
   // ── News ──────────────────────────────────────────────────────────────────
   async getNews(): Promise<NewsArticle[]> {
-    return (await provider.getNews()).map(normalizeNewsArticle)
+    try {
+      const res = await fetch('/api/news')
+      if (res.ok) {
+        const json = await res.json()
+        return (json.articles || []).map(normalizeNewsArticle)
+      }
+    } catch {
+      // Fallback
+    }
+    return []
   },
-  async getNewsByLeague(_leagueId: string): Promise<NewsArticle[]> {
-    return (await provider.getNews()).map(normalizeNewsArticle)
+  async getNewsByLeague(leagueId: string): Promise<NewsArticle[]> {
+    try {
+      const res = await fetch(`/api/news?leagueId=${encodeURIComponent(leagueId)}`)
+      if (res.ok) {
+        const json = await res.json()
+        return (json.articles || []).map(normalizeNewsArticle)
+      }
+    } catch {
+      // Fallback
+    }
+    return []
   },
   async getNewsArticleBySlug(slug: string): Promise<NewsArticle | null> {
-    const d = await provider.getNewsArticleBySlug(slug)
-    return d ? normalizeNewsArticle(d) : null
+    try {
+      const res = await fetch(`/api/news?slug=${encodeURIComponent(slug)}`)
+      if (res.ok) {
+        const json = await res.json()
+        const article = json.article || (json.articles && json.articles[0])
+        return article ? normalizeNewsArticle(article) : null
+      }
+    } catch {
+      // Fallback
+    }
+    return null
   },
   async getFeaturedNews(): Promise<NewsArticle[]> {
-    return (await provider.getFeaturedNews()).map(normalizeNewsArticle)
+    try {
+      const res = await fetch('/api/news')
+      if (res.ok) {
+        const json = await res.json()
+        return (json.articles || []).map(normalizeNewsArticle)
+      }
+    } catch {
+      // Fallback
+    }
+    return []
   },
   async getNewsByCategory(category: string): Promise<NewsArticle[]> {
-    return (await provider.getNewsByCategory(category)).map(normalizeNewsArticle)
+    try {
+      const res = await fetch(`/api/news?category=${encodeURIComponent(category)}`)
+      if (res.ok) {
+        const json = await res.json()
+        return (json.articles || []).map(normalizeNewsArticle)
+      }
+    } catch {
+      // Fallback
+    }
+    return []
   },
 }

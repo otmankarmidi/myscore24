@@ -1,6 +1,5 @@
 import { Metadata } from 'next'
 import Header from '@/components/common/Header'
-import Footer from '@/components/common/Footer'
 import ContactForm from '@/components/contact/ContactForm'
 
 export const metadata: Metadata = {
@@ -141,8 +140,6 @@ export default function ContactPage() {
           <ContactForm />
         </section>
       </main>
-
-      <Footer />
     </div>
   )
 }

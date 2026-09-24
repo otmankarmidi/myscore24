@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Header from '@/components/common/Header'
-import Footer from '@/components/common/Footer'
 import CookieSettingsButton from '@/components/common/CookieSettingsButton'
 import CookieSettingsTrigger from '@/components/common/CookieSettingsTrigger'
 
@@ -204,8 +203,6 @@ export default function CookiePolicyPage() {
           </p>
         </section>
       </main>
-
-      <Footer />
     </div>
   )
 }

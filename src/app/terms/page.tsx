@@ -1,7 +1,6 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import Header from '@/components/common/Header'
-import Footer from '@/components/common/Footer'
 
 export const metadata: Metadata = {
   title: 'Terms of Use | MyScore24',
@@ -224,8 +223,6 @@ export default function TermsPage() {
           </div>
         </section>
       </main>
-
-      <Footer />
     </div>
   )
 }

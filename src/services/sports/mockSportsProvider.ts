@@ -9,7 +9,6 @@ import { mockTeams, getTeamBySlug } from '@/data/mockTeams'
 import { mockLeagues, getLeagueBySlug } from '@/data/mockLeagues'
 import { mockPlayers, getPlayerBySlug, getTopScorers } from '@/data/mockPlayers'
 import { mockStandings, getStandingsByLeagueId } from '@/data/mockStandings'
-import { mockNews, getNewsBySlug, getFeaturedNews, getNewsByCategory } from '@/data/mockNews'
 
 const delay = (ms = 300) => new Promise(res => setTimeout(res, ms))
 
@@ -27,8 +26,8 @@ export const mockSportsProvider = {
   async getPlayerBySlug(slug: string): Promise<Player | undefined> { await delay(); return getPlayerBySlug(slug) },
   async getTopScorers(leagueId?: string): Promise<Player[]> { await delay(); return getTopScorers(leagueId) },
   async getStandingsByLeague(leagueId: string): Promise<LeagueStandings | undefined> { await delay(); return getStandingsByLeagueId(leagueId) },
-  async getNews(): Promise<NewsArticle[]> { await delay(); return mockNews },
-  async getNewsArticleBySlug(slug: string): Promise<NewsArticle | undefined> { await delay(); return getNewsBySlug(slug) },
-  async getFeaturedNews(): Promise<NewsArticle[]> { await delay(200); return getFeaturedNews() },
-  async getNewsByCategory(category: string): Promise<NewsArticle[]> { await delay(); return getNewsByCategory(category) },
+  async getNews(): Promise<NewsArticle[]> { await delay(); return [] },
+  async getNewsArticleBySlug(_slug: string): Promise<NewsArticle | undefined> { await delay(); return undefined },
+  async getFeaturedNews(): Promise<NewsArticle[]> { await delay(200); return [] },
+  async getNewsByCategory(_category: string): Promise<NewsArticle[]> { await delay(); return [] },
 }

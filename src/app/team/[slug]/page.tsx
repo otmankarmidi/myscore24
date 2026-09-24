@@ -2,6 +2,8 @@ import { Metadata } from 'next'
 import { prisma } from '@/lib/prisma'
 import TeamClient from './TeamClient'
 
+export const dynamic = 'force-dynamic'
+
 interface TeamPageProps {
   params: Promise<{ slug: string }>
 }
