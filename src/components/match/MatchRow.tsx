@@ -1,4 +1,5 @@
 'use client'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { Match } from '@/types/match'
 import TeamLogo from '@/components/common/TeamLogo'
@@ -34,6 +35,50 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
   const homeScore = score?.home ?? null
   const awayScore = score?.away ?? null
 
+  // Goal flashing states
+  const [isFlashingGoal, setIsFlashingGoal] = useState<boolean>(false)
+  const [lastScoringSide, setLastScoringSide] = useState<'home' | 'away' | null>(null)
+
+  const prevScoreRef = useRef<{ home: number | null; away: number | null }>({
+    home: homeScore,
+    away: awayScore,
+  })
+
+  // Detect score jumps while live
+  useEffect(() => {
+    const prev = prevScoreRef.current
+    if (prev.home !== null && homeScore !== null && homeScore > prev.home) {
+      setIsFlashingGoal(true)
+      setLastScoringSide('home')
+      const t = setTimeout(() => setIsFlashingGoal(false), 8000)
+      return () => clearTimeout(t)
+    }
+    if (prev.away !== null && awayScore !== null && awayScore > prev.away) {
+      setIsFlashingGoal(true)
+      setLastScoringSide('away')
+      const t = setTimeout(() => setIsFlashingGoal(false), 8000)
+      return () => clearTimeout(t)
+    }
+    prevScoreRef.current = { home: homeScore, away: awayScore }
+  }, [homeScore, awayScore])
+
+  // Listen to global live alert event for goals
+  useEffect(() => {
+    const handleGoalEvent = (e: Event) => {
+      const ce = e as CustomEvent<{ matchId: string; team?: 'home' | 'away' }>
+      if (ce.detail && String(ce.detail.matchId) === String(match.id)) {
+        setIsFlashingGoal(true)
+        if (ce.detail.team) setLastScoringSide(ce.detail.team)
+        setTimeout(() => setIsFlashingGoal(false), 8000)
+      }
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('myscore24_goal_scored', handleGoalEvent)
+      return () => window.removeEventListener('myscore24_goal_scored', handleGoalEvent)
+    }
+  }, [match.id])
+
   // Determine winner for bold styling
   const homeWins = homeScore !== null && awayScore !== null && homeScore > awayScore
   const awayWins = homeScore !== null && awayScore !== null && awayScore > homeScore
@@ -54,7 +99,11 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
       onClick={(e) => {
         if (!hasValidId) e.preventDefault()
       }}
-      className="match-row block p-2 group"
+      className={`match-row block p-2 group transition-all duration-300 relative ${
+        isFlashingGoal
+          ? 'animate-score-flash ring-2 ring-primary/80 rounded-lg shadow-[0_0_20px_rgba(204,255,128,0.35)]'
+          : ''
+      }`}
       aria-label={`${safeHome.name} vs ${safeAway.name}, ${status || 'scheduled'}`}
     >
       <div className="flex items-center justify-between gap-2">
@@ -82,11 +131,19 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
                 <span key={i} className="w-2.5 h-3.5 rounded-[1px] inline-block shrink-0" style={{ backgroundColor: 'var(--color-error-container)' }} title="Red card" aria-label="Red card" />
               ))}
             </div>
-            <span className={`font-geist font-bold text-[18px] tabular-nums leading-none shrink-0 ${
-              homeScore === null ? 'hidden' : homeWins ? 'text-on-surface' : 'text-outline'
-            }`}>
-              {homeScore ?? ''}
-            </span>
+            {/* Home Score */}
+            <div className="flex items-center gap-1.5 shrink-0">
+              {isFlashingGoal && (lastScoringSide === 'home' || !lastScoringSide) && (
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-primary text-black animate-bounce shadow">
+                  GOAL!
+                </span>
+              )}
+              <span className={`font-geist font-bold text-[18px] tabular-nums leading-none shrink-0 transition-transform ${
+                homeScore === null ? 'hidden' : isFlashingGoal && (lastScoringSide === 'home' || !lastScoringSide) ? 'text-primary scale-125' : homeWins ? 'text-on-surface' : 'text-outline'
+              }`}>
+                {homeScore ?? ''}
+              </span>
+            </div>
           </div>
 
           {/* Away */}
@@ -100,11 +157,19 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
                 <span key={i} className="w-2.5 h-3.5 rounded-[1px] inline-block shrink-0" style={{ backgroundColor: 'var(--color-error-container)' }} title="Red card" aria-label="Red card" />
               ))}
             </div>
-            <span className={`font-geist font-bold text-[18px] tabular-nums leading-none shrink-0 ${
-              awayScore === null ? 'hidden' : awayWins ? 'text-on-surface' : 'text-outline'
-            }`}>
-              {awayScore ?? ''}
-            </span>
+            {/* Away Score */}
+            <div className="flex items-center gap-1.5 shrink-0">
+              {isFlashingGoal && (lastScoringSide === 'away' || !lastScoringSide) && (
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-primary text-black animate-bounce shadow">
+                  GOAL!
+                </span>
+              )}
+              <span className={`font-geist font-bold text-[18px] tabular-nums leading-none shrink-0 transition-transform ${
+                awayScore === null ? 'hidden' : isFlashingGoal && (lastScoringSide === 'away' || !lastScoringSide) ? 'text-primary scale-125' : awayWins ? 'text-on-surface' : 'text-outline'
+              }`}>
+                {awayScore ?? ''}
+              </span>
+            </div>
           </div>
         </div>
 

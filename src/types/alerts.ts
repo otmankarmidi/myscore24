@@ -35,6 +35,7 @@ export interface MatchAlert {
   goalType?: 'normal' | 'penalty' | 'own_goal'
   minute?: number
   teamId?: string
+  team?: 'home' | 'away'
   playerId?: string
   createdAt: string
   priority: 'HIGH' | 'NORMAL'

@@ -44,6 +44,7 @@ export default function MatchDetailClient({ slug, initialMatch }: MatchDetailCli
   const [isLoading, setIsLoading] = useState(!initialMatch)
   const [errorInfo, setErrorInfo] = useState<{ message: string; code?: string } | null>(null)
   const [activeTab, setActiveTab] = useState<MatchTab>('summary')
+  const [isGoalCelebrating, setIsGoalCelebrating] = useState(false)
 
   const { isMatchFavorite, toggleFavoriteMatch } = useFavorites()
 
@@ -114,6 +115,27 @@ export default function MatchDetailClient({ slug, initialMatch }: MatchDetailCli
 
     return () => clearInterval(interval)
   }, [match, fetchMatchDetails])
+
+  // Listen to goal celebration event
+  useEffect(() => {
+    const handleGoalEvent = (e: Event) => {
+      const ce = e as CustomEvent<{ matchId: string }>
+      if (
+        ce.detail &&
+        match &&
+        (String(ce.detail.matchId) === String(match.id) || String(ce.detail.matchId) === String(slug))
+      ) {
+        setIsGoalCelebrating(true)
+        fetchMatchDetails(false)
+        setTimeout(() => setIsGoalCelebrating(false), 8000)
+      }
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('myscore24_goal_scored', handleGoalEvent)
+      return () => window.removeEventListener('myscore24_goal_scored', handleGoalEvent)
+    }
+  }, [match, slug, fetchMatchDetails])
 
   if (isLoading) {
     return (
@@ -188,7 +210,13 @@ export default function MatchDetailClient({ slug, initialMatch }: MatchDetailCli
 
         <main className="flex-1 min-w-0 space-y-4">
           {/* Match Hero Header */}
-          <div className="relative bg-surface-container rounded-xl border border-surface-bright overflow-hidden p-4 md:p-6 space-y-4">
+          <div
+            className={`relative bg-surface-container rounded-xl border overflow-hidden p-4 md:p-6 space-y-4 transition-all duration-500 ${
+              isGoalCelebrating
+                ? 'border-primary shadow-[0_0_40px_rgba(204,255,128,0.45)] animate-goal-glow'
+                : 'border-surface-bright'
+            }`}
+          >
             {/* Primary Semantic H1 for SEO & Accessibility */}
             <h1 className="sr-only">
               {match.homeTeam.name} vs {match.awayTeam.name} - {match.league.name}
@@ -243,6 +271,13 @@ export default function MatchDetailClient({ slug, initialMatch }: MatchDetailCli
 
               {/* Score / Time Status */}
               <div className="flex flex-col items-center justify-center text-center space-y-2">
+                {isGoalCelebrating && (
+                  <div className="flex items-center justify-center animate-bounce">
+                    <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-primary text-black shadow-lg">
+                      ⚽ GOAL! ⚽
+                    </span>
+                  </div>
+                )}
                 <MatchStatusBadge status={match.status} minute={match.minute} size="md" />
 
                 <div className="font-geist font-extrabold text-headline-xl md:text-headline-xl text-on-surface tracking-wider tabular-nums">

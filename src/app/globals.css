@@ -325,6 +325,109 @@
 .animate-slide-up { animation: slide-up 0.3s ease-out; }
 .animate-pulse-live { animation: pulse 1.5s ease-in-out infinite; }
 
+/* Goal Celebration & Score Flash Animations */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  80% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(105vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+@keyframes goal-ball-entry {
+  0% {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.35) rotate(20deg);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(0.9) rotate(-10deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes goal-glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 25px rgba(204, 255, 128, 0.4), inset 0 0 15px rgba(204, 255, 128, 0.2);
+    border-color: rgba(204, 255, 128, 0.9);
+  }
+  50% {
+    box-shadow: 0 0 60px rgba(74, 225, 118, 0.6), inset 0 0 25px rgba(74, 225, 118, 0.4);
+    border-color: rgba(74, 225, 118, 1);
+  }
+}
+
+@keyframes goal-text-zoom {
+  0% {
+    transform: scale(0.7);
+    letter-spacing: -0.05em;
+    opacity: 0;
+  }
+  40% {
+    transform: scale(1.15);
+    letter-spacing: 0.15em;
+    opacity: 1;
+  }
+  70% {
+    transform: scale(0.95);
+    letter-spacing: 0.08em;
+  }
+  100% {
+    transform: scale(1);
+    letter-spacing: 0.1em;
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(200%) rotate(45deg);
+  }
+}
+
+@keyframes score-flash-highlight {
+  0%, 100% {
+    background-color: transparent;
+  }
+  20%, 60% {
+    background-color: rgba(204, 255, 128, 0.22);
+  }
+  40%, 80% {
+    background-color: rgba(74, 225, 118, 0.35);
+  }
+}
+
+.animate-goal-ball {
+  animation: goal-ball-entry 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+.animate-goal-text {
+  animation: goal-text-zoom 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+.animate-goal-glow {
+  animation: goal-glow-pulse 2s ease-in-out infinite;
+}
+.animate-shimmer {
+  animation: shimmer 3s infinite linear;
+}
+.animate-score-flash {
+  animation: score-flash-highlight 1.5s ease-in-out 4;
+}
+
 /* =====================
    LIGHT MODE
    ===================== */
