@@ -32,6 +32,8 @@ export interface MatchAlert {
   penaltyHome?: number
   penaltyAway?: number
   scorerName?: string
+  scorerPhoto?: string
+  playerPhoto?: string
   goalType?: 'normal' | 'penalty' | 'own_goal'
   minute?: number
   teamId?: string

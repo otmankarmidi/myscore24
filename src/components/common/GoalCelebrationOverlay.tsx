@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import { MatchAlert } from '@/types/alerts'
 import { useLanguage } from '@/context/LanguageContext'
+import PlayerImage from '@/components/common/PlayerImage'
 
 interface GoalCelebrationOverlayProps {
   alert: MatchAlert | null
@@ -26,35 +26,47 @@ export function GoalCelebrationOverlay({ alert, onDismiss }: GoalCelebrationOver
   const router = useRouter()
   const { locale, t } = useLanguage()
   const [visible, setVisible] = useState(false)
+  const [progressWidth, setProgressWidth] = useState(100)
 
   useEffect(() => {
     if (alert && (alert.type === 'goal' || alert.type === 'penalty')) {
       setVisible(true)
-      const timer = setTimeout(() => {
+      setProgressWidth(100)
+
+      // Start progress bar shrink on next tick
+      const animTimer = setTimeout(() => {
+        setProgressWidth(0)
+      }, 50)
+
+      const dismissTimer = setTimeout(() => {
         setVisible(false)
         onDismiss()
-      }, 7000)
-      return () => clearTimeout(timer)
+      }, 6500)
+
+      return () => {
+        clearTimeout(animTimer)
+        clearTimeout(dismissTimer)
+      }
     } else {
       setVisible(false)
     }
   }, [alert, onDismiss])
 
-  // Generate confetti particles
+  // Generate lightweight, elegant celebratory micro-particles
   const confetti = useMemo(() => {
     if (!visible) return []
-    const colors = ['#ccff80', '#4ae176', '#ffffff', '#ffd700', '#ff4757', '#00d2d3']
+    const colors = ['#ccff80', '#4ae176', '#ffffff', '#ffd700', '#38bdf8', '#fb7185']
     const pieces: ConfettiPiece[] = []
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 28; i++) {
       pieces.push({
         id: i,
-        x: Math.random() * 100, // percentage 0-100vw
-        y: -10 - Math.random() * 20,
-        size: 6 + Math.random() * 8,
+        x: Math.random() * 96 + 2,
+        y: -15 - Math.random() * 15,
+        size: 4 + Math.random() * 5,
         color: colors[Math.floor(Math.random() * colors.length)],
         rotation: Math.random() * 360,
-        delay: Math.random() * 0.8,
-        duration: 2.5 + Math.random() * 2,
+        delay: Math.random() * 0.6,
+        duration: 2.2 + Math.random() * 1.8,
       })
     }
     return pieces
@@ -63,17 +75,25 @@ export function GoalCelebrationOverlay({ alert, onDismiss }: GoalCelebrationOver
   if (!alert || !visible) return null
 
   const isPenalty = alert.goalType === 'penalty' || alert.type === 'penalty'
+  const isOwnGoal = alert.goalType === 'own_goal'
+
   const goalTitle =
     locale === 'ar'
-      ? isPenalty
-        ? '⚽ هدف من ركلة جزاء!'
-        : '⚽ هدفففففف!'
+      ? isOwnGoal
+        ? '⚡ هدف عكسي!'
+        : isPenalty
+        ? '🎯 هدف من ركلة جزاء!'
+        : '⚽ هدفففف!'
       : locale === 'fr'
-      ? isPenalty
-        ? '⚽ BUT SUR PENALTY !'
-        : '⚽ BUUUUUUT !'
+      ? isOwnGoal
+        ? '⚡ CONTRE SON CAMP !'
+        : isPenalty
+        ? '🎯 BUT SUR PENALTY !'
+        : '⚽ BUUUUT !'
+      : isOwnGoal
+      ? '⚡ OWN GOAL!'
       : isPenalty
-      ? '⚽ PENALTY GOAL!'
+      ? '🎯 PENALTY GOAL!'
       : '⚽ GOOOAL!'
 
   const handleCardClick = () => {
@@ -82,22 +102,24 @@ export function GoalCelebrationOverlay({ alert, onDismiss }: GoalCelebrationOver
     router.push(`/match/${alert.matchId || alert.matchSlug}`)
   }
 
+  const scorerDisplayName = alert.scorerName || (alert.team === 'home' ? alert.homeTeamName : alert.awayTeamName)
+
   return (
     <aside
       aria-label="Live Match Goal Celebration"
-      className="fixed inset-0 z-50 pointer-events-none flex items-start justify-center pt-4 md:pt-8 px-4"
+      className="fixed inset-x-0 top-0 z-50 pointer-events-none flex justify-center pt-3 sm:pt-4 md:pt-6 px-3"
     >
-      {/* Confetti Rain Container */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-10" aria-hidden="true">
+      {/* Refined micro-confetti particles */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-10" aria-hidden="true">
         {confetti.map((c) => (
           <span
             key={c.id}
-            className="absolute rounded-sm opacity-90 animate-fall"
+            className="absolute rounded-full opacity-90"
             style={{
               left: `${c.x}%`,
               top: `${c.y}%`,
               width: `${c.size}px`,
-              height: `${c.size * 1.6}px`,
+              height: `${c.size * 1.4}px`,
               backgroundColor: c.color,
               transform: `rotate(${c.rotation}deg)`,
               animation: `confetti-fall ${c.duration}s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${c.delay}s infinite`,
@@ -106,108 +128,144 @@ export function GoalCelebrationOverlay({ alert, onDismiss }: GoalCelebrationOver
         ))}
       </div>
 
-      {/* Celebratory Banner Card */}
+      {/* Sleek, Expert-Engineered Goal Celebration Bar */}
       <div
         role="alert"
         aria-live="assertive"
         onClick={handleCardClick}
-        className="pointer-events-auto relative w-full max-w-lg bg-surface-container-high/95 backdrop-blur-xl border-2 border-primary rounded-2xl p-4 md:p-6 shadow-[0_0_50px_rgba(204,255,128,0.35)] cursor-pointer hover:scale-[1.02] transition-transform animate-goal-glow z-20 overflow-hidden"
+        className="pointer-events-auto relative w-full max-w-[500px] bg-surface-container-high/95 backdrop-blur-2xl border-2 border-primary/90 rounded-2xl p-3 md:p-3.5 shadow-[0_16px_45px_rgba(0,0,0,0.6),0_0_35px_rgba(204,255,128,0.3)] cursor-pointer hover:scale-[1.015] active:scale-[0.99] transition-transform animate-goal-bar z-20 overflow-hidden"
       >
-        {/* Dynamic Light Rays / Sheen effect */}
+        {/* Dynamic Light Sheen / Shimmer beam */}
         <div
-          className="absolute -inset-full bg-gradient-to-r from-transparent via-white/10 to-transparent rotate-45 pointer-events-none animate-shimmer"
+          className="absolute -inset-full bg-gradient-to-r from-transparent via-white/12 to-transparent rotate-45 pointer-events-none animate-shimmer"
           aria-hidden="true"
         />
 
-        {/* Top Header with Bouncing Soccer Ball & Big Typography */}
-        <div className="flex flex-col items-center text-center relative z-10">
-          <div className="text-4xl md:text-5xl animate-goal-ball filter drop-shadow-[0_0_15px_rgba(204,255,128,0.8)] select-none">
-            ⚽
+        <div className="flex items-center gap-3 relative z-10">
+          {/* Scorer Player Headshot / Badge */}
+          <div className="relative shrink-0">
+            <div className="w-13 h-13 md:w-15 md:h-15 w-[52px] h-[52px] md:w-[60px] md:h-[60px] rounded-full p-[2px] bg-gradient-to-tr from-primary via-emerald-400 to-primary shadow-[0_0_15px_rgba(204,255,128,0.45)]">
+              <div className="w-full h-full rounded-full overflow-hidden bg-surface-container flex items-center justify-center">
+                {alert.scorerName ? (
+                  <PlayerImage
+                    playerId={alert.playerId}
+                    photo={alert.scorerPhoto}
+                    name={alert.scorerName}
+                    size="custom"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <img
+                    src={alert.team === 'away' ? alert.awayTeamLogo : alert.homeTeamLogo}
+                    alt="Scoring Team"
+                    className="w-7 h-7 md:w-8 md:h-8 object-contain"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none'
+                    }}
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Floating Mini Ball Badge */}
+            <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-surface-container-lowest border border-primary/80 flex items-center justify-center text-[10px] shadow-md select-none animate-whistle-pulse">
+              ⚽
+            </span>
           </div>
 
-          <h2 className="text-2xl md:text-4xl font-extrabold tracking-wider uppercase font-geist bg-gradient-to-r from-primary via-white to-primary bg-clip-text text-transparent animate-goal-text mt-1">
-            {goalTitle}
-          </h2>
+          {/* Goal & Player Info */}
+          <div className="flex-1 min-w-0 flex flex-col justify-center">
+            {/* Header pill: Animated Title + Minute Badge */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-geist font-black text-xs md:text-sm tracking-wide text-primary drop-shadow-[0_0_8px_rgba(204,255,128,0.5)]">
+                {goalTitle}
+              </span>
 
-          {alert.minute ? (
-            <span className="inline-block mt-1 text-[11px] font-mono font-bold px-2 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/40">
-              {alert.minute}&apos; MINUTE
+              {alert.minute ? (
+                <span className="px-1.5 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/40 font-mono text-[10px] md:text-[11px] font-bold tabular-nums">
+                  ⏱️ {alert.minute}&apos;
+                </span>
+              ) : null}
+            </div>
+
+            {/* Scorer Name */}
+            <h3 className="font-geist font-extrabold text-sm md:text-base text-on-surface leading-tight truncate mt-0.5">
+              {scorerDisplayName}
+            </h3>
+
+            {/* Matchup & Real-Time Score */}
+            <div className="flex items-center gap-2 mt-1 text-xs text-on-surface-variant">
+              {/* Home Team */}
+              <div className="flex items-center gap-1.5 min-w-0 max-w-[40%]">
+                {alert.homeTeamLogo ? (
+                  <img
+                    src={alert.homeTeamLogo}
+                    alt={alert.homeTeamName}
+                    className="w-4 h-4 object-contain shrink-0"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none'
+                    }}
+                  />
+                ) : null}
+                <span className="font-semibold text-on-surface truncate text-[11px] md:text-xs">
+                  {alert.homeTeamName}
+                </span>
+              </div>
+
+              {/* Score Badge */}
+              <span className="font-mono font-black text-primary bg-surface-container-lowest px-2 py-0.5 rounded border border-primary/40 tabular-nums text-xs md:text-sm shrink-0">
+                {alert.homeScore ?? 0} – {alert.awayScore ?? 0}
+              </span>
+
+              {/* Away Team */}
+              <div className="flex items-center gap-1.5 min-w-0 max-w-[40%]">
+                <span className="font-semibold text-on-surface truncate text-[11px] md:text-xs">
+                  {alert.awayTeamName}
+                </span>
+                {alert.awayTeamLogo ? (
+                  <img
+                    src={alert.awayTeamLogo}
+                    alt={alert.awayTeamName}
+                    className="w-4 h-4 object-contain shrink-0"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none'
+                    }}
+                  />
+                ) : null}
+              </div>
+            </div>
+          </div>
+
+          {/* Dismiss & Open Controls */}
+          <div className="flex flex-col items-center justify-between self-stretch shrink-0 pl-1 border-l border-surface-bright/50">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                setVisible(false)
+                onDismiss()
+              }}
+              className="p-1 rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/80 transition-colors"
+              aria-label="Close goal alert"
+            >
+              <span className="material-symbols-outlined text-[16px] block">close</span>
+            </button>
+
+            <span
+              className="text-primary hover:text-white transition-colors p-1"
+              title={t('common.viewMatch', 'Open Match')}
+            >
+              <span className="material-symbols-outlined text-[18px] block">arrow_forward</span>
             </span>
-          ) : null}
+          </div>
         </div>
 
-        {/* Match Score Display */}
-        <div className="mt-4 flex items-center justify-between gap-3 bg-surface-container/80 rounded-xl p-3 border border-surface-bright/50">
-          {/* Home Team */}
-          <div className="flex-1 flex items-center gap-2 min-w-0 justify-end text-right">
-            <span className="font-bold text-sm md:text-base text-on-surface truncate">
-              {alert.homeTeamName}
-            </span>
-            {alert.homeTeamLogo ? (
-              <img
-                src={alert.homeTeamLogo}
-                alt={alert.homeTeamName}
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none'
-                }}
-                className="w-7 h-7 md:w-8 md:h-8 object-contain shrink-0"
-              />
-            ) : null}
-          </div>
-
-          {/* Scores */}
-          <div className="px-3 py-1 bg-surface-container-lowest rounded-lg border border-primary/50 text-center shrink-0">
-            <span className="font-geist text-xl md:text-2xl font-black text-primary tabular-nums tracking-wider">
-              {alert.homeScore ?? 0} – {alert.awayScore ?? 0}
-            </span>
-          </div>
-
-          {/* Away Team */}
-          <div className="flex-1 flex items-center gap-2 min-w-0 justify-start text-left">
-            {alert.awayTeamLogo ? (
-              <img
-                src={alert.awayTeamLogo}
-                alt={alert.awayTeamName}
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none'
-                }}
-                className="w-7 h-7 md:w-8 md:h-8 object-contain shrink-0"
-              />
-            ) : null}
-            <span className="font-bold text-sm md:text-base text-on-surface truncate">
-              {alert.awayTeamName}
-            </span>
-          </div>
-        </div>
-
-        {/* Scorer Spotlight */}
-        {alert.scorerName && (
-          <div className="mt-3 text-center">
-            <p className="text-sm font-semibold text-on-surface">
-              <span className="text-primary font-bold">Goalscorer:</span> {alert.scorerName}
-            </p>
-          </div>
-        )}
-
-        {/* Bottom CTA & Dismiss */}
-        <div className="mt-3 flex items-center justify-between text-xs text-on-surface-variant pt-2 border-t border-surface-bright/40">
-          <span className="flex items-center gap-1 text-primary font-semibold hover:underline">
-            {t('common.viewMatch', 'Open Match Center')}
-            <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
-          </span>
-
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation()
-              setVisible(false)
-              onDismiss()
-            }}
-            className="p-1 rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-bright transition-colors"
-            aria-label="Close goal alert"
-          >
-            <span className="material-symbols-outlined text-[18px] block">close</span>
-          </button>
+        {/* Smooth Linear Progress Countdown Bar */}
+        <div className="absolute bottom-0 inset-x-0 h-[2.5px] bg-surface-container-highest overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-primary via-emerald-400 to-primary transition-all duration-[6400ms] ease-linear"
+            style={{ width: `${progressWidth}%` }}
+          />
         </div>
       </div>
     </aside>

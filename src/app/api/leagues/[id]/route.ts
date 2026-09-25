@@ -98,6 +98,151 @@ function resolveLeagueId(rawId: string): number {
   return isNaN(parsed) ? 39 : parsed
 }
 
+function slugify(text: string): string {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') || 'item'
+}
+
+function extractTopScorersFromFixtures(fixtures: Match[], fixturesRaw?: any[]): TopScorer[] {
+  const map = new Map<string, {
+    playerId: string
+    playerSlug: string
+    playerName: string
+    photo?: string
+    teamId: string
+    teamSlug: string
+    teamName: string
+    teamLogo?: string
+    matchesCount: Set<string>
+    goals: number
+    assists: number
+    penalties: number
+  }>()
+
+  // 1. Process from normalized fixtures
+  if (Array.isArray(fixtures)) {
+    for (const match of fixtures) {
+      const matchId = match.id || ''
+      const events = match.events || []
+
+      for (const ev of events) {
+        const evType = (ev.type || '').toLowerCase()
+        const detail = (ev.detail || '').toLowerCase()
+
+        if (evType === 'goal' || evType === 'penalty' || evType === 'penalty_scored') {
+          if (detail.includes('own goal') || detail.includes('own_goal') || detail.includes('c.s.c')) {
+            continue
+          }
+
+          const playerName = ev.playerName?.trim()
+          if (!playerName) continue
+
+          const isPenalty = evType === 'penalty' || evType === 'penalty_scored' || detail.includes('penalty')
+          const isHome = ev.team === 'home'
+          const team = isHome ? match.homeTeam : match.awayTeam
+          const teamName = team?.name || (isHome ? 'Home' : 'Away')
+          const teamId = team?.id || ''
+          const teamLogo = team?.logo
+          const playerId = ev.playerId ? String(ev.playerId) : playerName.toLowerCase()
+          const key = playerId || playerName.toLowerCase()
+
+          if (!map.has(key)) {
+            map.set(key, {
+              playerId: String(playerId),
+              playerSlug: slugify(playerName),
+              playerName,
+              photo: ev.playerPhoto || (ev.playerId ? `https://media.api-sports.io/football/players/${ev.playerId}.png` : undefined),
+              teamId: String(teamId),
+              teamSlug: slugify(teamName),
+              teamName,
+              teamLogo,
+              matchesCount: new Set(),
+              goals: 0,
+              assists: 0,
+              penalties: 0,
+            })
+          }
+
+          const entry = map.get(key)!
+          entry.goals += 1
+          if (isPenalty) entry.penalties += 1
+          if (matchId) entry.matchesCount.add(matchId)
+          if (!entry.photo && ev.playerPhoto) entry.photo = ev.playerPhoto
+        }
+      }
+    }
+  }
+
+  // 2. If fixturesRaw has raw event objects
+  if (Array.isArray(fixturesRaw)) {
+    for (const f of fixturesRaw) {
+      const matchId = String(f.fixture?.id || '')
+      const events = f.events || []
+
+      for (const ev of events) {
+        const evType = (ev.type || '').toLowerCase()
+        const detail = (ev.detail || '').toLowerCase()
+
+        if (evType === 'goal') {
+          if (detail.includes('own goal') || detail.includes('own_goal') || detail.includes('c.s.c')) {
+            continue
+          }
+
+          const playerName = ev.player?.name?.trim()
+          if (!playerName) continue
+
+          const isPenalty = detail.includes('penalty')
+          const pId = ev.player?.id ? String(ev.player.id) : playerName.toLowerCase()
+          const key = pId || playerName.toLowerCase()
+          const teamName = ev.team?.name || 'Club'
+          const teamId = String(ev.team?.id || '')
+          const teamLogo = ev.team?.logo
+
+          if (!map.has(key)) {
+            map.set(key, {
+              playerId: pId,
+              playerSlug: slugify(playerName),
+              playerName,
+              photo: ev.player?.id ? `https://media.api-sports.io/football/players/${ev.player.id}.png` : undefined,
+              teamId,
+              teamSlug: slugify(teamName),
+              teamName,
+              teamLogo,
+              matchesCount: new Set(),
+              goals: 0,
+              assists: 0,
+              penalties: 0,
+            })
+          }
+
+          const entry = map.get(key)!
+          entry.goals += 1
+          if (isPenalty) entry.penalties += 1
+          if (matchId) entry.matchesCount.add(matchId)
+        }
+      }
+    }
+  }
+
+  return Array.from(map.values())
+    .filter((s) => s.goals > 0)
+    .sort((a, b) => b.goals - a.goals || a.penalties - b.penalties)
+    .slice(0, 30)
+    .map((s) => ({
+      playerId: s.playerId,
+      playerSlug: s.playerSlug,
+      playerName: s.playerName,
+      photo: s.photo,
+      teamId: s.teamId,
+      teamSlug: s.teamSlug,
+      teamName: s.teamName,
+      teamLogo: s.teamLogo,
+      matches: Math.max(s.matchesCount.size, 1),
+      goals: s.goals,
+      assists: s.assists,
+      penalties: s.penalties,
+    }))
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -173,12 +318,11 @@ export async function GET(
 
         // Coverage-gated queries
         const canFetchStandings = coverage.standings !== false
-        const canFetchTopScorers = coverage.top_scorers !== false
         const canFetchFixtures = coverage.fixtures !== false
 
         const promises: Promise<any>[] = [
           canFetchStandings ? apiFootballProvider.getLeagueStandings(leagueId, requestedSeason).catch(() => []) : Promise.resolve([]),
-          canFetchTopScorers ? apiFootballProvider.getLeagueTopScorers(leagueId, requestedSeason).catch(() => []) : Promise.resolve([]),
+          apiFootballProvider.getLeagueTopScorers(leagueId, requestedSeason).catch(() => []),
         ]
 
         // Only query fixtures from provider if not already stored in MySQL
@@ -201,6 +345,22 @@ export async function GET(
               const altRaw = await apiFootballProvider.getLeagueStandings(leagueId, alternateSeason.year)
               if (Array.isArray(altRaw) && altRaw.length > 0) {
                 standingsRaw = altRaw
+              }
+            } catch {}
+          }
+        }
+
+        // Automatic fallback: If top scorers are empty for the requested season, check if an alternate active season has top scorers (e.g. AFCON, Nations League)
+        if ((!topScorersRaw || topScorersRaw.length === 0) && leagueDetails?.seasons) {
+          const alternateSeason = leagueDetails.seasons
+            .filter((s: any) => s.year !== requestedSeason)
+            .sort((a: any, b: any) => (b.current ? 1 : 0) - (a.current ? 1 : 0) || b.year - a.year)[0]
+
+          if (alternateSeason) {
+            try {
+              const altScorers = await apiFootballProvider.getLeagueTopScorers(leagueId, alternateSeason.year)
+              if (Array.isArray(altScorers) && altScorers.length > 0) {
+                topScorersRaw = altScorers
               }
             } catch {}
           }
@@ -234,12 +394,18 @@ export async function GET(
             }))
           : undefined
 
-        const topScorers: TopScorer[] = Array.isArray(topScorersRaw)
-          ? topScorersRaw.map(normalizeApiFootballTopScorer)
-          : []
         const fixtures: Match[] = storedMatches.length > 0
           ? storedMatches
           : (Array.isArray(fixturesRaw) ? fixturesRaw.map(normalizeApiFootballMatch) : [])
+
+        let topScorers: TopScorer[] = Array.isArray(topScorersRaw)
+          ? topScorersRaw.map(normalizeApiFootballTopScorer)
+          : []
+
+        // If topScorers is still empty, compute from the competition matches/events
+        if (topScorers.length === 0) {
+          topScorers = extractTopScorersFromFixtures(fixtures, fixturesRaw)
+        }
 
         const leagueMeta = leagueDetails?.league || {}
         const countryMeta = leagueDetails?.country || {}

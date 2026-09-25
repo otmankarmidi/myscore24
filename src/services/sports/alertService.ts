@@ -46,6 +46,8 @@ interface ParsedMatchData {
     team: 'home' | 'away'
     teamName: string
     playerName?: string
+    playerId?: string
+    playerPhoto?: string
     minute?: number
     detail?: string
   }>
@@ -83,6 +85,9 @@ function extractMatchData(raw: any): ParsedMatchData | null {
         const isHome = ev.team?.id === raw.teams.home?.id
         const teamName = isHome ? homeTeamName : awayTeamName
 
+        const playerId = ev.player?.id ? String(ev.player.id) : undefined
+        const playerPhoto = ev.player?.photo || (playerId ? `https://media.api-sports.io/football/players/${playerId}.png` : undefined)
+
         if (evType === 'goal') {
           const isPenalty = evDetail.includes('penalty')
           events.push({
@@ -91,6 +96,8 @@ function extractMatchData(raw: any): ParsedMatchData | null {
             team: isHome ? 'home' : 'away',
             teamName,
             playerName: ev.player?.name,
+            playerId,
+            playerPhoto,
             minute: ev.time?.elapsed,
             detail: ev.detail
           })
@@ -102,6 +109,8 @@ function extractMatchData(raw: any): ParsedMatchData | null {
               team: isHome ? 'home' : 'away',
               teamName,
               playerName: ev.player?.name,
+              playerId,
+              playerPhoto,
               minute: ev.time?.elapsed,
               detail: ev.detail
             })
@@ -112,6 +121,8 @@ function extractMatchData(raw: any): ParsedMatchData | null {
               team: isHome ? 'home' : 'away',
               teamName,
               playerName: ev.player?.name,
+              playerId,
+              playerPhoto,
               minute: ev.time?.elapsed,
               detail: ev.detail
             })
@@ -162,6 +173,8 @@ function extractMatchData(raw: any): ParsedMatchData | null {
           team: ev.team === 'away' ? 'away' : 'home',
           teamName: ev.team === 'away' ? raw.awayTeam.name : raw.homeTeam.name,
           playerName: ev.playerName,
+          playerId: ev.playerId,
+          playerPhoto: ev.playerPhoto || (ev.playerId ? `https://media.api-sports.io/football/players/${ev.playerId}.png` : undefined),
           minute: ev.minute,
           detail: ev.detail
         })
@@ -371,8 +384,11 @@ export function processMatchAlerts(rawMatch: any): MatchAlert[] {
             homeScore,
             awayScore,
             scorerName: ev.playerName,
+            playerId: ev.playerId,
+            scorerPhoto: ev.playerPhoto || (ev.playerId ? `https://media.api-sports.io/football/players/${ev.playerId}.png` : undefined),
             goalType: isPenalty ? 'penalty' : 'normal',
             minute: ev.minute || minute,
+            team: ev.team,
             createdAt: new Date().toISOString(),
             priority: 'HIGH',
             source: 'api-football'
@@ -402,7 +418,10 @@ export function processMatchAlerts(rawMatch: any): MatchAlert[] {
             homeScore,
             awayScore,
             scorerName: ev.playerName,
+            playerId: ev.playerId,
+            playerPhoto: ev.playerPhoto || (ev.playerId ? `https://media.api-sports.io/football/players/${ev.playerId}.png` : undefined),
             minute: ev.minute || minute,
+            team: ev.team,
             createdAt: new Date().toISOString(),
             priority: 'HIGH',
             source: 'api-football'
@@ -432,7 +451,10 @@ export function processMatchAlerts(rawMatch: any): MatchAlert[] {
             homeScore,
             awayScore,
             scorerName: ev.playerName,
+            playerId: ev.playerId,
+            playerPhoto: ev.playerPhoto || (ev.playerId ? `https://media.api-sports.io/football/players/${ev.playerId}.png` : undefined),
             minute: ev.minute || minute,
+            team: ev.team,
             createdAt: new Date().toISOString(),
             priority: 'NORMAL',
             source: 'api-football'
