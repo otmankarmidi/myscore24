@@ -95,7 +95,7 @@ export default async function MatchPage({ params }: MatchPageProps) {
         '@context': 'https://schema.org',
         '@type': 'SportsEvent',
         name: `${initialMatch.homeTeam.name} vs ${initialMatch.awayTeam.name}`,
-        startDate: initialMatch.kickoff,
+        startDate: initialMatch.kickoff || new Date().toISOString(),
         eventStatus: initialMatch.isFinal
           ? 'https://schema.org/EventFinished'
           : initialMatch.status === 'live'
@@ -104,19 +104,21 @@ export default async function MatchPage({ params }: MatchPageProps) {
         homeTeam: {
           '@type': 'SportsTeam',
           name: initialMatch.homeTeam.name,
-          logo: initialMatch.homeTeam.logo,
+          logo: initialMatch.homeTeam.logo || undefined,
         },
         awayTeam: {
           '@type': 'SportsTeam',
           name: initialMatch.awayTeam.name,
-          logo: initialMatch.awayTeam.logo,
+          logo: initialMatch.awayTeam.logo || undefined,
         },
-        location: initialMatch.venue
-          ? {
-              '@type': 'Place',
-              name: initialMatch.venue,
-            }
-          : undefined,
+        location: {
+          '@type': 'Place',
+          name: initialMatch.venue || `${initialMatch.homeTeam.name} Home Stadium`,
+          address: {
+            '@type': 'PostalAddress',
+            addressCountry: initialMatch.league.country || 'Global',
+          },
+        },
         organizer: {
           '@type': 'SportsOrganization',
           name: initialMatch.league.name,
