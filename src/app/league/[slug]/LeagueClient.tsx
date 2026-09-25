@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Header from '@/components/common/Header'
 import DesktopSidebar from '@/components/common/DesktopSidebar'
 import RightSidebar from '@/components/common/RightSidebar'
@@ -17,7 +17,7 @@ import { sportsService } from '@/services/sports/sportsService'
 import { useFavorites } from '@/hooks/useFavorites'
 import { League } from '@/types/league'
 import { Match } from '@/types/match'
-import { LeagueStanding, TopScorer } from '@/types/standing'
+import { LeagueStanding, TopScorer, GroupedStanding, Standing } from '@/types/standing'
 import { NewsArticle } from '@/types/news'
 import { trackCompetitionOpen } from '@/lib/analytics'
 
@@ -34,12 +34,38 @@ export default function LeagueClient({ slug }: LeagueClientProps) {
   const [topScorers, setTopScorers] = useState<TopScorer[]>([])
   const [news, setNews] = useState<NewsArticle[]>([])
   const [selectedSeason, setSelectedSeason] = useState<string | number | undefined>(undefined)
+  const [selectedGroup, setSelectedGroup] = useState<string>('ALL')
   const [isLoading, setIsLoading] = useState(true)
   const [errorType, setErrorType] = useState<'notFound' | 'unavailable' | null>(null)
   const [activeTab, setActiveTab] = useState<LeagueTab>('overview')
   const [logoError, setLogoError] = useState(false)
 
   const { isLeagueFavorite, toggleFavoriteLeague } = useFavorites()
+
+  // Derive all groups either from league.groups or by grouping standings by s.group
+  const allGroups = useMemo<GroupedStanding[]>(() => {
+    if (league?.groups && league.groups.length > 0) {
+      return league.groups
+    }
+    if (standings && standings.length > 0) {
+      const groupsMap = new Map<string, Standing[]>()
+      let hasGroup = false
+      for (const s of standings) {
+        if (s.group) {
+          hasGroup = true
+          if (!groupsMap.has(s.group)) groupsMap.set(s.group, [])
+          groupsMap.get(s.group)!.push(s)
+        }
+      }
+      if (hasGroup && groupsMap.size > 1) {
+        return Array.from(groupsMap.entries()).map(([groupName, groupStandings]) => ({
+          groupName,
+          standings: groupStandings,
+        }))
+      }
+    }
+    return []
+  }, [league?.groups, standings])
 
   const loadLeagueData = useCallback(
     async (seasonParam?: string | number) => {
@@ -245,10 +271,10 @@ export default function LeagueClient({ slug }: LeagueClientProps) {
               </div>
 
               {/* Standings Preview */}
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between px-1">
                   <h2 className="text-body-md font-bold text-on-surface">Standings Table ({league.season})</h2>
-                  {(standings.length > 0 || (league.groups && league.groups.length > 0)) && (
+                  {(standings.length > 0 || allGroups.length > 0) && (
                     <button
                       onClick={() => setActiveTab('standings')}
                       className="text-xs font-semibold text-primary hover:underline"
@@ -257,14 +283,56 @@ export default function LeagueClient({ slug }: LeagueClientProps) {
                     </button>
                   )}
                 </div>
-                {league.groups && league.groups.length > 0 ? (
-                  <div className="space-y-4">
-                    {league.groups.slice(0, 2).map((group: any) => (
-                      <div key={group.groupName} className="space-y-1">
-                        <h3 className="text-xs font-bold text-primary px-1">{group.groupName}</h3>
-                        <StandingsTable standings={group.standings} showFullTable={false} />
-                      </div>
-                    ))}
+
+                {allGroups.length > 0 ? (
+                  <div className="space-y-3">
+                    {/* Horizontal scrollable group pills */}
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                      <button
+                        onClick={() => setSelectedGroup('ALL')}
+                        className={`px-3 py-1 rounded text-xs font-bold whitespace-nowrap transition-colors ${
+                          selectedGroup === 'ALL'
+                            ? 'bg-primary text-black'
+                            : 'bg-surface-container-high text-on-surface-variant hover:text-on-surface'
+                        }`}
+                      >
+                        All Groups ({allGroups.length})
+                      </button>
+                      {allGroups.map((group) => (
+                        <button
+                          key={group.groupName}
+                          onClick={() => setSelectedGroup(group.groupName)}
+                          className={`px-3 py-1 rounded text-xs font-bold whitespace-nowrap transition-colors ${
+                            selectedGroup === group.groupName
+                              ? 'bg-primary text-black'
+                              : 'bg-surface-container-high text-on-surface-variant hover:text-on-surface'
+                          }`}
+                        >
+                          {group.groupName}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Display groups */}
+                    <div className="space-y-4">
+                      {(selectedGroup === 'ALL'
+                        ? allGroups
+                        : allGroups.filter((g) => g.groupName === selectedGroup)
+                      ).map((group) => (
+                        <div key={group.groupName} className="space-y-1.5">
+                          <div className="flex items-center justify-between px-1">
+                            <h3 className="text-xs font-bold text-primary flex items-center gap-1.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />
+                              {group.groupName}
+                            </h3>
+                            <span className="text-[11px] text-on-surface-variant font-mono">
+                              {group.standings.length} Teams
+                            </span>
+                          </div>
+                          <StandingsTable standings={group.standings} showFullTable={false} />
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ) : standings.length > 0 ? (
                   <StandingsTable standings={standings} showFullTable={false} />
@@ -362,15 +430,75 @@ export default function LeagueClient({ slug }: LeagueClientProps) {
 
           {/* Standings Tab */}
           {activeTab === 'standings' && (
-            <div>
-              {league.groups && league.groups.length > 0 ? (
-                <div className="space-y-6">
-                  {league.groups.map((group: any) => (
-                    <div key={group.groupName} className="space-y-2">
-                      <h3 className="text-sm font-bold text-primary px-1">{group.groupName}</h3>
-                      <StandingsTable standings={group.standings} showFullTable={true} />
-                    </div>
-                  ))}
+            <div className="space-y-4">
+              {allGroups.length > 0 ? (
+                <div className="space-y-4">
+                  {/* Group Filter Header & Dropdown */}
+                  <div className="flex items-center justify-between bg-surface-container p-3 rounded-lg border border-surface-bright flex-wrap gap-2">
+                    <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">
+                      Competition Groups ({allGroups.length} Groups)
+                    </span>
+                    <select
+                      value={selectedGroup}
+                      onChange={(e) => setSelectedGroup(e.target.value)}
+                      className="bg-surface-container-high border border-surface-bright text-xs font-bold text-on-surface rounded-lg px-3 py-1.5 focus:outline-none focus:border-primary cursor-pointer"
+                    >
+                      <option value="ALL">Show All Groups ({allGroups.length})</option>
+                      {allGroups.map((g) => (
+                        <option key={g.groupName} value={g.groupName}>
+                          {g.groupName}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Horizontal pill navigation */}
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                    <button
+                      onClick={() => setSelectedGroup('ALL')}
+                      className={`px-3 py-1 rounded text-xs font-bold whitespace-nowrap transition-colors ${
+                        selectedGroup === 'ALL'
+                          ? 'bg-primary text-black'
+                          : 'bg-surface-container-high text-on-surface-variant hover:text-on-surface'
+                      }`}
+                    >
+                      All Groups
+                    </button>
+                    {allGroups.map((g) => (
+                      <button
+                        key={g.groupName}
+                        onClick={() => setSelectedGroup(g.groupName)}
+                        className={`px-3 py-1 rounded text-xs font-bold whitespace-nowrap transition-colors ${
+                          selectedGroup === g.groupName
+                            ? 'bg-primary text-black'
+                            : 'bg-surface-container-high text-on-surface-variant hover:text-on-surface'
+                        }`}
+                      >
+                        {g.groupName}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Render All or Filtered Groups */}
+                  <div className="space-y-6">
+                    {(selectedGroup === 'ALL'
+                      ? allGroups
+                      : allGroups.filter((g) => g.groupName === selectedGroup)
+                    ).map((group) => (
+                      <div key={group.groupName} className="space-y-2">
+                        <div className="flex items-center justify-between px-1">
+                          <h3 className="text-sm font-bold text-primary flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-primary inline-block" />
+                            {group.groupName}
+                          </h3>
+                          <span className="text-xs text-on-surface-variant font-mono">
+                            {group.standings.length} Teams
+                          </span>
+                        </div>
+                        <StandingsTable standings={group.standings} showFullTable={true} />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ) : standings.length === 0 ? (
                 <EmptyState

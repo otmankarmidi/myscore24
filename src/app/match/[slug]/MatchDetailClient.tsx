@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import Header from '@/components/common/Header'
 import DesktopSidebar from '@/components/common/DesktopSidebar'
@@ -23,7 +23,7 @@ import { useTimezone } from '@/context/TimezoneContext'
 import { useLanguage } from '@/context/LanguageContext'
 import PlayerImage from '@/components/common/PlayerImage'
 import { Match } from '@/types/match'
-import { LeagueStanding } from '@/types/standing'
+import { LeagueStanding, GroupedStanding } from '@/types/standing'
 import { trackMatchOpen } from '@/lib/analytics'
 import { formatDate } from '@/lib/utils'
 
@@ -45,6 +45,43 @@ export default function MatchDetailClient({ slug, initialMatch }: MatchDetailCli
   const [errorInfo, setErrorInfo] = useState<{ message: string; code?: string } | null>(null)
   const [activeTab, setActiveTab] = useState<MatchTab>('summary')
   const [isGoalCelebrating, setIsGoalCelebrating] = useState(false)
+  const [selectedMatchGroup, setSelectedMatchGroup] = useState<string>('MATCH')
+
+  const matchGroups = useMemo<GroupedStanding[]>(() => {
+    if (!standings || standings.length === 0) return []
+    const groupsMap = new Map<string, LeagueStanding[]>()
+    let hasGroup = false
+    for (const s of standings) {
+      if (s.group) {
+        hasGroup = true
+        if (!groupsMap.has(s.group)) groupsMap.set(s.group, [])
+        groupsMap.get(s.group)!.push(s)
+      }
+    }
+    if (hasGroup && groupsMap.size > 1) {
+      return Array.from(groupsMap.entries()).map(([groupName, groupStandings]) => ({
+        groupName,
+        standings: groupStandings,
+      }))
+    }
+    return []
+  }, [standings])
+
+  const currentMatchGroupName = useMemo(() => {
+    if (!match || matchGroups.length === 0) return null
+    const homeName = (match.homeTeam?.name || '').toLowerCase()
+    const awayName = (match.awayTeam?.name || '').toLowerCase()
+    const found = matchGroups.find((g) =>
+      g.standings.some((s) => {
+        const tName = (s.teamName || s.team?.name || '').toLowerCase()
+        return (
+          (tName && (tName.includes(homeName) || homeName.includes(tName))) ||
+          (tName && (tName.includes(awayName) || awayName.includes(tName)))
+        )
+      })
+    )
+    return found ? found.groupName : matchGroups[0]?.groupName
+  }, [match, matchGroups])
 
   const { isMatchFavorite, toggleFavoriteMatch } = useFavorites()
 
@@ -417,8 +454,86 @@ export default function MatchDetailClient({ slug, initialMatch }: MatchDetailCli
             )}
 
             {activeTab === 'standings' && (
-              <div className="bg-surface-container rounded-xl border border-surface-bright p-4">
-                <StandingsTable standings={standings} />
+              <div className="space-y-4">
+                {matchGroups.length > 0 ? (
+                  <div className="space-y-4">
+                    {/* Group Pills for Navigation */}
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 bg-surface-container p-3 rounded-xl border border-surface-bright">
+                      {currentMatchGroupName && (
+                        <button
+                          onClick={() => setSelectedMatchGroup('MATCH')}
+                          className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-colors flex items-center gap-1.5 ${
+                            selectedMatchGroup === 'MATCH'
+                              ? 'bg-primary text-black'
+                              : 'bg-surface-container-high text-on-surface-variant hover:text-on-surface'
+                          }`}
+                        >
+                          <span className="material-symbols-outlined text-[14px]">sports_soccer</span>
+                          This Match Group
+                        </button>
+                      )}
+                      <button
+                        onClick={() => setSelectedMatchGroup('ALL')}
+                        className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${
+                          selectedMatchGroup === 'ALL'
+                            ? 'bg-primary text-black'
+                            : 'bg-surface-container-high text-on-surface-variant hover:text-on-surface'
+                        }`}
+                      >
+                        All Groups ({matchGroups.length})
+                      </button>
+                      {matchGroups.map((group) => (
+                        <button
+                          key={group.groupName}
+                          onClick={() => setSelectedMatchGroup(group.groupName)}
+                          className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${
+                            selectedMatchGroup === group.groupName
+                              ? 'bg-primary text-black'
+                              : 'bg-surface-container-high text-on-surface-variant hover:text-on-surface'
+                          }`}
+                        >
+                          {group.groupName}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Display Groups */}
+                    <div className="space-y-6">
+                      {(selectedMatchGroup === 'MATCH' && currentMatchGroupName
+                        ? matchGroups.filter((g) => g.groupName === currentMatchGroupName)
+                        : selectedMatchGroup === 'ALL'
+                        ? matchGroups
+                        : matchGroups.filter((g) => g.groupName === selectedMatchGroup)
+                      ).map((group) => (
+                        <div key={group.groupName} className="space-y-2">
+                          <div className="flex items-center justify-between px-1">
+                            <h3 className="text-sm font-bold text-primary flex items-center gap-2">
+                              <span className="w-2 h-2 rounded-full bg-primary inline-block" />
+                              {group.groupName}
+                              {group.groupName === currentMatchGroupName && (
+                                <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-primary/20 text-primary border border-primary/40 font-bold">
+                                  Current Match
+                                </span>
+                              )}
+                            </h3>
+                            <span className="text-xs text-on-surface-variant font-mono">
+                              {group.standings.length} Teams
+                            </span>
+                          </div>
+                          <StandingsTable
+                            standings={group.standings}
+                            currentTeamId={match?.homeTeam?.id}
+                            showFullTable={true}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-surface-container rounded-xl border border-surface-bright p-4">
+                    <StandingsTable standings={standings} currentTeamId={match?.homeTeam?.id} />
+                  </div>
+                )}
               </div>
             )}
           </div>

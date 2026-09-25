@@ -48,10 +48,29 @@ const LEAGUE_SLUG_TO_ID: Record<string, number> = {
   'mls': 253,
   'usa.1': 253,
   '253': 253,
+  'uefa-nations-league': 5,
+  'euro-nations-league': 5,
+  'nations-league': 5,
+  '5': 5,
+  'uefa-conference-league': 848,
+  'conference-league': 848,
+  '848': 848,
+  'world-cup': 1,
+  '1': 1,
+  'euro': 4,
+  'euro-championship': 4,
+  '4': 4,
+  'copa-america': 9,
+  '9': 9,
+  'afcon': 6,
+  'africa-cup-of-nations': 6,
+  '6': 6,
+  'friendlies': 10,
+  '10': 10,
 }
 
 function resolveLeagueId(rawId: string): number {
-  const key = rawId.toLowerCase()
+  const key = rawId.toLowerCase().trim()
   if (LEAGUE_SLUG_TO_ID[key]) return LEAGUE_SLUG_TO_ID[key]
   const parsed = parseInt(rawId, 10)
   return isNaN(parsed) ? 39 : parsed
@@ -149,6 +168,25 @@ export async function GET(
         const standings: Standing[] = Array.isArray(standingsRaw)
           ? standingsRaw.map(normalizeApiFootballStanding)
           : []
+
+        // Extract and structure all groups (e.g. UEFA Nations League, World Cup, UCL groups)
+        const groupsMap = new Map<string, Standing[]>()
+        for (const s of standings) {
+          const grp = s.group || 'Standings'
+          if (!groupsMap.has(grp)) {
+            groupsMap.set(grp, [])
+          }
+          groupsMap.get(grp)!.push(s)
+        }
+
+        const hasMultipleGroups = groupsMap.size > 1
+        const groups = hasMultipleGroups
+          ? Array.from(groupsMap.entries()).map(([groupName, groupStandings]) => ({
+              groupName,
+              standings: groupStandings,
+            }))
+          : undefined
+
         const topScorers: TopScorer[] = Array.isArray(topScorersRaw)
           ? topScorersRaw.map(normalizeApiFootballTopScorer)
           : []
@@ -175,11 +213,15 @@ export async function GET(
           seasons: dbSeasons,
           currentRound: fixtures.length > 0 ? fixtures[fixtures.length - 1].round || 'Regular Season' : 'Regular Season',
           type: 'league',
+          groups,
+          standingsSupported: standings.length > 0,
+          topScorersSupported: topScorers.length > 0,
         }
 
         return NextResponse.json({
           league,
           standings,
+          groups,
           topScorers,
           fixtures,
           source: storedMatches.length > 0 ? 'MySQL Database (Stored)' : 'API-Football (Synced)',

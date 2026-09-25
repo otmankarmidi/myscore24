@@ -220,6 +220,7 @@ export const sportsService = {
   async getLeagueFullData(slugOrId: string, season?: number | string): Promise<{
     league: League | null
     standings: LeagueStanding[]
+    groups?: import('@/types/standing').GroupedStanding[]
     topScorers: TopScorer[]
     fixtures: Match[]
     errorType?: 'notFound' | 'unavailable'
@@ -232,14 +233,24 @@ export const sportsService = {
         return {
           league: null,
           standings: [],
+          groups: [],
           topScorers: [],
           fixtures: [],
           errorType: json.notFound ? 'notFound' : 'unavailable',
         }
       }
+
+      const leagueObj = json.league
+        ? {
+            ...json.league,
+            groups: json.groups || json.league.groups,
+          }
+        : null
+
       return {
-        league: json.league || null,
+        league: leagueObj,
         standings: json.standings || [],
+        groups: json.groups || json.league?.groups || [],
         topScorers: json.topScorers || [],
         fixtures: json.fixtures || [],
       }
@@ -248,6 +259,7 @@ export const sportsService = {
       return {
         league: null,
         standings: [],
+        groups: [],
         topScorers: [],
         fixtures: [],
         errorType: 'unavailable',

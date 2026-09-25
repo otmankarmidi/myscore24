@@ -345,6 +345,8 @@ export function normalizeApiFootballStanding(raw: any): Standing {
     teamName,
     teamSlug,
     teamLogo: raw?.team?.logo,
+    group: raw?.group || undefined,
+    description: raw?.description || undefined,
     played: raw?.all?.played || 0,
     won: raw?.all?.win || 0,
     drawn: raw?.all?.draw || 0,
@@ -354,6 +356,22 @@ export function normalizeApiFootballStanding(raw: any): Standing {
     goalDifference: raw?.goalsDiff ?? (raw?.all?.goals?.for || 0) - (raw?.all?.goals?.against || 0),
     points: raw?.points || 0,
     form: form.length > 0 ? form : undefined,
+    home: raw?.home ? {
+      played: raw.home.played,
+      won: raw.home.win,
+      drawn: raw.home.draw,
+      lost: raw.home.lose,
+      goalsFor: raw.home.goals?.for,
+      goalsAgainst: raw.home.goals?.against,
+    } : undefined,
+    away: raw?.away ? {
+      played: raw.away.played,
+      won: raw.away.win,
+      drawn: raw.away.draw,
+      lost: raw.away.lose,
+      goalsFor: raw.away.goals?.for,
+      goalsAgainst: raw.away.goals?.against,
+    } : undefined,
   }
 }
 

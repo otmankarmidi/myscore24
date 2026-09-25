@@ -10,6 +10,8 @@ export interface Standing {
   teamName?: string
   teamSlug?: string
   teamLogo?: string
+  group?: string
+  description?: string
   played: number
   won: number
   drawn: number

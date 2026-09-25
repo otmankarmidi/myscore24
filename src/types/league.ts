@@ -20,4 +20,7 @@ export interface League {
   currentRound?: string
   type: 'league' | 'cup' | 'international'
   continent?: string
+  groups?: import('./standing').GroupedStanding[]
+  standingsSupported?: boolean
+  topScorersSupported?: boolean
 }

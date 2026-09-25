@@ -1,6 +1,6 @@
 import { apiTelemetry } from './apiTelemetry'
 
-export const CURRENT_CACHE_VERSION = 'v1'
+export const CURRENT_CACHE_VERSION = 'v2'
 
 export interface CacheEntry<T> {
   key: string

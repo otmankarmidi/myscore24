@@ -306,8 +306,13 @@ export const apiFootballProvider = {
       if (!res.ok) return []
       const json = await res.json()
       const standingsObj = json.response?.[0]?.league?.standings
-      if (!standingsObj) return []
-      return Array.isArray(standingsObj[0]) ? standingsObj[0] : standingsObj
+      if (!standingsObj || !Array.isArray(standingsObj)) return []
+      // When standingsObj is a 2D array (e.g. [[group1_teams], [group2_teams], ...]):
+      // Flatten all groups so every team from every group is preserved with raw.group intact
+      if (Array.isArray(standingsObj[0])) {
+        return standingsObj.flat()
+      }
+      return standingsObj
     })
   },
 
