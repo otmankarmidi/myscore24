@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { Match } from '@/types/match'
+import { LeagueStanding } from '@/types/standing'
 import { useLanguage } from '@/context/LanguageContext'
 import { useTimezone } from '@/context/TimezoneContext'
 import { formatDate } from '@/lib/utils'
@@ -15,14 +15,17 @@ import {
   BroadcasterItem,
   getMatchBroadcasters,
   getRefereeProfile,
-  getTeamRanking,
+  getTeamFifaRanking,
+  getClubPosition,
+  isNationalTeamMatch,
 } from '@/lib/matchBroadcastersData'
 
 interface MatchBroadcastAndInfoProps {
   match: Match
+  standings?: LeagueStanding[]
 }
 
-export default function MatchBroadcastAndInfo({ match }: MatchBroadcastAndInfoProps) {
+export default function MatchBroadcastAndInfo({ match, standings }: MatchBroadcastAndInfoProps) {
   const { locale, t } = useLanguage()
   const { activeTimezone } = useTimezone()
 
@@ -32,87 +35,36 @@ export default function MatchBroadcastAndInfo({ match }: MatchBroadcastAndInfoPr
   )
   const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false)
 
-  // Channels & Interactive user vote counts
+  // Channels for the current match & selected country
   const [channels, setChannels] = useState<BroadcasterItem[]>([])
-  const [userVotes, setUserVotes] = useState<Record<string, 'up' | 'down'>>({})
 
-  // Update channels when country or match changes
   useEffect(() => {
     const list = getMatchBroadcasters(match, selectedCountry.code)
     setChannels(list)
   }, [match, selectedCountry.code])
 
-  // Load user vote history from localStorage
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(`myscore24_votes_${match.id}`)
-      if (saved) setUserVotes(JSON.parse(saved))
-    } catch {}
-  }, [match.id])
-
-  const handleVote = (channelId: string, type: 'up' | 'down') => {
-    setUserVotes((prev) => {
-      const currentVote = prev[channelId]
-      const newVotes = { ...prev }
-
-      if (currentVote === type) {
-        // Toggle off
-        delete newVotes[channelId]
-        setChannels((chList) =>
-          chList.map((ch) =>
-            ch.id === channelId
-              ? {
-                  ...ch,
-                  votesUp: type === 'up' ? ch.votesUp - 1 : ch.votesUp,
-                  votesDown: type === 'down' ? ch.votesDown - 1 : ch.votesDown,
-                }
-              : ch
-          )
-        )
-      } else {
-        // Switch or vote
-        newVotes[channelId] = type
-        setChannels((chList) =>
-          chList.map((ch) =>
-            ch.id === channelId
-              ? {
-                  ...ch,
-                  votesUp:
-                    type === 'up'
-                      ? ch.votesUp + 1
-                      : currentVote === 'up'
-                      ? ch.votesUp - 1
-                      : ch.votesUp,
-                  votesDown:
-                    type === 'down'
-                      ? ch.votesDown + 1
-                      : currentVote === 'down'
-                      ? ch.votesDown - 1
-                      : ch.votesDown,
-                }
-              : ch
-          )
-        )
-      }
-
-      try {
-        localStorage.setItem(`myscore24_votes_${match.id}`, JSON.stringify(newVotes))
-      } catch {}
-
-      return newVotes
-    })
-  }
-
   // Referee & Card Stats
   const refereeProfile = getRefereeProfile(match.referee, match.league?.country)
 
-  // Rankings (FIFA ranking for National Teams, League Table Position for Clubs)
-  const homeRankInfo = getTeamRanking(match.homeTeam?.name)
-  const awayRankInfo = getTeamRanking(match.awayTeam?.name)
-  const isNationalMatch = homeRankInfo.isFifa || awayRankInfo.isFifa
+  // Rankings Logic
+  const isNational = isNationalTeamMatch(match)
+  const homeFifa = isNational ? getTeamFifaRanking(match.homeTeam?.name) : { rank: null, isFifa: false }
+  const awayFifa = isNational ? getTeamFifaRanking(match.awayTeam?.name) : { rank: null, isFifa: false }
 
-  const homeRankDisplay = homeRankInfo.rank ? `#${homeRankInfo.rank}` : '#1'
-  const awayRankDisplay = awayRankInfo.rank ? `#${awayRankInfo.rank}` : '#2'
+  const homeClubPos = !isNational ? getClubPosition(match.homeTeam?.name, match.homeTeam?.id, standings) : null
+  const awayClubPos = !isNational ? getClubPosition(match.awayTeam?.name, match.awayTeam?.id, standings) : null
+
+  const hasRankingData = isNational
+    ? (homeFifa.rank !== null || awayFifa.rank !== null)
+    : (homeClubPos !== null || awayClubPos !== null)
+
+  const homeRankDisplay = isNational
+    ? (homeFifa.rank ? `#${homeFifa.rank}` : '#--')
+    : (homeClubPos ? `#${homeClubPos}` : '#--')
+
+  const awayRankDisplay = isNational
+    ? (awayFifa.rank ? `#${awayFifa.rank}` : '#--')
+    : (awayClubPos ? `#${awayClubPos}` : '#--')
 
   // Formatted date & time (e.g. 19:00 • 2026/9/25)
   const formattedTime = formatDate(match.kickoff, 'HH:mm', activeTimezone, locale)
@@ -126,7 +78,7 @@ export default function MatchBroadcastAndInfo({ match }: MatchBroadcastAndInfoPr
   const competitionTitle = isRtl ? 'المنافسة' : locale === 'fr' ? 'Compétition' : 'Competition'
   const refereeTitle = isRtl ? 'الحكم' : locale === 'fr' ? 'Arbitre' : 'Referee'
   const cardsAvgTitle = isRtl ? 'متوسط البطاقات' : locale === 'fr' ? 'Moyenne de cartons' : 'Cards average'
-  const rankingTitle = isNationalMatch
+  const rankingTitle = isNational
     ? isRtl
       ? 'FIFA ترتيب'
       : locale === 'fr'
@@ -138,11 +90,6 @@ export default function MatchBroadcastAndInfo({ match }: MatchBroadcastAndInfoPr
     ? 'Classement'
     : 'League Standing'
   const venueTitle = isRtl ? 'الملعب' : locale === 'fr' ? 'Stade' : 'Venue'
-  const gambleResponsiblyText = isRtl
-    ? 'راهن بمسؤولية 18+'
-    : locale === 'fr'
-    ? 'Jouez avec modération 18+'
-    : '18+ Play Responsibly'
 
   // Competition breadcrumb / details text
   const sportName = isRtl ? 'كرة القدم' : locale === 'fr' ? 'Football' : 'Football'
@@ -165,10 +112,13 @@ export default function MatchBroadcastAndInfo({ match }: MatchBroadcastAndInfoPr
             <button
               type="button"
               onClick={() => setIsCountryDropdownOpen((prev) => !prev)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high border border-surface-bright/80 hover:bg-surface-bright transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-high border border-surface-bright/80 hover:bg-surface-bright transition-colors cursor-pointer"
               aria-label="Select broadcast country"
             >
               <span className="text-base leading-none select-none">{selectedCountry.flag}</span>
+              <span className="text-xs font-semibold text-on-surface hidden sm:inline">
+                {isRtl ? selectedCountry.nameAr : selectedCountry.name}
+              </span>
               <span className="material-symbols-outlined text-[16px] text-on-surface-variant">
                 arrow_drop_down
               </span>
@@ -181,7 +131,7 @@ export default function MatchBroadcastAndInfo({ match }: MatchBroadcastAndInfoPr
                   className="fixed inset-0 z-40"
                   onClick={() => setIsCountryDropdownOpen(false)}
                 />
-                <div className="absolute right-0 rtl:right-auto rtl:left-0 top-full mt-2 w-48 bg-surface-container-high rounded-xl border border-surface-bright shadow-2xl p-1 z-50 max-h-60 overflow-y-auto">
+                <div className="absolute right-0 rtl:right-auto rtl:left-0 top-full mt-2 w-52 bg-surface-container-high rounded-xl border border-surface-bright shadow-2xl p-1 z-50 max-h-64 overflow-y-auto">
                   {BROADCASTER_COUNTRIES.map((country) => (
                     <button
                       key={country.code}
@@ -210,70 +160,51 @@ export default function MatchBroadcastAndInfo({ match }: MatchBroadcastAndInfoPr
           </div>
         </div>
 
-        {/* TV Channels & Streaming List */}
+        {/* TV Channels & Streaming List (Clean list without voting buttons) */}
         <div className="divide-y divide-surface-bright/40 py-1">
-          {channels.map((channel) => {
-            const userVote = userVotes[channel.id]
-
-            return (
-              <div
-                key={channel.id}
-                className="py-3 flex items-center justify-between gap-3 hover:bg-surface-container-high/30 px-1 rounded-lg transition-colors"
-              >
-                {/* Voting Pills (Likes / Dislikes) */}
-                <div className="flex items-center gap-2 shrink-0">
-                  {/* Dislike / Cross Vote Button */}
-                  <button
-                    type="button"
-                    onClick={() => handleVote(channel.id, 'down')}
-                    className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold transition-all border ${
-                      userVote === 'down'
-                        ? 'bg-rose-500/30 text-rose-300 border-rose-500'
-                        : 'bg-[#1a2130] text-rose-400/90 border-[#263044] hover:bg-[#222b3d]'
-                    }`}
-                    title="Report stream not working"
-                  >
-                    <span className="font-mono tabular-nums text-[12px]">{channel.votesDown}</span>
-                    <span className="text-[12px] font-bold text-rose-400">✕</span>
-                  </button>
-
-                  {/* Like / Verified Vote Button */}
-                  <button
-                    type="button"
-                    onClick={() => handleVote(channel.id, 'up')}
-                    className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold transition-all border ${
-                      userVote === 'up'
-                        ? 'bg-emerald-500/30 text-emerald-300 border-emerald-500'
-                        : 'bg-[#1a2130] text-emerald-400/90 border-[#263044] hover:bg-[#222b3d]'
-                    }`}
-                    title="Verify channel working"
-                  >
-                    <span className="font-mono tabular-nums text-[12px]">{channel.votesUp}</span>
-                    <span className="material-symbols-outlined text-[14px] text-emerald-400">
-                      keyboard_arrow_down
-                    </span>
-                  </button>
-                </div>
-
-                {/* Channel Name & TV Icon */}
-                <div className="flex items-center gap-2.5 min-w-0 justify-end">
-                  <span className="font-bold text-sm md:text-base text-on-surface truncate">
-                    {channel.name}
+          {channels.map((channel) => (
+            <div
+              key={channel.id}
+              className="py-3 px-2 flex items-center justify-between gap-3 hover:bg-surface-container-high/30 rounded-lg transition-colors"
+            >
+              {/* Quality & Free Badges on Left */}
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span
+                  className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase tracking-wider ${
+                    channel.quality === '4K'
+                      ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                      : channel.type === 'stream'
+                      ? 'bg-primary/15 text-primary border border-primary/30'
+                      : 'bg-surface-container-highest text-on-surface-variant border border-surface-bright/60'
+                  }`}
+                >
+                  {channel.quality || (channel.type === 'stream' ? 'STREAM' : 'HD')}
+                </span>
+                {channel.isFree && (
+                  <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    {isRtl ? 'مجاني' : 'FREE'}
                   </span>
-                  <span
-                    className="material-symbols-outlined text-[20px] text-on-surface-variant shrink-0"
-                    aria-hidden="true"
-                  >
-                    {channel.type === 'stream' ? 'play_circle' : 'tv'}
-                  </span>
-                </div>
+                )}
               </div>
-            )
-          })}
+
+              {/* Channel Name & TV / Stream Icon on Right */}
+              <div className="flex items-center gap-2.5 min-w-0 justify-end">
+                <span className="font-bold text-sm md:text-base text-on-surface truncate">
+                  {channel.name}
+                </span>
+                <span
+                  className="material-symbols-outlined text-[20px] text-primary shrink-0"
+                  aria-hidden="true"
+                >
+                  {channel.type === 'stream' ? 'play_circle' : 'tv'}
+                </span>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Bottom Full Schedule Link */}
-        <div className="pt-2 text-center border-t border-surface-bright/40">
+        <div className="pt-2.5 text-center border-t border-surface-bright/40">
           <Link
             href="/fixtures"
             className="inline-flex items-center justify-center gap-1.5 text-xs md:text-sm font-bold text-primary hover:underline transition-all"
@@ -359,54 +290,56 @@ export default function MatchBroadcastAndInfo({ match }: MatchBroadcastAndInfoPr
           </div>
         </div>
 
-        {/* Row 4: Team Rankings (FIFA Ranking or League Standing) */}
-        <div className="space-y-2 pb-2">
-          <div className="flex justify-end text-xs font-bold text-on-surface-variant tracking-wider uppercase">
-            <span>{rankingTitle}</span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 items-center">
-            {/* Away Team Rank */}
-            <div className="flex items-center gap-3 bg-surface-container-high/40 p-2.5 rounded-xl border border-surface-bright/50">
-              <div className="relative w-9 h-9 rounded-full overflow-hidden shrink-0 border border-surface-bright/80 bg-surface-container flex items-center justify-center">
-                <TeamLogo
-                  name={match.awayTeam.name}
-                  abbreviation={match.awayTeam.abbreviation}
-                  logo={match.awayTeam.logo}
-                  size="sm"
-                />
-              </div>
-              <div className="min-w-0">
-                <span className="font-mono font-extrabold text-lg text-primary block leading-none">
-                  {awayRankDisplay}
-                </span>
-                <span className="text-xs text-on-surface font-semibold truncate block mt-0.5">
-                  {match.awayTeam.name}
-                </span>
-              </div>
+        {/* Row 4: Team Rankings (Real FIFA Ranking or Real League Position) */}
+        {hasRankingData && (
+          <div className="space-y-2 pb-2">
+            <div className="flex justify-end text-xs font-bold text-on-surface-variant tracking-wider uppercase">
+              <span>{rankingTitle}</span>
             </div>
 
-            {/* Home Team Rank */}
-            <div className="flex items-center gap-3 bg-surface-container-high/40 p-2.5 rounded-xl border border-surface-bright/50">
-              <div className="relative w-9 h-9 rounded-full overflow-hidden shrink-0 border border-surface-bright/80 bg-surface-container flex items-center justify-center">
-                <TeamLogo
-                  name={match.homeTeam.name}
-                  abbreviation={match.homeTeam.abbreviation}
-                  logo={match.homeTeam.logo}
-                  size="sm"
-                />
+            <div className="grid grid-cols-2 gap-4 items-center">
+              {/* Away Team Rank */}
+              <div className="flex items-center gap-3 bg-surface-container-high/40 p-2.5 rounded-xl border border-surface-bright/50">
+                <div className="relative w-9 h-9 rounded-full overflow-hidden shrink-0 border border-surface-bright/80 bg-surface-container flex items-center justify-center">
+                  <TeamLogo
+                    name={match.awayTeam.name}
+                    abbreviation={match.awayTeam.abbreviation}
+                    logo={match.awayTeam.logo}
+                    size="sm"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <span className="font-mono font-extrabold text-lg text-primary block leading-none">
+                    {awayRankDisplay}
+                  </span>
+                  <span className="text-xs text-on-surface font-semibold truncate block mt-0.5">
+                    {match.awayTeam.name}
+                  </span>
+                </div>
               </div>
-              <div className="min-w-0">
-                <span className="font-mono font-extrabold text-lg text-primary block leading-none">
-                  {homeRankDisplay}
-                </span>
-                <span className="text-xs text-on-surface font-semibold truncate block mt-0.5">
-                  {match.homeTeam.name}
-                </span>
+
+              {/* Home Team Rank */}
+              <div className="flex items-center gap-3 bg-surface-container-high/40 p-2.5 rounded-xl border border-surface-bright/50">
+                <div className="relative w-9 h-9 rounded-full overflow-hidden shrink-0 border border-surface-bright/80 bg-surface-container flex items-center justify-center">
+                  <TeamLogo
+                    name={match.homeTeam.name}
+                    abbreviation={match.homeTeam.abbreviation}
+                    logo={match.homeTeam.logo}
+                    size="sm"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <span className="font-mono font-extrabold text-lg text-primary block leading-none">
+                    {homeRankDisplay}
+                  </span>
+                  <span className="text-xs text-on-surface font-semibold truncate block mt-0.5">
+                    {match.homeTeam.name}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Optional Stadium / Venue Info */}
         {match.venue && (
@@ -418,11 +351,6 @@ export default function MatchBroadcastAndInfo({ match }: MatchBroadcastAndInfoPr
             </div>
           </div>
         )}
-
-        {/* Gambling Responsibility Disclaimer */}
-        <div className="pt-2 text-center text-[11px] text-on-surface-variant/70 border-t border-surface-bright/30">
-          <span>{gambleResponsiblyText}</span>
-        </div>
       </div>
     </div>
   )

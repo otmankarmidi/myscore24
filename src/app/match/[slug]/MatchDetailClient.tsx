@@ -429,7 +429,7 @@ export default function MatchDetailClient({ slug, initialMatch }: MatchDetailCli
                     awayTeamName={match.awayTeam.name}
                   />
                 )}
-                <MatchBroadcastAndInfo match={match} />
+                <MatchBroadcastAndInfo match={match} standings={standings} />
               </div>
             )}
 
