@@ -453,4 +453,30 @@ export const sportsService = {
     }
     return []
   },
+
+  // ── FIFA World Rankings API ──────────────────────────────────────────────
+  async getFifaRankings(homeTeam?: string, awayTeam?: string): Promise<{
+    homeRank: number | null
+    awayRank: number | null
+    source?: string
+  }> {
+    try {
+      const params = new URLSearchParams()
+      if (homeTeam) params.append('home', homeTeam)
+      if (awayTeam) params.append('away', awayTeam)
+
+      const res = await fetch(`/api/fifa-rankings?${params.toString()}`)
+      if (res.ok) {
+        const json = await res.json()
+        return {
+          homeRank: json.homeTeam?.rank || null,
+          awayRank: json.awayTeam?.rank || null,
+          source: json.source,
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch FIFA rankings from API:', err)
+    }
+    return { homeRank: null, awayRank: null }
+  },
 }

@@ -9,6 +9,7 @@ import { useTimezone } from '@/context/TimezoneContext'
 import { formatDate } from '@/lib/utils'
 import TeamLogo from '@/components/common/TeamLogo'
 import CompetitionLogo from '@/components/common/CompetitionLogo'
+import { sportsService } from '@/services/sports/sportsService'
 import {
   BROADCASTER_COUNTRIES,
   BroadcasterCountry,
@@ -51,19 +52,51 @@ export default function MatchBroadcastAndInfo({ match, standings }: MatchBroadca
   const homeFifa = isNational ? getTeamFifaRanking(match.homeTeam?.name) : { rank: null, isFifa: false }
   const awayFifa = isNational ? getTeamFifaRanking(match.awayTeam?.name) : { rank: null, isFifa: false }
 
+  // Live FIFA rankings fetched from /api/fifa-rankings
+  const [apiFifaRanks, setApiFifaRanks] = useState<{
+    home: number | null
+    away: number | null
+  } | null>(null)
+
+  useEffect(() => {
+    if (!isNational) return
+    let isMounted = true
+
+    sportsService
+      .getFifaRankings(match.homeTeam?.name, match.awayTeam?.name)
+      .then((res) => {
+        if (isMounted && (res.homeRank !== null || res.awayRank !== null)) {
+          setApiFifaRanks({
+            home: res.homeRank,
+            away: res.awayRank,
+          })
+        }
+      })
+      .catch((err) => {
+        console.warn('FIFA ranking API fetch warning:', err)
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [match.homeTeam?.name, match.awayTeam?.name, isNational])
+
   const homeClubPos = !isNational ? getClubPosition(match.homeTeam?.name, match.homeTeam?.id, standings) : null
   const awayClubPos = !isNational ? getClubPosition(match.awayTeam?.name, match.awayTeam?.id, standings) : null
 
+  const homeFifaRank = apiFifaRanks?.home ?? homeFifa.rank
+  const awayFifaRank = apiFifaRanks?.away ?? awayFifa.rank
+
   const hasRankingData = isNational
-    ? (homeFifa.rank !== null || awayFifa.rank !== null)
+    ? (homeFifaRank !== null || awayFifaRank !== null)
     : (homeClubPos !== null || awayClubPos !== null)
 
   const homeRankDisplay = isNational
-    ? (homeFifa.rank ? `#${homeFifa.rank}` : '#--')
+    ? (homeFifaRank ? `#${homeFifaRank}` : '#--')
     : (homeClubPos ? `#${homeClubPos}` : '#--')
 
   const awayRankDisplay = isNational
-    ? (awayFifa.rank ? `#${awayFifa.rank}` : '#--')
+    ? (awayFifaRank ? `#${awayFifaRank}` : '#--')
     : (awayClubPos ? `#${awayClubPos}` : '#--')
 
   // Formatted date & time (e.g. 19:00 • 2026/9/25)
