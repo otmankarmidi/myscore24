@@ -221,39 +221,67 @@ function normalizeStatistics(rawStats?: ApiFootballTeamStatsRaw[]): MatchStatist
   }
 }
 
-function normalizeLineups(rawLineups?: ApiFootballLineupRaw[]): Lineup | undefined {
+function normalizeLineups(
+  rawLineups?: ApiFootballLineupRaw[],
+  fixturePlayersRaw?: any[]
+): Lineup | undefined {
   if (!rawLineups || !Array.isArray(rawLineups) || rawLineups.length < 2) return undefined
 
   const homeRaw = rawLineups[0]
   const awayRaw = rawLineups[1]
   if (!homeRaw || !awayRaw) return undefined
 
+  // Build a lookup map from fixture/players data if provided
+  const playerStatsMap = new Map<string, { rating?: number; position?: string }>()
+  if (Array.isArray(fixturePlayersRaw)) {
+    for (const teamRes of fixturePlayersRaw) {
+      for (const pItem of teamRes?.players || []) {
+        const pId = String(pItem?.player?.id)
+        const gStats = pItem?.statistics?.[0]?.games
+        if (pId && gStats) {
+          const rawRating = gStats.rating ? parseFloat(String(gStats.rating)) : undefined
+          playerStatsMap.set(pId, {
+            rating: rawRating && !isNaN(rawRating) ? Number(rawRating.toFixed(1)) : undefined,
+            position: gStats.position || undefined,
+          })
+        }
+      }
+    }
+  }
+
   const parsePlayers = (list?: typeof homeRaw.startXI, isHome = true): LineupPlayer[] => {
     if (!list || !Array.isArray(list)) return []
     return list.map((item, idx) => {
       const coords = parseGridCoordinate(item?.player?.grid, isHome)
+      const pId = String(item?.player?.id || idx)
+      const statMatch = playerStatsMap.get(pId)
       return {
-        id: String(item?.player?.id || idx),
+        id: pId,
         name: item?.player?.name || 'Player',
         number: item?.player?.number || (idx + 1),
-        position: item?.player?.pos || 'M',
+        position: item?.player?.pos || statMatch?.position || 'M',
         positionX: coords.x,
         positionY: coords.y,
-        rating: 7.0,
+        rating: statMatch?.rating,
       }
     })
   }
 
   const parseBench = (list?: typeof homeRaw.substitutes): LineupPlayer[] => {
     if (!list || !Array.isArray(list)) return []
-    return list.map((item, idx) => ({
-      id: String(item?.player?.id || idx),
-      name: item?.player?.name || 'Player',
-      number: item?.player?.number || (idx + 1),
-      position: item?.player?.pos || 'SUB',
-      positionX: 50,
-      positionY: 50,
-    }))
+    return list.map((item, idx) => {
+      const pId = String(item?.player?.id || idx)
+      const statMatch = playerStatsMap.get(pId)
+      return {
+        id: pId,
+        name: item?.player?.name || 'Player',
+        number: item?.player?.number || (idx + 1),
+        position: item?.player?.pos || 'SUB',
+        positionX: 50,
+        positionY: 50,
+        rating: statMatch?.rating,
+      }
+    })
   }
 
   return {
@@ -272,13 +300,13 @@ function normalizeLineups(rawLineups?: ApiFootballLineupRaw[]): Lineup | undefin
   }
 }
 
-export function normalizeApiFootballMatchDetails(raw: ApiFootballFixtureRaw): Match {
+export function normalizeApiFootballMatchDetails(raw: ApiFootballFixtureRaw, fixturePlayersRaw?: any[]): Match {
   const baseMatch = normalizeApiFootballMatch(raw)
   const homeTeamId = raw?.teams?.home?.id
   const events = normalizeEvents(raw?.events, homeTeamId)
   const commentary = normalizeCommentary(events)
   const statistics = normalizeStatistics(raw?.statistics)
-  const lineups = normalizeLineups(raw?.lineups)
+  const lineups = normalizeLineups(raw?.lineups, fixturePlayersRaw)
 
   return {
     ...baseMatch,

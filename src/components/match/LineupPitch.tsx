@@ -164,17 +164,17 @@ function getLateralRank(pos?: string): number {
 
   // Left side
   if (p === 'LB' || p === 'LWB' || p === 'CD-L' || p === 'LCB' || p === 'CB-L') return 10
-  if (p === 'LM' || p === 'LWM' || p === 'LW' || p === 'CM-L' || p === 'DM-L' || p === 'LCM' || p === 'LAM' || p === 'AM-L') return 20
+  if (p === 'LM' || p === 'LWM' || p === 'LW' || p === 'LWF' || p === 'CM-L' || p === 'DM-L' || p === 'LCM' || p === 'LAM' || p === 'AM-L') return 20
   if (p === 'LF' || p === 'LS' || p === 'CF-L') return 30
 
   // Center
-  if (p === 'CB' || p === 'CD' || p === 'SW') return 50
+  if (p === 'CB' || p === 'CD' || p === 'SW' || p === 'D') return 50
   if (p === 'CM' || p === 'DM' || p === 'AM' || p === 'M') return 50
-  if (p === 'ST' || p === 'CF' || p === 'F' || p === 'FW') return 50
+  if (p === 'ST' || p === 'CF' || p === 'F' || p === 'FW' || p === 'A') return 50
 
   // Right side
   if (p === 'RF' || p === 'RS' || p === 'CF-R') return 70
-  if (p === 'RM' || p === 'RWM' || p === 'RW' || p === 'CM-R' || p === 'DM-R' || p === 'RCM' || p === 'RAM' || p === 'AM-R') return 80
+  if (p === 'RM' || p === 'RWM' || p === 'RW' || p === 'RWF' || p === 'CM-R' || p === 'DM-R' || p === 'RCM' || p === 'RAM' || p === 'AM-R') return 80
   if (p === 'RB' || p === 'RWB' || p === 'CD-R' || p === 'RCB' || p === 'CB-R') return 90
 
   return 50
@@ -186,9 +186,9 @@ function getLateralRank(pos?: string): number {
 function getPositionCategory(pos?: string): 'GK' | 'DEF' | 'MID' | 'FWD' {
   const p = (pos || '').toUpperCase()
   if (p === 'G' || p === 'GK') return 'GK'
-  if (p.includes('B') || p.includes('DF') || p === 'CD' || p === 'SW') return 'DEF'
-  if (p.includes('M') || p === 'DM' || p === 'AM') return 'MID'
-  if (p.includes('F') || p.includes('ST') || p.includes('A') || p.includes('W')) return 'FWD'
+  if (p === 'D' || p.includes('B') || p.includes('DF') || p === 'CD' || p === 'SW') return 'DEF'
+  if (p === 'M' || p.includes('MID') || p === 'DM' || p === 'AM' || p === 'CM' || p === 'LM' || p === 'RM') return 'MID'
+  if (p === 'F' || p === 'A' || p.includes('ST') || p.includes('FW') || p.includes('ATT') || p === 'LW' || p === 'RW' || p.includes('WING')) return 'FWD'
   return 'MID'
 }
 

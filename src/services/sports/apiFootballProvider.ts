@@ -261,6 +261,18 @@ export const apiFootballProvider = {
     })
   },
 
+  async getFixturePlayers(fixtureId: string | number): Promise<any[]> {
+    const keyStr = String(fixtureId)
+    return cacheEngine.fetchWithCache('fixture_players', keyStr, CACHE_TTLS.LIVE_MATCH_DETAILS, async () => {
+      if (!this.hasValidApiKey()) return []
+      const url = this.getUrl(`fixtures/players?fixture=${fixtureId}`, false)
+      const res = await fetchWithRetry(url, { headers: this.getHeaders() })
+      if (!res.ok) return []
+      const json = await res.json()
+      return json.response || []
+    })
+  },
+
   async getH2H(team1Id: string | number, team2Id: string | number): Promise<ApiFootballFixtureRaw[]> {
     const keyStr = `${team1Id}_${team2Id}`
     return cacheEngine.fetchWithCache('h2h', keyStr, CACHE_TTLS.DATE_FIXTURES, async () => {

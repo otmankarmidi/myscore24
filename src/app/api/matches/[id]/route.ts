@@ -78,7 +78,14 @@ export async function GET(
             console.error(`[Persistence] Error upserting fixture ${fixtureIdNum}:`, err)
           )
 
-          const match = normalizeApiFootballMatchDetails(fixtureRes.data)
+          let fixturePlayersData: any[] = []
+          try {
+            fixturePlayersData = await apiFootballProvider.getFixturePlayers(fixtureIdNum)
+          } catch (pErr) {
+            console.warn(`[API /api/matches/${id}] Failed to fetch player ratings:`, pErr)
+          }
+
+          const match = normalizeApiFootballMatchDetails(fixtureRes.data, fixturePlayersData)
           let h2h: Match[] = []
           const homeId = fixtureRes.data.teams?.home?.id
           const awayId = fixtureRes.data.teams?.away?.id
