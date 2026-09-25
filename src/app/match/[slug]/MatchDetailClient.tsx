@@ -13,6 +13,7 @@ import FavoriteButton from '@/components/common/FavoriteButton'
 import { MatchNotificationButton } from '@/components/common/MatchNotificationButton'
 import MatchTimeline from '@/components/match/MatchTimeline'
 import MatchStatistics from '@/components/match/MatchStatistics'
+import MatchBroadcastAndInfo from '@/components/match/MatchBroadcastAndInfo'
 import LineupPitch from '@/components/match/LineupPitch'
 import MatchH2H from '@/components/match/MatchH2H'
 import MatchCommentary from '@/components/match/MatchCommentary'
@@ -414,11 +415,13 @@ export default function MatchDetailClient({ slug, initialMatch }: MatchDetailCli
           <div className="space-y-4">
             {activeTab === 'summary' && (
               <div className="space-y-4">
-                <MatchTimeline
-                  events={match.events || []}
-                  homeTeamName={match.homeTeam.name}
-                  awayTeamName={match.awayTeam.name}
-                />
+                {(match.status !== 'scheduled' || (match.events && match.events.length > 0)) && (
+                  <MatchTimeline
+                    events={match.events || []}
+                    homeTeamName={match.homeTeam.name}
+                    awayTeamName={match.awayTeam.name}
+                  />
+                )}
                 {match.statistics && (
                   <MatchStatistics
                     stats={match.statistics}
@@ -426,6 +429,7 @@ export default function MatchDetailClient({ slug, initialMatch }: MatchDetailCli
                     awayTeamName={match.awayTeam.name}
                   />
                 )}
+                <MatchBroadcastAndInfo match={match} />
               </div>
             )}
 
