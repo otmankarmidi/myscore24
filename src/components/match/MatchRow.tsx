@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Match } from '@/types/match'
 import TeamLogo from '@/components/common/TeamLogo'
 import FavoriteButton from '@/components/common/FavoriteButton'
+import { MatchNotificationButton } from '@/components/common/MatchNotificationButton'
 import MatchStatusBadge from '@/components/common/MatchStatusBadge'
 import { formatMatchTime, isLiveStatus } from '@/lib/utils'
 import { useFavorites } from '@/hooks/useFavorites'
@@ -107,8 +108,13 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
           </div>
         </div>
 
-        {/* Favorite */}
-        <div className="w-8 shrink-0 flex items-center justify-end">
+        {/* Actions: Notifications & Favorite */}
+        <div className="shrink-0 flex items-center gap-1 justify-end">
+          <MatchNotificationButton
+            matchId={match.id}
+            matchLabel={`${homeTeam.name} vs ${awayTeam.name}`}
+            size="sm"
+          />
           <FavoriteButton
             isFavorited={favorited}
             onToggle={handleToggle}

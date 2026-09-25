@@ -10,6 +10,7 @@ import MatchStatusBadge from '@/components/common/MatchStatusBadge'
 import TeamLogo from '@/components/common/TeamLogo'
 import CompetitionLogo from '@/components/common/CompetitionLogo'
 import FavoriteButton from '@/components/common/FavoriteButton'
+import { MatchNotificationButton } from '@/components/common/MatchNotificationButton'
 import MatchTimeline from '@/components/match/MatchTimeline'
 import MatchStatistics from '@/components/match/MatchStatistics'
 import LineupPitch from '@/components/match/LineupPitch'
@@ -216,11 +217,18 @@ export default function MatchDetailClient({ slug, initialMatch }: MatchDetailCli
                 )}
               </Link>
 
-              <FavoriteButton
-                isFavorited={isFavorited}
-                onToggle={() => toggleFavoriteMatch(match.id)}
-                size="md"
-              />
+              <div className="flex items-center gap-2">
+                <MatchNotificationButton
+                  matchId={match.id}
+                  matchLabel={`${match.homeTeam.name} vs ${match.awayTeam.name}`}
+                  size="md"
+                />
+                <FavoriteButton
+                  isFavorited={isFavorited}
+                  onToggle={() => toggleFavoriteMatch(match.id)}
+                  size="md"
+                />
+              </div>
             </div>
 
             {/* Scoreboard Hero */}

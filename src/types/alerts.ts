@@ -1,4 +1,4 @@
-export type AlertType = 'goal' | 'red_card' | 'match_started' | 'half_time' | 'full_time'
+export type AlertType = 'goal' | 'penalty' | 'red_card' | 'yellow_card' | 'match_started' | 'half_time' | 'full_time'
 
 export interface MatchLiveState {
   matchId: string
