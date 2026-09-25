@@ -1,4 +1,5 @@
 import { MatchAlert, MatchLiveState, AlertType } from '@/types/alerts'
+import { pushNotificationService } from '@/services/notifications/pushNotificationService'
 
 // In-memory store for server-side alert state & processed event IDs
 const liveStateStore = new Map<string, MatchLiveState>()
@@ -454,10 +455,13 @@ export function processMatchAlerts(rawMatch: any): MatchAlert[] {
     lastUpdatedAt: new Date().toISOString()
   })
 
-  // Add newly created alerts to history
+  // Add newly created alerts to history and broadcast to Web Push subscribers
   newAlerts.forEach((a) => {
     alertsHistory.unshift(a)
     if (alertsHistory.length > MAX_HISTORY) alertsHistory.pop()
+    pushNotificationService.sendAlertToSubscribers(a).catch((err) => {
+      console.warn('[WebPush] Error sending alert to subscribers:', err?.message || err)
+    })
   })
 
   return newAlerts
@@ -491,6 +495,9 @@ export function pushCustomAlert(alertData: Partial<MatchAlert> & { matchId: stri
 
   alertsHistory.unshift(alert)
   if (alertsHistory.length > MAX_HISTORY) alertsHistory.pop()
+  pushNotificationService.sendAlertToSubscribers(alert).catch((err) => {
+    console.warn('[WebPush] Error sending test alert:', err?.message || err)
+  })
   return alert
 }
 

@@ -3,12 +3,12 @@
   "name": "MyScore24 - Live Football Scores & Results",
   "icons": [
     {
-      "src": "/leagues/premier-league.png",
+      "src": "/favicon.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "/leagues/premier-league.png",
+      "src": "/logo.png",
       "type": "image/png",
       "sizes": "512x512"
     }

@@ -32,10 +32,78 @@ function saveNotifiedMatches(matches: string[]) {
   }
 }
 
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
+  const rawData = window.atob(base64)
+  const outputArray = new Uint8Array(rawData.length)
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i)
+  }
+  return outputArray
+}
+
+async function syncWebPushSubscription(matchId: string, action: 'subscribe' | 'unsubscribe') {
+  if (
+    typeof window === 'undefined' ||
+    !('serviceWorker' in navigator) ||
+    !('PushManager' in window)
+  ) {
+    return
+  }
+
+  try {
+    const reg = await navigator.serviceWorker.ready
+    let sub = await reg.pushManager.getSubscription()
+
+    if (action === 'subscribe') {
+      if (!sub) {
+        // Fetch public VAPID key from API
+        const keyRes = await fetch('/api/notifications/subscribe')
+        if (!keyRes.ok) return
+        const { publicKey } = await keyRes.json()
+        if (!publicKey) return
+
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(publicKey) as unknown as BufferSource,
+        })
+      }
+
+      if (sub) {
+        await fetch('/api/notifications/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            subscription: sub.toJSON(),
+            matchId,
+            action: 'subscribe',
+          }),
+        })
+      }
+    } else {
+      if (sub) {
+        await fetch('/api/notifications/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            subscription: sub.toJSON(),
+            matchId,
+            action: 'unsubscribe',
+          }),
+        })
+      }
+    }
+  } catch (err) {
+    console.warn('[WebPush] Error synchronizing background push subscription:', err)
+  }
+}
+
 export function useMatchNotifications() {
   const [notifiedMatches, setNotifiedMatches] = useState<string[]>([])
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true)
   const [permission, setPermission] = useState<NotificationPermission | 'unsupported'>('default')
+  const [pushSupported, setPushSupported] = useState<boolean>(false)
 
   useEffect(() => {
     setNotifiedMatches(loadNotifiedMatches())
@@ -45,6 +113,16 @@ export function useMatchNotifications() {
         setPermission(Notification.permission)
       } else {
         setPermission('unsupported')
+      }
+
+      const hasPush = 'serviceWorker' in navigator && 'PushManager' in window
+      setPushSupported(hasPush)
+
+      // Register background Service Worker for mobile & desktop Web Push
+      if (hasPush) {
+        navigator.serviceWorker.register('/sw.js').catch((err) => {
+          console.warn('[ServiceWorker] Registration failed:', err)
+        })
       }
 
       const savedSound = localStorage.getItem(SOUND_KEY)
@@ -98,7 +176,7 @@ export function useMatchNotifications() {
 
       if (!isAlreadyNotified) {
         // Turning ON notification
-        if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'default') {
+        if (typeof window !== 'undefined' && 'Notification' in window) {
           try {
             const res = await Notification.requestPermission()
             setPermission(res)
@@ -115,12 +193,20 @@ export function useMatchNotifications() {
         const next = [...current, idStr]
         saveNotifiedMatches(next)
         setNotifiedMatches(next)
+
+        // Asynchronously sync background Web Push so alerts work when browser is closed / user is in another app
+        syncWebPushSubscription(idStr, 'subscribe').catch(() => {})
+
         return true
       } else {
         // Turning OFF notification
         const next = current.filter((id) => id !== idStr)
         saveNotifiedMatches(next)
         setNotifiedMatches(next)
+
+        // Asynchronously unregister from Web Push
+        syncWebPushSubscription(idStr, 'unsubscribe').catch(() => {})
+
         return false
       }
     },
@@ -152,6 +238,7 @@ export function useMatchNotifications() {
     soundEnabled,
     toggleSound,
     permission,
+    pushSupported,
     requestPermission,
   }
 }

@@ -41,6 +41,12 @@ export const metadata: Metadata = {
     'standings',
   ],
   authors: [{ name: 'MyScore24 Team' }],
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'MyScore24',
+  },
   alternates: {
     canonical: 'https://myscore24.com',
   },
