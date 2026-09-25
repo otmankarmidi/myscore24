@@ -65,6 +65,28 @@ const LEAGUE_SLUG_TO_ID: Record<string, number> = {
   'afcon': 6,
   'africa-cup-of-nations': 6,
   '6': 6,
+  'afcon-qualification': 36,
+  'africa-cup-of-nations-qualification': 36,
+  '36': 36,
+  'caf-champions-league': 12,
+  'caf-cl': 12,
+  '12': 12,
+  'caf-confederation-cup': 20,
+  '20': 20,
+  'asian-cup': 17,
+  '17': 17,
+  'gold-cup': 22,
+  '22': 22,
+  'world-cup-qualification-africa': 29,
+  '29': 29,
+  'world-cup-qualification-europe': 32,
+  '32': 32,
+  'world-cup-qualification-south-america': 34,
+  '34': 34,
+  'world-cup-qualification-asia': 30,
+  '30': 30,
+  'world-cup-qualification-concacaf': 31,
+  '31': 31,
   'friendlies': 10,
   '10': 10,
 }
@@ -99,10 +121,19 @@ export async function GET(
     // If current season not yet known in MySQL or details needed, query API-Football (cached)
     if (!dbCurrentSeason && apiFootballProvider.hasValidApiKey()) {
       leagueDetails = await apiFootballProvider.getLeagueDetails(leagueId)
-      if (leagueDetails?.seasons) {
+      if (leagueDetails?.seasons && Array.isArray(leagueDetails.seasons)) {
         const found = leagueDetails.seasons.find((s: any) => s.current === true)
         if (found) {
           dbCurrentSeason = Number(found.year)
+        } else {
+          const withStandings = leagueDetails.seasons
+            .filter((s: any) => s.coverage?.standings === true)
+            .sort((a: any, b: any) => b.year - a.year)
+          if (withStandings.length > 0) {
+            dbCurrentSeason = Number(withStandings[0].year)
+          }
+        }
+        if (dbCurrentSeason) {
           const { upsertCompetition, upsertSeason } = await import('@/lib/football/persistence/fixtures')
           const comp = await upsertCompetition(leagueDetails.league)
           if (comp) {
@@ -157,7 +188,23 @@ export async function GET(
           promises.push(Promise.resolve([]))
         }
 
-        const [standingsRaw, topScorersRaw, fixturesRaw] = await Promise.all(promises)
+        let [standingsRaw, topScorersRaw, fixturesRaw] = await Promise.all(promises)
+
+        // Automatic fallback: If standings are empty for the requested season, check if an alternate active season has standings (e.g. AFCON 2025 vs 2026)
+        if ((!standingsRaw || standingsRaw.length === 0) && canFetchStandings && leagueDetails?.seasons) {
+          const alternateSeason = leagueDetails.seasons
+            .filter((s: any) => s.coverage?.standings === true && s.year !== requestedSeason)
+            .sort((a: any, b: any) => (b.current ? 1 : 0) - (a.current ? 1 : 0) || b.year - a.year)[0]
+
+          if (alternateSeason) {
+            try {
+              const altRaw = await apiFootballProvider.getLeagueStandings(leagueId, alternateSeason.year)
+              if (Array.isArray(altRaw) && altRaw.length > 0) {
+                standingsRaw = altRaw
+              }
+            } catch {}
+          }
+        }
 
         // If fixtures were returned from API, persist them in background
         if (fixturesRaw && fixturesRaw.length > 0 && storedMatches.length === 0) {

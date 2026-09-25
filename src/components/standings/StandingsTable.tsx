@@ -37,83 +37,11 @@ function getZoneColor(rank: number, total: number) {
 
 export default function StandingsTable({ standings, currentTeamId, showFullTable = true }: StandingsTableProps) {
   const { t } = useLanguage()
-  const [viewMode, setViewMode] = useState<StandingsView>('all')
 
-  const baseItems = showFullTable ? standings : standings.slice(0, 5)
-
-  // Sort/transform items based on view mode (Overall, Home, Away)
-  const displayItems = [...baseItems].map((item) => {
-    if (viewMode === 'home' && item.home) {
-      return {
-        ...item,
-        played: item.home.played ?? item.played,
-        won: item.home.won ?? item.won,
-        drawn: item.home.drawn ?? item.drawn,
-        lost: item.home.lost ?? item.lost,
-        goalsFor: item.home.goalsFor ?? item.goalsFor,
-        goalsAgainst: item.home.goalsAgainst ?? item.goalsAgainst,
-        goalDifference: (item.home.goalsFor ?? item.goalsFor) - (item.home.goalsAgainst ?? item.goalsAgainst),
-        points: item.home.points ?? item.won * 3 + item.drawn,
-      }
-    }
-    if (viewMode === 'away' && item.away) {
-      return {
-        ...item,
-        played: item.away.played ?? item.played,
-        won: item.away.won ?? item.won,
-        drawn: item.away.drawn ?? item.drawn,
-        lost: item.away.lost ?? item.lost,
-        goalsFor: item.away.goalsFor ?? item.goalsFor,
-        goalsAgainst: item.away.goalsAgainst ?? item.goalsAgainst,
-        goalDifference: (item.away.goalsFor ?? item.goalsFor) - (item.away.goalsAgainst ?? item.goalsAgainst),
-        points: item.away.points ?? item.won * 3 + item.drawn,
-      }
-    }
-    return item
-  })
-
-  if (viewMode !== 'all') {
-    displayItems.sort((a, b) => b.points - a.points || b.goalDifference - a.goalDifference)
-  }
+  const displayItems = showFullTable ? standings : standings.slice(0, 5)
 
   return (
     <div className="bg-surface-container rounded-lg border border-surface-bright overflow-hidden">
-      {/* Sub-Header Tabs for Overall / Home / Away */}
-      {showFullTable && (
-        <div className="flex items-center gap-1 p-2 bg-surface-container-high/60 border-b border-surface-bright">
-          <button
-            onClick={() => setViewMode('all')}
-            className={`px-3 py-1 rounded text-xs font-bold transition-colors ${
-              viewMode === 'all'
-                ? 'bg-primary text-on-primary'
-                : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
-            }`}
-          >
-            Overall
-          </button>
-          <button
-            onClick={() => setViewMode('home')}
-            className={`px-3 py-1 rounded text-xs font-bold transition-colors ${
-              viewMode === 'home'
-                ? 'bg-primary text-on-primary'
-                : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
-            }`}
-          >
-            Home
-          </button>
-          <button
-            onClick={() => setViewMode('away')}
-            className={`px-3 py-1 rounded text-xs font-bold transition-colors ${
-              viewMode === 'away'
-                ? 'bg-primary text-on-primary'
-                : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container'
-            }`}
-          >
-            Away
-          </button>
-        </div>
-      )}
-
       <div className="overflow-x-auto">
         <table className="w-full text-left rtl:text-right border-collapse">
           <thead>

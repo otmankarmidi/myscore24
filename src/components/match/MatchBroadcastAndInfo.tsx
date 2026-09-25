@@ -11,10 +11,6 @@ import TeamLogo from '@/components/common/TeamLogo'
 import CompetitionLogo from '@/components/common/CompetitionLogo'
 import { sportsService } from '@/services/sports/sportsService'
 import {
-  BROADCASTER_COUNTRIES,
-  BroadcasterCountry,
-  BroadcasterItem,
-  getMatchBroadcasters,
   getRefereeProfile,
   getTeamFifaRanking,
   getClubPosition,
@@ -29,20 +25,6 @@ interface MatchBroadcastAndInfoProps {
 export default function MatchBroadcastAndInfo({ match, standings }: MatchBroadcastAndInfoProps) {
   const { locale, t } = useLanguage()
   const { activeTimezone } = useTimezone()
-
-  // Selected Country for Broadcasters (default to Morocco 'MA')
-  const [selectedCountry, setSelectedCountry] = useState<BroadcasterCountry>(
-    BROADCASTER_COUNTRIES[0]
-  )
-  const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false)
-
-  // Channels for the current match & selected country
-  const [channels, setChannels] = useState<BroadcasterItem[]>([])
-
-  useEffect(() => {
-    const list = getMatchBroadcasters(match, selectedCountry.code)
-    setChannels(list)
-  }, [match, selectedCountry.code])
 
   // Referee & Card Stats
   const refereeProfile = getRefereeProfile(match.referee, match.league?.country)
@@ -105,8 +87,6 @@ export default function MatchBroadcastAndInfo({ match, standings }: MatchBroadca
 
   // Translated labels
   const isRtl = locale === 'ar'
-  const whereToWatchTitle = isRtl ? 'مكان المشاهدة' : locale === 'fr' ? 'Où regarder' : 'Where to Watch'
-  const fullScheduleTitle = isRtl ? 'تقويم كامل' : locale === 'fr' ? 'Programme complet' : 'Full Schedule'
   const dateTimeTitle = isRtl ? 'التاريخ و الوقت' : locale === 'fr' ? 'Date et heure' : 'Date & Time'
   const competitionTitle = isRtl ? 'المنافسة' : locale === 'fr' ? 'Compétition' : 'Competition'
   const refereeTitle = isRtl ? 'الحكم' : locale === 'fr' ? 'Arbitre' : 'Referee'
@@ -132,125 +112,7 @@ export default function MatchBroadcastAndInfo({ match, standings }: MatchBroadca
 
   return (
     <div className="space-y-4 font-inter text-on-surface select-none">
-      {/* ── CARD 1: WHERE TO WATCH ("مكان المشاهدة") ── */}
-      <div className="bg-[#121824] rounded-2xl border border-surface-bright/70 p-4 shadow-xl overflow-hidden relative">
-        {/* Header & Country Selector */}
-        <div className="flex items-center justify-between pb-3 border-b border-surface-bright/50">
-          <h3 className="font-bold text-base md:text-lg text-on-surface">
-            {whereToWatchTitle}
-          </h3>
-
-          {/* Country Selector Pill */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setIsCountryDropdownOpen((prev) => !prev)}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-high border border-surface-bright/80 hover:bg-surface-bright transition-colors cursor-pointer"
-              aria-label="Select broadcast country"
-            >
-              <span className="text-base leading-none select-none">{selectedCountry.flag}</span>
-              <span className="text-xs font-semibold text-on-surface hidden sm:inline">
-                {isRtl ? selectedCountry.nameAr : selectedCountry.name}
-              </span>
-              <span className="material-symbols-outlined text-[16px] text-on-surface-variant">
-                arrow_drop_down
-              </span>
-            </button>
-
-            {/* Country Dropdown Menu */}
-            {isCountryDropdownOpen && (
-              <>
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setIsCountryDropdownOpen(false)}
-                />
-                <div className="absolute right-0 rtl:right-auto rtl:left-0 top-full mt-2 w-52 bg-surface-container-high rounded-xl border border-surface-bright shadow-2xl p-1 z-50 max-h-64 overflow-y-auto">
-                  {BROADCASTER_COUNTRIES.map((country) => (
-                    <button
-                      key={country.code}
-                      onClick={() => {
-                        setSelectedCountry(country)
-                        setIsCountryDropdownOpen(false)
-                      }}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
-                        selectedCountry.code === country.code
-                          ? 'bg-primary/20 text-primary'
-                          : 'text-on-surface hover:bg-surface-bright'
-                      }`}
-                    >
-                      <span className="flex items-center gap-2">
-                        <span className="text-base">{country.flag}</span>
-                        <span>{isRtl ? country.nameAr : country.name}</span>
-                      </span>
-                      {selectedCountry.code === country.code && (
-                        <span className="material-symbols-outlined text-[16px]">check</span>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* TV Channels & Streaming List (Clean list without voting buttons) */}
-        <div className="divide-y divide-surface-bright/40 py-1">
-          {channels.map((channel) => (
-            <div
-              key={channel.id}
-              className="py-3 px-2 flex items-center justify-between gap-3 hover:bg-surface-container-high/30 rounded-lg transition-colors"
-            >
-              {/* Quality & Free Badges on Left */}
-              <div className="flex items-center gap-1.5 shrink-0">
-                <span
-                  className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase tracking-wider ${
-                    channel.quality === '4K'
-                      ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                      : channel.type === 'stream'
-                      ? 'bg-primary/15 text-primary border border-primary/30'
-                      : 'bg-surface-container-highest text-on-surface-variant border border-surface-bright/60'
-                  }`}
-                >
-                  {channel.quality || (channel.type === 'stream' ? 'STREAM' : 'HD')}
-                </span>
-                {channel.isFree && (
-                  <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                    {isRtl ? 'مجاني' : 'FREE'}
-                  </span>
-                )}
-              </div>
-
-              {/* Channel Name & TV / Stream Icon on Right */}
-              <div className="flex items-center gap-2.5 min-w-0 justify-end">
-                <span className="font-bold text-sm md:text-base text-on-surface truncate">
-                  {channel.name}
-                </span>
-                <span
-                  className="material-symbols-outlined text-[20px] text-primary shrink-0"
-                  aria-hidden="true"
-                >
-                  {channel.type === 'stream' ? 'play_circle' : 'tv'}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Bottom Full Schedule Link */}
-        <div className="pt-2.5 text-center border-t border-surface-bright/40">
-          <Link
-            href="/fixtures"
-            className="inline-flex items-center justify-center gap-1.5 text-xs md:text-sm font-bold text-primary hover:underline transition-all"
-          >
-            <span>{fullScheduleTitle}</span>
-            <span className="material-symbols-outlined text-[16px] rtl:rotate-180">
-              arrow_forward_ios
-            </span>
-          </Link>
-        </div>
-      </div>
-
-      {/* ── CARD 2: MATCH INFO ("معلومات المباراة") ── */}
+      {/* ── MATCH INFO ("معلومات المباراة") ── */}
       <div className="bg-[#121824] rounded-2xl border border-surface-bright/70 p-4 md:p-5 shadow-xl space-y-4">
         {/* Row 1: Date & Time */}
         <div className="flex items-center justify-between gap-3 pb-3 border-b border-surface-bright/40">

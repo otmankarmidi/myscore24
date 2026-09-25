@@ -118,7 +118,10 @@ export default function MatchDetailClient({ slug, initialMatch }: MatchDetailCli
 
         if (res.match.league?.id) {
           try {
-            const stand = await sportsService.getStandingsByLeague(res.match.league.id)
+            const stand = await sportsService.getStandingsByLeague(
+              res.match.league.id,
+              res.match.league.season
+            )
             setStandings(stand)
           } catch {}
         }

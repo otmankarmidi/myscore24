@@ -307,10 +307,31 @@ export const apiFootballProvider = {
       const json = await res.json()
       const standingsObj = json.response?.[0]?.league?.standings
       if (!standingsObj || !Array.isArray(standingsObj)) return []
+
       // When standingsObj is a 2D array (e.g. [[group1_teams], [group2_teams], ...]):
-      // Flatten all groups so every team from every group is preserved with raw.group intact
+      // Preserve every group as its own separate table by assigning a unique qualified group name.
       if (Array.isArray(standingsObj[0])) {
-        return standingsObj.flat()
+        const seenGroupNames = new Map<string, number>()
+        return standingsObj.flatMap((groupArray: any[], groupIdx: number) => {
+          if (!Array.isArray(groupArray) || groupArray.length === 0) return []
+          const rawGroupName = groupArray[0]?.group || `Group ${groupIdx + 1}`
+          const count = seenGroupNames.get(rawGroupName) || 0
+          seenGroupNames.set(rawGroupName, count + 1)
+
+          let qualifiedName = rawGroupName
+          // Specifically for UEFA Nations League (14 groups: 4 in League A, 4 in League B, 4 in League C, 2 in League D):
+          if (standingsObj.length === 14 && rawGroupName.startsWith('Group ')) {
+            const tier = groupIdx < 4 ? 'League A' : groupIdx < 8 ? 'League B' : groupIdx < 12 ? 'League C' : 'League D'
+            qualifiedName = `${tier} - ${rawGroupName}`
+          } else if (count > 0) {
+            qualifiedName = `${rawGroupName} (${count + 1})`
+          }
+
+          return groupArray.map((team) => ({
+            ...team,
+            group: qualifiedName,
+          }))
+        })
       }
       return standingsObj
     })

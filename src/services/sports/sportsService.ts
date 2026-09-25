@@ -382,8 +382,8 @@ export const sportsService = {
   },
 
   // ── Standings & Top Scorers ────────────────────────────────────────────────
-  async getStandingsByLeague(leagueId: string): Promise<LeagueStanding[]> {
-    const full = await this.getLeagueFullData(leagueId)
+  async getStandingsByLeague(leagueId: string, season?: string | number): Promise<LeagueStanding[]> {
+    const full = await this.getLeagueFullData(leagueId, season)
     return full.standings
   },
   async getTopScorersByLeague(leagueId: string): Promise<TopScorer[]> {
