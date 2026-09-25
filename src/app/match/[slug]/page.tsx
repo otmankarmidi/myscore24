@@ -90,17 +90,27 @@ export default async function MatchPage({ params }: MatchPageProps) {
   // Database-only lookup for initial SSR hydration and JSON-LD structured data
   const initialMatch = fixtureId ? await getStoredMatchByFixtureId(fixtureId) : null
 
+  const kickoffDate = initialMatch?.kickoff ? new Date(initialMatch.kickoff) : new Date()
+  const endDate = new Date(kickoffDate.getTime() + 105 * 60 * 1000).toISOString() // Standard ~105 mins duration
+
   const sportsEventSchema = initialMatch
     ? {
         '@context': 'https://schema.org',
         '@type': 'SportsEvent',
         name: `${initialMatch.homeTeam.name} vs ${initialMatch.awayTeam.name}`,
-        startDate: initialMatch.kickoff || new Date().toISOString(),
+        description: `Live football match coverage, scores, statistics, and lineups for ${initialMatch.homeTeam.name} vs ${initialMatch.awayTeam.name} in ${initialMatch.league.name}.`,
+        startDate: initialMatch.kickoff || kickoffDate.toISOString(),
+        endDate: endDate,
         eventStatus: initialMatch.isFinal
           ? 'https://schema.org/EventFinished'
           : initialMatch.status === 'live'
           ? 'https://schema.org/EventLive'
           : 'https://schema.org/EventScheduled',
+        eventAttendanceMode: 'https://schema.org/MixedEventAttendanceMode',
+        image: [
+          initialMatch.homeTeam.logo || 'https://myscore24.com/og-image.png',
+          initialMatch.awayTeam.logo || 'https://myscore24.com/og-image.png',
+        ].filter(Boolean),
         homeTeam: {
           '@type': 'SportsTeam',
           name: initialMatch.homeTeam.name,
@@ -111,6 +121,30 @@ export default async function MatchPage({ params }: MatchPageProps) {
           name: initialMatch.awayTeam.name,
           logo: initialMatch.awayTeam.logo || undefined,
         },
+        competitor: [
+          {
+            '@type': 'SportsTeam',
+            name: initialMatch.homeTeam.name,
+            logo: initialMatch.homeTeam.logo || undefined,
+          },
+          {
+            '@type': 'SportsTeam',
+            name: initialMatch.awayTeam.name,
+            logo: initialMatch.awayTeam.logo || undefined,
+          },
+        ],
+        performer: [
+          {
+            '@type': 'SportsTeam',
+            name: initialMatch.homeTeam.name,
+            logo: initialMatch.homeTeam.logo || undefined,
+          },
+          {
+            '@type': 'SportsTeam',
+            name: initialMatch.awayTeam.name,
+            logo: initialMatch.awayTeam.logo || undefined,
+          },
+        ],
         location: {
           '@type': 'Place',
           name: initialMatch.venue || `${initialMatch.homeTeam.name} Home Stadium`,
@@ -122,6 +156,15 @@ export default async function MatchPage({ params }: MatchPageProps) {
         organizer: {
           '@type': 'SportsOrganization',
           name: initialMatch.league.name,
+          url: `https://myscore24.com/league/${initialMatch.league.slug || 'league'}`,
+        },
+        offers: {
+          '@type': 'Offer',
+          url: `https://myscore24.com/match/${slug}`,
+          price: '0',
+          priceCurrency: 'USD',
+          availability: 'https://schema.org/InStock',
+          validFrom: initialMatch.kickoff || kickoffDate.toISOString(),
         },
       }
     : null
