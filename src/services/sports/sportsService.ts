@@ -13,6 +13,7 @@ import {
 import { apiFootballProvider } from './apiFootballProvider'
 import { resolveApiFootballPlayerId } from '@/data/knownPlayerIds'
 import { mockMatches } from '@/data/mockMatches'
+import { isToday } from '@/lib/utils'
 
 const provider = mockSportsProvider
 
@@ -38,17 +39,19 @@ export const sportsService = {
       const d = String(date.getDate()).padStart(2, '0')
       const dateStr = `${y}-${m}-${d}`
 
-      const todayStr = new Date().toISOString().split('T')[0]
-      const isToday = dateStr === todayStr
-      // TTL: 15s for today's live matches to ensure real-time score & minute updates, 30m for other dates
-      const ttl = isToday ? 15 * 1000 : 30 * 60 * 1000
+      const isTodayDate = isToday(date)
+      // TTL: 10s for today's live matches to ensure real-time score & minute updates, 30m for other dates
+      const ttl = isTodayDate ? 10 * 1000 : 30 * 60 * 1000
 
       const cached = clientMatchesByDateCache.get(dateStr)
       if (!forceRefresh && cached && Date.now() - cached.cachedAt < ttl) {
         return cached.data
       }
 
-      const res = await fetch(`/api/matches/today?date=${dateStr}`)
+      const freshParam = forceRefresh || isTodayDate ? `&fresh=1&_t=${Date.now()}` : ''
+      const res = await fetch(`/api/matches/today?date=${dateStr}${freshParam}`, {
+        cache: 'no-store',
+      })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const json = await res.json()
       const result = {

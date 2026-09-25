@@ -120,6 +120,7 @@ export function normalizeApiFootballMatch(raw: ApiFootballFixtureRaw): Match {
     venue: raw?.fixture?.venue?.name,
     referee: raw?.fixture?.referee,
     round: raw?.league?.round,
+    events: normalizeEvents(raw?.events, raw?.teams?.home?.id),
   }
 }
 

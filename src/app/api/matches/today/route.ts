@@ -44,23 +44,29 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const todayStr = new Date().toISOString().split('T')[0]
   const dateParam = searchParams.get('date') || todayStr
+  const isFresh = searchParams.get('fresh') === '1'
   const isHistoricalPast = dateParam < todayStr
   const isToday = dateParam === todayStr
 
   // ── 1. Check L1 Memory Cache for Approved Fixtures ─────────────────────────
   const cacheKey = `approved_fixtures:${dateParam}`
-  const cachedApproved = cacheEngine.get<Match[]>('fixtures', cacheKey)
-  if (cachedApproved && cachedApproved.length > 0) {
-    const response = NextResponse.json({
-      data: cachedApproved,
-      source: 'MyScore24 Layered Cache (Memory SWR)',
-      date: dateParam,
-      count: cachedApproved.length,
-      lastUpdated: new Date().toISOString(),
-      quotaSaved: true,
-    })
-    response.headers.set('Cache-Control', 'public, max-age=15, s-maxage=30, stale-while-revalidate=60')
-    return response
+  if (!isFresh || !isToday) {
+    const cachedApproved = cacheEngine.get<Match[]>('fixtures', cacheKey)
+    if (cachedApproved && cachedApproved.length > 0) {
+      const response = NextResponse.json({
+        data: cachedApproved,
+        source: 'MyScore24 Layered Cache (Memory SWR)',
+        date: dateParam,
+        count: cachedApproved.length,
+        lastUpdated: new Date().toISOString(),
+        quotaSaved: true,
+      })
+      response.headers.set(
+        'Cache-Control',
+        isToday ? 'no-cache, no-store, must-revalidate' : 'public, max-age=1800, s-maxage=3600'
+      )
+      return response
+    }
   }
 
   // ── 2. Database-First Strategy for Historical Dates ────────────────────────
@@ -116,7 +122,10 @@ export async function GET(request: NextRequest) {
           lastUpdated: new Date().toISOString(),
           quotaRemaining: apiRes.remainingQuota || null,
         })
-        response.headers.set('Cache-Control', 'public, max-age=15, s-maxage=30, stale-while-revalidate=60')
+        response.headers.set(
+          'Cache-Control',
+          isToday ? 'no-cache, no-store, must-revalidate' : 'public, max-age=1800, s-maxage=3600'
+        )
         return response
       }
     } catch (apiErr) {

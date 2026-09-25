@@ -17,6 +17,7 @@ import { useLanguage } from '@/context/LanguageContext'
 import { Match } from '@/types/match'
 import { League } from '@/types/league'
 import { isApprovedCompetition, getCompetitionPriority } from '@/config/competitions'
+import { isToday } from '@/lib/utils'
 
 export default function HomeClient() {
   const { t } = useLanguage()
@@ -60,23 +61,42 @@ export default function HomeClient() {
 
     loadData()
 
-    // Setup auto-polling every 20 seconds for today's view to keep live scores & elapsed minutes up to date
-    const todayStr = new Date().toISOString().split('T')[0]
-    const selStr = selectedDate.toISOString().split('T')[0]
+    // Setup auto-polling every 15 seconds for today's view to keep live scores & elapsed minutes up to date
     let pollInterval: NodeJS.Timeout | null = null
 
-    if (selStr === todayStr) {
+    if (isToday(selectedDate)) {
       pollInterval = setInterval(async () => {
         if (isCancelled) return
         try {
           const fresh = await sportsService.getMatchesByDateWithSource(selectedDate, true)
-          if (!isCancelled && fresh.matches) {
+          if (!isCancelled && fresh.matches && fresh.matches.length > 0) {
             setMatches(fresh.matches)
           }
         } catch {
           // Silent background poll error
         }
-      }, 20000)
+      }, 15000)
+
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === 'visible' && !isCancelled) {
+          sportsService
+            .getMatchesByDateWithSource(selectedDate, true)
+            .then((fresh) => {
+              if (!isCancelled && fresh.matches && fresh.matches.length > 0) {
+                setMatches(fresh.matches)
+              }
+            })
+            .catch(() => {})
+        }
+      }
+
+      document.addEventListener('visibilitychange', handleVisibilityChange)
+
+      return () => {
+        isCancelled = true
+        if (pollInterval) clearInterval(pollInterval)
+        document.removeEventListener('visibilitychange', handleVisibilityChange)
+      }
     }
 
     return () => {

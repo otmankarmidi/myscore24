@@ -34,35 +34,28 @@ export async function GET(
 
     // ── 1. Layered Cache Check (L1 Memory / In-Flight Single-Flight) ───────────
     const cachedEntry = cacheEngine.get<any>('match_detail', cleanId)
-    if (cachedEntry) {
-      apiTelemetry.recordMatchDetailHit('CACHE_HIT')
-      const response = NextResponse.json({
-        match: cachedEntry.match,
-        h2h: cachedEntry.h2h || [],
-        source: 'MyScore24 Layered Cache (Memory SWR)',
-        resolution: 'CACHE_HIT',
-      })
-      response.headers.set('Cache-Control', 'public, max-age=30, s-maxage=60, stale-while-revalidate=120')
-      return response
-    }
-
-    // ── 2. Database-First Check (MySQL by providerFixtureId) ───────────────────
-    const storedMatch = await getStoredMatchByFixtureId(fixtureIdNum)
-    if (storedMatch && storedMatch.isFinal) {
-      apiTelemetry.recordMatchDetailHit('DATABASE_HIT')
-      cacheEngine.set('match_detail', cleanId, { match: storedMatch, h2h: [] }, CACHE_TTLS.FINISHED_MATCH_DETAILS)
-
-      const response = NextResponse.json({
-        match: storedMatch,
-        h2h: [],
-        source: 'MyScore24 Persistent Database (Historical Final)',
-        resolution: 'DATABASE_HIT',
-        quotaSaved: true,
-      })
-      response.headers.set('Cache-Control', 'public, max-age=3600, s-maxage=86400')
-      return response
-    } else if (!storedMatch) {
-      apiTelemetry.recordHit('MATCH_DB_MISS', { fixtureId: fixtureIdNum, reason: 'Match not stored in MySQL' })
+    if (cachedEntry && cachedEntry.match) {
+      // Ensure cached entry has rich details (lineups or events or statistics)
+      const hasRichData = Boolean(
+        cachedEntry.match.lineup?.home?.startingXI?.length ||
+        cachedEntry.match.events?.length ||
+        cachedEntry.match.statistics
+      )
+      if (hasRichData) {
+        apiTelemetry.recordMatchDetailHit('CACHE_HIT')
+        const isFinished = cachedEntry.match.status === 'full_time' || cachedEntry.match.status === 'penalties'
+        const response = NextResponse.json({
+          match: cachedEntry.match,
+          h2h: cachedEntry.h2h || [],
+          source: 'MyScore24 Layered Cache (Memory SWR)',
+          resolution: 'CACHE_HIT',
+        })
+        response.headers.set(
+          'Cache-Control',
+          isFinished ? 'public, max-age=300, s-maxage=600' : 'no-cache, no-store, must-revalidate'
+        )
+        return response
+      }
     }
 
     // ── 3. API-Football Request (Only if match missing or ongoing/live) ────────
@@ -122,7 +115,8 @@ export async function GET(
       }
     }
 
-    // ── 4. Fallback Source: MySQL Stored Record (Even if non-final or stale) ────
+    // ── 4. Fallback Source: MySQL Stored Record (Only if provider fails/unavailable) ────
+    const storedMatch = await getStoredMatchByFixtureId(fixtureIdNum)
     if (storedMatch) {
       apiTelemetry.recordHit('FALLBACK_HIT')
       const response = NextResponse.json({

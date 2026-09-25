@@ -22,8 +22,8 @@ export const CACHE_TTLS = {
   LIVE_MATCHES: { freshMs: 45 * 1000, staleMs: 3 * 60 * 1000, isCritical: true },
   // Live matches when 0 live matches active: 4m fresh, 10m stale
   LIVE_MATCHES_IDLE: { freshMs: 4 * 60 * 1000, staleMs: 10 * 60 * 1000, isCritical: false },
-  // Today's fixtures: 3m fresh, 15m stale
-  TODAY_FIXTURES: { freshMs: 3 * 60 * 1000, staleMs: 15 * 60 * 1000, isCritical: false },
+  // Today's fixtures: 15s fresh, 45s stale to keep live scores and match minutes in real-time
+  TODAY_FIXTURES: { freshMs: 15 * 1000, staleMs: 45 * 1000, isCritical: true },
   // Upcoming / Date fixtures: 30m fresh, 2h stale
   DATE_FIXTURES: { freshMs: 30 * 60 * 1000, staleMs: 2 * 3600 * 1000, isCritical: false },
   // Completed match summary: 6h fresh, 24h stale
