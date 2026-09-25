@@ -15,48 +15,92 @@ const QUICK_LINKS = [
   { name: 'Champions League', href: '/competition/2', icon: '/leagues/champions-league.png' },
 ]
 
-const TOP_LEAGUE_KEYWORDS = [
-  'premier league',
-  'laliga',
-  'la liga',
-  'bundesliga',
-  'serie a',
-  'ligue 1',
-  'champions league',
-  'botola',
-  'saudi pro league',
+const LEAGUE_PRESTIGE_WEIGHTS: Record<string, number> = {
+  'champions league': 100,
+  'ucl': 100,
+  'world cup': 98,
+  'euro': 95,
+  'nations league': 92,
+  'afcon': 90,
+  'africa cup of nations': 90,
+  'copa america': 90,
+  'premier league': 88,
+  'la liga': 86,
+  'laliga': 86,
+  'serie a': 82,
+  'bundesliga': 80,
+  'botola': 78,
+  'saudi pro league': 75,
+  'roshn': 75,
+  'ligue 1': 74,
+  'europa league': 70,
+  'fa cup': 68,
+  'copa del rey': 65,
+  'conference league': 60,
+}
+
+const ELITE_TEAMS = [
+  'real madrid', 'barcelona', 'manchester city', 'liverpool', 'arsenal',
+  'bayern munich', 'bayern', 'paris saint germain', 'psg', 'inter', 'inter milan',
+  'juventus', 'chelsea', 'manchester united', 'atletico madrid', 'atletico',
+  'borussia dortmund', 'dortmund', 'bayer leverkusen', 'tottenham',
+  'wydad', 'raja', 'as far', 'rs berkane', 'al hilal', 'al nassr', 'al ittihad',
+  'al ahly', 'zamalek',
+  'morocco', 'المغرب', 'spain', 'إسبانيا', 'france', 'فرنسا', 'argentina', 'الأرجنتين',
+  'england', 'إنجلترا', 'brazil', 'البرازيل', 'portugal', 'البرتغال', 'germany', 'ألمانيا',
+  'netherlands', 'هولندا', 'italy', 'إيطاليا', 'croatia', 'كرواتيا', 'senegal', 'السنغال',
+  'egypt', 'مصر', 'algeria', 'الجزائر', 'belgium', 'بلجيكا',
 ]
+
+function getMatchPrestigeScore(m: Match): number {
+  let score = 0
+  const leagueName = (m.league?.name || '').toLowerCase()
+  const home = (m.homeTeam?.name || '').toLowerCase()
+  const away = (m.awayTeam?.name || '').toLowerCase()
+
+  // 1. Base Tournament Prestige
+  for (const [key, weight] of Object.entries(LEAGUE_PRESTIGE_WEIGHTS)) {
+    if (leagueName.includes(key)) {
+      score = Math.max(score, weight)
+    }
+  }
+  if (score === 0) score = 40
+
+  // 2. Elite Teams / Marquee Clash Bonus
+  const isHomeElite = ELITE_TEAMS.some((t) => home.includes(t))
+  const isAwayElite = ELITE_TEAMS.some((t) => away.includes(t))
+
+  if (isHomeElite && isAwayElite) {
+    score += 50 // Mega derby / clash (e.g. Real vs Barca, Arsenal vs Chelsea)
+  } else if (isHomeElite || isAwayElite) {
+    score += 25
+  }
+
+  // 3. Status Urgency Bonus (Live matches are prioritized)
+  if (m.status === 'live' || m.status === 'half_time' || m.status === 'extra_time' || m.status === 'penalties') {
+    score += 30
+  } else if (m.status === 'scheduled') {
+    score += 15
+  }
+
+  return score
+}
 
 function filterTopMatches(allMatches: Match[]): Match[] {
   if (!allMatches || !Array.isArray(allMatches) || allMatches.length === 0) return []
 
-  const isTopLeague = (m: Match) => {
-    const name = (m.league?.name || '').toLowerCase()
-    return TOP_LEAGUE_KEYWORDS.some((k) => name.includes(k))
-  }
+  const scored = allMatches.map((m) => ({
+    match: m,
+    score: getMatchPrestigeScore(m),
+  }))
 
-  // Prioritize top leagues if available, otherwise use all available real matches
-  let eligible = allMatches.filter(isTopLeague)
-  if (eligible.length === 0) {
-    eligible = [...allMatches]
-  }
-
-  // Priority order: 1. Live, 2. Today's important / Upcoming, 3. Finished
-  const statusPriority = (status: string) => {
-    if (status === 'live' || status === 'half_time' || status === 'extra_time' || status === 'penalties') return 1
-    if (status === 'scheduled') return 2
-    if (status === 'full_time') return 3
-    return 4
-  }
-
-  eligible.sort((a, b) => {
-    const pA = statusPriority(a.status)
-    const pB = statusPriority(b.status)
-    if (pA !== pB) return pA - pB
-    return new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime()
+  scored.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score
+    return new Date(a.match.kickoff).getTime() - new Date(b.match.kickoff).getTime()
   })
 
-  return eligible.slice(0, 6)
+  // Return strictly the top 3 best games of the day
+  return scored.slice(0, 3).map((s) => s.match)
 }
 
 function renderStatusBadge(match: Match) {
@@ -115,22 +159,30 @@ export default function RightSidebar() {
       return
     }
 
+    let isMounted = true
+
     async function fetchSidebar() {
       try {
-        // Fetch matches from cached backend route (0ms hit via CacheEngine)
         const res = await fetch('/api/matches/today', { cache: 'no-store' })
-        if (!res.ok) return
+        if (!res.ok || !isMounted) return
         const json = await res.json()
         const rawMatches: Match[] = json.data || []
         const filtered = filterTopMatches(rawMatches)
-        setTopMatches(filtered)
+        if (isMounted) setTopMatches(filtered)
       } catch {
-        setTopMatches([])
+        if (isMounted) setTopMatches([])
       }
     }
 
-    const timer = setTimeout(fetchSidebar, 2000)
-    return () => clearTimeout(timer)
+    fetchSidebar()
+
+    // Real-time update every 30 seconds to keep live scores up-to-date
+    const interval = setInterval(fetchSidebar, 30000)
+
+    return () => {
+      isMounted = false
+      clearInterval(interval)
+    }
   }, [])
 
   return (
@@ -141,6 +193,9 @@ export default function RightSidebar() {
           <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-on-surface">
             <span className="material-symbols-outlined text-[16px] text-primary">local_fire_department</span>
             <span>Top Matches</span>
+            <span className="px-1.5 py-0.5 rounded bg-primary/20 text-primary border border-primary/40 text-[10px] font-mono font-bold leading-none">
+              TOP 3
+            </span>
           </div>
           <Link href="/live" className="text-[11px] text-primary hover:underline font-medium">
             View All
@@ -170,6 +225,13 @@ export default function RightSidebar() {
                 >
                   {/* Teams & Scores Column */}
                   <div className="flex-1 min-w-0 space-y-1.5 pr-2">
+                    {/* Small League Tag */}
+                    {match.league?.name && (
+                      <div className="text-[10px] text-on-surface-variant/80 font-medium truncate mb-1">
+                        {match.league.name}
+                      </div>
+                    )}
+
                     {/* Home Team Row */}
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2 min-w-0">
