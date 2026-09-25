@@ -1,3 +1,6 @@
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { NewsArticle } from '@/types/news'
@@ -14,7 +17,11 @@ function getAuthorName(author: NewsArticle['author']): string {
 }
 
 export default function NewsCard({ article, variant = 'standard' }: NewsCardProps) {
-  const imageUrl = article.imageUrl || article.image
+  const rawImageUrl = article.imageUrl || article.image
+  const isValidUrl = rawImageUrl && rawImageUrl !== '/og-image.png' && rawImageUrl.trim().length > 0
+  const [imageError, setImageError] = useState(false)
+  const imageUrl = !imageError && isValidUrl ? rawImageUrl : null
+
   const authorName = getAuthorName(article.author)
 
   if (variant === 'featured') {
@@ -29,10 +36,13 @@ export default function NewsCard({ article, variant = 'standard' }: NewsCardProp
             alt={article.title}
             fill
             unoptimized
+            onError={() => setImageError(true)}
             className="object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
-          <div className="absolute inset-0 bg-surface-container-high" />
+          <div className="absolute inset-0 bg-gradient-to-br from-surface-container-high via-surface-bright to-surface-container-lowest flex items-center justify-center">
+            <span className="material-symbols-outlined text-6xl text-primary/30">newspaper</span>
+          </div>
         )}
 
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent" />
@@ -66,11 +76,20 @@ export default function NewsCard({ article, variant = 'standard' }: NewsCardProp
         href={`/news/${article.slug}`}
         className="group flex gap-3 p-2 rounded-lg hover:bg-surface-container-high transition-colors"
       >
-        <div className="relative w-20 h-16 rounded overflow-hidden bg-surface-container-high shrink-0">
+        <div className="relative w-20 h-16 rounded overflow-hidden bg-surface-container-high shrink-0 flex items-center justify-center">
           {imageUrl ? (
-            <Image src={imageUrl} alt={article.title} fill unoptimized className="object-cover group-hover:scale-105 transition-transform" />
+            <Image
+              src={imageUrl}
+              alt={article.title}
+              fill
+              unoptimized
+              onError={() => setImageError(true)}
+              className="object-cover group-hover:scale-105 transition-transform"
+            />
           ) : (
-            <div className="w-full h-full bg-surface-container-highest" />
+            <div className="w-full h-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
+              <span className="material-symbols-outlined text-xl text-primary/40">newspaper</span>
+            </div>
           )}
         </div>
         <div className="flex-1 flex flex-col justify-between py-0.5">
@@ -88,11 +107,20 @@ export default function NewsCard({ article, variant = 'standard' }: NewsCardProp
       href={`/news/${article.slug}`}
       className="group flex flex-col bg-surface-container rounded-lg border border-surface-bright overflow-hidden hover:border-primary transition-all"
     >
-      <div className="relative w-full aspect-[16/9] bg-surface-container-high overflow-hidden">
+      <div className="relative w-full aspect-[16/9] bg-surface-container-high overflow-hidden flex items-center justify-center">
         {imageUrl ? (
-          <Image src={imageUrl} alt={article.title} fill unoptimized className="object-cover group-hover:scale-105 transition-transform duration-300" />
+          <Image
+            src={imageUrl}
+            alt={article.title}
+            fill
+            unoptimized
+            onError={() => setImageError(true)}
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+          />
         ) : (
-          <div className="w-full h-full bg-surface-container-highest" />
+          <div className="w-full h-full bg-gradient-to-br from-surface-container-high to-surface-container-highest flex items-center justify-center">
+            <span className="material-symbols-outlined text-4xl text-primary/30">newspaper</span>
+          </div>
         )}
         <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-surface-container-lowest/90 backdrop-blur text-primary text-[10px] font-bold uppercase tracking-wider">
           {article.category}

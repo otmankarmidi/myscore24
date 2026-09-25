@@ -35,6 +35,7 @@ export default function NewsArticleClient({
   children,
 }: NewsArticleClientProps) {
   const [copied, setCopied] = useState(false)
+  const [imageError, setImageError] = useState(false)
 
   useEffect(() => {
     if (article) {
@@ -176,12 +177,20 @@ export default function NewsArticleClient({
           </div>
 
           {/* Featured Image */}
-          <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-surface-container-high border border-surface-bright">
-            {imageUrl ? (
-              <Image src={imageUrl} alt={article.title} fill unoptimized className="object-cover" priority />
+          <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-surface-container-high border border-surface-bright flex items-center justify-center">
+            {imageUrl && !imageError && imageUrl !== '/og-image.png' ? (
+              <Image
+                src={imageUrl}
+                alt={article.title}
+                fill
+                unoptimized
+                onError={() => setImageError(true)}
+                className="object-cover"
+                priority
+              />
             ) : (
-              <div className="w-full h-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
-                <span className="material-symbols-outlined text-4xl">feed</span>
+              <div className="w-full h-full bg-gradient-to-br from-surface-container-high via-surface-bright to-surface-container-lowest flex items-center justify-center text-on-surface-variant">
+                <span className="material-symbols-outlined text-6xl text-primary/30">newspaper</span>
               </div>
             )}
           </div>
