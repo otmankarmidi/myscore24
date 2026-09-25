@@ -60,8 +60,28 @@ export default function HomeClient() {
 
     loadData()
 
+    // Setup auto-polling every 20 seconds for today's view to keep live scores & elapsed minutes up to date
+    const todayStr = new Date().toISOString().split('T')[0]
+    const selStr = selectedDate.toISOString().split('T')[0]
+    let pollInterval: NodeJS.Timeout | null = null
+
+    if (selStr === todayStr) {
+      pollInterval = setInterval(async () => {
+        if (isCancelled) return
+        try {
+          const fresh = await sportsService.getMatchesByDateWithSource(selectedDate, true)
+          if (!isCancelled && fresh.matches) {
+            setMatches(fresh.matches)
+          }
+        } catch {
+          // Silent background poll error
+        }
+      }, 20000)
+    }
+
     return () => {
       isCancelled = true
+      if (pollInterval) clearInterval(pollInterval)
     }
   }, [selectedDate])
 

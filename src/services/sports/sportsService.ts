@@ -28,7 +28,8 @@ const clientMatchesByDateCache = new Map<
 export const sportsService = {
   // ── Matches (Connected to Real API Route Handlers) ──────────────────────
   async getMatchesByDateWithSource(
-    date: Date
+    date: Date,
+    forceRefresh = false
   ): Promise<{ matches: Match[]; source: string; count: number; lastUpdated: string; error?: string }> {
     try {
       // Timezone-safe date string formatting (YYYY-MM-DD)
@@ -39,11 +40,11 @@ export const sportsService = {
 
       const todayStr = new Date().toISOString().split('T')[0]
       const isToday = dateStr === todayStr
-      // TTL: 45s for today, 30 minutes for past and future dates
-      const ttl = isToday ? 45 * 1000 : 30 * 60 * 1000
+      // TTL: 15s for today's live matches to ensure real-time score & minute updates, 30m for other dates
+      const ttl = isToday ? 15 * 1000 : 30 * 60 * 1000
 
       const cached = clientMatchesByDateCache.get(dateStr)
-      if (cached && Date.now() - cached.cachedAt < ttl) {
+      if (!forceRefresh && cached && Date.now() - cached.cachedAt < ttl) {
         return cached.data
       }
 
