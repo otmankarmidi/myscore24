@@ -8,7 +8,6 @@ import MobileBottomNavigation from '@/components/common/MobileBottomNavigation'
 import CompetitionGroup from '@/components/match/CompetitionGroup'
 import SkeletonMatchRow from '@/components/common/SkeletonLoader'
 import EmptyState from '@/components/common/EmptyState'
-import AdvertisementPlaceholder from '@/components/common/AdvertisementPlaceholder'
 import { useFavorites } from '@/hooks/useFavorites'
 import { useLanguage } from '@/context/LanguageContext'
 import { Match } from '@/types/match'
@@ -89,8 +88,6 @@ export default function FavoritesPage() {
         <DesktopSidebar />
 
         <main className="flex-1 min-w-0 space-y-3">
-          <AdvertisementPlaceholder variant="banner" />
-
           {/* Section Banner */}
           <div className="flex items-center justify-between bg-surface-container border border-surface-bright/70 rounded-xl p-4 shadow-sm">
             <div>

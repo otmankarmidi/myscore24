@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import TeamLogo from '@/components/common/TeamLogo'
-import AdvertisementPlaceholder from '@/components/common/AdvertisementPlaceholder'
 import { Match } from '@/types/match'
 
 const QUICK_LINKS = [
@@ -283,9 +282,6 @@ export default function RightSidebar() {
           )}
         </div>
       </div>
-
-      {/* Advertisement Banner */}
-      <AdvertisementPlaceholder variant="sidebar" />
 
       {/* Quick Links Widget */}
       <div className="bg-surface-container rounded-lg border border-surface-bright overflow-hidden shadow-sm">

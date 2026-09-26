@@ -11,7 +11,6 @@ import CompetitionGroup from '@/components/match/CompetitionGroup'
 import SkeletonMatchRow from '@/components/common/SkeletonLoader'
 import EmptyState from '@/components/common/EmptyState'
 import ErrorState from '@/components/common/ErrorState'
-import AdvertisementPlaceholder from '@/components/common/AdvertisementPlaceholder'
 import TrendingMatches from '@/components/common/TrendingMatches'
 import { sportsService } from '@/services/sports/sportsService'
 import { useLanguage } from '@/context/LanguageContext'
@@ -232,9 +231,6 @@ export default function HomeClient({ initialTrendingMatches = [] }: HomeClientPr
               {counts.all} matches
             </span>
           </div>
-
-          {/* Banner Ad */}
-          <AdvertisementPlaceholder variant="banner" />
 
           {/* Calendar Strip */}
           <DateSelector selectedDate={selectedDate} onSelectDate={setSelectedDate} />
