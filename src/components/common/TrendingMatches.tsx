@@ -220,7 +220,7 @@ export default function TrendingMatches({
             const awayAbbr = getAbbreviatedName(match.awayTeam)
 
             const formattedTime = formatMatchTime(match.kickoff, activeTimezone, locale)
-            const matchCanonicalId = match.slug || match.id
+            const matchCanonicalId = match.id || match.slug
 
             return (
               <Link

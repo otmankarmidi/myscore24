@@ -228,6 +228,70 @@ export async function getStoredMatchByFixtureId(providerFixtureId: number): Prom
 }
 
 /**
+ * Retrieves a stored match by slug or non-numeric identifier (supporting team names or mock matches).
+ */
+export async function getStoredMatchBySlug(slug: string): Promise<Match | null> {
+  if (!slug) return null
+  const clean = slug.replace(/^match-/, '').trim()
+
+  // 1. Direct number or trailing number in slug
+  const directNum = Number(clean)
+  if (!isNaN(directNum) && directNum > 0) {
+    return getStoredMatchByFixtureId(directNum)
+  }
+  const parts = clean.split('-')
+  const lastNum = Number(parts[parts.length - 1])
+  if (!isNaN(lastNum) && lastNum > 0) {
+    return getStoredMatchByFixtureId(lastNum)
+  }
+
+  // 2. Check team names if slug contains '-vs-'
+  if (clean.includes('-vs-')) {
+    try {
+      const [homeToken, awayToken] = clean.split('-vs-')
+      const homeQuery = homeToken.replace(/-/g, ' ').trim()
+      const awayQuery = awayToken.replace(/-/g, ' ').trim()
+
+      if (homeQuery && awayQuery) {
+        const records = await prisma.match.findMany({
+          where: {
+            AND: [
+              { homeTeam: { name: { contains: homeQuery } } },
+              { awayTeam: { name: { contains: awayQuery } } },
+            ],
+          },
+          include: {
+            competition: {
+              include: { country: true },
+            },
+            season: true,
+            homeTeam: true,
+            awayTeam: true,
+          },
+          orderBy: { kickoff: 'desc' },
+          take: 1,
+        })
+
+        if (records.length > 0) {
+          return formatDbMatchToAppMatch(records[0])
+        }
+      }
+    } catch (dbErr) {
+      console.warn(`[Football Persistence] Error searching match by slug "${slug}":`, dbErr)
+    }
+  }
+
+  // 3. Fallback to mock matches (e.g. fc-barcelona-vs-real-madrid, laliga-fcb-rma-001)
+  try {
+    const { mockMatches } = await import('@/data/mockMatches')
+    const foundMock = mockMatches.find((m) => m.slug === clean || m.id === clean || m.slug === slug || m.id === slug)
+    if (foundMock) return foundMock
+  } catch {}
+
+  return null
+}
+
+/**
  * Gets the verified current season year for a competition from MySQL.
  */
 export async function getCurrentSeasonForCompetition(competitionProviderId: number): Promise<number | null> {

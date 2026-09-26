@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { getStoredMatchByFixtureId } from '@/lib/football/persistence/queries'
+import { getStoredMatchByFixtureId, getStoredMatchBySlug } from '@/lib/football/persistence/queries'
 import MatchDetailClient from './MatchDetailClient'
 
 interface MatchPageProps {
@@ -22,16 +22,8 @@ export async function generateMetadata({ params }: MatchPageProps): Promise<Meta
   const { slug } = await params
   const fixtureId = extractFixtureId(slug)
 
-  if (!fixtureId) {
-    return {
-      title: 'Match Not Found | MyScore24',
-      description: 'The requested football match could not be found on MyScore24.',
-      robots: { index: false, follow: false },
-    }
-  }
-
   // Database-only lookup — NEVER call API-Football for metadata/crawling
-  const match = await getStoredMatchByFixtureId(fixtureId)
+  const match = fixtureId ? await getStoredMatchByFixtureId(fixtureId) : await getStoredMatchBySlug(slug)
 
   if (!match) {
     return {
@@ -88,7 +80,7 @@ export default async function MatchPage({ params }: MatchPageProps) {
   const fixtureId = extractFixtureId(slug)
 
   // Database-only lookup for initial SSR hydration and JSON-LD structured data
-  const initialMatch = fixtureId ? await getStoredMatchByFixtureId(fixtureId) : null
+  const initialMatch = fixtureId ? await getStoredMatchByFixtureId(fixtureId) : await getStoredMatchBySlug(slug)
 
   const kickoffDate = initialMatch?.kickoff ? new Date(initialMatch.kickoff) : new Date()
   const endDate = new Date(kickoffDate.getTime() + 105 * 60 * 1000).toISOString() // Standard ~105 mins duration

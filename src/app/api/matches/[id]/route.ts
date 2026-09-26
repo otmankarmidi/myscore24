@@ -4,7 +4,7 @@ import { normalizeApiFootballMatchDetails, normalizeApiFootballMatch } from '@/s
 import { Match } from '@/types/match'
 import { apiTelemetry } from '@/services/sports/apiTelemetry'
 import { cacheEngine, CACHE_TTLS } from '@/services/sports/cacheEngine'
-import { getStoredMatchByFixtureId } from '@/lib/football/persistence/queries'
+import { getStoredMatchByFixtureId, getStoredMatchBySlug } from '@/lib/football/persistence/queries'
 import { upsertFixture } from '@/lib/football/persistence/fixtures'
 
 export const dynamic = 'force-dynamic'
@@ -17,20 +17,47 @@ export async function GET(
   try {
     const { id } = await params
     const cleanId = id ? id.replace(/^match-/, '').trim() : ''
-    const fixtureIdNum = Number(cleanId)
 
-    if (!cleanId || isNaN(fixtureIdNum) || fixtureIdNum <= 0) {
-      apiTelemetry.recordHit('INVALID_FIXTURE_ID', { fixtureId: id, reason: 'Invalid or non-numeric fixture ID' })
-      return NextResponse.json(
-        {
-          error: 'Invalid match ID format. Expected numeric provider fixture ID.',
-          code: 'MATCH_NOT_FOUND',
-        },
-        { status: 400 }
-      )
+    // 1. Try to extract numeric ID (either direct number, e.g. "1208945", or trailing number, e.g. "slug-1208945")
+    let fixtureIdNum = Number(cleanId)
+    if (isNaN(fixtureIdNum) || fixtureIdNum <= 0) {
+      const parts = cleanId.split('-')
+      const lastPart = Number(parts[parts.length - 1])
+      if (!isNaN(lastPart) && lastPart > 0) {
+        fixtureIdNum = lastPart
+      }
     }
 
-    const cacheKey = `match_summary:${cleanId}`
+    // 2. If non-numeric, resolve by slug or team names or mock data
+    if (isNaN(fixtureIdNum) || fixtureIdNum <= 0) {
+      const resolvedMatch = await getStoredMatchBySlug(cleanId)
+      if (resolvedMatch) {
+        const resolvedNumId = Number(resolvedMatch.id)
+        if (!isNaN(resolvedNumId) && resolvedNumId > 0) {
+          fixtureIdNum = resolvedNumId
+        } else {
+          // It's a mock match or non-numeric DB record, return it directly
+          return NextResponse.json({
+            match: resolvedMatch,
+            h2h: [],
+            source: 'MyScore24 Match Details (Slug Resolution)',
+            resolution: 'SLUG_RESOLVED',
+          })
+        }
+      } else {
+        // Match not found in database or mock data
+        apiTelemetry.recordHit('MATCH_NOT_FOUND', { fixtureId: id, reason: 'Slug or ID not found' })
+        return NextResponse.json(
+          {
+            error: 'Match unavailable. No record found for this fixture.',
+            code: 'MATCH_NOT_FOUND',
+          },
+          { status: 404 }
+        )
+      }
+    }
+
+    const cacheKey = `match_summary:${fixtureIdNum}`
 
     // ── 1. Layered Cache Check (L1 Memory / In-Flight Single-Flight) ───────────
     const cachedEntry = cacheEngine.get<any>('match_detail', cleanId)
