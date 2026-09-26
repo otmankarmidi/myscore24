@@ -78,6 +78,28 @@ export const APPROVED_COMPETITIONS: CompetitionConfig[] = [
     localLogo: '/leagues/ligue-1.png',
     aliases: ['Ligue 1', 'French Ligue 1', 'Ligue 1 McDonald\'s', 'Ligue 1 Uber Eats'],
   },
+  {
+    id: 200,
+    slug: 'botola-pro',
+    name: 'Botola Pro Inwi',
+    displayName: 'Botola Pro',
+    country: 'Morocco',
+    category: 'big5',
+    priority: 6,
+    localLogo: '/leagues/botola-pro.png',
+    aliases: ['Botola Pro', 'Botola', 'Botola Pro Inwi', 'Moroccan Botola Pro'],
+  },
+  {
+    id: 307,
+    slug: 'saudi-pro-league',
+    name: 'Saudi Pro League',
+    displayName: 'Saudi Pro League',
+    country: 'Saudi Arabia',
+    category: 'big5',
+    priority: 7,
+    localLogo: '/leagues/saudi-pro-league.svg',
+    aliases: ['Saudi Pro League', 'SPL', 'Roshn Saudi League', 'Saudi League'],
+  },
 
   // ── 2. EUROPE ─────────────────────────────────────────────────────────────
   {

@@ -55,7 +55,7 @@ export const MatchNotificationButton = memo(function MatchNotificationButton({
       className={`relative inline-flex items-center justify-center rounded-md transition-all duration-150 cursor-pointer ${sizeStyles} ${
         active
           ? 'text-primary bg-primary/10 hover:bg-primary/20 ring-1 ring-primary/40 shadow-sm'
-          : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-bright/50'
+          : 'text-outline hover:text-primary hover:bg-surface-container-high'
       } ${className}`}
     >
       <span

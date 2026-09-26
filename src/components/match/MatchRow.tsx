@@ -92,6 +92,45 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
   const hasValidId = Boolean(match.id && String(match.id).trim() !== '' && String(match.id) !== 'undefined')
   const matchHref = hasValidId ? `/match/${match.id}` : '#'
 
+  // Helper classes for score and team name contrast
+  const getScoreStyle = (side: 'home' | 'away') => {
+    const isHome = side === 'home'
+    const myScore = isHome ? homeScore : awayScore
+    const oppScore = isHome ? awayScore : homeScore
+
+    if (myScore === null) return 'hidden'
+    if (isFlashingGoal && (lastScoringSide === side || !lastScoringSide)) {
+      return 'text-primary scale-125'
+    }
+    if (live) {
+      return 'text-error font-extrabold'
+    }
+    if (isFinished) {
+      if (oppScore !== null && myScore < oppScore) {
+        return 'text-on-surface-variant font-semibold'
+      }
+      return 'text-on-surface font-extrabold'
+    }
+    return 'text-on-surface font-bold'
+  }
+
+  const getTeamNameStyle = (side: 'home' | 'away') => {
+    const isHome = side === 'home'
+    if (isFinished) {
+      if (isHome && awayWins) return 'text-on-surface-variant font-medium'
+      if (!isHome && homeWins) return 'text-on-surface-variant font-medium'
+      if (isHome && homeWins) return 'font-bold text-on-surface'
+      if (!isHome && awayWins) return 'font-bold text-on-surface'
+      return 'font-semibold text-on-surface'
+    }
+    if (live) {
+      if (isHome && homeWins) return 'font-bold text-on-surface'
+      if (!isHome && awayWins) return 'font-bold text-on-surface'
+      return 'font-semibold text-on-surface'
+    }
+    return 'font-medium text-on-surface'
+  }
+
   return (
     <Link
       href={matchHref}
@@ -110,7 +149,7 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
         {/* Status column */}
         <div className="w-14 shrink-0 flex flex-col items-start justify-center gap-0.5">
           {status === 'scheduled' ? (
-            <span className="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-geist font-bold text-[11px] tabular-nums">
+            <span className="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-geist font-bold text-[11px] tabular-nums">
               {formatMatchTime(kickoff, activeTimezone, locale)}
             </span>
           ) : (
@@ -124,7 +163,7 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
               <TeamLogo name={safeHome.name} abbreviation={safeHome.abbreviation} logo={safeHome.logo} size="xs" />
-              <span className={`font-inter text-[14px] truncate ${homeWins || (live && !awayWins) ? 'font-bold text-on-surface' : 'text-on-surface'}`}>
+              <span className={`font-inter text-[14px] truncate ${getTeamNameStyle('home')}`}>
                 {safeHome.name}
               </span>
               {homeReds.map((_, i) => (
@@ -138,9 +177,7 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
                   GOAL!
                 </span>
               )}
-              <span className={`font-geist font-bold text-[18px] tabular-nums leading-none shrink-0 transition-transform ${
-                homeScore === null ? 'hidden' : isFlashingGoal && (lastScoringSide === 'home' || !lastScoringSide) ? 'text-primary scale-125' : homeWins ? 'text-on-surface' : 'text-outline'
-              }`}>
+              <span className={`font-geist text-[18px] tabular-nums leading-none shrink-0 transition-transform ${getScoreStyle('home')}`}>
                 {homeScore ?? ''}
               </span>
             </div>
@@ -150,7 +187,7 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
               <TeamLogo name={safeAway.name} abbreviation={safeAway.abbreviation} logo={safeAway.logo} size="xs" />
-              <span className={`font-inter text-[14px] truncate ${awayWins ? 'font-bold text-on-surface' : 'text-on-surface'}`}>
+              <span className={`font-inter text-[14px] truncate ${getTeamNameStyle('away')}`}>
                 {safeAway.name}
               </span>
               {awayReds.map((_, i) => (
@@ -164,9 +201,7 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
                   GOAL!
                 </span>
               )}
-              <span className={`font-geist font-bold text-[18px] tabular-nums leading-none shrink-0 transition-transform ${
-                awayScore === null ? 'hidden' : isFlashingGoal && (lastScoringSide === 'away' || !lastScoringSide) ? 'text-primary scale-125' : awayWins ? 'text-on-surface' : 'text-outline'
-              }`}>
+              <span className={`font-geist text-[18px] tabular-nums leading-none shrink-0 transition-transform ${getScoreStyle('away')}`}>
                 {awayScore ?? ''}
               </span>
             </div>

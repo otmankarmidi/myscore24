@@ -110,6 +110,14 @@ export default function RootLayout({
                   document.documentElement.lang = 'fr';
                   document.documentElement.dir = 'ltr';
                 }
+                var t = localStorage.getItem('myscore24_theme');
+                if (t === 'light') {
+                  document.documentElement.classList.remove('dark');
+                  document.documentElement.classList.add('light');
+                } else if (t === 'dark') {
+                  document.documentElement.classList.add('dark');
+                  document.documentElement.classList.remove('light');
+                }
               } catch(e) {}
             `,
           }}

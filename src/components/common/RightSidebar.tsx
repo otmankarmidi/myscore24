@@ -114,7 +114,7 @@ function renderStatusBadge(match: Match) {
   }
   if (match.status === 'half_time') {
     return (
-      <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 font-mono text-[11px] font-bold shrink-0">
+      <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-600 dark:text-amber-400 font-mono text-[11px] font-bold shrink-0">
         HT
       </span>
     )
@@ -202,7 +202,7 @@ export default function RightSidebar() {
           </Link>
         </div>
 
-        <div className="divide-y divide-surface-bright/40">
+        <div className="divide-y divide-surface-bright/70">
           {topMatches.length === 0 ? (
             <div className="p-4 text-center text-xs text-on-surface-variant font-medium">
               No top matches available

@@ -5,14 +5,20 @@ import { useEffect, useState } from 'react'
 import { useFavorites } from '@/hooks/useFavorites'
 import { useLanguage } from '@/context/LanguageContext'
 import { mockLeagues } from '@/data/mockLeagues'
+import CompetitionLogo from '@/components/common/CompetitionLogo'
+import CountryFlag from '@/components/common/CountryFlag'
 
 const COUNTRIES = [
-  { name: 'Morocco',  count: 3 },
-  { name: 'England',  count: 5 },
-  { name: 'Spain',    count: 4 },
-  { name: 'France',   count: 3 },
-  { name: 'Italy',    count: 3 },
-  { name: 'Germany',  count: 3 },
+  { name: 'Morocco',      count: 3 },
+  { name: 'England',      count: 5 },
+  { name: 'Spain',        count: 4 },
+  { name: 'France',       count: 3 },
+  { name: 'Italy',        count: 3 },
+  { name: 'Germany',      count: 3 },
+  { name: 'Saudi Arabia', count: 2 },
+  { name: 'Portugal',     count: 2 },
+  { name: 'Netherlands',  count: 2 },
+  { name: 'USA',          count: 2 },
 ]
 
 export default function DesktopSidebar() {
@@ -68,13 +74,13 @@ export default function DesktopSidebar() {
               href={item.href}
               aria-current={isActive ? 'page' : undefined}
               className={`flex items-center justify-between px-2.5 py-1.5 rounded transition-colors ${
-                isActive ? 'bg-surface-container-high text-primary-container font-semibold' : 'nav-item'
+                isActive ? 'bg-surface-container-high text-primary font-semibold' : 'nav-item'
               }`}
             >
               <div className="flex items-center gap-2.5">
                 <span
                   className="material-symbols-outlined"
-                  style={{ fontSize: 18, fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
+                  style={{ fontSize: 18, fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0", color: isActive ? 'var(--color-primary)' : undefined }}
                 >
                   {item.icon}
                 </span>
@@ -92,7 +98,7 @@ export default function DesktopSidebar() {
                 </span>
               )}
               {item.favBadge && totalFavorites > 0 && (
-                <span className="font-geist text-[11px] font-semibold text-primary-container bg-surface-container px-1.5 py-0.5 rounded">
+                <span className="font-geist text-[11px] font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
                   {totalFavorites}
                 </span>
               )}
@@ -111,25 +117,37 @@ export default function DesktopSidebar() {
           {favoriteLeagues.map(league => (
             <div
               key={league.id}
-              className="flex items-center justify-between px-2.5 py-1.5 rounded font-inter text-[13px] text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors group"
+              className="flex items-center justify-between gap-1.5 px-2 py-1.5 rounded font-inter text-[13px] text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors group"
             >
               <Link
                 href={`/competition/${league.id || league.slug}`}
                 prefetch={false}
-                className="truncate flex-1 hover:text-primary transition-colors"
+                className="flex items-center gap-2 min-w-0 flex-1 hover:text-primary transition-colors"
               >
-                {league.name}
+                <CompetitionLogo
+                  logo={league.logo}
+                  competitionName={league.name}
+                  country={league.country}
+                  countryFlag={league.countryFlag}
+                  providerId={league.id}
+                  slug={league.slug}
+                  size={20}
+                  showBackground={true}
+                />
+                <span className="truncate text-on-surface group-hover:text-primary transition-colors text-[12px] font-medium">
+                  {league.name}
+                </span>
               </Link>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 shrink-0">
                 <span className="font-geist text-[10px] font-bold text-outline">{league.countryCode}</span>
                 <button
                   onClick={() => toggleLeague(league.slug)}
-                  className="text-outline hover:text-primary-container transition-colors"
+                  className="text-outline hover:text-primary transition-colors"
                   aria-label={`${isFavoriteLeague(league.slug) ? 'Remove' : 'Add'} ${league.name} from favorites`}
                 >
                   <span
                     className="material-symbols-outlined"
-                    style={{ fontSize: 14, fontVariationSettings: isFavoriteLeague(league.slug) ? "'FILL' 1" : "'FILL' 0", color: isFavoriteLeague(league.slug) ? 'var(--color-primary-container)' : undefined }}
+                    style={{ fontSize: 14, fontVariationSettings: isFavoriteLeague(league.slug) ? "'FILL' 1" : "'FILL' 0", color: isFavoriteLeague(league.slug) ? 'var(--color-primary)' : undefined }}
                   >
                     star
                   </span>
@@ -151,10 +169,20 @@ export default function DesktopSidebar() {
             <Link
               key={c.name}
               href={`/competitions?country=${c.name.toLowerCase()}`}
-              className="flex items-center justify-between px-2.5 py-1 rounded font-inter text-[13px] text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
+              className="flex items-center justify-between px-2 py-1.5 rounded font-inter text-[13px] text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors group"
             >
-              <span>{t(`countries.${c.name}`, c.name)}</span>
-              <span className="font-geist text-[11px] font-semibold text-outline tabular-nums">{c.count}</span>
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <CountryFlag
+                  country={c.name}
+                  width={22}
+                  height={15}
+                  className="shrink-0"
+                />
+                <span className="truncate text-[12px] font-medium text-on-surface group-hover:text-primary transition-colors">
+                  {t(`countries.${c.name}`, c.name)}
+                </span>
+              </div>
+              <span className="font-geist text-[11px] font-semibold text-outline tabular-nums shrink-0">{c.count}</span>
             </Link>
           ))}
         </div>

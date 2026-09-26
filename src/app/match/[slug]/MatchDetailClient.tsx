@@ -273,6 +273,7 @@ export default function MatchDetailClient({ slug, initialMatch }: MatchDetailCli
                 <CompetitionLogo
                   logo={match.league.logo}
                   name={match.league.name}
+                  country={match.league.country}
                   countryFlag={match.league.countryFlag}
                   providerId={match.league.id}
                   slug={match.league.slug}
@@ -326,7 +327,7 @@ export default function MatchDetailClient({ slug, initialMatch }: MatchDetailCli
                     <div className="flex items-center gap-3">
                       <span className={match.score.home > match.score.away ? 'text-primary' : ''}>{match.score.home}</span>
                       <span className="text-on-surface-variant font-light">:</span>
-                      <span className={match.score.away > match.score.home ? 'text-secondary' : ''}>{match.score.away}</span>
+                      <span className={match.score.away > match.score.home ? 'text-primary' : ''}>{match.score.away}</span>
                     </div>
                   ) : (
                     <span className="text-primary text-headline-lg">{formatDate(match.kickoff, 'HH:mm', activeTimezone, locale)}</span>

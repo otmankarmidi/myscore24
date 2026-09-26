@@ -7,6 +7,8 @@ import DesktopSidebar from '@/components/common/DesktopSidebar'
 import RightSidebar from '@/components/common/RightSidebar'
 import MobileBottomNavigation from '@/components/common/MobileBottomNavigation'
 import FavoriteButton from '@/components/common/FavoriteButton'
+import CompetitionLogo from '@/components/common/CompetitionLogo'
+import CountryFlag from '@/components/common/CountryFlag'
 import { sportsService } from '@/services/sports/sportsService'
 import { useFavorites } from '@/hooks/useFavorites'
 import { useLanguage } from '@/context/LanguageContext'
@@ -98,20 +100,25 @@ export default function CompetitionsClient() {
                   className="bg-surface-container hover:bg-surface-container-high border border-surface-bright p-4 rounded-xl flex items-center justify-between transition-colors group"
                 >
                   <Link href={`/league/${league.slug}`} className="flex items-center gap-3.5 flex-1 min-w-0">
-                    <div className="w-10 h-10 rounded-lg bg-surface-bright/40 flex items-center justify-center p-1.5 shrink-0 border border-surface-bright">
-                      {league.logo ? (
-                        <img src={league.logo} alt={league.name} className="w-full h-full object-contain" />
-                      ) : (
-                        <span className="font-bold text-xs text-primary">{league.shortName}</span>
-                      )}
+                    <div className="w-12 h-12 rounded-xl bg-surface-container-high/60 border border-surface-bright/70 flex items-center justify-center p-1.5 shrink-0">
+                      <CompetitionLogo
+                        logo={league.logo}
+                        competitionName={league.name}
+                        country={league.country}
+                        countryFlag={league.countryFlag}
+                        providerId={league.id}
+                        slug={league.slug}
+                        size={36}
+                      />
                     </div>
                     <div className="min-w-0">
                       <h3 className="font-bold text-body-md text-on-surface group-hover:text-primary transition-colors truncate">
                         {league.name}
                       </h3>
-                      <p className="text-xs text-on-surface-variant truncate">
-                        {league.country} • {league.type}
-                      </p>
+                      <div className="flex items-center gap-1.5 text-xs text-on-surface-variant truncate mt-0.5">
+                        <CountryFlag country={league.country} flagUrl={league.countryFlag} width={16} height={12} />
+                        <span>{league.country} • {league.type}</span>
+                      </div>
                     </div>
                   </Link>
 

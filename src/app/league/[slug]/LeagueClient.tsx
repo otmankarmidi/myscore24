@@ -7,6 +7,7 @@ import RightSidebar from '@/components/common/RightSidebar'
 import MobileBottomNavigation from '@/components/common/MobileBottomNavigation'
 import CompetitionGroup from '@/components/match/CompetitionGroup'
 import CompetitionLogo from '@/components/common/CompetitionLogo'
+import CountryFlag from '@/components/common/CountryFlag'
 import StandingsTable from '@/components/standings/StandingsTable'
 import TopScorersTable from '@/components/league/TopScorersTable'
 import NewsCard from '@/components/news/NewsCard'
@@ -174,6 +175,7 @@ export default function LeagueClient({ slug }: LeagueClientProps) {
                 <CompetitionLogo
                   logo={league.logo}
                   name={league.name}
+                  country={league.country}
                   countryFlag={league.countryFlag}
                   providerId={league.id}
                   slug={league.slug}
@@ -183,14 +185,12 @@ export default function LeagueClient({ slug }: LeagueClientProps) {
 
               <div>
                 <div className="flex items-center gap-2 text-xs font-semibold text-primary uppercase tracking-wider">
-                  {league.countryFlag && (
-                    league.countryFlag.startsWith('http') || league.countryFlag.endsWith('.svg') || league.countryFlag.endsWith('.png') ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={league.countryFlag} alt="" className="w-3.5 h-3.5 object-contain inline-block shrink-0" loading="lazy" />
-                    ) : (
-                      <span>{league.countryFlag}</span>
-                    )
-                  )}
+                  <CountryFlag
+                    country={league.country}
+                    flagUrl={league.countryFlag}
+                    width={18}
+                    height={13}
+                  />
                   <span>{league.country}</span>
                   <span>•</span>
                   <span>Season {league.season}</span>

@@ -92,17 +92,17 @@ export default function FavoritesPage() {
           <AdvertisementPlaceholder variant="banner" />
 
           {/* Section Banner */}
-          <div className="flex items-center justify-between bg-surface-container border border-surface-bright/40 rounded-lg p-4">
+          <div className="flex items-center justify-between bg-surface-container border border-surface-bright/70 rounded-xl p-4 shadow-sm">
             <div>
               <h1 className="text-xl font-bold text-on-surface flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary-container" aria-hidden="true">star</span>
+                <span className="material-symbols-outlined text-primary" aria-hidden="true">star</span>
                 {t('common.yourFavorited', 'Your Favorited Matches & Leagues')}
               </h1>
               <p className="text-xs text-on-surface-variant mt-0.5">
                 {t('common.yourFavoritedDesc', 'Quick access to your pinned matches, clubs, and favorite competitions')}
               </p>
             </div>
-            <span className="bg-primary-container/10 text-primary-container px-3 py-1 rounded-full text-xs font-bold font-geist border border-primary-container/20">
+            <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold font-geist border border-primary/20">
               {totalFavorites} {t('common.saved', 'SAVED')}
             </span>
           </div>

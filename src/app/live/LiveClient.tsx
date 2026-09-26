@@ -79,7 +79,7 @@ export default function LiveClient() {
           <AdvertisementPlaceholder variant="banner" />
 
           {/* Section Banner */}
-          <div className="flex items-center justify-between bg-surface-container border border-surface-bright/40 rounded-lg p-4">
+          <div className="flex items-center justify-between bg-surface-container border border-surface-bright/70 rounded-xl p-4 shadow-sm">
             <div className="flex items-center gap-3">
               <span className="w-3 h-3 rounded-full bg-error animate-pulse" aria-hidden="true" />
               <div>
@@ -92,7 +92,7 @@ export default function LiveClient() {
               </div>
             </div>
             <div className="flex items-center gap-3 text-xs font-mono">
-              <span className="bg-error/10 text-error px-2.5 py-1 rounded-full font-bold border border-error/20">
+              <span className="bg-error-container text-on-error-container px-2.5 py-1 rounded-full font-bold border border-error/20">
                 {matches.length} {t('match.status.live', 'LIVE')}
               </span>
               {lastUpdated && (

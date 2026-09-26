@@ -50,7 +50,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
   const [searchResults, setSearchResults] = useState<{
     players: Array<{ id: string; slug: string; name: string; position: string; number?: number; teamName: string; photo?: string }>
     teams: Array<{ id: string; slug: string; name: string; abbreviation: string; logo?: string; country: string }>
-    leagues: Array<{ id: string; slug: string; name: string; countryFlag?: string }>
+    leagues: Array<{ id: string; slug: string; name: string; logo?: string; country?: string; countryFlag?: string }>
   }>({ players: [], teams: [], leagues: [] })
 
   const searchContainerRef = useRef<HTMLDivElement>(null)
@@ -121,7 +121,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
 
   return (
     <>
-      <header className="sticky top-0 left-0 right-0 z-30 bg-surface/95 backdrop-blur-md border-b border-surface-bright/40">
+      <header className="sticky top-0 left-0 right-0 z-30 bg-surface/95 backdrop-blur-md border-b border-surface-bright/70">
         <div className="max-w-[1480px] mx-auto h-14 px-3 sm:px-4 flex items-center justify-between gap-2 sm:gap-4">
           {/* Logo */}
           <div className="flex items-center gap-2 shrink-0">
@@ -147,7 +147,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
           {/* Search Bar — desktop */}
           <div ref={searchContainerRef} className="hidden md:flex items-center flex-1 max-w-xl mx-4 gap-2 relative">
             <div className="relative flex-1 flex items-center">
-              <span className="material-symbols-outlined absolute left-2.5 rtl:left-auto rtl:right-2.5 text-on-surface-variant pointer-events-none" style={{ fontSize: 16 }}>search</span>
+              <span className="material-symbols-outlined absolute left-2.5 rtl:left-auto rtl:right-2.5 text-outline pointer-events-none" style={{ fontSize: 16 }}>search</span>
               <input
                 value={internalQuery}
                 onChange={(e) => handleInputChange(e.target.value)}
@@ -155,17 +155,17 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
                   if (internalQuery.trim().length >= 2) setIsOpen(true)
                 }}
                 onKeyDown={handleKeyDown}
-                className="w-full bg-surface-container-low border border-surface-bright/30 rounded pl-8 pr-12 rtl:pl-12 rtl:pr-8 py-1.5 font-inter text-[12px] text-on-surface placeholder:text-outline focus:outline-none focus:border-primary transition-colors text-left rtl:text-right"
+                className="w-full bg-surface-container-high/60 border border-surface-bright/70 rounded-lg pl-8 pr-12 rtl:pl-12 rtl:pr-8 py-1.5 font-inter text-[12px] text-on-surface placeholder:text-outline focus:outline-none focus:border-primary transition-colors text-left rtl:text-right"
                 placeholder={t('common.search_placeholder', 'Search teams, players, leagues...')}
                 type="search"
                 aria-label={t('common.search_placeholder', 'Search')}
               />
-              <kbd className="absolute right-2 rtl:right-auto rtl:left-2 px-1.5 py-0.5 rounded bg-surface-container-high font-geist text-[10px] text-on-surface-variant border border-surface-bright/40">/</kbd>
+              <kbd className="absolute right-2 rtl:right-auto rtl:left-2 px-1.5 py-0.5 rounded bg-surface-container-high font-geist text-[10px] text-on-surface-variant border border-surface-bright/50">/</kbd>
             </div>
 
             {/* Instant Search Results Dropdown — Desktop */}
             {isOpen && internalQuery.trim().length >= 2 && (
-              <div className="absolute left-0 right-0 top-full mt-1.5 bg-surface-container border border-surface-bright/60 rounded-xl shadow-2xl z-50 overflow-hidden max-h-[420px] overflow-y-auto">
+              <div className="absolute left-0 right-0 top-full mt-1.5 bg-surface-container border border-surface-bright/70 rounded-xl shadow-2xl z-50 overflow-hidden max-h-[420px] overflow-y-auto">
                 {isSearching && (
                   <div className="p-3 text-center text-xs text-on-surface-variant flex items-center justify-center gap-2">
                     <span className="material-symbols-outlined text-sm text-primary animate-spin">sports_soccer</span>
@@ -277,8 +277,12 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
                           className="flex items-center gap-2.5 p-1.5 rounded-lg hover:bg-surface-container-high transition-colors group"
                         >
                           <CompetitionLogo
+                            logo={lItem.logo}
                             competitionId={lItem.id}
+                            name={lItem.name}
+                            country={lItem.country}
                             countryFlag={lItem.countryFlag}
+                            slug={lItem.slug}
                             size={18}
                             showBackground={false}
                           />
@@ -316,24 +320,24 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
               {/* Language picker */}
               <div className="relative group">
                 <button
-                  className="h-8 px-2.5 rounded bg-surface-container-low hover:bg-surface-container font-geist text-[11px] font-semibold text-on-surface flex items-center gap-1 transition-colors"
+                  className="h-8 px-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container font-geist text-[11px] font-semibold text-on-surface flex items-center gap-1 transition-colors border border-surface-bright/70"
                   aria-label="Select Language"
                 >
                   <span className="uppercase">{label}</span>
-                  <span className="material-symbols-outlined text-on-surface-variant" style={{ fontSize: 14 }}>expand_more</span>
+                  <span className="material-symbols-outlined text-outline" style={{ fontSize: 14 }}>expand_more</span>
                 </button>
-                <div className="absolute right-0 rtl:right-auto rtl:left-0 top-9 hidden group-hover:flex flex-col bg-surface-container border border-surface-bright/40 rounded-lg shadow-lg z-50 min-w-[100px] overflow-hidden py-1">
+                <div className="absolute right-0 rtl:right-auto rtl:left-0 top-9 hidden group-hover:flex flex-col bg-surface-container border border-surface-bright/70 rounded-lg shadow-xl z-50 min-w-[110px] overflow-hidden py-1">
                   {LOCALES.map(l => (
                     <button
                       key={l.code}
                       onClick={() => changeLocale(l.code)}
                       className={`px-3 py-1.5 text-left rtl:text-right font-geist text-[11px] font-semibold hover:bg-surface-container-high transition-colors flex items-center justify-between gap-2 ${
-                        l.code === locale ? 'text-primary-container bg-primary-container/10' : 'text-on-surface'
+                        l.code === locale ? 'text-primary bg-primary/10' : 'text-on-surface'
                       }`}
                     >
                       <span>{l.name}</span>
                       {l.code === locale && (
-                        <span className="material-symbols-outlined text-primary-container" style={{ fontSize: 14 }}>check</span>
+                        <span className="material-symbols-outlined text-primary" style={{ fontSize: 14 }}>check</span>
                       )}
                     </button>
                   ))}
@@ -342,15 +346,15 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
 
               {/* Timezone picker */}
               <div className="relative group">
-                <button className="h-8 px-2 rounded bg-surface-container-low hover:bg-surface-container font-geist text-[11px] font-semibold text-on-surface flex items-center gap-1 transition-colors">
-                  <span className="material-symbols-outlined text-on-surface-variant" style={{ fontSize: 15 }}>schedule</span>
+                <button className="h-8 px-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container font-geist text-[11px] font-semibold text-on-surface flex items-center gap-1 transition-colors border border-surface-bright/70">
+                  <span className="material-symbols-outlined text-outline" style={{ fontSize: 15 }}>schedule</span>
                   <span className="max-w-[70px] md:max-w-[100px] truncate">
                     {selectedTimezone === 'auto' ? t('common.timezoneAuto', 'Auto') : selectedTimezone.split('/')[1] || selectedTimezone}
                   </span>
-                  <span className="material-symbols-outlined text-on-surface-variant" style={{ fontSize: 14 }}>expand_more</span>
+                  <span className="material-symbols-outlined text-outline" style={{ fontSize: 14 }}>expand_more</span>
                 </button>
-                <div className="absolute right-0 rtl:right-auto rtl:left-0 top-9 hidden group-hover:flex flex-col bg-surface-container border border-surface-bright/40 rounded-xl shadow-xl z-50 min-w-[200px] overflow-hidden p-1 space-y-0.5">
-                  <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-outline border-b border-surface-bright/40 text-left rtl:text-right">
+                <div className="absolute right-0 rtl:right-auto rtl:left-0 top-9 hidden group-hover:flex flex-col bg-surface-container border border-surface-bright/70 rounded-xl shadow-xl z-50 min-w-[200px] overflow-hidden p-1 space-y-0.5">
+                  <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-outline border-b border-surface-bright/70 text-left rtl:text-right">
                     {t('common.displayTimezone', 'Display Timezone')}
                   </div>
                   {TIMEZONE_OPTIONS.map(tz => (
@@ -358,12 +362,12 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
                       key={tz.value}
                       onClick={() => setTimezonePreference(tz.value)}
                       className={`px-3 py-1.5 text-left rtl:text-right font-geist text-[11px] font-semibold rounded hover:bg-surface-container-high transition-colors flex items-center justify-between ${
-                        tz.value === selectedTimezone ? 'text-primary-container bg-primary-container/10' : 'text-on-surface'
+                        tz.value === selectedTimezone ? 'text-primary bg-primary/10' : 'text-on-surface'
                       }`}
                     >
                       <span className="truncate">{tz.value === 'auto' ? `Auto (${t('common.timezoneAuto', 'Local')})` : tz.label}</span>
                       {tz.value === selectedTimezone && (
-                        <span className="material-symbols-outlined text-primary-container" style={{ fontSize: 14 }}>check</span>
+                        <span className="material-symbols-outlined text-primary" style={{ fontSize: 14 }}>check</span>
                       )}
                     </button>
                   ))}
@@ -373,7 +377,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
               {/* Theme toggle */}
               <button
                 onClick={toggle}
-                className="w-8 h-8 rounded flex items-center justify-center bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors"
+                className="w-8 h-8 rounded-lg flex items-center justify-center bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors border border-surface-bright/70"
                 title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
                 aria-label="Toggle theme"
               >
@@ -386,7 +390,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
             {/* Mobile Search Button */}
             <button
               onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-              className="md:hidden w-9 h-9 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors min-w-[36px] min-h-[36px]"
+              className="md:hidden w-9 h-9 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors border border-surface-bright/70 min-w-[36px] min-h-[36px]"
               title="Search"
               aria-label="Toggle mobile search"
             >
@@ -398,7 +402,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
             {/* Notifications Button */}
             <button
               onClick={() => setIsNotificationModalOpen(true)}
-              className="w-9 h-9 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-on-surface relative transition-colors min-w-[36px] min-h-[36px]"
+              className="w-9 h-9 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-on-surface relative transition-colors border border-surface-bright/70 min-w-[36px] min-h-[36px]"
               title={t('common.notifications', 'Match Alerts')}
               aria-label={t('common.notifications', 'Match Alerts')}
             >
@@ -409,7 +413,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
             {/* Mobile Menu Button (opens Settings/More Drawer) */}
             <button
               onClick={() => setIsDrawerOpen(true)}
-              className="md:hidden w-9 h-9 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors min-w-[36px] min-h-[36px]"
+              className="md:hidden w-9 h-9 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors border border-surface-bright/70 min-w-[36px] min-h-[36px]"
               title={t('common.more', 'Menu')}
               aria-label="Open navigation drawer"
             >
@@ -548,8 +552,12 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
                           className="flex items-center gap-2.5 p-1.5 rounded-lg hover:bg-surface-container-high transition-colors group"
                         >
                           <CompetitionLogo
+                            logo={lItem.logo}
                             competitionId={lItem.id}
+                            name={lItem.name}
+                            country={lItem.country}
                             countryFlag={lItem.countryFlag}
+                            slug={lItem.slug}
                             size={18}
                             showBackground={false}
                           />

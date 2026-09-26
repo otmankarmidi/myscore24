@@ -36,36 +36,47 @@ export default function MatchFilters({
   const offText = t('common.off', 'OFF')
 
   return (
-    <div className="bg-surface-container-low rounded px-2.5 py-1.5 flex flex-wrap items-center justify-between gap-2 shadow-sm">
+    <div className="bg-surface-container-low rounded-lg border border-surface-bright/70 px-2.5 py-1.5 flex flex-wrap items-center justify-between gap-2 shadow-xs">
       {/* Status tabs */}
-      <div className="flex items-center gap-0.5 bg-surface-container-lowest p-0.5 rounded">
-        {tabs.map(tab => (
-          <button
-            key={tab.key}
-            onClick={() => onFilterChange(tab.key)}
-            className={`filter-tab ${activeFilter === tab.key ? 'filter-tab-active' : ''}`}
-            aria-pressed={activeFilter === tab.key}
-          >
-            {tab.key === 'live' && (
-              <span className="inline-flex relative mr-1.5 rtl:mr-0 rtl:ml-1.5">
-                <span className="live-pulse-ring absolute inline-flex h-2 w-2 rounded-full bg-error opacity-75" style={{ animation: 'ping 1.5s cubic-bezier(0,0,0.2,1) infinite' }} />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-error" />
+      <div className="flex items-center gap-0.5 bg-surface-container-lowest p-0.5 rounded-md">
+        {tabs.map((tab) => {
+          const isActive = activeFilter === tab.key
+          const isLive = tab.key === 'live'
+
+          const activeClasses = isLive
+            ? 'bg-error-container text-on-error-container font-bold shadow-xs'
+            : 'filter-tab-active shadow-xs'
+
+          return (
+            <button
+              key={tab.key}
+              onClick={() => onFilterChange(tab.key)}
+              className={`filter-tab ${isActive ? activeClasses : ''}`}
+              aria-pressed={isActive}
+            >
+              {isLive && (
+                <span className="inline-flex relative mr-1.5 rtl:mr-0 rtl:ml-1.5">
+                  <span
+                    className="live-pulse-ring absolute inline-flex h-2 w-2 rounded-full bg-error opacity-75"
+                    style={{ animation: 'ping 1.5s cubic-bezier(0,0,0.2,1) infinite' }}
+                  />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-error" />
+                </span>
+              )}
+              {tab.label}{' '}
+              <span className="font-geist text-[10px] font-semibold tabular-nums opacity-75">
+                ({counts[tab.key]})
               </span>
-            )}
-            {tab.label}
-            {' '}
-            <span className="font-geist text-[10px] font-semibold tabular-nums opacity-70">
-              ({counts[tab.key]})
-            </span>
-          </button>
-        ))}
+            </button>
+          )
+        })}
       </div>
 
       {/* Quick toggles */}
       <div className="flex items-center gap-2">
         <button
           onClick={onToggleOdds}
-          className="h-6 px-2 rounded bg-surface-container hover:bg-surface-container-high font-geist text-[10px] font-bold uppercase text-outline flex items-center gap-1 transition-colors"
+          className="h-6 px-2 rounded-md bg-surface-container-high hover:bg-surface-container font-geist text-[10px] font-bold uppercase text-outline hover:text-on-surface flex items-center gap-1 transition-colors border border-surface-bright/40"
           aria-pressed={oddsOn}
         >
           <span className="material-symbols-outlined" style={{ fontSize: 13 }}>percent</span>
@@ -73,13 +84,13 @@ export default function MatchFilters({
         </button>
         <button
           onClick={onToggleSound}
-          className={`h-6 px-2 rounded hover:bg-surface-container-high font-geist text-[10px] font-bold uppercase flex items-center gap-1 transition-colors ${soundOn ? 'bg-surface-container text-primary-container' : 'bg-surface-container text-outline'}`}
+          className={`h-6 px-2 rounded-md hover:bg-surface-container font-geist text-[10px] font-bold uppercase flex items-center gap-1 transition-colors border border-surface-bright/40 ${soundOn ? 'bg-surface-container-high text-primary' : 'bg-surface-container-high text-outline hover:text-on-surface'}`}
           aria-pressed={soundOn}
         >
           <span className="material-symbols-outlined" style={{ fontSize: 13 }}>
             {soundOn ? 'volume_up' : 'volume_off'}
           </span>
-          <span>{t('common.sound', 'Sound')}: <strong className={soundOn ? 'text-on-surface' : 'text-outline'}>{soundOn ? onText : offText}</strong></span>
+          <span>{t('common.sound', 'Sound')}: <strong className={soundOn ? 'text-primary' : 'text-outline'}>{soundOn ? onText : offText}</strong></span>
         </button>
       </div>
     </div>

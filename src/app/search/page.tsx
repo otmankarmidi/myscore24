@@ -39,6 +39,7 @@ interface SearchLeague {
   slug: string
   name: string
   logo?: string
+  country?: string
   countryFlag?: string
 }
 
@@ -204,8 +205,10 @@ function SearchContent() {
                 <CompetitionLogo
                   logo={league.logo}
                   name={league.name}
+                  country={league.country}
                   countryFlag={league.countryFlag}
                   providerId={league.id}
+                  slug={league.slug}
                   size={24}
                 />
                 <span className="text-body-sm font-bold text-on-surface truncate group-hover:text-primary transition-colors">

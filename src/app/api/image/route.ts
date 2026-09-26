@@ -24,6 +24,7 @@ const ALLOWED_HOSTS = [
   'v3.football.api-sports.io',
   'upload.wikimedia.org',
   'commons.wikimedia.org',
+  'flagcdn.com',
   'myscore24.com',
   'www.myscore24.com',
   'localhost',
@@ -33,7 +34,8 @@ function isHostAllowed(hostname: string): boolean {
   return (
     ALLOWED_HOSTS.includes(hostname.toLowerCase()) ||
     hostname.endsWith('.api-sports.io') ||
-    hostname.endsWith('.wikimedia.org')
+    hostname.endsWith('.wikimedia.org') ||
+    hostname.endsWith('.flagcdn.com')
   )
 }
 

@@ -228,12 +228,12 @@ export default function TrendingMatches({
                 href={`/match/${matchCanonicalId}`}
                 prefetch={false}
                 title={`${homeName} vs ${awayName} (${match.league?.name || 'Match'})`}
-                className={`shrink-0 flex flex-col justify-center px-2 py-1 rounded-lg border bg-surface-container-low hover:bg-surface-container transition-all cursor-pointer w-[145px] sm:w-[165px] md:w-[185px] h-[44px] sm:h-[46px] select-none group ${
+                className={`shrink-0 flex flex-col justify-center px-2 py-1 rounded-lg border bg-surface-container-low hover:bg-surface-container-high transition-all cursor-pointer w-[145px] sm:w-[165px] md:w-[185px] h-[44px] sm:h-[46px] select-none group ${
                   override?.flashing
                     ? 'border-primary shadow-[0_0_12px_rgba(204,255,128,0.45)] bg-primary/10'
                     : isLive
                     ? 'border-error/40 hover:border-error/80'
-                    : 'border-surface-bright/50 hover:border-primary/50'
+                    : 'border-surface-bright/70 hover:border-primary/50'
                 }`}
               >
                 {/* Row 1: Competition Logo + Status / Time */}
@@ -242,7 +242,10 @@ export default function TrendingMatches({
                     <CompetitionLogo
                       logo={match.league?.logo}
                       name={match.league?.name}
+                      country={match.league?.country}
                       countryFlag={match.league?.countryFlag}
+                      providerId={match.league?.id}
+                      slug={match.league?.slug}
                       size={12}
                       className="shrink-0"
                     />
@@ -292,7 +295,7 @@ export default function TrendingMatches({
                     {homeScore !== null && awayScore !== null && !isScheduled ? (
                       <span
                         className={`text-xs font-black tabular-nums ${
-                          isLive ? 'text-primary' : 'text-on-surface'
+                          isLive ? 'text-error' : 'text-on-surface'
                         }`}
                       >
                         {homeScore} - {awayScore}

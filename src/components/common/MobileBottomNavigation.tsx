@@ -17,7 +17,7 @@ export default function MobileBottomNavigation() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-30 md:hidden h-14 bg-surface/95 backdrop-blur-md border-t border-surface-bright/40 flex items-stretch pb-[env(safe-area-inset-bottom)]"
+      className="fixed bottom-0 left-0 right-0 z-30 md:hidden h-14 bg-surface-container/95 backdrop-blur-md border-t border-surface-bright/70 flex items-stretch pb-[env(safe-area-inset-bottom)] shadow-lg"
       aria-label="Mobile navigation"
     >
       {tabs.map(tab => {
@@ -28,7 +28,7 @@ export default function MobileBottomNavigation() {
             href={tab.href}
             aria-current={isActive ? 'page' : undefined}
             className={`flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors min-h-[44px] touch-manipulation ${
-              isActive ? 'text-primary-container' : 'text-on-surface-variant'
+              isActive ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'
             }`}
           >
             <div className="relative">
@@ -39,10 +39,10 @@ export default function MobileBottomNavigation() {
                 {tab.icon}
               </span>
               {tab.live && (
-                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-error border-2 border-surface" />
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-error border-2 border-surface animate-pulse" />
               )}
             </div>
-            <span className={`font-geist text-[9px] sm:text-[10px] font-${isActive ? '700' : '500'} tracking-tight truncate max-w-full px-0.5`}>
+            <span className={`font-geist text-[9px] sm:text-[10px] ${isActive ? 'font-bold' : 'font-medium'} tracking-tight truncate max-w-full px-0.5`}>
               {tab.label}
             </span>
           </Link>

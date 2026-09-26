@@ -30,9 +30,9 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
   const safeMatches = (matches || []).filter(Boolean)
 
   return (
-    <div className="competition-group-container bg-surface-container-low rounded overflow-hidden shadow-sm animate-fade-in">
+    <div className="competition-group-container bg-surface-container-low rounded-lg border border-surface-bright/70 overflow-hidden shadow-xs animate-fade-in">
       {/* Competition header */}
-      <div className="h-9 bg-surface-container px-3 flex items-center justify-between text-on-surface-variant">
+      <div className="competition-header h-9 bg-surface-container px-3 flex items-center justify-between text-on-surface-variant border-b border-surface-bright/50">
         <div className="flex items-center gap-2 min-w-0">
           {/* Clickable Competition Logo with fallback chain */}
           <Link
@@ -44,6 +44,7 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
             <CompetitionLogo
               logo={league.logo}
               name={safeName}
+              country={league.country}
               countryFlag={league.countryFlag}
               providerId={league.id}
               slug={league.slug}
@@ -61,7 +62,7 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
           </Link>
 
           {league.currentRound && (
-            <span className="font-geist text-[10px] text-outline font-semibold shrink-0">
+            <span className="font-geist text-[10px] text-on-surface-variant font-medium shrink-0">
               • {league.currentRound}
             </span>
           )}
@@ -73,7 +74,7 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
               if (league.slug) toggleLeague(league.slug)
               if (league.id && league.id !== league.slug) toggleLeague(league.id)
             }}
-            className="text-outline hover:text-primary-container transition-colors"
+            className="text-outline hover:text-primary transition-colors"
             title={isFavorited ? t('common.unpinLeague', 'Unpin League') : t('common.pinLeague', 'Pin League')}
             aria-label={`${isFavorited ? 'Unpin' : 'Pin'} ${safeName}`}
           >
@@ -82,7 +83,7 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
               style={{
                 fontSize: 16,
                 fontVariationSettings: isFavorited ? "'FILL' 1" : "'FILL' 0",
-                color: isFavorited ? 'var(--color-primary-container)' : undefined,
+                color: isFavorited ? 'var(--color-primary)' : undefined,
               }}
             >
               star
@@ -92,7 +93,7 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
           <Link
             href={competitionHref}
             prefetch={false}
-            className="font-geist text-[10px] uppercase font-bold text-primary-container hover:underline flex items-center gap-0.5"
+            className="font-geist text-[10px] uppercase font-bold text-primary hover:underline flex items-center gap-0.5"
             aria-label={`${t('common.viewStandings', 'View')} ${safeName} ${t('common.standings', 'standings')}`}
           >
             <span>{t('common.standings', 'Standings')}</span>
@@ -104,7 +105,7 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
       </div>
 
       {/* Match rows */}
-      <div className="flex flex-col divide-y divide-surface-bright/20">
+      <div className="flex flex-col divide-y divide-surface-bright/30">
         {safeMatches.map((match) => (
           <MatchRow
             key={match.id}

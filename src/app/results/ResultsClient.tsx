@@ -77,17 +77,17 @@ export default function ResultsClient() {
           <AdvertisementPlaceholder variant="banner" />
 
           {/* Section Banner */}
-          <div className="flex items-center justify-between bg-surface-container border border-surface-bright/40 rounded-lg p-4">
+          <div className="flex items-center justify-between bg-surface-container border border-surface-bright/70 rounded-xl p-4 shadow-sm">
             <div>
               <h1 className="text-xl font-bold text-on-surface flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary-container" aria-hidden="true">event_available</span>
+                <span className="material-symbols-outlined text-primary" aria-hidden="true">event_available</span>
                 Football Results
               </h1>
               <p className="text-xs text-on-surface-variant mt-0.5">
                 Full-time scores, final match statistics, and historical summaries
               </p>
             </div>
-            <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold font-geist border border-emerald-500/20">
+            <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3 py-1 rounded-full text-xs font-bold font-geist border border-emerald-500/20">
               {matches.length} {t('nav.results', 'RESULTS')}
             </span>
           </div>

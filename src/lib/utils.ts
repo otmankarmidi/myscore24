@@ -136,13 +136,13 @@ export function formatRelativeDate(dateString: string, locale = 'en'): string {
 export function getStatusBgClass(status: MatchStatus): string {
   switch (status) {
     case 'live':       return 'bg-error-container text-on-error-container'
-    case 'half_time':  return 'bg-surface-bright text-primary'
-    case 'full_time':  return 'bg-surface-container text-on-surface-variant'
-    case 'extra_time': return 'bg-surface-bright text-primary-container'
-    case 'penalties':  return 'bg-surface-bright text-primary-container'
-    case 'postponed':  return 'bg-surface-container text-outline'
-    case 'cancelled':  return 'bg-surface-container text-outline'
-    default:           return 'bg-surface-container text-on-surface-variant'
+    case 'half_time':  return 'bg-surface-container-high text-primary font-bold'
+    case 'full_time':  return 'bg-surface-container-high text-on-surface-variant font-medium'
+    case 'extra_time': return 'bg-error-container text-on-error-container font-bold'
+    case 'penalties':  return 'bg-error-container text-on-error-container font-bold'
+    case 'postponed':  return 'bg-surface-container-high text-outline'
+    case 'cancelled':  return 'bg-surface-container-high text-outline'
+    default:           return 'bg-surface-container-high text-on-surface-variant'
   }
 }
 

@@ -113,7 +113,7 @@ export default function MatchBroadcastAndInfo({ match, standings }: MatchBroadca
   return (
     <div className="space-y-4 font-inter text-on-surface select-none">
       {/* ── MATCH INFO ("معلومات المباراة") ── */}
-      <div className="bg-[#121824] rounded-2xl border border-surface-bright/70 p-4 md:p-5 shadow-xl space-y-4">
+      <div className="bg-surface-container rounded-2xl border border-surface-bright/70 p-4 md:p-5 shadow-xl space-y-4">
         {/* Row 1: Date & Time */}
         <div className="flex items-center justify-between gap-3 pb-3 border-b border-surface-bright/40">
           <div className="flex items-center gap-2 font-mono font-bold text-sm md:text-base text-on-surface">
@@ -148,6 +148,10 @@ export default function MatchBroadcastAndInfo({ match, standings }: MatchBroadca
               <CompetitionLogo
                 logo={match.league?.logo}
                 name={match.league?.name || 'League'}
+                country={match.league?.country}
+                countryFlag={match.league?.countryFlag}
+                providerId={match.league?.id}
+                slug={match.league?.slug}
                 size={18}
               />
             </div>

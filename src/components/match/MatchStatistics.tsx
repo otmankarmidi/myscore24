@@ -25,22 +25,22 @@ function StatRow({ label, home, away, isPercent }: StatRowProps) {
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between font-geist text-[11px]">
-        <span className={`font-bold tabular-nums ${homeLeads ? 'text-primary-container' : 'text-on-surface-variant'}`}>
+        <span className={`font-bold tabular-nums ${homeLeads ? 'text-primary' : 'text-on-surface-variant'}`}>
           {home}{isPercent ? '%' : ''}
         </span>
         <span className="text-outline text-[10px] uppercase tracking-wider font-semibold">{label}</span>
-        <span className={`font-bold tabular-nums ${!homeLeads ? 'text-primary-container' : 'text-on-surface-variant'}`}>
+        <span className={`font-bold tabular-nums ${!homeLeads ? 'text-primary' : 'text-on-surface-variant'}`}>
           {away}{isPercent ? '%' : ''}
         </span>
       </div>
       <div className="flex h-1 rounded-full overflow-hidden gap-0.5">
         <div
           className="stat-bar-home rounded-full transition-all duration-700"
-          style={{ width: `${homeWidth}%`, backgroundColor: homeLeads ? 'var(--color-primary-container)' : 'var(--color-surface-bright)' }}
+          style={{ width: `${homeWidth}%`, backgroundColor: homeLeads ? 'var(--color-primary)' : 'var(--color-surface-bright)' }}
         />
         <div
           className="stat-bar-away rounded-full transition-all duration-700"
-          style={{ width: `${awayWidth}%`, backgroundColor: !homeLeads ? 'var(--color-primary-container)' : 'var(--color-surface-bright)' }}
+          style={{ width: `${awayWidth}%`, backgroundColor: !homeLeads ? 'var(--color-primary)' : 'var(--color-surface-bright)' }}
         />
       </div>
     </div>

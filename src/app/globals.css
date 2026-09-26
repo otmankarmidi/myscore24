@@ -488,27 +488,108 @@
 /* =====================
    LIGHT MODE
    ===================== */
-.light {
-  --color-surface:                   #f5f7fa;
-  --color-surface-dim:               #e8ecf2;
-  --color-surface-bright:            #ffffff;
-  --color-surface-container-lowest:  #eef2f7;
-  --color-surface-container-low:     #f0f4f9;
-  --color-surface-container:         #ffffff;
-  --color-surface-container-high:    #e8ecf3;
-  --color-surface-container-highest: #dde3ed;
+.light,
+html.light {
+  --color-surface:                   #F4F6F8;
+  --color-surface-dim:               #E9EDF2;
+  --color-surface-bright:            #E4E7EC;
+  --color-surface-container-lowest:  #EBEEF2;
+  --color-surface-container-low:     #FFFFFF;
+  --color-surface-container:         #FFFFFF;
+  --color-surface-container-high:    #F3F5F7;
+  --color-surface-container-highest: #E4E7EC;
   --color-on-surface:                #111827;
-  --color-on-surface-variant:        #4b5563;
-  --color-outline:                   #9ca3af;
-  --color-outline-variant:           #d1d5db;
-  --color-surface-bright:            #ffffff;
+  --color-on-surface-variant:        #667085;
+  --color-outline:                   #98A2B3;
+  --color-outline-variant:           #E4E7EC;
+  --color-inverse-surface:           #111827;
+  --color-inverse-on-surface:        #F4F6F8;
+
+  /* Primary (MyScore24 Green Accent for Light Mode) */
+  --color-primary:                   #2e6b00;
+  --color-on-primary:                #FFFFFF;
   --color-primary-container:         #84cc16;
-  --color-on-primary-container:      #1a2e00;
-  --color-error:                     #ef4444;
-  --color-error-container:           #dc2626;
-  --color-on-error-container:        #ffffff;
-  --color-background:                #f5f7fa;
+  --color-on-primary-container:      #122100;
+  --color-inverse-primary:           #ccff80;
+  --color-primary-fixed:             #84cc16;
+  --color-primary-fixed-dim:         #65a30d;
+  --color-on-primary-fixed:          #122100;
+  --color-on-primary-fixed-variant:  #213600;
+
+  /* Secondary */
+  --color-secondary:                 #16a34a;
+  --color-on-secondary:              #FFFFFF;
+  --color-secondary-container:       #dcfce7;
+  --color-on-secondary-container:    #14532d;
+  --color-secondary-fixed:           #bbf7d0;
+  --color-secondary-fixed-dim:       #86efac;
+  --color-on-secondary-fixed:        #052e16;
+  --color-on-secondary-fixed-variant:#166534;
+
+  /* Tertiary */
+  --color-tertiary:                  #be123c;
+  --color-on-tertiary:               #FFFFFF;
+  --color-tertiary-container:        #ffe4e6;
+  --color-on-tertiary-container:     #9f1239;
+
+  /* Error (Live Red Accent) */
+  --color-error:                     #dc2626;
+  --color-on-error:                  #FFFFFF;
+  --color-error-container:           #fee2e2;
+  --color-on-error-container:        #b91c1c;
+
+  /* Background */
+  --color-background:                #F4F6F8;
   --color-on-background:             #111827;
+}
+
+/* Light mode component refinements */
+.light .competition-group-container,
+html.light .competition-group-container {
+  background-color: #ffffff;
+  border: 1px solid #E4E7EC;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.05);
+}
+
+.light .competition-group-container .competition-header,
+html.light .competition-group-container .competition-header,
+.light .competition-header,
+html.light .competition-header {
+  background-color: #ffffff;
+  border-bottom: 1px solid #EEF0F3;
+}
+
+.light .match-row,
+html.light .match-row {
+  background-color: #ffffff;
+}
+
+.light .match-row:hover,
+html.light .match-row:hover {
+  background-color: #F3F5F7;
+}
+
+.light .competition-group-container .divide-y > * + *,
+html.light .competition-group-container .divide-y > * + * {
+  border-color: #EEF0F3;
+}
+
+.light .filter-tab,
+html.light .filter-tab {
+  color: #667085;
+}
+
+.light .filter-tab:hover,
+html.light .filter-tab:hover {
+  color: #111827;
+  background-color: #F3F5F7;
+}
+
+.light .filter-tab-active,
+html.light .filter-tab-active {
+  background-color: #ffffff;
+  color: #111827;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.08);
 }
 
 /* =====================

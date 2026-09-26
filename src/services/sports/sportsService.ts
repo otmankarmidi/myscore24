@@ -267,10 +267,17 @@ export const sportsService = {
     }
   },
   async getLeagues(): Promise<League[]> {
+    try {
+      const res = await fetch('/api/competitions')
+      if (res.ok) {
+        const data = await res.json()
+        if (Array.isArray(data) && data.length > 0) return data
+      }
+    } catch {}
     return (await provider.getLeagues()).map(normalizeLeague)
   },
   async getTopLeagues(): Promise<League[]> {
-    return (await provider.getLeagues()).map(normalizeLeague)
+    return this.getLeagues()
   },
   async getLeagueBySlug(slug: string): Promise<League | null> {
     const full = await this.getLeagueFullData(slug)
