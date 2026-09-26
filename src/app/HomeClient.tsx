@@ -12,6 +12,7 @@ import SkeletonMatchRow from '@/components/common/SkeletonLoader'
 import EmptyState from '@/components/common/EmptyState'
 import ErrorState from '@/components/common/ErrorState'
 import AdvertisementPlaceholder from '@/components/common/AdvertisementPlaceholder'
+import TrendingMatches from '@/components/common/TrendingMatches'
 import { sportsService } from '@/services/sports/sportsService'
 import { useLanguage } from '@/context/LanguageContext'
 import { Match } from '@/types/match'
@@ -19,7 +20,11 @@ import { League } from '@/types/league'
 import { isApprovedCompetition, getCompetitionPriority } from '@/config/competitions'
 import { isToday } from '@/lib/utils'
 
-export default function HomeClient() {
+interface HomeClientProps {
+  initialTrendingMatches?: Match[]
+}
+
+export default function HomeClient({ initialTrendingMatches = [] }: HomeClientProps) {
   const { t } = useLanguage()
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
   const [activeFilter, setActiveFilter] = useState<'all' | 'live' | 'upcoming' | 'finished'>('all')
@@ -197,6 +202,13 @@ export default function HomeClient() {
     <div className="min-h-screen flex flex-col bg-surface text-on-surface pb-20 md:pb-6">
       {/* Top Application Header */}
       <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+
+      {/* Horizontal Trending Matches Ticker Bar */}
+      <TrendingMatches
+        matches={matches}
+        initialMatches={initialTrendingMatches}
+        onSelectToday={() => setSelectedDate(new Date())}
+      />
 
       {/* Main Page Layout Container */}
       <div className="flex-1 max-w-[1440px] w-full mx-auto px-2 md:px-4 py-4 flex gap-4">

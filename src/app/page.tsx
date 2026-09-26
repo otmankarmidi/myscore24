@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import HomeClient from './HomeClient'
+import { getInitialTrendingMatches } from '@/lib/football/trending'
 
 export const metadata: Metadata = {
   title: 'Football Live Scores, Results & Fixtures | MyScore24',
@@ -59,14 +60,16 @@ const homeStructuredData = {
   ],
 }
 
-export default function Page() {
+export default async function Page() {
+  const initialTrendingMatches = await getInitialTrendingMatches()
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(homeStructuredData) }}
       />
-      <HomeClient />
+      <HomeClient initialTrendingMatches={initialTrendingMatches} />
     </>
   )
 }
