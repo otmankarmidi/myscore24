@@ -22,6 +22,9 @@ function mapPrismaToNewsArticle(art: any): NewsArticle {
     updatedAt: art.updatedAt ? new Date(art.updatedAt).toISOString() : undefined,
     category: art.category?.name || 'General',
     tags: art.tags ? art.tags.map((t: any) => t.tag?.name || t.name) : [],
+    keywords: Array.isArray(art.keywords)
+      ? art.keywords.map((k: any) => String(k).trim()).filter(Boolean)
+      : [],
     imageUrl: art.featuredImage || undefined,
     image: art.featuredImage || undefined,
     readTimeMinutes: estimateReadTime(art.content || ''),

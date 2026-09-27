@@ -17,6 +17,7 @@ export interface NewsArticle {
   updatedAt?: string
   category: string
   tags: string[]
+  keywords?: string[]
   image?: string
   imageUrl?: string
   imageAlt?: string

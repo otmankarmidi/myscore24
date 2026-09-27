@@ -26,10 +26,14 @@ export async function generateMetadata({ params }: NewsArticlePageProps): Promis
   const description = metaDescription || article.excerpt
   const canonical = `https://myscore24.com/news/${slug}`
   const imageUrl = article.imageUrl || article.image || '/og-image.png'
+  const keywordsList = Array.isArray(article.keywords)
+    ? article.keywords.map((k) => String(k).trim()).filter(Boolean)
+    : []
 
   return {
     title,
     description,
+    keywords: keywordsList.length > 0 ? [keywordsList.join(', ')] : null,
     alternates: {
       canonical,
     },
@@ -76,7 +80,11 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
       : article.author?.name || 'MyScore24 Desk'
   const imageUrl = article.imageUrl || article.image || 'https://myscore24.com/og-image.png'
 
-  const newsArticleSchema = {
+  const keywordsList = Array.isArray(article.keywords)
+    ? article.keywords.map((k) => String(k).trim()).filter(Boolean)
+    : []
+
+  const newsArticleSchema: Record<string, any> = {
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',
     headline: article.title,
@@ -84,6 +92,7 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
     image: [imageUrl],
     datePublished: article.publishedAt,
     dateModified: article.updatedAt || article.publishedAt,
+    ...(keywordsList.length > 0 ? { keywords: keywordsList } : {}),
     author: [
       {
         '@type': 'Person',
