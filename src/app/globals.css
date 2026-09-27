@@ -90,8 +90,8 @@
   --color-on-background:             #dce2f6;
 
   /* === TYPOGRAPHY === */
-  --font-geist:  var(--font-geist, 'Geist', system-ui, sans-serif);
-  --font-inter:  var(--font-inter, 'Inter', system-ui, sans-serif);
+  --font-geist:  'Geist', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-inter:  'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   --font-size-headline-xl:         32px;
   --line-height-headline-xl:       40px;

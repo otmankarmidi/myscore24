@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { Geist, Inter } from 'next/font/google'
 import './globals.css'
 import { LiveAlertManager } from '@/components/common/LiveAlertManager'
 import { TimezoneProvider } from '@/context/TimezoneContext'
@@ -7,20 +6,6 @@ import { LanguageProvider } from '@/context/LanguageContext'
 import GoogleAnalytics from '@/components/analytics/GoogleAnalytics'
 import CookieConsentBanner from '@/components/common/CookieConsentBanner'
 import Footer from '@/components/common/Footer'
-
-const geist = Geist({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  display: 'swap',
-  variable: '--font-geist',
-})
-
-const inter = Inter({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  display: 'swap',
-  variable: '--font-inter',
-})
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://myscore24.com'),
@@ -89,8 +74,14 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`dark scroll-smooth ${geist.variable} ${inter.variable}`}>
+    <html lang="en" className="dark scroll-smooth">
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
         <link
           rel="preload"
           href="/fonts/material-symbols.woff2"
