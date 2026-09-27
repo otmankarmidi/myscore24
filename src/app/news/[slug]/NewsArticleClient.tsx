@@ -11,6 +11,7 @@ import NewsCard from '@/components/news/NewsCard'
 import { formatDate } from '@/lib/utils'
 import { NewsArticle } from '@/types/news'
 import { trackArticleOpen } from '@/lib/analytics'
+import { normalizeArticleImageUrl } from '@/lib/newsImage'
 
 import ArticleBodyRenderer from '@/components/news/ArticleBodyRenderer'
 
@@ -56,7 +57,8 @@ export default function NewsArticleClient({
     typeof article.author === 'string'
       ? 'Senior Football Analyst'
       : article.author?.role || 'Sports Desk'
-  const imageUrl = article.imageUrl || article.image
+  const normalizedUrl = normalizeArticleImageUrl(article.imageUrl || article.image)
+  const imageUrl = !imageError && normalizedUrl ? normalizedUrl : null
 
   const currentUrl = typeof window !== 'undefined' ? window.location.href : `https://www.myscore24.com/news/${article.slug}`
 
@@ -178,15 +180,15 @@ export default function NewsArticleClient({
 
           {/* Featured Image */}
           <div className="relative w-full aspect-[16/9] rounded-xl overflow-hidden bg-surface-container-high border border-surface-bright flex items-center justify-center">
-            {imageUrl && !imageError && imageUrl !== '/og-image.png' ? (
+            {imageUrl ? (
               <Image
                 src={imageUrl}
                 alt={article.title}
                 fill
-                unoptimized
+                priority
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
                 onError={() => setImageError(true)}
                 className="object-cover"
-                priority
               />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-surface-container-high via-surface-bright to-surface-container-lowest flex items-center justify-center text-on-surface-variant">

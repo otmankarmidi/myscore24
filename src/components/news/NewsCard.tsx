@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { NewsArticle } from '@/types/news'
 import { formatDate } from '@/lib/utils'
+import { normalizeArticleImageUrl } from '@/lib/newsImage'
 
 interface NewsCardProps {
   article: NewsArticle
@@ -17,10 +18,9 @@ function getAuthorName(author: NewsArticle['author']): string {
 }
 
 export default function NewsCard({ article, variant = 'standard' }: NewsCardProps) {
-  const rawImageUrl = article.imageUrl || article.image
-  const isValidUrl = rawImageUrl && rawImageUrl !== '/og-image.png' && rawImageUrl.trim().length > 0
+  const normalizedUrl = normalizeArticleImageUrl(article.imageUrl || article.image)
   const [imageError, setImageError] = useState(false)
-  const imageUrl = !imageError && isValidUrl ? rawImageUrl : null
+  const imageUrl = !imageError && normalizedUrl ? normalizedUrl : null
 
   const authorName = getAuthorName(article.author)
 
@@ -35,7 +35,8 @@ export default function NewsCard({ article, variant = 'standard' }: NewsCardProp
             src={imageUrl}
             alt={article.title}
             fill
-            unoptimized
+            priority
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 1100px"
             onError={() => setImageError(true)}
             className="object-cover group-hover:scale-105 transition-transform duration-500"
           />
@@ -82,7 +83,8 @@ export default function NewsCard({ article, variant = 'standard' }: NewsCardProp
               src={imageUrl}
               alt={article.title}
               fill
-              unoptimized
+              loading="lazy"
+              sizes="80px"
               onError={() => setImageError(true)}
               className="object-cover group-hover:scale-105 transition-transform"
             />
@@ -113,7 +115,8 @@ export default function NewsCard({ article, variant = 'standard' }: NewsCardProp
             src={imageUrl}
             alt={article.title}
             fill
-            unoptimized
+            loading="lazy"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
             onError={() => setImageError(true)}
             className="object-cover group-hover:scale-105 transition-transform duration-300"
           />

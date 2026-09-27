@@ -12,18 +12,21 @@ import SkeletonMatchRow from '@/components/common/SkeletonLoader'
 import EmptyState from '@/components/common/EmptyState'
 import ErrorState from '@/components/common/ErrorState'
 import TrendingMatches from '@/components/common/TrendingMatches'
+import HomeLatestNews from '@/components/home/HomeLatestNews'
 import { sportsService } from '@/services/sports/sportsService'
 import { useLanguage } from '@/context/LanguageContext'
 import { Match } from '@/types/match'
 import { League } from '@/types/league'
+import { NewsArticle } from '@/types/news'
 import { isApprovedCompetition, getCompetitionPriority } from '@/config/competitions'
 import { isToday } from '@/lib/utils'
 
 interface HomeClientProps {
   initialTrendingMatches?: Match[]
+  latestArticles?: NewsArticle[]
 }
 
-export default function HomeClient({ initialTrendingMatches = [] }: HomeClientProps) {
+export default function HomeClient({ initialTrendingMatches = [], latestArticles = [] }: HomeClientProps) {
   const { t } = useLanguage()
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
   const [activeFilter, setActiveFilter] = useState<'all' | 'live' | 'upcoming' | 'finished'>('all')
@@ -288,6 +291,9 @@ export default function HomeClient({ initialTrendingMatches = [] }: HomeClientPr
               ))}
             </div>
           )}
+
+          {/* Homepage Latest News Section */}
+          <HomeLatestNews articles={latestArticles} />
         </main>
 
         {/* Right Info Sidebar */}

@@ -170,6 +170,8 @@
     "World": "Monde"
   },
   "news": {
+    "latestNews": "Dernières Actualités",
+    "viewAll": "Toutes les actualités",
     "readMore": "Lire la suite",
     "readTime": "min de lecture",
     "categories": {

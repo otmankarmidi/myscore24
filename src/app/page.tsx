@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import HomeClient from './HomeClient'
 import { getInitialTrendingMatches } from '@/lib/football/trending'
+import { getHomepageLatestArticles } from '@/lib/articles'
 
 export const metadata: Metadata = {
   title: 'Football Live Scores, Results & Fixtures | MyScore24',
@@ -61,7 +62,10 @@ const homeStructuredData = {
 }
 
 export default async function Page() {
-  const initialTrendingMatches = await getInitialTrendingMatches()
+  const [initialTrendingMatches, latestArticles] = await Promise.all([
+    getInitialTrendingMatches(),
+    getHomepageLatestArticles(6),
+  ])
 
   return (
     <>
@@ -69,7 +73,10 @@ export default async function Page() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(homeStructuredData) }}
       />
-      <HomeClient initialTrendingMatches={initialTrendingMatches} />
+      <HomeClient
+        initialTrendingMatches={initialTrendingMatches}
+        latestArticles={latestArticles}
+      />
     </>
   )
 }

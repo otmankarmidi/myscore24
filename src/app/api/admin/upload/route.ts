@@ -43,12 +43,6 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Ensure uploads directory exists
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'news')
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true })
-    }
-
     // Generate safe, unique filename
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
@@ -64,9 +58,10 @@ export async function POST(req: NextRequest) {
 
     const randomSuffix = crypto.randomBytes(6).toString('hex')
     const finalFilename = `${baseClean || 'article-img'}-${Date.now()}-${randomSuffix}${ext}`
-    const filePath = path.join(uploadsDir, finalFilename)
 
-    fs.writeFileSync(filePath, buffer)
+    // Persist file across server restarts, rebuilds, and deployments
+    const { saveUploadedFile, deleteUploadedFile } = await import('@/lib/storage')
+    await saveUploadedFile(finalFilename, buffer)
 
     const publicUrl = `/uploads/news/${finalFilename}`
 
@@ -97,11 +92,8 @@ export async function DELETE(req: NextRequest) {
     }
 
     const filename = path.basename(fileUrl)
-    const filePath = path.join(process.cwd(), 'public', 'uploads', 'news', filename)
-
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath)
-    }
+    const { deleteUploadedFile } = await import('@/lib/storage')
+    deleteUploadedFile(filename)
 
     return NextResponse.json({ success: true, message: 'File deleted' })
   } catch (err: any) {

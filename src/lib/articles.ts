@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { NewsArticle } from '@/types/news'
+import { normalizeArticleImageUrl } from '@/lib/newsImage'
 
 function estimateReadTime(text: string): number {
   const words = text.trim().split(/\s+/).length
@@ -7,6 +8,8 @@ function estimateReadTime(text: string): number {
 }
 
 function mapPrismaToNewsArticle(art: any): NewsArticle {
+  const normalizedImage = normalizeArticleImageUrl(art.featuredImage) || undefined
+
   return {
     id: art.id,
     slug: art.slug,
@@ -25,8 +28,8 @@ function mapPrismaToNewsArticle(art: any): NewsArticle {
     keywords: Array.isArray(art.keywords)
       ? art.keywords.map((k: any) => String(k).trim()).filter(Boolean)
       : [],
-    imageUrl: art.featuredImage || undefined,
-    image: art.featuredImage || undefined,
+    imageUrl: normalizedImage,
+    image: normalizedImage,
     readTimeMinutes: estimateReadTime(art.content || ''),
     readTime: estimateReadTime(art.content || ''),
   }
@@ -61,6 +64,39 @@ export async function getPublishedArticles(): Promise<NewsArticle[]> {
   }
 
   // Only return real articles published via CMS
+  return []
+}
+
+/**
+ * Fast, lightweight query specifically for the Homepage Latest News section.
+ * Limits to top N articles and avoids loading heavy tags or unnecessary relations.
+ */
+export async function getHomepageLatestArticles(limit: number = 6): Promise<NewsArticle[]> {
+  try {
+    const dbArticles = await prisma.article.findMany({
+      where: {
+        status: 'PUBLISHED',
+        publishedAt: {
+          lte: new Date(),
+        },
+      },
+      orderBy: {
+        publishedAt: 'desc',
+      },
+      take: limit,
+      include: {
+        category: true,
+        author: true,
+      },
+    })
+
+    if (dbArticles.length > 0) {
+      return dbArticles.map(mapPrismaToNewsArticle)
+    }
+  } catch (err) {
+    console.error('[getHomepageLatestArticles] MySQL query failed:', err)
+  }
+
   return []
 }
 

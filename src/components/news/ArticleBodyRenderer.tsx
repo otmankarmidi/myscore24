@@ -76,7 +76,14 @@ export default function ArticleBodyRenderer({ content }: ArticleBodyRendererProp
           return (
             <div key={idx} className="my-6 rounded-xl overflow-hidden border border-surface-bright bg-surface-container">
               <div className="relative aspect-[16/9] w-full">
-                <Image src={src} alt={alt || 'Article photo'} fill unoptimized className="object-cover" />
+                <Image
+                  src={src}
+                  alt={alt || 'Article photo'}
+                  fill
+                  loading="lazy"
+                  sizes="(max-width: 768px) 100vw, 800px"
+                  className="object-cover"
+                />
               </div>
               {alt && <p className="p-2 text-center text-xs text-on-surface-variant italic">{alt}</p>}
             </div>

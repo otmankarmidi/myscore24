@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { getArticleBySlug, getPublishedArticles } from '@/lib/articles'
 import ArticleBodyRenderer from '@/components/news/ArticleBodyRenderer'
 import NewsArticleClient from './NewsArticleClient'
+import { getArticleOgImageUrl } from '@/lib/newsImage'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,7 +26,7 @@ export async function generateMetadata({ params }: NewsArticlePageProps): Promis
   const title = metaTitle || `${article.title} | MyScore24`
   const description = metaDescription || article.excerpt
   const canonical = `https://www.myscore24.com/news/${slug}`
-  const imageUrl = article.imageUrl || article.image || '/og-image.png'
+  const ogImageUrl = getArticleOgImageUrl(article.imageUrl || article.image)
   const keywordsList = Array.isArray(article.keywords)
     ? article.keywords.map((k) => String(k).trim()).filter(Boolean)
     : []
@@ -46,7 +47,7 @@ export async function generateMetadata({ params }: NewsArticlePageProps): Promis
       publishedTime: article.publishedAt,
       images: [
         {
-          url: imageUrl,
+          url: ogImageUrl,
           width: 1200,
           height: 630,
           alt: article.title,
@@ -57,7 +58,7 @@ export async function generateMetadata({ params }: NewsArticlePageProps): Promis
       card: 'summary_large_image',
       title,
       description,
-      images: [imageUrl],
+      images: [ogImageUrl],
     },
   }
 }
@@ -78,7 +79,7 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
     typeof article.author === 'string'
       ? article.author
       : article.author?.name || 'MyScore24 Desk'
-  const imageUrl = article.imageUrl || article.image || 'https://www.myscore24.com/og-image.png'
+  const ogImageUrl = getArticleOgImageUrl(article.imageUrl || article.image)
 
   const keywordsList = Array.isArray(article.keywords)
     ? article.keywords.map((k) => String(k).trim()).filter(Boolean)
@@ -89,7 +90,7 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
     '@type': 'NewsArticle',
     headline: article.title,
     description: article.excerpt,
-    image: [imageUrl],
+    image: [ogImageUrl],
     datePublished: article.publishedAt,
     dateModified: article.updatedAt || article.publishedAt,
     ...(keywordsList.length > 0 ? { keywords: keywordsList } : {}),

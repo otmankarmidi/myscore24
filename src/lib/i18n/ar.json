@@ -170,6 +170,8 @@
     "World": "العالم"
   },
   "news": {
+    "latestNews": "آخر الأخبار",
+    "viewAll": "عرض جميع الأخبار",
     "readMore": "اقرأ المزيد",
     "readTime": "دقيقة قراءة",
     "categories": {
