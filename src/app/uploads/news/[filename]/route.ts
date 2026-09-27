@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getUploadedFile } from '@/lib/storage'
+import { getUploadedFileAsync } from '@/lib/storage'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
     return new NextResponse('Bad request', { status: 400 })
   }
 
-  const file = getUploadedFile(filename)
+  const file = await getUploadedFileAsync(filename)
 
   if (!file) {
     return new NextResponse('File not found', { status: 404 })

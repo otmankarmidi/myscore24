@@ -30,7 +30,7 @@ function FeaturedStoryCard({ article }: { article: NewsArticle }) {
     <article className="h-full">
       <Link
         href={`/news/${article.slug}`}
-        className="group relative flex flex-col justify-end rounded-xl overflow-hidden border border-surface-bright/70 hover:border-primary/70 transition-all shadow-md bg-surface-container h-full min-h-[300px] sm:min-h-[340px] md:min-h-[370px]"
+        className="group relative flex flex-col justify-end rounded-xl overflow-hidden border border-surface-bright/70 hover:border-primary/70 transition-all shadow-md bg-surface-container h-full min-h-[300px] sm:min-h-[330px] md:min-h-[350px]"
       >
         {/* Background Image / Placeholder */}
         {imageUrl ? (
@@ -39,6 +39,7 @@ function FeaturedStoryCard({ article }: { article: NewsArticle }) {
             alt={article.title}
             fill
             priority
+            unoptimized
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 650px"
             onError={() => setImageError(true)}
             className="object-cover group-hover:scale-[1.03] transition-transform duration-500"
@@ -86,7 +87,7 @@ function FeaturedStoryCard({ article }: { article: NewsArticle }) {
 }
 
 /**
- * 2. Left Column Stacked Small Card (Horizontal format on desktop)
+ * 2. Side Column Stacked Small Card (Compact horizontal format)
  */
 function LeftColumnNewsCard({ article }: { article: NewsArticle }) {
   const normalizedUrl = normalizeArticleImageUrl(article.imageUrl || article.image)
@@ -97,15 +98,16 @@ function LeftColumnNewsCard({ article }: { article: NewsArticle }) {
     <article className="flex-1 flex">
       <Link
         href={`/news/${article.slug}`}
-        className="group flex-1 flex gap-3 p-3 rounded-xl border border-surface-bright/70 bg-surface-container hover:bg-surface-container-high hover:border-primary/60 transition-all text-start"
+        className="group flex-1 flex gap-3 p-2.5 sm:p-3 rounded-xl border border-surface-bright/70 bg-surface-container hover:bg-surface-container-high hover:border-primary/60 transition-all text-start"
       >
-        <div className="relative w-24 sm:w-28 md:w-32 h-20 sm:h-22 md:h-full rounded-lg overflow-hidden bg-surface-container-highest shrink-0 min-h-[72px]">
+        <div className="relative w-24 sm:w-28 h-20 sm:h-auto rounded-lg overflow-hidden bg-surface-container-highest shrink-0 min-h-[68px]">
           {imageUrl ? (
             <Image
               src={imageUrl}
               alt={article.title}
               fill
               loading="lazy"
+              unoptimized
               sizes="(max-width: 768px) 110px, 130px"
               onError={() => setImageError(true)}
               className="object-cover group-hover:scale-[1.03] transition-transform duration-300"
@@ -141,7 +143,7 @@ function LeftColumnNewsCard({ article }: { article: NewsArticle }) {
 }
 
 /**
- * 3. Bottom Row Compact/Horizontal Card
+ * 3. Bottom Row Compact/Horizontal Card (When more than 4 articles exist)
  */
 function BottomRowNewsCard({ article }: { article: NewsArticle }) {
   const normalizedUrl = normalizeArticleImageUrl(article.imageUrl || article.image)
@@ -161,6 +163,7 @@ function BottomRowNewsCard({ article }: { article: NewsArticle }) {
               alt={article.title}
               fill
               loading="lazy"
+              unoptimized
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
               onError={() => setImageError(true)}
               className="object-cover group-hover:scale-[1.03] transition-transform duration-300"
@@ -194,7 +197,7 @@ function BottomRowNewsCard({ article }: { article: NewsArticle }) {
 }
 
 /**
- * Editorial Latest News Grid Component for Homepage
+ * Editorial Latest News Grid Component for Homepage (Top 4 Articles Layout)
  */
 export default function HomeLatestNews({ articles = [] }: HomeLatestNewsProps) {
   const { t } = useLanguage()
@@ -203,14 +206,14 @@ export default function HomeLatestNews({ articles = [] }: HomeLatestNewsProps) {
     return null
   }
 
-  // 1. Featured story: dominant high-priority/latest article
+  // 1. Featured story: dominant high-priority article
   const featuredArticle = articles[0]
 
-  // 2. Left column cards (up to 2 articles)
-  const leftArticles = articles.slice(1, 3)
+  // 2. Side column cards (3 articles for a 4-article layout)
+  const sideArticles = articles.slice(1, 4)
 
-  // 3. Bottom row cards (up to 3 articles)
-  const bottomArticles = articles.slice(3, 6)
+  // 3. Optional bottom row cards if more than 4 articles provided
+  const bottomArticles = articles.slice(4, 7)
 
   return (
     <section className="space-y-3 pb-3 border-b border-surface-bright/50" aria-label="Latest News">
@@ -235,24 +238,24 @@ export default function HomeLatestNews({ articles = [] }: HomeLatestNewsProps) {
         </Link>
       </div>
 
-      {/* Editorial Grid: Top Section (Left Stacked + Center Featured) */}
+      {/* Editorial Grid: Top Section (Side Stacked Cards + Center/Right Featured Story) */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5">
         {/* Mobile: Featured story appears first (order-1), Desktop: Left column (order-1 md:order-1) */}
-        {leftArticles.length > 0 && (
-          <div className="md:col-span-5 flex flex-col gap-3.5 order-2 md:order-1">
-            {leftArticles.map((article) => (
+        {sideArticles.length > 0 && (
+          <div className="md:col-span-5 flex flex-col justify-between gap-2.5 sm:gap-3 order-2 md:order-1">
+            {sideArticles.map((article) => (
               <LeftColumnNewsCard key={article.id} article={article} />
             ))}
           </div>
         )}
 
         {/* Featured Story (Mobile: order-1, Desktop: order-2) */}
-        <div className={`${leftArticles.length > 0 ? 'md:col-span-7' : 'md:col-span-12'} order-1 md:order-2`}>
+        <div className={`${sideArticles.length > 0 ? 'md:col-span-7' : 'md:col-span-12'} order-1 md:order-2 flex flex-col`}>
           <FeaturedStoryCard article={featuredArticle} />
         </div>
       </div>
 
-      {/* Editorial Grid: Bottom Row (3 compact/horizontal cards) */}
+      {/* Optional Bottom Row (only rendered if more than 4 articles passed) */}
       {bottomArticles.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5 pt-1">
           {bottomArticles.map((article) => (

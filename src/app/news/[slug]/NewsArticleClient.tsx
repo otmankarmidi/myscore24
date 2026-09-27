@@ -186,6 +186,7 @@ export default function NewsArticleClient({
                 alt={article.title}
                 fill
                 priority
+                unoptimized
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
                 onError={() => setImageError(true)}
                 className="object-cover"
