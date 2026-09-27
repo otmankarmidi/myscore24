@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { isRequestAdminAuthenticated } from '@/lib/adminAuth'
 import { ArticleStatus, Prisma } from '@prisma/client'
@@ -191,6 +192,21 @@ export async function PUT(req: NextRequest, { params }: Params) {
       },
     })
 
+    // Revalidate public news pages and sitemaps
+    try {
+      revalidatePath('/news')
+      if (refreshed?.slug) {
+        revalidatePath(`/news/${refreshed.slug}`)
+      }
+      if (existingArticle.slug && existingArticle.slug !== refreshed?.slug) {
+        revalidatePath(`/news/${existingArticle.slug}`)
+      }
+      revalidatePath('/sitemap.xml')
+      revalidatePath('/news-sitemap.xml')
+    } catch (revalErr) {
+      console.error('[Article Revalidation Error]', revalErr)
+    }
+
     return NextResponse.json({
       success: true,
       article: {
@@ -219,6 +235,18 @@ export async function DELETE(req: NextRequest, { params }: Params) {
     }
 
     await prisma.article.delete({ where: { id } })
+
+    // Revalidate public news pages and sitemaps
+    try {
+      revalidatePath('/news')
+      if (existing.slug) {
+        revalidatePath(`/news/${existing.slug}`)
+      }
+      revalidatePath('/sitemap.xml')
+      revalidatePath('/news-sitemap.xml')
+    } catch (revalErr) {
+      console.error('[Article Revalidation Error]', revalErr)
+    }
 
     return NextResponse.json({ success: true, message: 'Article deleted successfully' })
   } catch (err: any) {

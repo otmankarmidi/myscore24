@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { isRequestAdminAuthenticated } from '@/lib/adminAuth'
 import { ArticleStatus, Prisma } from '@prisma/client'
@@ -228,6 +229,18 @@ export async function POST(req: NextRequest) {
         tags: { include: { tag: true } },
       },
     })
+
+    // Revalidate public news pages and sitemaps
+    try {
+      revalidatePath('/news')
+      if (createdArticle?.slug) {
+        revalidatePath(`/news/${createdArticle.slug}`)
+      }
+      revalidatePath('/sitemap.xml')
+      revalidatePath('/news-sitemap.xml')
+    } catch (revalErr) {
+      console.error('[Article Revalidation Error]', revalErr)
+    }
 
     return NextResponse.json({
       success: true,

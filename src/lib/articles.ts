@@ -37,6 +37,9 @@ export async function getPublishedArticles(): Promise<NewsArticle[]> {
     const dbArticles = await prisma.article.findMany({
       where: {
         status: 'PUBLISHED',
+        publishedAt: {
+          lte: new Date(),
+        },
       },
       orderBy: {
         publishedAt: 'desc',
@@ -82,7 +85,12 @@ export async function getArticleBySlug(slug: string): Promise<{
       },
     })
 
-    if (dbArticle && dbArticle.status === 'PUBLISHED') {
+    const isPublic =
+      dbArticle &&
+      dbArticle.status === 'PUBLISHED' &&
+      (!dbArticle.publishedAt || dbArticle.publishedAt <= new Date())
+
+    if (isPublic) {
       let competition = null
       let team = null
 

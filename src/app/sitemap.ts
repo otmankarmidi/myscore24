@@ -1,6 +1,9 @@
 import { MetadataRoute } from 'next'
 import { prisma } from '@/lib/prisma'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 const BASE_URL = 'https://myscore24.com'
 
 function slugify(text: string): string {
@@ -138,9 +141,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let newsRoutes: MetadataRoute.Sitemap = []
   try {
     const dbArticles = await prisma.article.findMany({
-      where: { status: 'PUBLISHED' },
+      where: {
+        status: 'PUBLISHED',
+        publishedAt: {
+          lte: now,
+        },
+      },
       select: { slug: true, publishedAt: true, updatedAt: true },
-      take: 500,
+      orderBy: { publishedAt: 'desc' },
+      take: 1000,
     })
 
     if (dbArticles.length > 0) {
@@ -148,7 +157,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         url: `${BASE_URL}/news/${article.slug}`,
         lastModified: article.updatedAt || article.publishedAt || now,
         changeFrequency: 'daily' as const,
-        priority: 0.7,
+        priority: 0.8,
       }))
     }
   } catch (err) {

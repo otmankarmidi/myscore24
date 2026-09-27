@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: '/',
+        allow: ['/', '/news', '/news/*'],
         disallow: [
           '/admin/',
           '/admin',
@@ -16,6 +16,9 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: 'https://myscore24.com/sitemap.xml',
+    sitemap: [
+      'https://myscore24.com/sitemap.xml',
+      'https://myscore24.com/news-sitemap.xml',
+    ],
   }
 }
