@@ -218,9 +218,12 @@ export default function HomeClient({ initialTrendingMatches = [], latestArticles
         <DesktopSidebar />
 
         {/* Center Main Content Stream */}
-        <main className="flex-1 min-w-0 w-full space-y-3">
+        <main className="flex-1 min-w-0 w-full space-y-4">
+          {/* Homepage Latest News Section (Placed at the top) */}
+          <HomeLatestNews articles={latestArticles} />
+
           {/* Main Meaningful H1 Heading for SEO & Accessibility */}
-          <div className="flex items-center justify-between px-1">
+          <div className="flex items-center justify-between px-1 pt-1">
             <h1 className="text-lg md:text-xl font-bold font-geist text-on-surface">
               {activeFilter === 'live'
                 ? t('filters.liveScores', 'Live Football Scores')
@@ -291,9 +294,6 @@ export default function HomeClient({ initialTrendingMatches = [], latestArticles
               ))}
             </div>
           )}
-
-          {/* Homepage Latest News Section */}
-          <HomeLatestNews articles={latestArticles} />
         </main>
 
         {/* Right Info Sidebar */}

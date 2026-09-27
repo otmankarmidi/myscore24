@@ -213,7 +213,7 @@ export default function HomeLatestNews({ articles = [] }: HomeLatestNewsProps) {
   const bottomArticles = articles.slice(3, 6)
 
   return (
-    <section className="space-y-3 pt-3 border-t border-surface-bright/50" aria-label="Latest News">
+    <section className="space-y-3 pb-3 border-b border-surface-bright/50" aria-label="Latest News">
       {/* Section Header */}
       <div className="flex items-center justify-between px-1">
         <div className="flex items-center gap-2">
