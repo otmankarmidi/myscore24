@@ -89,12 +89,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]
 
   // 2. Dynamic Database Entries (MySQL only — 0 external API calls)
+  let newsRoutes: MetadataRoute.Sitemap = []
   let competitionRoutes: MetadataRoute.Sitemap = []
   let teamRoutes: MetadataRoute.Sitemap = []
   let matchRoutes: MetadataRoute.Sitemap = []
 
   try {
-    const [competitions, teams, matches] = await Promise.all([
+    const [dbArticles, competitions, teams, matches] = await Promise.all([
+      prisma.article.findMany({
+        where: {
+          status: 'PUBLISHED',
+          publishedAt: {
+            lte: now,
+          },
+        },
+        select: { slug: true, publishedAt: true, updatedAt: true },
+        orderBy: { publishedAt: 'desc' },
+        take: 1000,
+      }),
       prisma.competition.findMany({
         select: { providerId: true, name: true, updatedAt: true },
         take: 200,
@@ -112,6 +124,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         take: 1500,
       }),
     ])
+
+    if (dbArticles.length > 0) {
+      newsRoutes = dbArticles.map((article: any) => ({
+        url: `${BASE_URL}/news/${article.slug}`,
+        lastModified: article.updatedAt || article.publishedAt || now,
+        changeFrequency: 'daily' as const,
+        priority: 0.9,
+      }))
+    }
 
     competitionRoutes = competitions.map((c: any) => ({
       url: `${BASE_URL}/league/${slugify(c.name) || c.providerId}`,
@@ -137,34 +158,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('[Sitemap Generator] Database query failed, using static sitemap only:', err)
   }
 
-  // 3. News Articles (Dynamic from MySQL published articles only)
-  let newsRoutes: MetadataRoute.Sitemap = []
-  try {
-    const dbArticles = await prisma.article.findMany({
-      where: {
-        status: 'PUBLISHED',
-        publishedAt: {
-          lte: now,
-        },
-      },
-      select: { slug: true, publishedAt: true, updatedAt: true },
-      orderBy: { publishedAt: 'desc' },
-      take: 1000,
-    })
-
-    if (dbArticles.length > 0) {
-      newsRoutes = dbArticles.map((article: any) => ({
-        url: `${BASE_URL}/news/${article.slug}`,
-        lastModified: article.updatedAt || article.publishedAt || now,
-        changeFrequency: 'daily' as const,
-        priority: 0.8,
-      }))
-    }
-  } catch (err) {
-    console.error('[Sitemap Generator] Article query failed:', err)
-  }
-
-  // 4. Key Manifest Players
+  // 3. Key Manifest Players
   let playerRoutes: MetadataRoute.Sitemap = []
   try {
     const { getAllManifestPlayers } = await import('@/lib/playerMatcher')
@@ -179,12 +173,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // If manifest not loaded, skip
   }
 
+  // News articles are placed immediately after core static pages for maximum crawl visibility
   const allEntries: MetadataRoute.Sitemap = [
     ...staticRoutes,
+    ...newsRoutes,
     ...competitionRoutes,
     ...teamRoutes,
     ...matchRoutes,
-    ...newsRoutes,
     ...playerRoutes,
   ]
 
