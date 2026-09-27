@@ -252,6 +252,7 @@ model Article {
 
   metaTitle       String?       @db.VarChar(255)
   metaDescription String?       @db.VarChar(500)
+  keywords        Json?
 
   categoryId      String?
   authorId        String?

@@ -11,6 +11,11 @@ import {
   formatSocialEmbedBlock,
 } from '@/lib/socialEmbed/validate'
 import { SocialProvider, ValidatedSocialEmbed } from '@/lib/socialEmbed/types'
+import {
+  parseKeywordsInput,
+  cleanKeywordPhrase,
+  KEYWORD_SEPARATORS_REGEX,
+} from '@/lib/keywordParser'
 
 interface Category {
   id: string
@@ -57,6 +62,10 @@ export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) 
   const [authorId, setAuthorId] = useState<string>('')
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState('')
+  const [keywords, setKeywords] = useState<string[]>([])
+  const [keywordInput, setKeywordInput] = useState('')
+  const [editingKeywordIndex, setEditingKeywordIndex] = useState<number | null>(null)
+  const [editingKeywordValue, setEditingKeywordValue] = useState('')
   const [metaTitle, setMetaTitle] = useState('')
   const [metaDescription, setMetaDescription] = useState('')
 
@@ -191,6 +200,7 @@ export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) 
           setCategoryId(a.categoryId || '')
           setAuthorId(a.authorId || '')
           setTags(a.tags ? a.tags.map((t: any) => t.name) : [])
+          setKeywords(Array.isArray(a.keywords) ? a.keywords : [])
           setMetaTitle(a.metaTitle || '')
           setMetaDescription(a.metaDescription || '')
           setCompetitionId(a.competitionId || '')
@@ -321,6 +331,129 @@ export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) 
     setTags(tags.filter((t) => t !== tagToRemove))
   }
 
+  // Keyword management
+  const handleAddKeyword = (valueToAdd?: string) => {
+    const raw = valueToAdd !== undefined ? valueToAdd : keywordInput
+    if (!raw || !raw.trim()) return
+
+    const { allKeywords } = parseKeywordsInput(raw, keywords)
+    setKeywords(allKeywords)
+    setKeywordInput('')
+  }
+
+  const handleRemoveKeyword = (indexToRemove: number) => {
+    setKeywords(keywords.filter((_, idx) => idx !== indexToRemove))
+    if (editingKeywordIndex === indexToRemove) {
+      setEditingKeywordIndex(null)
+      setEditingKeywordValue('')
+    }
+  }
+
+  const handleStartEditKeyword = (index: number) => {
+    setEditingKeywordIndex(index)
+    setEditingKeywordValue(keywords[index])
+  }
+
+  const handleSaveEditKeyword = () => {
+    if (editingKeywordIndex === null) return
+    const cleaned = cleanKeywordPhrase(editingKeywordValue)
+    if (!cleaned) {
+      handleRemoveKeyword(editingKeywordIndex)
+      return
+    }
+
+    // Check if another keyword already matches case-insensitively
+    const alreadyExists = keywords.some(
+      (kw, idx) => idx !== editingKeywordIndex && kw.toLowerCase() === cleaned.toLowerCase()
+    )
+    if (alreadyExists) {
+      handleRemoveKeyword(editingKeywordIndex)
+      return
+    }
+
+    const updated = [...keywords]
+    updated[editingKeywordIndex] = cleaned
+    setKeywords(updated)
+    setEditingKeywordIndex(null)
+    setEditingKeywordValue('')
+  }
+
+  const handleCancelEditKeyword = () => {
+    setEditingKeywordIndex(null)
+    setEditingKeywordValue('')
+  }
+
+  const handleMoveKeyword = (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1
+    if (targetIndex < 0 || targetIndex >= keywords.length) return
+    const updated = [...keywords]
+    const temp = updated[index]
+    updated[index] = updated[targetIndex]
+    updated[targetIndex] = temp
+    setKeywords(updated)
+    if (editingKeywordIndex === index) {
+      setEditingKeywordIndex(targetIndex)
+    }
+  }
+
+  // Reactive natural keyword placement checker
+  const getKeywordPlacementStats = (keyword: string) => {
+    const kw = keyword.toLowerCase().trim()
+    if (!kw) {
+      return {
+        inTitle: false,
+        inMetaTitle: false,
+        inSlug: false,
+        inMetaDesc: false,
+        inIntro: false,
+        inHeadings: false,
+        contentCount: 0,
+      }
+    }
+
+    const inTitle = title.toLowerCase().includes(kw)
+    const effectiveMetaTitle = (metaTitle.trim() || title).toLowerCase()
+    const inMetaTitle = effectiveMetaTitle.includes(kw)
+
+    const kwSlug = slugify(kw)
+    const currentSlug = (slug || slugify(title)).toLowerCase()
+    const inSlug = kwSlug.length > 0 && currentSlug.includes(kwSlug)
+
+    const effectiveDesc = (metaDescription.trim() || excerpt.trim() || '').toLowerCase()
+    const inMetaDesc = effectiveDesc.includes(kw)
+
+    // Introduction: first non-heading, non-image paragraph of article content
+    const introParagraph =
+      content
+        .split(/\n\s*\n/)
+        .map((b) => b.trim())
+        .find((b) => b && !b.startsWith('#') && !b.startsWith('![') && !b.startsWith('::social-embed')) || ''
+    const inIntro = introParagraph.toLowerCase().includes(kw)
+
+    // Headings: lines starting with #
+    const headingLines = content.split('\n').filter((l) => l.trim().startsWith('#'))
+    const inHeadings = headingLines.some((h) => h.toLowerCase().includes(kw))
+
+    // Content frequency
+    const contentLower = content.toLowerCase()
+    let count = 0
+    let pos = 0
+    while ((pos = contentLower.indexOf(kw, pos)) !== -1) {
+      count++
+      pos += kw.length
+    }
+
+    return {
+      inTitle,
+      inMetaTitle,
+      inSlug,
+      inMetaDesc,
+      inIntro,
+      inHeadings,
+      contentCount: count,
+    }
+  }
+
   // Quick Category Creation
   const handleCreateCategory = async () => {
     if (!newCategoryName.trim()) return
@@ -373,6 +506,7 @@ export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) 
       categoryId: categoryId || null,
       authorId: authorId || null,
       tags,
+      keywords,
       metaTitle: metaTitle.trim() || title.trim(),
       metaDescription: metaDescription.trim() || excerpt.trim(),
       competitionId: competitionId || null,
@@ -1198,6 +1332,298 @@ export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) 
                 className="w-full px-3 py-1.5 rounded-lg bg-[#0c1321] border border-[#232a39] text-xs text-[#dce2f6] focus:outline-none focus:border-[#ccff80]"
               />
             </div>
+          </div>
+
+          {/* SEO Keywords Card */}
+          <div className="bg-[#151b2a] border border-[#232a39] rounded-xl p-4 md:p-5 space-y-3.5">
+            <div className="flex items-center justify-between border-b border-[#232a39] pb-2">
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#c2cab0] flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-sm text-[#ccff80]">search_check</span>
+                  <span>Keywords</span>
+                </h3>
+                <p className="text-[11px] text-[#8c947c] mt-0.5">
+                  Target search phrases for SEO ranking (distinct from tags)
+                </p>
+              </div>
+              {keywords.length > 0 && (
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#0c1321] text-[#ccff80] border border-[#232a39]">
+                  {keywords.length} {keywords.length === 1 ? 'phrase' : 'phrases'}
+                </span>
+              )}
+            </div>
+
+            {/* Keyword Input Row */}
+            <div className="flex items-center gap-1.5">
+              <input
+                type="text"
+                placeholder="e.g. Portugal vs Norway (Enter, comma, or paste to add)"
+                value={keywordInput}
+                onChange={(e) => {
+                  const val = e.target.value
+                  if (KEYWORD_SEPARATORS_REGEX.test(val)) {
+                    handleAddKeyword(val)
+                  } else {
+                    setKeywordInput(val)
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (
+                    e.key === 'Enter' ||
+                    e.key === ',' ||
+                    e.key === ';' ||
+                    e.key === '،' ||
+                    e.key === '؛'
+                  ) {
+                    e.preventDefault()
+                    handleAddKeyword(keywordInput)
+                  }
+                }}
+                onPaste={(e) => {
+                  const pastedText = e.clipboardData?.getData('text')
+                  if (pastedText && KEYWORD_SEPARATORS_REGEX.test(pastedText)) {
+                    e.preventDefault()
+                    const combined = keywordInput ? `${keywordInput}, ${pastedText}` : pastedText
+                    handleAddKeyword(combined)
+                  }
+                }}
+                className="flex-1 px-3 py-1.5 rounded-lg bg-[#0c1321] border border-[#232a39] text-xs text-[#dce2f6] placeholder-[#424936] focus:outline-none focus:border-[#ccff80]"
+              />
+              <button
+                type="button"
+                onClick={() => handleAddKeyword()}
+                className="px-3 py-1.5 rounded-lg bg-[#ccff80] text-[#213600] font-bold text-xs hover:bg-[#b2f746] transition-all shadow-sm"
+              >
+                Add
+              </button>
+            </div>
+
+            {/* Keyword Chips List */}
+            {keywords.length === 0 ? (
+              <div className="p-3 rounded-lg bg-[#0c1321]/50 border border-dashed border-[#232a39] text-center">
+                <p className="text-[11px] text-[#8c947c]">
+                  No keywords added yet. Add search phrases readers search on Google (e.g. &ldquo;Ronaldo vs Haaland&rdquo;).
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex flex-wrap gap-1.5">
+                  {keywords.map((kw, index) => {
+                    const isEditing = editingKeywordIndex === index
+                    return isEditing ? (
+                      <div
+                        key={index}
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#0c1321] border border-[#ccff80] text-xs"
+                      >
+                        <input
+                          type="text"
+                          value={editingKeywordValue}
+                          onChange={(e) => setEditingKeywordValue(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault()
+                              handleSaveEditKeyword()
+                            } else if (e.key === 'Escape') {
+                              handleCancelEditKeyword()
+                            }
+                          }}
+                          autoFocus
+                          className="bg-transparent border-none text-xs text-[#dce2f6] focus:outline-none w-36"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleSaveEditKeyword}
+                          className="text-[#4ae176] hover:text-[#ccff80] p-0.5"
+                          title="Save edit"
+                        >
+                          <span className="material-symbols-outlined text-xs">check</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleCancelEditKeyword}
+                          className="text-[#ffb4ab] hover:text-[#ffdad6] p-0.5"
+                          title="Cancel edit"
+                        >
+                          <span className="material-symbols-outlined text-xs">close</span>
+                        </button>
+                      </div>
+                    ) : (
+                      <div
+                        key={index}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#0c1321] border border-[#232a39] text-xs text-[#dce2f6] hover:border-[#ccff80]/50 transition-colors group"
+                      >
+                        {/* Reorder arrows */}
+                        <div className="flex items-center -ml-1 text-[#8c947c]">
+                          <button
+                            type="button"
+                            disabled={index === 0}
+                            onClick={() => handleMoveKeyword(index, 'up')}
+                            className="p-0.5 hover:text-[#ccff80] disabled:opacity-20 disabled:hover:text-[#8c947c]"
+                            title="Move earlier"
+                          >
+                            <span className="material-symbols-outlined text-[13px]">arrow_back</span>
+                          </button>
+                          <button
+                            type="button"
+                            disabled={index === keywords.length - 1}
+                            onClick={() => handleMoveKeyword(index, 'down')}
+                            className="p-0.5 hover:text-[#ccff80] disabled:opacity-20 disabled:hover:text-[#8c947c]"
+                            title="Move later"
+                          >
+                            <span className="material-symbols-outlined text-[13px]">arrow_forward</span>
+                          </button>
+                        </div>
+
+                        {/* Keyword Text */}
+                        <span
+                          onDoubleClick={() => handleStartEditKeyword(index)}
+                          className="cursor-pointer select-none font-medium text-[#dce2f6]"
+                          title="Double-click or click pencil to edit"
+                        >
+                          {kw}
+                        </span>
+
+                        {/* Edit Button */}
+                        <button
+                          type="button"
+                          onClick={() => handleStartEditKeyword(index)}
+                          className="text-[#8c947c] hover:text-[#ccff80] p-0.5"
+                          title="Edit keyword"
+                        >
+                          <span className="material-symbols-outlined text-[13px]">edit</span>
+                        </button>
+
+                        {/* Remove Button */}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveKeyword(index)}
+                          className="text-[#8c947c] hover:text-[#ffb4ab] p-0.5 font-bold"
+                          title="Remove keyword"
+                        >
+                          &times;
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {/* Natural Placement Inspector */}
+                <div className="pt-3 border-t border-[#232a39] space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#c2cab0] flex items-center gap-1">
+                      <span className="material-symbols-outlined text-xs text-[#ccff80]">checklist</span>
+                      <span>Natural Placement Check</span>
+                    </span>
+                    <span className="text-[10px] text-[#8c947c]">Internal CMS Audit</span>
+                  </div>
+
+                  <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+                    {keywords.map((kw, i) => {
+                      const stats = getKeywordPlacementStats(kw)
+                      return (
+                        <div
+                          key={i}
+                          className="p-2 rounded-lg bg-[#0c1321] border border-[#232a39] space-y-1 text-[11px]"
+                        >
+                          <div className="flex items-center justify-between font-semibold text-[#dce2f6]">
+                            <span className="truncate max-w-[180px]" title={kw}>
+                              {kw}
+                            </span>
+                            <span
+                              className={`font-mono text-[10px] px-1.5 py-0.5 rounded ${
+                                stats.contentCount > 0
+                                  ? 'bg-[#ccff80]/15 text-[#ccff80]'
+                                  : 'bg-[#ffb4ab]/10 text-[#ffb4ab]'
+                              }`}
+                            >
+                              {stats.contentCount}x in text
+                            </span>
+                          </div>
+
+                          <div className="grid grid-cols-3 gap-1 text-[10px]">
+                            <span
+                              className={`flex items-center gap-1 px-1.5 py-0.5 rounded ${
+                                stats.inTitle
+                                  ? 'text-[#4ae176] bg-[#003915]/30'
+                                  : 'text-[#8c947c] bg-[#19202e]'
+                              }`}
+                              title={stats.inTitle ? 'Found in Title' : 'Not found in Title'}
+                            >
+                              <span>{stats.inTitle ? '✓' : '—'}</span>
+                              <span>Title</span>
+                            </span>
+
+                            <span
+                              className={`flex items-center gap-1 px-1.5 py-0.5 rounded ${
+                                stats.inMetaTitle
+                                  ? 'text-[#4ae176] bg-[#003915]/30'
+                                  : 'text-[#8c947c] bg-[#19202e]'
+                              }`}
+                              title={stats.inMetaTitle ? 'Found in SEO Title' : 'Not found in SEO Title'}
+                            >
+                              <span>{stats.inMetaTitle ? '✓' : '—'}</span>
+                              <span>SEO Title</span>
+                            </span>
+
+                            <span
+                              className={`flex items-center gap-1 px-1.5 py-0.5 rounded ${
+                                stats.inSlug
+                                  ? 'text-[#4ae176] bg-[#003915]/30'
+                                  : 'text-[#8c947c] bg-[#19202e]'
+                              }`}
+                              title={stats.inSlug ? 'Found in Slug' : 'Not found in Slug'}
+                            >
+                              <span>{stats.inSlug ? '✓' : '—'}</span>
+                              <span>Slug</span>
+                            </span>
+
+                            <span
+                              className={`flex items-center gap-1 px-1.5 py-0.5 rounded ${
+                                stats.inMetaDesc
+                                  ? 'text-[#4ae176] bg-[#003915]/30'
+                                  : 'text-[#8c947c] bg-[#19202e]'
+                              }`}
+                              title={stats.inMetaDesc ? 'Found in Meta Description' : 'Not found in Meta Description'}
+                            >
+                              <span>{stats.inMetaDesc ? '✓' : '—'}</span>
+                              <span>Meta Desc</span>
+                            </span>
+
+                            <span
+                              className={`flex items-center gap-1 px-1.5 py-0.5 rounded ${
+                                stats.inIntro
+                                  ? 'text-[#4ae176] bg-[#003915]/30'
+                                  : 'text-[#8c947c] bg-[#19202e]'
+                              }`}
+                              title={stats.inIntro ? 'Found in Introduction' : 'Not found in Introduction'}
+                            >
+                              <span>{stats.inIntro ? '✓' : '—'}</span>
+                              <span>Intro</span>
+                            </span>
+
+                            <span
+                              className={`flex items-center gap-1 px-1.5 py-0.5 rounded ${
+                                stats.inHeadings
+                                  ? 'text-[#4ae176] bg-[#003915]/30'
+                                  : 'text-[#8c947c] bg-[#19202e]'
+                              }`}
+                              title={stats.inHeadings ? 'Found in Headings' : 'Not found in Headings'}
+                            >
+                              <span>{stats.inHeadings ? '✓' : '—'}</span>
+                              <span>Headings</span>
+                            </span>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  <p className="text-[10px] text-[#8c947c] italic leading-tight">
+                    Keywords are internal SEO search phrases for natural placement checking. They are not displayed publicly and never auto-injected.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

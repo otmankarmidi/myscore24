@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { isRequestAdminAuthenticated } from '@/lib/adminAuth'
-import { ArticleStatus } from '@prisma/client'
+import { ArticleStatus, Prisma } from '@prisma/client'
 import { sanitizeArticleContent } from '@/lib/socialEmbed/serverSanitizer'
 
 export const dynamic = 'force-dynamic'
@@ -69,6 +69,7 @@ export async function GET(req: NextRequest) {
 
     const formattedArticles = articles.map((art: any) => ({
       ...art,
+      keywords: Array.isArray(art.keywords) ? art.keywords : [],
       tags: art.tags.map((t: any) => t.tag),
     }))
 
@@ -106,6 +107,7 @@ export async function POST(req: NextRequest) {
       scheduledAt,
       metaTitle,
       metaDescription,
+      keywords,
       categoryId,
       authorId,
       tags = [],
@@ -175,6 +177,9 @@ export async function POST(req: NextRequest) {
         scheduledAt: finalScheduledAt,
         metaTitle: metaTitle?.trim() || null,
         metaDescription: metaDescription?.trim() || null,
+        keywords: Array.isArray(keywords)
+          ? keywords.map((k: any) => String(k).trim()).filter(Boolean)
+          : Prisma.DbNull,
         categoryId: validCategoryId || null,
         authorId: validAuthorId || null,
         competitionId: competitionId ? String(competitionId) : null,

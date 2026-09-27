@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { isRequestAdminAuthenticated } from '@/lib/adminAuth'
-import { ArticleStatus } from '@prisma/client'
+import { ArticleStatus, Prisma } from '@prisma/client'
 import { sanitizeArticleContent } from '@/lib/socialEmbed/serverSanitizer'
 
 export const dynamic = 'force-dynamic'
@@ -45,6 +45,7 @@ export async function GET(req: NextRequest, { params }: Params) {
     return NextResponse.json({
       article: {
         ...article,
+        keywords: Array.isArray(article.keywords) ? article.keywords : [],
         tags: article.tags.map((t: any) => t.tag),
       },
     })
@@ -73,6 +74,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
       scheduledAt,
       metaTitle,
       metaDescription,
+      keywords,
       categoryId,
       authorId,
       tags,
@@ -134,6 +136,9 @@ export async function PUT(req: NextRequest, { params }: Params) {
         scheduledAt: finalScheduledAt,
         metaTitle: metaTitle !== undefined ? (metaTitle ? metaTitle.trim() : null) : existingArticle.metaTitle,
         metaDescription: metaDescription !== undefined ? (metaDescription ? metaDescription.trim() : null) : existingArticle.metaDescription,
+        keywords: keywords !== undefined
+          ? (Array.isArray(keywords) ? keywords.map((k: any) => String(k).trim()).filter(Boolean) : Prisma.DbNull)
+          : undefined,
         categoryId: categoryId !== undefined ? categoryId : existingArticle.categoryId,
         authorId: authorId !== undefined ? authorId : existingArticle.authorId,
         competitionId: competitionId !== undefined ? (competitionId ? String(competitionId) : null) : existingArticle.competitionId,
