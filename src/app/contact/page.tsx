@@ -7,13 +7,13 @@ export const metadata: Metadata = {
   description:
     'Contact the MyScore24 editorial, technical, and partnership teams. Reach us directly at contact@myscore24.com for corrections, copyright requests, or general inquiries.',
   alternates: {
-    canonical: 'https://myscore24.com/contact',
+    canonical: 'https://www.myscore24.com/contact',
   },
   openGraph: {
     title: 'Contact MyScore24 | Support & Editorial Enquiries',
     description:
       'Official contact information and enquiry guidelines for MyScore24 readers, rights holders, and partners.',
-    url: 'https://myscore24.com/contact',
+    url: 'https://www.myscore24.com/contact',
     siteName: 'MyScore24',
     type: 'website',
   },

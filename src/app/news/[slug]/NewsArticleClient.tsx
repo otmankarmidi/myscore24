@@ -58,7 +58,7 @@ export default function NewsArticleClient({
       : article.author?.role || 'Sports Desk'
   const imageUrl = article.imageUrl || article.image
 
-  const currentUrl = typeof window !== 'undefined' ? window.location.href : `https://myscore24.com/news/${article.slug}`
+  const currentUrl = typeof window !== 'undefined' ? window.location.href : `https://www.myscore24.com/news/${article.slug}`
 
   const handleCopyLink = () => {
     if (typeof navigator !== 'undefined' && navigator.clipboard) {

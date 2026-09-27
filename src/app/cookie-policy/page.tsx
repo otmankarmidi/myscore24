@@ -9,13 +9,13 @@ export const metadata: Metadata = {
   description:
     'Detailed disclosure of cookies, local storage technologies, Google Analytics consent, and advertising identifiers used on MyScore24.',
   alternates: {
-    canonical: 'https://myscore24.com/cookie-policy',
+    canonical: 'https://www.myscore24.com/cookie-policy',
   },
   openGraph: {
     title: 'Cookie Policy | MyScore24',
     description:
       'Understand how MyScore24 uses cookies, local storage, and tracking technologies, and manage your consent preferences.',
-    url: 'https://myscore24.com/cookie-policy',
+    url: 'https://www.myscore24.com/cookie-policy',
     siteName: 'MyScore24',
     type: 'website',
   },

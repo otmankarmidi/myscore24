@@ -6,13 +6,13 @@ export const metadata: Metadata = {
   description:
     'Find upcoming football fixtures, kickoff schedules, match previews, and tournament calendars across all major leagues on MyScore24.',
   alternates: {
-    canonical: 'https://myscore24.com/fixtures',
+    canonical: 'https://www.myscore24.com/fixtures',
   },
   openGraph: {
     title: 'Football Fixtures & Upcoming Matches | MyScore24',
     description:
       'Find upcoming football fixtures, kickoff schedules, match previews, and tournament calendars across all major leagues on MyScore24.',
-    url: 'https://myscore24.com/fixtures',
+    url: 'https://www.myscore24.com/fixtures',
     siteName: 'MyScore24',
     images: [
       {

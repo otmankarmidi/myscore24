@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useLanguage } from '@/context/LanguageContext'
 import { useTimezone, TIMEZONE_OPTIONS } from '@/context/TimezoneContext'
 import { useTheme } from '@/hooks/useTheme'
+import { usePwaInstall } from '@/hooks/usePwaInstall'
 import { Locale } from '@/types/common'
 
 interface MobileDrawerProps {
@@ -23,19 +24,31 @@ export default function MobileDrawer({ isOpen, onClose, onOpenNotifications }: M
   const { locale, changeLocale, t } = useLanguage()
   const { selectedTimezone, setTimezonePreference } = useTimezone()
   const { isDark, toggle } = useTheme()
+  const { isInstalled, isIOS, showIOSInstructions, setShowIOSInstructions, triggerInstall } = usePwaInstall()
+  const [installing, setInstalling] = useState(false)
 
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = ''
+      setShowIOSInstructions(false)
     }
     return () => {
       document.body.style.overflow = ''
     }
-  }, [isOpen])
+  }, [isOpen, setShowIOSInstructions])
 
   if (!isOpen) return null
+
+  const handleInstallClick = async () => {
+    setInstalling(true)
+    try {
+      await triggerInstall()
+    } finally {
+      setInstalling(false)
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in">
@@ -58,6 +71,57 @@ export default function MobileDrawer({ isOpen, onClose, onOpenNotifications }: M
             <span className="material-symbols-outlined text-[20px]">close</span>
           </button>
         </div>
+
+        {/* PWA Install Button (Hidden if already installed in standalone mode) */}
+        {!isInstalled && (
+          <div className="p-3 rounded-xl bg-gradient-to-r from-surface-container-high to-surface-container border border-primary/30 space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-surface-container-lowest border border-surface-bright/60 flex items-center justify-center shrink-0">
+                  <img src="/icons/icon-192x192.png" alt="MyScore24" className="w-7 h-7 object-contain" />
+                </div>
+                <div className="min-w-0">
+                  <h4 className="text-xs font-bold text-on-surface truncate">MyScore24 App</h4>
+                  <p className="text-[11px] text-on-surface-variant truncate">
+                    Install for fast, fullscreen scores
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleInstallClick}
+                disabled={installing}
+                className="py-2 px-3.5 rounded-lg bg-primary text-on-primary font-geist font-bold text-xs hover:brightness-110 active:scale-95 transition-all shadow-md shrink-0 flex items-center gap-1.5 min-h-[36px]"
+              >
+                <span className="material-symbols-outlined text-sm">
+                  {isIOS ? 'add_box' : 'download'}
+                </span>
+                <span>Install</span>
+              </button>
+            </div>
+
+            {/* iOS Safari Instructions Accordion/Card */}
+            {showIOSInstructions && isIOS && (
+              <div className="p-3 rounded-lg bg-surface-container-low border border-surface-bright/50 text-xs space-y-2 animate-fade-in text-on-surface-variant">
+                <p className="font-bold text-on-surface text-[11px] uppercase tracking-wider text-primary">
+                  How to install on iPhone &amp; iPad:
+                </p>
+                <ol className="space-y-1.5 pl-4 list-decimal text-[11px]">
+                  <li>
+                    Tap the <strong>Share</strong> button <span className="font-mono text-primary">[↑]</span> at the bottom of Safari.
+                  </li>
+                  <li>
+                    Scroll down and tap <strong>Add to Home Screen</strong> <span className="material-symbols-outlined text-xs align-middle">add_box</span>.
+                  </li>
+                  <li>
+                    Tap <strong>Add</strong> in the top-right corner.
+                  </li>
+                </ol>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* 1. Language Selection */}
         <div className="space-y-1.5">

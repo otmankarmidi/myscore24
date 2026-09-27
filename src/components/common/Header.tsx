@@ -121,7 +121,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
 
   return (
     <>
-      <header className="sticky top-0 left-0 right-0 z-30 bg-surface/95 backdrop-blur-md border-b border-surface-bright/70">
+      <header className="sticky top-0 left-0 right-0 z-30 bg-surface/95 backdrop-blur-md border-b border-surface-bright/70 pt-[env(safe-area-inset-top,0px)]">
         <div className="max-w-[1480px] mx-auto h-14 px-3 sm:px-4 flex items-center justify-between gap-2 sm:gap-4">
           {/* Logo */}
           <div className="flex items-center gap-2 shrink-0">

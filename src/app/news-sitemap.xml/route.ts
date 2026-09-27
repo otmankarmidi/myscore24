@@ -55,7 +55,7 @@ export async function GET() {
     console.error('[News Sitemap Generator] Failed to fetch articles:', error)
   }
 
-  const BASE_URL = 'https://myscore24.com'
+  const BASE_URL = 'https://www.myscore24.com'
 
   const urlEntries = articles
     .map((article) => {

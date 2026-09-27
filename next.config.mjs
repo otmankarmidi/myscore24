@@ -21,6 +21,17 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'myscore24.com',
+          },
+        ],
+        destination: 'https://www.myscore24.com/:path*',
+        permanent: true,
+      },
+      {
         source: '/privacy',
         destination: '/privacy-policy',
         permanent: true,

@@ -6,13 +6,13 @@ export const metadata: Metadata = {
   description:
     'Latest football match results, full-time scores, goal scorers, match summaries, and historical match archives on MyScore24.',
   alternates: {
-    canonical: 'https://myscore24.com/results',
+    canonical: 'https://www.myscore24.com/results',
   },
   openGraph: {
     title: 'Football Results | MyScore24',
     description:
       'Latest football match results, full-time scores, goal scorers, match summaries, and historical match archives on MyScore24.',
-    url: 'https://myscore24.com/results',
+    url: 'https://www.myscore24.com/results',
     siteName: 'MyScore24',
     images: [
       {

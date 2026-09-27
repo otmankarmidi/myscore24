@@ -629,3 +629,25 @@ html.light .filter-tab-active {
   background: var(--color-surface-bright);
   transition: width 0.6s ease;
 }
+
+/* =====================
+   PWA STANDALONE & SAFE-AREA SUPPORT
+   ===================== */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+@media all and (display-mode: standalone) {
+  /* Prevent pull-to-refresh on standalone app where undesired */
+  body {
+    overscroll-behavior-y: contain;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  input, textarea, [contenteditable="true"] {
+    user-select: text;
+    -webkit-user-select: text;
+  }
+}
+

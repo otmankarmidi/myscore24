@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: LeaguePageProps): Promise<Met
       title: `${formattedSlug} - Football Competition | MyScore24`,
       description: `Follow ${formattedSlug} live football fixtures, match scores, standings, and statistics on MyScore24.`,
       alternates: {
-        canonical: `https://myscore24.com/league/${slug}`,
+        canonical: `https://www.myscore24.com/league/${slug}`,
       },
       robots: { index: false, follow: true },
     }
@@ -56,7 +56,7 @@ export async function generateMetadata({ params }: LeaguePageProps): Promise<Met
   const countryName = competition.country?.name ? ` (${competition.country.name})` : ''
   const title = `${compName}${countryName} Fixtures, Results & Standings | MyScore24`
   const description = `Live scores, fixtures, results, standings table and top scorers for ${compName}${countryName}. Real-time football coverage and statistics on MyScore24.`
-  const canonical = `https://myscore24.com/league/${slug}`
+  const canonical = `https://www.myscore24.com/league/${slug}`
 
   return {
     title,
@@ -101,19 +101,19 @@ export default async function LeaguePage({ params }: LeaguePageProps) {
             '@type': 'ListItem',
             position: 1,
             name: 'Home',
-            item: 'https://myscore24.com',
+            item: 'https://www.myscore24.com',
           },
           {
             '@type': 'ListItem',
             position: 2,
             name: 'Competitions',
-            item: 'https://myscore24.com/competitions',
+            item: 'https://www.myscore24.com/competitions',
           },
           {
             '@type': 'ListItem',
             position: 3,
             name: competition.name,
-            item: `https://myscore24.com/league/${slug}`,
+            item: `https://www.myscore24.com/league/${slug}`,
           },
         ],
       }

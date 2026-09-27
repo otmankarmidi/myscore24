@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: PlayerPageProps): Promise<Met
   const teamText = player.teamName ? ` - ${player.teamName}` : ''
   const title = `${playerName}${teamText} Stats, Profile & Career | MyScore24`
   const description = `View ${playerName}'s football profile${player.teamName ? ` at ${player.teamName}` : ''}. Match appearances, goals, assists, position details and career stats on MyScore24.`
-  const canonical = `https://myscore24.com/player/${slug}`
+  const canonical = `https://www.myscore24.com/player/${slug}`
 
   return {
     title,
@@ -86,19 +86,19 @@ export default async function PlayerPage({ params }: PlayerPageProps) {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://myscore24.com',
+        item: 'https://www.myscore24.com',
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: player.teamName || 'Teams',
-        item: player.teamSlug ? `https://myscore24.com/team/${player.teamSlug}` : 'https://myscore24.com',
+        item: player.teamSlug ? `https://www.myscore24.com/team/${player.teamSlug}` : 'https://www.myscore24.com',
       },
       {
         '@type': 'ListItem',
         position: 3,
         name: player.name,
-        item: `https://myscore24.com/player/${slug}`,
+        item: `https://www.myscore24.com/player/${slug}`,
       },
     ],
   }

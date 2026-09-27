@@ -6,13 +6,13 @@ export const metadata: Metadata = {
   description:
     'Track live football scores today with instant goal alerts, in-play statistics, match minutes, and live commentary across top world leagues on MyScore24.',
   alternates: {
-    canonical: 'https://myscore24.com/live',
+    canonical: 'https://www.myscore24.com/live',
   },
   openGraph: {
     title: 'Live Football Scores Today | MyScore24',
     description:
       'Track live football scores today with instant goal alerts, in-play statistics, match minutes, and live commentary across top world leagues on MyScore24.',
-    url: 'https://myscore24.com/live',
+    url: 'https://www.myscore24.com/live',
     siteName: 'MyScore24',
     images: [
       {

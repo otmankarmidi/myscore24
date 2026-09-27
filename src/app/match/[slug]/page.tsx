@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: MatchPageProps): Promise<Meta
       title: 'Match Details | MyScore24',
       description: 'Live scores, football stats, lineups, and head-to-head match details on MyScore24.',
       alternates: {
-        canonical: `https://myscore24.com/match/${slug}`,
+        canonical: `https://www.myscore24.com/match/${slug}`,
       },
       robots: { index: false, follow: true },
     }
@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: MatchPageProps): Promise<Meta
   const description = match.isFinal
     ? `Full time result: ${home} ${match.score?.home ?? 0} - ${match.score?.away ?? 0} ${away} in ${comp}. View match statistics, lineups, and head-to-head history on MyScore24.`
     : `Follow ${home} vs ${away} in ${comp}. Live score updates, starting lineups, match timeline, and head-to-head stats on MyScore24.`
-  const canonical = `https://myscore24.com/match/${slug}`
+  const canonical = `https://www.myscore24.com/match/${slug}`
 
   return {
     title,
@@ -100,8 +100,8 @@ export default async function MatchPage({ params }: MatchPageProps) {
           : 'https://schema.org/EventScheduled',
         eventAttendanceMode: 'https://schema.org/MixedEventAttendanceMode',
         image: [
-          initialMatch.homeTeam.logo || 'https://myscore24.com/og-image.png',
-          initialMatch.awayTeam.logo || 'https://myscore24.com/og-image.png',
+          initialMatch.homeTeam.logo || 'https://www.myscore24.com/og-image.png',
+          initialMatch.awayTeam.logo || 'https://www.myscore24.com/og-image.png',
         ].filter(Boolean),
         homeTeam: {
           '@type': 'SportsTeam',
@@ -148,11 +148,11 @@ export default async function MatchPage({ params }: MatchPageProps) {
         organizer: {
           '@type': 'SportsOrganization',
           name: initialMatch.league.name,
-          url: `https://myscore24.com/league/${initialMatch.league.slug || 'league'}`,
+          url: `https://www.myscore24.com/league/${initialMatch.league.slug || 'league'}`,
         },
         offers: {
           '@type': 'Offer',
-          url: `https://myscore24.com/match/${slug}`,
+          url: `https://www.myscore24.com/match/${slug}`,
           price: '0',
           priceCurrency: 'USD',
           availability: 'https://schema.org/InStock',
@@ -170,19 +170,19 @@ export default async function MatchPage({ params }: MatchPageProps) {
             '@type': 'ListItem',
             position: 1,
             name: 'Home',
-            item: 'https://myscore24.com',
+            item: 'https://www.myscore24.com',
           },
           {
             '@type': 'ListItem',
             position: 2,
             name: initialMatch.league.name,
-            item: `https://myscore24.com/league/${initialMatch.league.id}`,
+            item: `https://www.myscore24.com/league/${initialMatch.league.id}`,
           },
           {
             '@type': 'ListItem',
             position: 3,
             name: `${initialMatch.homeTeam.name} vs ${initialMatch.awayTeam.name}`,
-            item: `https://myscore24.com/match/${slug}`,
+            item: `https://www.myscore24.com/match/${slug}`,
           },
         ],
       }

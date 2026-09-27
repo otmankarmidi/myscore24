@@ -6,13 +6,13 @@ export const metadata: Metadata = {
   description:
     'Browse global football leagues, cups, tournaments, and championships covered on MyScore24. Access standings, fixtures, results, and team statistics.',
   alternates: {
-    canonical: 'https://myscore24.com/competitions',
+    canonical: 'https://www.myscore24.com/competitions',
   },
   openGraph: {
     title: 'Football Competitions & Leagues | MyScore24',
     description:
       'Browse global football leagues, cups, tournaments, and championships covered on MyScore24.',
-    url: 'https://myscore24.com/competitions',
+    url: 'https://www.myscore24.com/competitions',
     siteName: 'MyScore24',
     images: [
       {

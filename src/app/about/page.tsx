@@ -7,13 +7,13 @@ export const metadata: Metadata = {
   description:
     'Learn about MyScore24, an independent football information platform delivering real-time live scores, comprehensive match statistics, league standings, and original football editorial coverage.',
   alternates: {
-    canonical: 'https://myscore24.com/about',
+    canonical: 'https://www.myscore24.com/about',
   },
   openGraph: {
     title: 'About MyScore24 | Football Scores, News & Statistics',
     description:
       'Independent football scores, statistics, and news platform covering major domestic, European, and international competitions.',
-    url: 'https://myscore24.com/about',
+    url: 'https://www.myscore24.com/about',
     siteName: 'MyScore24',
     type: 'website',
   },

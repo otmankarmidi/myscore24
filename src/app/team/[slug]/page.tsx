@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: TeamPageProps): Promise<Metad
       title: `${formattedSlug} - Football Club | MyScore24`,
       description: `Follow ${formattedSlug} football fixtures, live scores, squad roster, and match statistics on MyScore24.`,
       alternates: {
-        canonical: `https://myscore24.com/team/${slug}`,
+        canonical: `https://www.myscore24.com/team/${slug}`,
       },
       robots: { index: false, follow: true },
     }
@@ -56,7 +56,7 @@ export async function generateMetadata({ params }: TeamPageProps): Promise<Metad
   const countryName = team.country ? ` (${team.country})` : ''
   const title = `${teamName}${countryName} Fixtures, Results & Squad | MyScore24`
   const description = `Follow ${teamName}${countryName} live scores, recent match results, upcoming fixtures, squad roster and team stats on MyScore24.`
-  const canonical = `https://myscore24.com/team/${slug}`
+  const canonical = `https://www.myscore24.com/team/${slug}`
 
   return {
     title,
@@ -117,19 +117,19 @@ export default async function TeamPage({ params }: TeamPageProps) {
             '@type': 'ListItem',
             position: 1,
             name: 'Home',
-            item: 'https://myscore24.com',
+            item: 'https://www.myscore24.com',
           },
           {
             '@type': 'ListItem',
             position: 2,
             name: 'Teams',
-            item: 'https://myscore24.com/competitions',
+            item: 'https://www.myscore24.com/competitions',
           },
           {
             '@type': 'ListItem',
             position: 3,
             name: team.name,
-            item: `https://myscore24.com/team/${slug}`,
+            item: `https://www.myscore24.com/team/${slug}`,
           },
         ],
       }

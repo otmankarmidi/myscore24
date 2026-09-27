@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-const BASE_URL = 'https://myscore24.com'
+const BASE_URL = 'https://www.myscore24.com'
 
 function slugify(text: string): string {
   return text

@@ -9,13 +9,13 @@ export const metadata: Metadata = {
   description:
     'Stay updated with the latest breaking football news, confirmed transfer rumours, comprehensive match previews, and in-depth tactical analysis on MyScore24.',
   alternates: {
-    canonical: 'https://myscore24.com/news',
+    canonical: 'https://www.myscore24.com/news',
   },
   openGraph: {
     title: 'Football News, Transfer Rumours & Tactical Analysis | MyScore24',
     description:
       'Stay updated with the latest breaking football news, confirmed transfer rumours, comprehensive match previews, and in-depth tactical analysis on MyScore24.',
-    url: 'https://myscore24.com/news',
+    url: 'https://www.myscore24.com/news',
     type: 'website',
     siteName: 'MyScore24',
     images: [
@@ -47,13 +47,13 @@ export default async function NewsPage() {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://myscore24.com',
+        item: 'https://www.myscore24.com',
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'News',
-        item: 'https://myscore24.com/news',
+        item: 'https://www.myscore24.com/news',
       },
     ],
   }

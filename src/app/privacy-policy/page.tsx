@@ -7,13 +7,13 @@ export const metadata: Metadata = {
   description:
     'Read the official Privacy Policy of MyScore24. Learn how we handle information, cookies, Google Analytics, advertising partners, and your data protection choices.',
   alternates: {
-    canonical: 'https://myscore24.com/privacy-policy',
+    canonical: 'https://www.myscore24.com/privacy-policy',
   },
   openGraph: {
     title: 'Privacy Policy | MyScore24',
     description:
       'Transparency on data handling, cookie preferences, analytics, and advertising disclosure for MyScore24 users.',
-    url: 'https://myscore24.com/privacy-policy',
+    url: 'https://www.myscore24.com/privacy-policy',
     siteName: 'MyScore24',
     type: 'website',
   },
@@ -39,7 +39,7 @@ export default function PrivacyPolicyPage() {
           </p>
           <p className="text-sm md:text-base text-on-surface-variant leading-relaxed">
             This Privacy Policy explains how MyScore24 (&ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;), operating at{' '}
-            <strong className="text-on-surface font-semibold">https://myscore24.com</strong>, processes information when you visit or interact with our website.
+            <strong className="text-on-surface font-semibold">https://www.myscore24.com</strong>, processes information when you visit or interact with our website.
           </p>
         </header>
 
@@ -283,7 +283,7 @@ export default function PrivacyPolicyPage() {
             For questions, data protection requests, or clarification regarding this Privacy Policy, please contact our team:
           </p>
           <div className="p-4 bg-surface-container-high rounded-lg border border-surface-bright text-xs sm:text-sm font-mono space-y-1">
-            <div><strong>Platform:</strong> MyScore24 (https://myscore24.com)</div>
+            <div><strong>Platform:</strong> MyScore24 (https://www.myscore24.com)</div>
             <div>
               <strong>Email:</strong>{' '}
               <a href="mailto:contact@myscore24.com" className="text-primary underline">

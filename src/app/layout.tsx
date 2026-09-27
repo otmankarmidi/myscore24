@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { LiveAlertManager } from '@/components/common/LiveAlertManager'
 import { TimezoneProvider } from '@/context/TimezoneContext'
@@ -6,9 +6,22 @@ import { LanguageProvider } from '@/context/LanguageContext'
 import GoogleAnalytics from '@/components/analytics/GoogleAnalytics'
 import CookieConsentBanner from '@/components/common/CookieConsentBanner'
 import Footer from '@/components/common/Footer'
+import PwaManager from '@/components/pwa/PwaManager'
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: dark)', color: '#0c1321' },
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+  ],
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: 'cover',
+}
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://myscore24.com'),
+  metadataBase: new URL('https://www.myscore24.com'),
+  applicationName: 'MyScore24',
   title: {
     default: 'Football Live Scores, Results & Fixtures | MyScore24',
     template: '%s',
@@ -29,17 +42,17 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'default',
+    statusBarStyle: 'black-translucent',
     title: 'MyScore24',
   },
   alternates: {
-    canonical: 'https://myscore24.com',
+    canonical: 'https://www.myscore24.com',
   },
   openGraph: {
     title: 'Football Live Scores, Results & Fixtures | MyScore24',
     description:
       'Fastest real-time live football scores, match statistics, lineups, head-to-head records, and league standings on MyScore24.',
-    url: 'https://myscore24.com',
+    url: 'https://www.myscore24.com',
     siteName: 'MyScore24',
     images: [
       {
@@ -60,11 +73,14 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: '/icons/icon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
       { url: '/favicon.png', type: 'image/png' },
-      { url: '/logo.png', type: 'image/png' },
     ],
     shortcut: '/favicon.png',
-    apple: '/logo.png',
+    apple: [
+      { url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
   },
 }
 
@@ -129,6 +145,7 @@ export default function RootLayout({
             <Footer />
             <LiveAlertManager />
             <CookieConsentBanner />
+            <PwaManager />
           </TimezoneProvider>
         </LanguageProvider>
       </body>

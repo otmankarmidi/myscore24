@@ -7,13 +7,13 @@ export const metadata: Metadata = {
   description:
     'Real-time live football scores, fixtures, results, standings, and match statistics from top competitions around the world on MyScore24.',
   alternates: {
-    canonical: 'https://myscore24.com',
+    canonical: 'https://www.myscore24.com',
   },
   openGraph: {
     title: 'Football Live Scores, Results & Fixtures | MyScore24',
     description:
       'Real-time live football scores, fixtures, results, standings, and match statistics from top competitions around the world on MyScore24.',
-    url: 'https://myscore24.com',
+    url: 'https://www.myscore24.com',
     siteName: 'MyScore24',
     images: [
       {
@@ -39,22 +39,22 @@ const homeStructuredData = {
   '@graph': [
     {
       '@type': 'WebSite',
-      '@id': 'https://myscore24.com/#website',
-      url: 'https://myscore24.com',
+      '@id': 'https://www.myscore24.com/#website',
+      url: 'https://www.myscore24.com',
       name: 'MyScore24',
       description: 'Football Live Scores, Results & Fixtures',
       potentialAction: {
         '@type': 'SearchAction',
-        target: 'https://myscore24.com/search?q={search_term_string}',
+        target: 'https://www.myscore24.com/search?q={search_term_string}',
         'query-input': 'required name=search_term_string',
       },
     },
     {
       '@type': 'Organization',
-      '@id': 'https://myscore24.com/#organization',
+      '@id': 'https://www.myscore24.com/#organization',
       name: 'MyScore24',
-      url: 'https://myscore24.com',
-      logo: 'https://myscore24.com/logo.png',
+      url: 'https://www.myscore24.com',
+      logo: 'https://www.myscore24.com/logo.png',
       sameAs: [],
     },
   ],

@@ -7,13 +7,13 @@ export const metadata: Metadata = {
   description:
     'Read the official Terms of Use for MyScore24. Review conditions governing platform access, football data accuracy, intellectual property, advertising, and acceptable use.',
   alternates: {
-    canonical: 'https://myscore24.com/terms',
+    canonical: 'https://www.myscore24.com/terms',
   },
   openGraph: {
     title: 'Terms of Use | MyScore24',
     description:
       'Legal terms, data disclaimers, and acceptable use guidelines governing the MyScore24 football score and information platform.',
-    url: 'https://myscore24.com/terms',
+    url: 'https://www.myscore24.com/terms',
     siteName: 'MyScore24',
     type: 'website',
   },
@@ -39,7 +39,7 @@ export default function TermsPage() {
           </p>
           <p className="text-sm md:text-base text-on-surface-variant leading-relaxed">
             Welcome to MyScore24 (&ldquo;Platform&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;), accessible at{' '}
-            <strong className="text-on-surface font-semibold">https://myscore24.com</strong>. These Terms of Use govern your access to and use of our live football score tracking platform, editorial articles, statistics, and related online features.
+            <strong className="text-on-surface font-semibold">https://www.myscore24.com</strong>. These Terms of Use govern your access to and use of our live football score tracking platform, editorial articles, statistics, and related online features.
           </p>
         </header>
 
@@ -212,7 +212,7 @@ export default function TermsPage() {
             For legal inquiries, copyright claims, or questions regarding these Terms of Use, please reach out to us:
           </p>
           <div className="p-4 bg-surface-container-high rounded-lg border border-surface-bright text-xs sm:text-sm font-mono space-y-1">
-            <div><strong>Platform:</strong> MyScore24 (https://myscore24.com)</div>
+            <div><strong>Platform:</strong> MyScore24 (https://www.myscore24.com)</div>
             <div>
               <strong>Email:</strong>{' '}
               <a href="mailto:contact@myscore24.com" className="text-primary underline">

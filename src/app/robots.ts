@@ -17,8 +17,8 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
     sitemap: [
-      'https://myscore24.com/sitemap.xml',
-      'https://myscore24.com/news-sitemap.xml',
+      'https://www.myscore24.com/sitemap.xml',
+      'https://www.myscore24.com/news-sitemap.xml',
     ],
   }
 }

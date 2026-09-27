@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: NewsArticlePageProps): Promis
 
   const title = metaTitle || `${article.title} | MyScore24`
   const description = metaDescription || article.excerpt
-  const canonical = `https://myscore24.com/news/${slug}`
+  const canonical = `https://www.myscore24.com/news/${slug}`
   const imageUrl = article.imageUrl || article.image || '/og-image.png'
   const keywordsList = Array.isArray(article.keywords)
     ? article.keywords.map((k) => String(k).trim()).filter(Boolean)
@@ -78,7 +78,7 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
     typeof article.author === 'string'
       ? article.author
       : article.author?.name || 'MyScore24 Desk'
-  const imageUrl = article.imageUrl || article.image || 'https://myscore24.com/og-image.png'
+  const imageUrl = article.imageUrl || article.image || 'https://www.myscore24.com/og-image.png'
 
   const keywordsList = Array.isArray(article.keywords)
     ? article.keywords.map((k) => String(k).trim()).filter(Boolean)
@@ -104,12 +104,12 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
       name: 'MyScore24',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://myscore24.com/og-image.png',
+        url: 'https://www.myscore24.com/og-image.png',
       },
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': `https://myscore24.com/news/${slug}`,
+      '@id': `https://www.myscore24.com/news/${slug}`,
     },
   }
 
@@ -121,19 +121,19 @@ export default async function NewsArticlePage({ params }: NewsArticlePageProps) 
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://myscore24.com',
+        item: 'https://www.myscore24.com',
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'News',
-        item: 'https://myscore24.com/news',
+        item: 'https://www.myscore24.com/news',
       },
       {
         '@type': 'ListItem',
         position: 3,
         name: article.title,
-        item: `https://myscore24.com/news/${slug}`,
+        item: `https://www.myscore24.com/news/${slug}`,
       },
     ],
   }
