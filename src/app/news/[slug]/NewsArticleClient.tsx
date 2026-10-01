@@ -60,26 +60,57 @@ export default function NewsArticleClient({
   const normalizedUrl = normalizeArticleImageUrl(article.imageUrl || article.image)
   const imageUrl = !imageError && normalizedUrl ? normalizedUrl : null
 
-  const currentUrl = typeof window !== 'undefined' ? window.location.href : `https://www.myscore24.com/${article.language || 'en'}/news/${encodeURIComponent(article.slug)}`
+  const articleLang = article.language || 'en'
+  const rawSlug = (() => {
+    try {
+      return decodeURIComponent(article.slug)
+    } catch {
+      return article.slug
+    }
+  })()
+
+  // Canonical single-encoded web URL for clipboard / Open Graph canonical
+  const canonicalArticleUrl = `https://www.myscore24.com/${articleLang}/news/${encodeURIComponent(rawSlug)}`
+
+  // Raw Unicode URL for share query parameters so encodeURIComponent encodes Arabic characters ONCE (%D8...), NEVER twice (%25D8...)
+  const rawShareUrl = `https://www.myscore24.com/${articleLang}/news/${rawSlug}`
 
   const handleCopyLink = () => {
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      navigator.clipboard.writeText(currentUrl)
+      navigator.clipboard.writeText(canonicalArticleUrl)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     }
   }
 
+  const handleNativeShare = async () => {
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({
+          title: article.title,
+          text: article.excerpt,
+          url: canonicalArticleUrl,
+        })
+        return
+      } catch (err: any) {
+        if (err.name !== 'AbortError') {
+          console.warn('[Share] navigator.share error:', err)
+        }
+      }
+    }
+    handleCopyLink()
+  }
+
   const shareTwitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
     article.title
-  )}&url=${encodeURIComponent(currentUrl)}`
+  )}&url=${encodeURIComponent(rawShareUrl)}`
 
   const shareFacebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-    currentUrl
+    rawShareUrl
   )}`
 
   const shareWhatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(
-    `${article.title} - ${currentUrl}`
+    `${article.title}\n\n${rawShareUrl}`
   )}`
 
   return (

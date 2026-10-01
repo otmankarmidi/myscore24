@@ -113,6 +113,20 @@ export async function getHomepageLatestArticles(
   return []
 }
 
+export function safeDecodeFully(str: string): string {
+  let current = str
+  for (let i = 0; i < 3; i++) {
+    try {
+      const decoded = decodeURIComponent(current)
+      if (decoded === current) break
+      current = decoded
+    } catch {
+      break
+    }
+  }
+  return current
+}
+
 export async function getArticleBySlug(
   slug: string,
   language?: string
@@ -126,11 +140,13 @@ export async function getArticleBySlug(
   matchId?: string | null
 }> {
   try {
-    const decodedSlug = decodeURIComponent(slug)
+    const decodedSlug = safeDecodeFully(slug)
+    const encodedSlug = encodeURIComponent(decodedSlug)
+    const slugCandidates = Array.from(new Set([slug, decodedSlug, encodedSlug])).filter(Boolean)
 
     let dbArticle = await prisma.article.findFirst({
       where: {
-        slug: decodedSlug,
+        slug: { in: slugCandidates },
         ...(language ? { language } : {}),
       },
       include: {
@@ -144,8 +160,8 @@ export async function getArticleBySlug(
 
     // Fallback if language specified but not found on that exact language (e.g. redirect lookup)
     if (!dbArticle && language) {
-      dbArticle = await prisma.article.findUnique({
-        where: { slug: decodedSlug },
+      dbArticle = await prisma.article.findFirst({
+        where: { slug: { in: slugCandidates } },
         include: {
           category: true,
           author: true,

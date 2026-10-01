@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import { notFound, permanentRedirect } from 'next/navigation'
-import { getArticleBySlug, getPublishedArticles } from '@/lib/articles'
+import { getArticleBySlug, getPublishedArticles, safeDecodeFully } from '@/lib/articles'
 import ArticleBodyRenderer from '@/components/news/ArticleBodyRenderer'
 import NewsArticleClient from '@/app/news/[slug]/NewsArticleClient'
 import { getArticleOgImageUrl } from '@/lib/newsImage'
@@ -13,7 +13,7 @@ interface LocalizedArticlePageProps {
 
 export async function generateMetadata({ params }: LocalizedArticlePageProps): Promise<Metadata> {
   const { lang, slug } = await params
-  const decodedSlug = decodeURIComponent(slug)
+  const decodedSlug = safeDecodeFully(slug)
 
   if (lang !== 'en' && lang !== 'ar') {
     return {
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: LocalizedArticlePageProps): P
     }
   }
 
-  const { article, metaTitle, metaDescription } = await getArticleBySlug(decodedSlug)
+  const { article, metaTitle, metaDescription } = await getArticleBySlug(decodedSlug, lang)
 
   if (!article) {
     return {
@@ -37,6 +37,9 @@ export async function generateMetadata({ params }: LocalizedArticlePageProps): P
   const description = metaDescription || article.excerpt
   const canonical = `https://www.myscore24.com/${lang}/news/${encodeURIComponent(article.slug)}`
   const ogImageUrl = getArticleOgImageUrl(article.imageUrl || article.image)
+  const isWebp = ogImageUrl.toLowerCase().endsWith('.webp')
+  const isPng = ogImageUrl.toLowerCase().endsWith('.png')
+  const mimeType = isWebp ? 'image/webp' : isPng ? 'image/png' : 'image/jpeg'
 
   // Configure hreflang alternates if published translations exist
   const languageAlternates: Record<string, string> = {
@@ -70,12 +73,17 @@ export async function generateMetadata({ params }: LocalizedArticlePageProps): P
       siteName: 'MyScore24',
       locale: isAr ? 'ar_AR' : 'en_US',
       publishedTime: article.publishedAt,
+      modifiedTime: article.updatedAt || article.publishedAt,
+      section: article.category,
+      tags: article.tags,
       images: [
         {
           url: ogImageUrl,
+          secureUrl: ogImageUrl,
           width: 1200,
           height: 630,
           alt: article.title,
+          type: mimeType,
         },
       ],
     },
@@ -84,6 +92,8 @@ export async function generateMetadata({ params }: LocalizedArticlePageProps): P
       title,
       description,
       images: [ogImageUrl],
+      site: '@MyScore24',
+      creator: '@MyScore24',
     },
   }
 }
@@ -94,8 +104,8 @@ export default async function LocalizedArticlePage({ params }: LocalizedArticleP
     notFound()
   }
 
-  const decodedSlug = decodeURIComponent(slug)
-  const { article, competition, team, playerId, matchId } = await getArticleBySlug(decodedSlug)
+  const decodedSlug = safeDecodeFully(slug)
+  const { article, competition, team, playerId, matchId } = await getArticleBySlug(decodedSlug, lang)
 
   if (!article) {
     notFound()
@@ -108,9 +118,9 @@ export default async function LocalizedArticlePage({ params }: LocalizedArticleP
       (t) => t.language === lang && t.status === 'PUBLISHED'
     )
     if (requestedSibling) {
-      permanentRedirect(`/${lang}/news/${encodeURIComponent(requestedSibling.slug)}`)
+      permanentRedirect(`https://www.myscore24.com/${lang}/news/${encodeURIComponent(requestedSibling.slug)}`)
     } else {
-      permanentRedirect(`/${article.language}/news/${encodeURIComponent(article.slug)}`)
+      permanentRedirect(`https://www.myscore24.com/${article.language}/news/${encodeURIComponent(article.slug)}`)
     }
   }
 
