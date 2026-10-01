@@ -60,7 +60,7 @@ export default function NewsArticleClient({
   const normalizedUrl = normalizeArticleImageUrl(article.imageUrl || article.image)
   const imageUrl = !imageError && normalizedUrl ? normalizedUrl : null
 
-  const currentUrl = typeof window !== 'undefined' ? window.location.href : `https://www.myscore24.com/news/${article.slug}`
+  const currentUrl = typeof window !== 'undefined' ? window.location.href : `https://www.myscore24.com/${article.language || 'en'}/news/${encodeURIComponent(article.slug)}`
 
   const handleCopyLink = () => {
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
@@ -89,19 +89,40 @@ export default function NewsArticleClient({
       <div className="flex-1 max-w-[1440px] w-full mx-auto px-2 md:px-4 py-4 flex gap-4">
         <DesktopSidebar />
 
-        <main className="flex-1 min-w-0 space-y-6">
+        <main className="flex-1 min-w-0 space-y-6" dir={article.language === 'ar' ? 'rtl' : 'ltr'}>
           {/* Article Header info */}
           <div className="space-y-3">
-            <div className="flex items-center gap-2 text-xs flex-wrap">
-              <span className="px-2.5 py-0.5 rounded bg-primary text-on-primary font-bold uppercase tracking-wider text-[10px]">
-                {article.category}
-              </span>
-              <span className="text-on-surface-variant">•</span>
-              <span className="text-on-surface-variant">{formatDate(article.publishedAt)}</span>
-              <span className="text-on-surface-variant">•</span>
-              <span className="text-on-surface-variant">
-                {article.readTimeMinutes || article.readTime || 3} min read
-              </span>
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <div className="flex items-center gap-2 text-xs flex-wrap">
+                <span className="px-2.5 py-0.5 rounded bg-primary text-on-primary font-bold uppercase tracking-wider text-[10px]">
+                  {article.category}
+                </span>
+                <span className="text-on-surface-variant">•</span>
+                <span className="text-on-surface-variant">{formatDate(article.publishedAt)}</span>
+                <span className="text-on-surface-variant">•</span>
+                <span className="text-on-surface-variant">
+                  {article.readTimeMinutes || article.readTime || 3} min read
+                </span>
+              </div>
+
+              {/* Translation / Language Switcher */}
+              {article.translations && article.translations.length > 0 && (
+                <div className="flex items-center gap-2 py-1 px-2.5 rounded-lg bg-surface-container border border-surface-bright text-xs">
+                  <span className="material-symbols-outlined text-sm text-primary">translate</span>
+                  <span className="text-on-surface-variant text-[11px] font-medium">
+                    {article.language === 'ar' ? 'متوفر أيضاً بـ:' : 'Read in:'}
+                  </span>
+                  {article.translations.map((tr) => (
+                    <Link
+                      key={tr.id}
+                      href={`/${tr.language}/news/${encodeURIComponent(tr.slug)}`}
+                      className="px-2 py-0.5 rounded bg-surface-bright hover:bg-surface-container-highest text-primary font-bold text-xs transition-colors"
+                    >
+                      {tr.language === 'ar' ? '🇸🇦 العربية' : '🇬🇧 English'}
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
 
             <h1 className="text-headline-xl md:text-headline-xl text-on-surface font-extrabold leading-tight">

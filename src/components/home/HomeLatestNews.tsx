@@ -29,7 +29,7 @@ function FeaturedStoryCard({ article }: { article: NewsArticle }) {
   return (
     <article className="h-full">
       <Link
-        href={`/news/${article.slug}`}
+        href={`/${article.language || 'en'}/news/${encodeURIComponent(article.slug)}`}
         className="group relative flex flex-col justify-end rounded-xl overflow-hidden border border-surface-bright/70 hover:border-primary/70 transition-all shadow-md bg-surface-container h-full min-h-[300px] sm:min-h-[330px] md:min-h-[350px]"
       >
         {/* Background Image / Placeholder */}
@@ -97,7 +97,7 @@ function LeftColumnNewsCard({ article }: { article: NewsArticle }) {
   return (
     <article className="flex-1 flex">
       <Link
-        href={`/news/${article.slug}`}
+        href={`/${article.language || 'en'}/news/${encodeURIComponent(article.slug)}`}
         className="group flex-1 flex gap-3 p-2.5 sm:p-3 rounded-xl border border-surface-bright/70 bg-surface-container hover:bg-surface-container-high hover:border-primary/60 transition-all text-start"
       >
         <div className="relative w-24 sm:w-28 h-20 sm:h-auto rounded-lg overflow-hidden bg-surface-container-highest shrink-0 min-h-[68px]">
@@ -153,7 +153,7 @@ function BottomRowNewsCard({ article }: { article: NewsArticle }) {
   return (
     <article className="flex">
       <Link
-        href={`/news/${article.slug}`}
+        href={`/${article.language || 'en'}/news/${encodeURIComponent(article.slug)}`}
         className="group flex-1 flex flex-col rounded-xl border border-surface-bright/70 bg-surface-container hover:bg-surface-container-high hover:border-primary/60 overflow-hidden transition-all text-start"
       >
         <div className="relative w-full aspect-[16/9] bg-surface-container-highest overflow-hidden">
@@ -200,7 +200,7 @@ function BottomRowNewsCard({ article }: { article: NewsArticle }) {
  * Editorial Latest News Grid Component for Homepage (Top 4 Articles Layout)
  */
 export default function HomeLatestNews({ articles = [] }: HomeLatestNewsProps) {
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
 
   if (!articles || articles.length === 0) {
     return null
@@ -228,7 +228,7 @@ export default function HomeLatestNews({ articles = [] }: HomeLatestNewsProps) {
           </h2>
         </div>
         <Link
-          href="/news"
+          href={`/${locale === 'ar' ? 'ar' : 'en'}/news`}
           className="group flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary-fixed transition-colors"
         >
           <span>{t('news.viewAll', 'View All News')}</span>

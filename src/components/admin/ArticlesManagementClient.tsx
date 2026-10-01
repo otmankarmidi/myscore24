@@ -9,6 +9,8 @@ interface ArticleItem {
   id: string
   title: string
   slug: string
+  language?: 'en' | 'ar' | 'fr'
+  translationGroupId?: string | null
   excerpt: string
   featuredImage: string | null
   status: 'DRAFT' | 'PUBLISHED' | 'SCHEDULED' | 'ARCHIVED'
@@ -33,6 +35,7 @@ export default function ArticlesManagementClient() {
   const [categories, setCategories] = useState<CategoryItem[]>([])
   const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
+  const [languageFilter, setLanguageFilter] = useState<string>('ALL')
   const [categoryFilter, setCategoryFilter] = useState<string>('')
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [page, setPage] = useState<number>(1)
@@ -55,6 +58,7 @@ export default function ArticlesManagementClient() {
     try {
       const params = new URLSearchParams()
       if (statusFilter && statusFilter !== 'ALL') params.set('status', statusFilter)
+      if (languageFilter && languageFilter !== 'ALL') params.set('language', languageFilter)
       if (categoryFilter) params.set('categoryId', categoryFilter)
       if (searchQuery.trim()) params.set('search', searchQuery.trim())
       params.set('page', page.toString())
@@ -73,7 +77,7 @@ export default function ArticlesManagementClient() {
     } finally {
       setLoading(false)
     }
-  }, [statusFilter, categoryFilter, searchQuery, page])
+  }, [statusFilter, languageFilter, categoryFilter, searchQuery, page])
 
   useEffect(() => {
     fetchCategories()
@@ -169,8 +173,8 @@ export default function ArticlesManagementClient() {
           ))}
         </div>
 
-        {/* Search & Category Filter */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        {/* Search, Language & Category Filter */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <div className="relative md:col-span-2">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-base text-[#8c947c]">
               search
@@ -185,6 +189,22 @@ export default function ArticlesManagementClient() {
               }}
               className="w-full pl-9 pr-4 py-2 rounded-lg bg-[#0c1321] border border-[#232a39] text-xs text-[#dce2f6] placeholder-[#424936] focus:outline-none focus:border-[#ccff80]"
             />
+          </div>
+
+          <div>
+            <select
+              value={languageFilter}
+              onChange={(e) => {
+                setLanguageFilter(e.target.value)
+                setPage(1)
+              }}
+              aria-label="Filter by language"
+              className="w-full px-3 py-2 rounded-lg bg-[#0c1321] border border-[#232a39] text-xs text-[#dce2f6] focus:outline-none focus:border-[#ccff80]"
+            >
+              <option value="ALL">🌐 All Languages</option>
+              <option value="en">🇬🇧 English (en)</option>
+              <option value="ar">🇸🇦 العربية (ar)</option>
+            </select>
           </div>
 
           <div>
@@ -222,6 +242,7 @@ export default function ArticlesManagementClient() {
             <button
               onClick={() => {
                 setStatusFilter('ALL')
+                setLanguageFilter('ALL')
                 setCategoryFilter('')
                 setSearchQuery('')
               }}
@@ -236,6 +257,7 @@ export default function ArticlesManagementClient() {
               <thead className="bg-[#0c1321] text-[#8c947c] uppercase tracking-wider font-semibold border-b border-[#232a39]">
                 <tr>
                   <th className="px-4 py-3">Article</th>
+                  <th className="px-4 py-3">Lang</th>
                   <th className="px-4 py-3">Category</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">Author</th>
@@ -273,10 +295,23 @@ export default function ArticlesManagementClient() {
                             {art.title}
                           </Link>
                           <p className="text-[11px] text-[#8c947c] font-mono truncate">
-                            /{art.slug}
+                            /{art.language || 'en'}/news/{art.slug}
                           </p>
                         </div>
                       </div>
+                    </td>
+
+                    {/* Language Badge */}
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <span
+                        className={`text-[10px] font-extrabold px-2 py-0.5 rounded border uppercase tracking-wider ${
+                          art.language === 'ar'
+                            ? 'bg-[#003915] text-[#4ae176] border-[#00b954]/30'
+                            : 'bg-[#19202e] text-[#ccff80] border-[#ccff80]/30'
+                        }`}
+                      >
+                        {art.language === 'ar' ? '🇸🇦 AR' : '🇬🇧 EN'}
+                      </span>
                     </td>
 
                     {/* Category */}
@@ -313,9 +348,18 @@ export default function ArticlesManagementClient() {
                     {/* Actions */}
                     <td className="px-4 py-3 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-1.5">
+                        {/* Quick Add Translation Button */}
+                        <Link
+                          href={`/admin/articles/new?translateFrom=${art.id}&lang=${art.language === 'ar' ? 'en' : 'ar'}&translationGroupId=${art.translationGroupId || art.id}`}
+                          className="px-1.5 py-1 rounded-md text-[11px] font-bold text-[#8c947c] hover:text-[#ccff80] hover:bg-[#232a39] border border-transparent hover:border-[#232a39] transition-all"
+                          title={art.language === 'ar' ? 'Add English Version' : 'Add Arabic Version'}
+                        >
+                          {art.language === 'ar' ? '+EN' : '+AR'}
+                        </Link>
+
                         {art.status === 'PUBLISHED' && (
                           <Link
-                            href={`/news/${art.slug}`}
+                            href={`/${art.language || 'en'}/news/${encodeURIComponent(art.slug)}`}
                             target="_blank"
                             className="p-1.5 rounded-md text-[#8c947c] hover:text-[#ccff80] hover:bg-[#232a39] transition-all"
                             title="View public page"

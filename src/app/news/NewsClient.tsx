@@ -10,10 +10,12 @@ import { NewsArticle } from '@/types/news'
 
 interface NewsClientProps {
   initialArticles: NewsArticle[]
+  language?: 'en' | 'ar'
 }
 
-export default function NewsClient({ initialArticles }: NewsClientProps) {
+export default function NewsClient({ initialArticles, language = 'en' }: NewsClientProps) {
   const [activeCategory, setActiveCategory] = useState<string>('all')
+  const isAr = language === 'ar'
 
   // Collect distinct categories from articles
   const categorySet = new Set<string>()
@@ -37,17 +39,21 @@ export default function NewsClient({ initialArticles }: NewsClientProps) {
       <div className="flex-1 max-w-[1440px] w-full mx-auto px-2 md:px-4 py-4 flex gap-4">
         <DesktopSidebar />
 
-        <main className="flex-1 min-w-0 space-y-4">
+        <main className="flex-1 min-w-0 space-y-4" dir={isAr ? 'rtl' : 'ltr'}>
           <div className="bg-surface-container rounded-xl border border-surface-bright p-4 md:p-6 space-y-2">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary">
               <span className="material-symbols-outlined text-base" aria-hidden="true">
                 newspaper
               </span>
-              <span>Football News & Analysis</span>
+              <span>{isAr ? 'أخبار وتحليلات كرة القدم' : 'Football News & Analysis'}</span>
             </div>
-            <h1 className="text-headline-xl text-on-surface font-extrabold">Latest Football Headlines</h1>
+            <h1 className="text-headline-xl text-on-surface font-extrabold">
+              {isAr ? 'أحدث عناوين كرة القدم العالمية' : 'Latest Football Headlines'}
+            </h1>
             <p className="text-body-sm text-on-surface-variant">
-              Breaking news, transfer rumors, match previews, and tactical analysis from around the world.
+              {isAr
+                ? 'أخبار عاجلة، شائعات الانتقالات، تقارير المباريات والتحليلات التكتيكية الحصرية من الملاعب العالمية.'
+                : 'Breaking news, transfer rumors, match previews, and tactical analysis from around the world.'}
             </p>
           </div>
 

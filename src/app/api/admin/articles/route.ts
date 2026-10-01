@@ -11,7 +11,7 @@ function slugify(text: string): string {
   return text
     .toLowerCase()
     .trim()
-    .replace(/[^\w\s-]/g, '')
+    .replace(/[^\p{L}\p{N}\s-]/gu, '')
     .replace(/[\s_-]+/g, '-')
     .replace(/^-+|-+$/g, '')
 }
@@ -26,6 +26,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const status = searchParams.get('status') as ArticleStatus | null
     const categoryId = searchParams.get('categoryId')
+    const language = searchParams.get('language')
     const search = searchParams.get('search')
     const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
     const limit = Math.max(1, Math.min(100, parseInt(searchParams.get('limit') || '20', 10)))
@@ -39,6 +40,10 @@ export async function GET(req: NextRequest) {
 
     if (categoryId) {
       where.categoryId = categoryId
+    }
+
+    if (language && ['en', 'ar', 'fr'].includes(language)) {
+      where.language = language
     }
 
     if (search && search.trim()) {
@@ -70,6 +75,8 @@ export async function GET(req: NextRequest) {
 
     const formattedArticles = articles.map((art: any) => ({
       ...art,
+      language: art.language || 'en',
+      translationGroupId: art.translationGroupId || null,
       keywords: Array.isArray(art.keywords) ? art.keywords : [],
       tags: art.tags.map((t: any) => t.tag),
     }))
@@ -103,6 +110,8 @@ export async function POST(req: NextRequest) {
       excerpt,
       content,
       featuredImage,
+      language = 'en',
+      translationGroupId,
       status = 'DRAFT',
       publishedAt,
       scheduledAt,
@@ -126,6 +135,8 @@ export async function POST(req: NextRequest) {
     if (!sanitizeResult.valid) {
       return NextResponse.json({ error: sanitizeResult.error }, { status: 400 })
     }
+
+    const finalLanguage = language === 'ar' || language === 'fr' ? language : 'en'
 
     let finalSlug = slugify(customSlug || title)
     if (!finalSlug) {
@@ -165,6 +176,10 @@ export async function POST(req: NextRequest) {
       if (defaultCategory) validCategoryId = defaultCategory.id
     }
 
+    const finalGroupId =
+      translationGroupId?.trim() ||
+      `tg-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+
     // Create article
     const article = await prisma.article.create({
       data: {
@@ -173,6 +188,8 @@ export async function POST(req: NextRequest) {
         excerpt: excerpt?.trim() || title.trim(),
         content: sanitizeResult.sanitizedContent,
         featuredImage: featuredImage?.trim() || null,
+        language: finalLanguage,
+        translationGroupId: finalGroupId,
         status: status as ArticleStatus,
         publishedAt: finalPublishedAt,
         scheduledAt: finalScheduledAt,
@@ -232,12 +249,15 @@ export async function POST(req: NextRequest) {
 
     // Revalidate public news pages and sitemaps
     try {
-      revalidatePath('/news')
+      revalidatePath(`/${finalLanguage}/news`)
       if (createdArticle?.slug) {
-        revalidatePath(`/news/${createdArticle.slug}`)
+        revalidatePath(`/${finalLanguage}/news/${encodeURIComponent(createdArticle.slug)}`)
       }
+      revalidatePath('/en/news')
+      revalidatePath('/ar/news')
       revalidatePath('/sitemap.xml')
       revalidatePath('/news-sitemap.xml')
+      revalidatePath('/')
     } catch (revalErr) {
       console.error('[Article Revalidation Error]', revalErr)
     }
@@ -246,6 +266,8 @@ export async function POST(req: NextRequest) {
       success: true,
       article: {
         ...createdArticle,
+        language: createdArticle?.language || finalLanguage,
+        translationGroupId: createdArticle?.translationGroupId || finalGroupId,
         tags: createdArticle?.tags.map((t: any) => t.tag) || [],
       },
     })

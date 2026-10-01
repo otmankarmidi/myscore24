@@ -29,6 +29,7 @@ export async function GET() {
   let articles: Array<{
     slug: string
     title: string
+    language: string
     publishedAt: Date | null
   }> = []
 
@@ -44,6 +45,7 @@ export async function GET() {
       select: {
         slug: true,
         title: true,
+        language: true,
         publishedAt: true,
       },
       orderBy: {
@@ -63,14 +65,15 @@ export async function GET() {
         ? new Date(article.publishedAt).toISOString()
         : now.toISOString()
       const escapedTitle = escapeXml(article.title || '')
-      const loc = `${BASE_URL}/news/${article.slug}`
+      const articleLang = article.language === 'ar' ? 'ar' : 'en'
+      const loc = `${BASE_URL}/${articleLang}/news/${encodeURIComponent(article.slug)}`
 
       return `  <url>
     <loc>${loc}</loc>
     <news:news>
       <news:publication>
         <news:name>MyScore24</news:name>
-        <news:language>en</news:language>
+        <news:language>${articleLang}</news:language>
       </news:publication>
       <news:publication_date>${pubDate}</news:publication_date>
       <news:title>${escapedTitle}</news:title>

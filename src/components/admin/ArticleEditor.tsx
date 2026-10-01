@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, useRef, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import SocialEmbed from '@/components/social/SocialEmbed'
@@ -33,20 +33,34 @@ interface ArticleEditorProps {
   initialArticleId?: string
 }
 
+interface TranslationSibling {
+  id: string
+  language: string
+  slug: string
+  title: string
+  status: string
+}
+
 function slugify(text: string): string {
   return text
     .toLowerCase()
     .trim()
-    .replace(/[^\w\s-]/g, '')
+    .replace(/[^\p{L}\p{N}\s-]/gu, '')
     .replace(/[\s_-]+/g, '-')
     .replace(/^-+|-+$/g, '')
 }
 
-export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) {
+function ArticleEditorInner({ initialArticleId }: ArticleEditorProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const inlineImageInputRef = useRef<HTMLInputElement>(null)
+
+  // Language & Translation states
+  const [language, setLanguage] = useState<'en' | 'ar' | 'fr'>('en')
+  const [translationGroupId, setTranslationGroupId] = useState<string | null>(null)
+  const [translations, setTranslations] = useState<TranslationSibling[]>([])
 
   // Form states
   const [title, setTitle] = useState('')
@@ -178,6 +192,45 @@ export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) 
     loadMetadata()
   }, [])
 
+  // Handle URL query params for new articles (e.g. translateFrom, lang, translationGroupId)
+  useEffect(() => {
+    if (initialArticleId) return
+
+    const langParam = searchParams.get('lang')
+    if (langParam === 'ar' || langParam === 'en' || langParam === 'fr') {
+      setLanguage(langParam)
+    }
+
+    const groupIdParam = searchParams.get('translationGroupId')
+    if (groupIdParam) {
+      setTranslationGroupId(groupIdParam)
+    }
+
+    const fromId = searchParams.get('translateFrom')
+    if (fromId) {
+      fetch(`/api/admin/articles/${fromId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.article) {
+            const src = data.article
+            setCategoryId(src.categoryId || '')
+            setAuthorId(src.authorId || '')
+            setFeaturedImage(src.featuredImage || null)
+            setTags(src.tags ? src.tags.map((t: any) => t.name) : [])
+            setCompetitionId(src.competitionId || '')
+            setTeamId(src.teamId || '')
+            setPlayerId(src.playerId || '')
+            setMatchId(src.matchId || '')
+            setTranslationGroupId(src.translationGroupId || fromId)
+            if (src.translations) {
+              setTranslations(src.translations)
+            }
+          }
+        })
+        .catch((err) => console.error('Failed to load template article', err))
+    }
+  }, [initialArticleId, searchParams])
+
   // Load existing article if editing
   useEffect(() => {
     if (!initialArticleId) return
@@ -192,6 +245,9 @@ export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) 
           setTitle(a.title || '')
           setSlug(a.slug || '')
           setIsSlugManual(true)
+          setLanguage((a.language as 'en' | 'ar' | 'fr') || 'en')
+          setTranslationGroupId(a.translationGroupId || null)
+          setTranslations(a.translations || [])
           setExcerpt(a.excerpt || '')
           setContent(a.content || '')
           setFeaturedImage(a.featuredImage || null)
@@ -498,6 +554,8 @@ export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) 
     const payload = {
       title,
       slug: slug || slugify(title),
+      language,
+      translationGroupId,
       excerpt: excerpt.trim() || title.trim(),
       content,
       featuredImage,
@@ -585,7 +643,7 @@ export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) 
         <div className="flex items-center gap-2 flex-wrap">
           {slug && (
             <Link
-              href={`/news/${slug}`}
+              href={`/${language}/news/${encodeURIComponent(slug)}`}
               target="_blank"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-[#8c947c] hover:text-[#ccff80] bg-[#19202e] border border-[#232a39] transition-all"
             >
@@ -634,6 +692,71 @@ export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) 
         </div>
       )}
 
+      {/* Translation & Language Bar */}
+      <div className="bg-[#151b2a] border border-[#232a39] rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8c947c] block mb-1">
+              Article Language
+            </span>
+            <div className="flex items-center gap-2">
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value as 'en' | 'ar')}
+                className="px-3 py-1.5 rounded-lg bg-[#0c1321] border border-[#232a39] text-xs font-bold text-[#dce2f6] focus:outline-none focus:border-[#ccff80]"
+              >
+                <option value="en">🇬🇧 English (en)</option>
+                <option value="ar">🇸🇦 العربية (ar)</option>
+              </select>
+              <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded border uppercase ${
+                language === 'ar' ? 'bg-[#003915] text-[#4ae176] border-[#00b954]/40' : 'bg-[#19202e] text-[#ccff80] border-[#ccff80]/30'
+              }`}>
+                {language === 'ar' ? 'RTL Mode' : 'LTR Mode'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Linked Translations */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs text-[#8c947c]">Linked Versions:</span>
+          {translations.map((tr) => (
+            <Link
+              key={tr.id}
+              href={`/admin/articles/${tr.id}/edit`}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold border transition-all ${
+                tr.id === initialArticleId
+                  ? 'bg-[#232a39] text-[#ccff80] border-[#ccff80]/40'
+                  : 'bg-[#0c1321] text-[#dce2f6] border-[#232a39] hover:border-[#ccff80]'
+              }`}
+            >
+              <span>{tr.language === 'ar' ? '🇸🇦 Arabic' : '🇬🇧 English'}</span>
+              <span className="text-[10px] opacity-70">({tr.status})</span>
+            </Link>
+          ))}
+
+          {/* Buttons to create missing translations */}
+          {initialArticleId && !translations.some((t) => t.language === 'ar') && language !== 'ar' && (
+            <Link
+              href={`/admin/articles/new?translateFrom=${initialArticleId}&lang=ar&translationGroupId=${translationGroupId || initialArticleId}`}
+              className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-bold text-[#213600] bg-[#ccff80] hover:bg-[#b2f746] transition-all"
+            >
+              <span className="material-symbols-outlined text-sm font-bold">add</span>
+              <span>Add Arabic Version</span>
+            </Link>
+          )}
+          {initialArticleId && !translations.some((t) => t.language === 'en') && language !== 'en' && (
+            <Link
+              href={`/admin/articles/new?translateFrom=${initialArticleId}&lang=en&translationGroupId=${translationGroupId || initialArticleId}`}
+              className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-bold text-[#213600] bg-[#ccff80] hover:bg-[#b2f746] transition-all"
+            >
+              <span className="material-symbols-outlined text-sm font-bold">add</span>
+              <span>Add English Version</span>
+            </Link>
+          )}
+        </div>
+      </div>
+
       {/* Main 2-column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column (Main Content Area, 2 cols) */}
@@ -646,7 +769,8 @@ export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) 
               </label>
               <input
                 type="text"
-                placeholder="e.g. Manchester City Clinch Thrilling 3-2 Comeback Over Liverpool"
+                placeholder={language === 'ar' ? 'مثال: مانشستر سيتي يقلب الطاولة على ليفربول بثلاثية مثيرة' : 'e.g. Manchester City Clinch Thrilling 3-2 Comeback Over Liverpool'}
+                dir={language === 'ar' ? 'rtl' : 'ltr'}
                 value={title}
                 onChange={(e) => handleTitleChange(e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-lg bg-[#0c1321] border border-[#232a39] text-sm font-bold text-[#dce2f6] placeholder-[#424936] focus:outline-none focus:border-[#ccff80]"
@@ -655,7 +779,7 @@ export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) 
 
             {/* Slug row */}
             <div className="flex items-center gap-2 text-xs">
-              <span className="text-[#8c947c] font-mono">/news/</span>
+              <span className="text-[#8c947c] font-mono">/{language}/news/</span>
               <input
                 type="text"
                 value={slug}
@@ -759,7 +883,8 @@ export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) 
             </label>
             <textarea
               rows={2}
-              placeholder="Brief summary that appears on news cards and search snippets..."
+              placeholder={language === 'ar' ? 'ملخص قصير يظهر في بطاقات الأخبار ومحركات البحث...' : 'Brief summary that appears on news cards and search snippets...'}
+              dir={language === 'ar' ? 'rtl' : 'ltr'}
               value={excerpt}
               onChange={(e) => setExcerpt(e.target.value)}
               className="w-full px-3.5 py-2 rounded-lg bg-[#0c1321] border border-[#232a39] text-xs text-[#dce2f6] placeholder-[#424936] focus:outline-none focus:border-[#ccff80]"
@@ -981,11 +1106,12 @@ export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) 
                 rows={16}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="Write full article content here. You can use markdown headings, lists, quotes, and images..."
+                dir={language === 'ar' ? 'rtl' : 'ltr'}
+                placeholder={language === 'ar' ? 'اكتب محتوى المقال الكامل هنا. يمكنك استخدام العناوين والقوائم والاقتباسات...' : 'Write full article content here. You can use markdown headings, lists, quotes, and images...'}
                 className="w-full p-4 bg-[#0c1321] text-[#dce2f6] text-sm font-sans focus:outline-none resize-y min-h-[350px] leading-relaxed placeholder-[#424936]"
               />
             ) : (
-              <div className="p-6 bg-[#0c1321] min-h-[350px] text-sm text-[#dce2f6] space-y-4">
+              <div dir={language === 'ar' ? 'rtl' : 'ltr'} className="p-6 bg-[#0c1321] min-h-[350px] text-sm text-[#dce2f6] space-y-4">
                 {content ? (
                   <div className="space-y-4 text-body-md leading-relaxed text-[#dce2f6]/90 font-inter">
                     {content.split(/\n\s*\n/).map((block, idx) => {
@@ -1315,7 +1441,8 @@ export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) 
               <label className="block text-xs text-[#8c947c] mb-1">Meta Title</label>
               <input
                 type="text"
-                placeholder="Custom title tag (defaults to Article Title)"
+                placeholder={language === 'ar' ? 'عنوان مخصص لمحركات البحث (افتراضياً عنوان المقال)' : 'Custom title tag (defaults to Article Title)'}
+                dir={language === 'ar' ? 'rtl' : 'ltr'}
                 value={metaTitle}
                 onChange={(e) => setMetaTitle(e.target.value)}
                 className="w-full px-3 py-1.5 rounded-lg bg-[#0c1321] border border-[#232a39] text-xs text-[#dce2f6] focus:outline-none focus:border-[#ccff80]"
@@ -1326,7 +1453,8 @@ export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) 
               <label className="block text-xs text-[#8c947c] mb-1">Meta Description</label>
               <textarea
                 rows={2}
-                placeholder="Custom description tag (defaults to Excerpt)"
+                placeholder={language === 'ar' ? 'وصف مخصص لمحركات البحث (افتراضياً ملخص المقال)' : 'Custom description tag (defaults to Excerpt)'}
+                dir={language === 'ar' ? 'rtl' : 'ltr'}
                 value={metaDescription}
                 onChange={(e) => setMetaDescription(e.target.value)}
                 className="w-full px-3 py-1.5 rounded-lg bg-[#0c1321] border border-[#232a39] text-xs text-[#dce2f6] focus:outline-none focus:border-[#ccff80]"
@@ -1757,5 +1885,20 @@ export default function ArticleEditor({ initialArticleId }: ArticleEditorProps) 
         </div>
       )}
     </div>
+  )
+}
+
+export default function ArticleEditor(props: ArticleEditorProps) {
+  return (
+    <Suspense
+      fallback={
+        <div className="p-16 text-center space-y-3">
+          <div className="w-8 h-8 border-2 border-[#ccff80] border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-xs text-[#8c947c]">Loading editor...</p>
+        </div>
+      }
+    >
+      <ArticleEditorInner {...props} />
+    </Suspense>
   )
 }

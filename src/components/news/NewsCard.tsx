@@ -23,11 +23,14 @@ export default function NewsCard({ article, variant = 'standard' }: NewsCardProp
   const imageUrl = !imageError && normalizedUrl ? normalizedUrl : null
 
   const authorName = getAuthorName(article.author)
+  const articleUrl = `/${article.language || 'en'}/news/${encodeURIComponent(article.slug)}`
+  const isRtl = article.language === 'ar'
 
   if (variant === 'featured') {
     return (
       <Link
-        href={`/news/${article.slug}`}
+        href={articleUrl}
+        dir={isRtl ? 'rtl' : 'ltr'}
         className="group relative flex flex-col justify-end rounded-xl overflow-hidden aspect-[16/9] md:aspect-[21/9] border border-surface-bright shadow-lg hover:border-primary transition-all"
       >
         {imageUrl ? (
@@ -75,7 +78,8 @@ export default function NewsCard({ article, variant = 'standard' }: NewsCardProp
   if (variant === 'compact') {
     return (
       <Link
-        href={`/news/${article.slug}`}
+        href={articleUrl}
+        dir={isRtl ? 'rtl' : 'ltr'}
         className="group flex gap-3 p-2 rounded-lg hover:bg-surface-container-high transition-colors"
       >
         <div className="relative w-20 h-16 rounded overflow-hidden bg-surface-container-high shrink-0 flex items-center justify-center">
@@ -108,7 +112,8 @@ export default function NewsCard({ article, variant = 'standard' }: NewsCardProp
 
   return (
     <Link
-      href={`/news/${article.slug}`}
+      href={articleUrl}
+      dir={isRtl ? 'rtl' : 'ltr'}
       className="group flex flex-col bg-surface-container rounded-lg border border-surface-bright overflow-hidden hover:border-primary transition-all"
     >
       <div className="relative w-full aspect-[16/9] bg-surface-container-high overflow-hidden flex items-center justify-center">
@@ -128,7 +133,7 @@ export default function NewsCard({ article, variant = 'standard' }: NewsCardProp
             <span className="material-symbols-outlined text-4xl text-primary/30">newspaper</span>
           </div>
         )}
-        <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-surface-container-lowest/90 backdrop-blur text-primary text-[10px] font-bold uppercase tracking-wider">
+        <span className="absolute top-2 start-2 px-2 py-0.5 rounded bg-surface-container-lowest/90 backdrop-blur text-primary text-[10px] font-bold uppercase tracking-wider">
           {article.category}
         </span>
       </div>

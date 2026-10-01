@@ -24,11 +24,21 @@ import { isToday } from '@/lib/utils'
 interface HomeClientProps {
   initialTrendingMatches?: Match[]
   latestArticles?: NewsArticle[]
+  latestArticlesAr?: NewsArticle[]
 }
 
-export default function HomeClient({ initialTrendingMatches = [], latestArticles = [] }: HomeClientProps) {
-  const { t } = useLanguage()
+export default function HomeClient({
+  initialTrendingMatches = [],
+  latestArticles = [],
+  latestArticlesAr = [],
+}: HomeClientProps) {
+  const { t, locale } = useLanguage()
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
+
+  // Select news matching active locale, falling back to English if Arabic articles not available
+  const currentArticles = (locale === 'ar' && latestArticlesAr.length > 0)
+    ? latestArticlesAr
+    : latestArticles
   const [activeFilter, setActiveFilter] = useState<'all' | 'live' | 'upcoming' | 'finished'>('all')
   const [soundOn, setSoundOn] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -220,7 +230,7 @@ export default function HomeClient({ initialTrendingMatches = [], latestArticles
         {/* Center Main Content Stream */}
         <main className="flex-1 min-w-0 w-full space-y-4">
           {/* Homepage Latest News Section (Placed at the top) */}
-          <HomeLatestNews articles={latestArticles} />
+          <HomeLatestNews articles={currentArticles} />
 
           {/* Main Meaningful H1 Heading for SEO & Accessibility */}
           <div className="flex items-center justify-between px-1 pt-1">

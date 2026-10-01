@@ -243,6 +243,8 @@ model Article {
   excerpt         String        @db.Text
   content         String        @db.LongText
   featuredImage   String?       @db.VarChar(500)
+  language        String        @default("en") @db.VarChar(10)
+  translationGroupId String?    @db.VarChar(100)
   status          ArticleStatus @default(DRAFT)
   publishedAt     DateTime?
   scheduledAt     DateTime?
@@ -269,6 +271,8 @@ model Article {
 
   @@index([status])
   @@index([publishedAt])
+  @@index([language])
+  @@index([translationGroupId])
   @@index([categoryId])
   @@index([authorId])
   @@index([competitionId])

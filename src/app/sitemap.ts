@@ -51,7 +51,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
-      url: `${BASE_URL}/news`,
+      url: `${BASE_URL}/en/news`,
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/ar/news`,
       lastModified: now,
       changeFrequency: 'daily',
       priority: 0.8,
@@ -103,7 +109,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             lte: now,
           },
         },
-        select: { slug: true, publishedAt: true, updatedAt: true },
+        select: { slug: true, language: true, publishedAt: true, updatedAt: true },
         orderBy: { publishedAt: 'desc' },
         take: 1000,
       }),
@@ -127,7 +133,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     if (dbArticles.length > 0) {
       newsRoutes = dbArticles.map((article: any) => ({
-        url: `${BASE_URL}/news/${article.slug}`,
+        url: `${BASE_URL}/${article.language || 'en'}/news/${encodeURIComponent(article.slug)}`,
         lastModified: article.updatedAt || article.publishedAt || now,
         changeFrequency: 'daily' as const,
         priority: 0.9,

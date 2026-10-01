@@ -11,7 +11,7 @@ function slugify(text: string): string {
   return text
     .toLowerCase()
     .trim()
-    .replace(/[^\w\s-]/g, '')
+    .replace(/[^\p{L}\p{N}\s-]/gu, '')
     .replace(/[\s_-]+/g, '-')
     .replace(/^-+|-+$/g, '')
 }
@@ -43,9 +43,29 @@ export async function GET(req: NextRequest, { params }: Params) {
       return NextResponse.json({ error: 'Article not found' }, { status: 404 })
     }
 
+    let translations: Array<{ id: string; title: string; slug: string; language: string; status: string }> = []
+    if (article.translationGroupId) {
+      translations = await prisma.article.findMany({
+        where: {
+          translationGroupId: article.translationGroupId,
+          id: { not: article.id },
+        },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          language: true,
+          status: true,
+        },
+      })
+    }
+
     return NextResponse.json({
       article: {
         ...article,
+        language: article.language || 'en',
+        translationGroupId: article.translationGroupId || null,
+        translations,
         keywords: Array.isArray(article.keywords) ? article.keywords : [],
         tags: article.tags.map((t: any) => t.tag),
       },
@@ -70,6 +90,8 @@ export async function PUT(req: NextRequest, { params }: Params) {
       excerpt,
       content,
       featuredImage,
+      language,
+      translationGroupId,
       status,
       publishedAt,
       scheduledAt,
@@ -123,8 +145,15 @@ export async function PUT(req: NextRequest, { params }: Params) {
       finalContent = sanitizeResult.sanitizedContent
     }
 
+    const finalLanguage =
+      language !== undefined
+        ? language === 'ar' || language === 'fr'
+          ? language
+          : 'en'
+        : existingArticle.language || 'en'
+
     // Update article
-    const updated = await prisma.article.update({
+    await prisma.article.update({
       where: { id },
       data: {
         title: title !== undefined ? title.trim() : existingArticle.title,
@@ -132,6 +161,8 @@ export async function PUT(req: NextRequest, { params }: Params) {
         excerpt: excerpt !== undefined ? excerpt.trim() : existingArticle.excerpt,
         content: finalContent,
         featuredImage: featuredImage !== undefined ? (featuredImage ? featuredImage.trim() : null) : existingArticle.featuredImage,
+        language: finalLanguage,
+        translationGroupId: translationGroupId !== undefined ? translationGroupId : existingArticle.translationGroupId,
         status: status ? (status as ArticleStatus) : existingArticle.status,
         publishedAt: finalPublishedAt,
         scheduledAt: finalScheduledAt,
@@ -194,15 +225,18 @@ export async function PUT(req: NextRequest, { params }: Params) {
 
     // Revalidate public news pages and sitemaps
     try {
-      revalidatePath('/news')
+      revalidatePath(`/${finalLanguage}/news`)
       if (refreshed?.slug) {
-        revalidatePath(`/news/${refreshed.slug}`)
+        revalidatePath(`/${finalLanguage}/news/${encodeURIComponent(refreshed.slug)}`)
       }
       if (existingArticle.slug && existingArticle.slug !== refreshed?.slug) {
-        revalidatePath(`/news/${existingArticle.slug}`)
+        revalidatePath(`/${existingArticle.language || 'en'}/news/${encodeURIComponent(existingArticle.slug)}`)
       }
+      revalidatePath('/en/news')
+      revalidatePath('/ar/news')
       revalidatePath('/sitemap.xml')
       revalidatePath('/news-sitemap.xml')
+      revalidatePath('/')
     } catch (revalErr) {
       console.error('[Article Revalidation Error]', revalErr)
     }
@@ -211,6 +245,8 @@ export async function PUT(req: NextRequest, { params }: Params) {
       success: true,
       article: {
         ...refreshed,
+        language: refreshed?.language || finalLanguage,
+        translationGroupId: refreshed?.translationGroupId || null,
         tags: refreshed?.tags.map((t: any) => t.tag) || [],
       },
     })
@@ -238,12 +274,16 @@ export async function DELETE(req: NextRequest, { params }: Params) {
 
     // Revalidate public news pages and sitemaps
     try {
-      revalidatePath('/news')
+      const lang = existing.language || 'en'
+      revalidatePath(`/${lang}/news`)
       if (existing.slug) {
-        revalidatePath(`/news/${existing.slug}`)
+        revalidatePath(`/${lang}/news/${encodeURIComponent(existing.slug)}`)
       }
+      revalidatePath('/en/news')
+      revalidatePath('/ar/news')
       revalidatePath('/sitemap.xml')
       revalidatePath('/news-sitemap.xml')
+      revalidatePath('/')
     } catch (revalErr) {
       console.error('[Article Revalidation Error]', revalErr)
     }
