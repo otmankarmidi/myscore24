@@ -8,6 +8,7 @@ import CompetitionLogo from '@/components/common/CompetitionLogo'
 import { useTimezone } from '@/context/TimezoneContext'
 import { useLanguage } from '@/context/LanguageContext'
 import { formatMatchTime, isLiveStatus } from '@/lib/utils'
+import { buildMatchUrl } from '@/lib/football/matchUrl'
 import { getTrendingMatches } from '@/lib/football/trending'
 
 interface TrendingMatchesProps {
@@ -220,12 +221,12 @@ export default function TrendingMatches({
             const awayAbbr = getAbbreviatedName(match.awayTeam)
 
             const formattedTime = formatMatchTime(match.kickoff, activeTimezone, locale)
-            const matchCanonicalId = match.id || match.slug
+            const matchHref = buildMatchUrl(match)
 
             return (
               <Link
                 key={match.id}
-                href={`/match/${matchCanonicalId}`}
+                href={matchHref}
                 prefetch={false}
                 title={`${homeName} vs ${awayName} (${match.league?.name || 'Match'})`}
                 className={`shrink-0 flex flex-col justify-center px-2 py-1 rounded-lg border bg-surface-container-low hover:bg-surface-container-high transition-all cursor-pointer w-[145px] sm:w-[165px] md:w-[185px] h-[44px] sm:h-[46px] select-none group ${

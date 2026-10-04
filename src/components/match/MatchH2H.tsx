@@ -2,6 +2,7 @@ import { Match } from '@/types/match'
 import TeamLogo from '@/components/common/TeamLogo'
 import MatchStatusBadge from '@/components/common/MatchStatusBadge'
 import { formatDate } from '@/lib/utils'
+import { buildMatchUrl } from '@/lib/football/matchUrl'
 import { useTimezone } from '@/context/TimezoneContext'
 import Link from 'next/link'
 
@@ -81,7 +82,7 @@ export default function MatchH2H({ homeTeamName, awayTeamName, homeTeamLogo, awa
           ) : (
             history.map((match) => {
               const hasValidId = Boolean(match.id && String(match.id).trim() !== '' && String(match.id) !== 'undefined')
-              const matchHref = hasValidId ? `/match/${match.id}` : '#'
+              const matchHref = hasValidId ? buildMatchUrl(match) : '#'
 
               return (
                 <Link

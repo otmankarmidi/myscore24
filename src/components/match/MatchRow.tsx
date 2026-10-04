@@ -7,6 +7,7 @@ import FavoriteButton from '@/components/common/FavoriteButton'
 import { MatchNotificationButton } from '@/components/common/MatchNotificationButton'
 import MatchStatusBadge from '@/components/common/MatchStatusBadge'
 import { formatMatchTime, isLiveStatus } from '@/lib/utils'
+import { buildMatchUrl } from '@/lib/football/matchUrl'
 import { useFavorites } from '@/hooks/useFavorites'
 import { useTimezone } from '@/context/TimezoneContext'
 import { useLanguage } from '@/context/LanguageContext'
@@ -90,7 +91,7 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
   const homeReds = events?.filter(e => e && (e.type === 'red_card' || e.type === 'second_yellow') && e.team === 'home') || []
   const hasEvents = (homeGoals.length > 0 || awayGoals.length > 0)
   const hasValidId = Boolean(match.id && String(match.id).trim() !== '' && String(match.id) !== 'undefined')
-  const matchHref = hasValidId ? `/match/${match.id}` : '#'
+  const matchHref = hasValidId ? buildMatchUrl(match) : '#'
 
   // Helper classes for score and team name contrast
   const getScoreStyle = (side: 'home' | 'away') => {

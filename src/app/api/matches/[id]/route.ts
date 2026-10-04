@@ -85,6 +85,30 @@ export async function GET(
       }
     }
 
+    // ── 2. Check Stored MySQL Record (Prioritize MySQL for finished or upcoming matches) ────
+    let storedMatch = await getStoredMatchByFixtureId(fixtureIdNum)
+    if (storedMatch) {
+      const isFinished = storedMatch.isFinal || storedMatch.status === 'full_time' || storedMatch.status === 'penalties'
+      const kickoffTime = new Date(storedMatch.kickoff).getTime()
+      const isUpcomingFar = storedMatch.status === 'scheduled' && kickoffTime - Date.now() > 30 * 60 * 1000 // > 30 mins away
+
+      // If finished or upcoming far in the future, serve from MySQL directly (0 external API calls)
+      if (isFinished || isUpcomingFar) {
+        apiTelemetry.recordHit('FALLBACK_HIT')
+        const response = NextResponse.json({
+          match: storedMatch,
+          h2h: [],
+          source: 'MyScore24 Persistent Database (Direct MySQL)',
+          resolution: 'DATABASE_HIT',
+        })
+        response.headers.set(
+          'Cache-Control',
+          isFinished ? 'public, max-age=300, s-maxage=600' : 'public, max-age=60, s-maxage=120'
+        )
+        return response
+      }
+    }
+
     // ── 3. API-Football Request (Only if match missing or ongoing/live) ────────
     if (apiFootballProvider.hasValidApiKey()) {
       try {
@@ -143,7 +167,9 @@ export async function GET(
     }
 
     // ── 4. Fallback Source: MySQL Stored Record (Only if provider fails/unavailable) ────
-    const storedMatch = await getStoredMatchByFixtureId(fixtureIdNum)
+    if (!storedMatch) {
+      storedMatch = await getStoredMatchByFixtureId(fixtureIdNum)
+    }
     if (storedMatch) {
       apiTelemetry.recordHit('FALLBACK_HIT')
       const response = NextResponse.json({

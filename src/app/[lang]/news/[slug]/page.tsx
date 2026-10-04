@@ -105,7 +105,7 @@ export default async function LocalizedArticlePage({ params }: LocalizedArticleP
   }
 
   const decodedSlug = safeDecodeFully(slug)
-  const { article, competition, team, playerId, matchId } = await getArticleBySlug(decodedSlug, lang)
+  const { article, competition, team, playerId, matchId, matchSlug } = await getArticleBySlug(decodedSlug, lang)
 
   if (!article) {
     notFound()
@@ -203,7 +203,7 @@ export default async function LocalizedArticlePage({ params }: LocalizedArticleP
       <NewsArticleClient
         article={article}
         relatedNews={relatedNews}
-        linkedEntity={{ competition, team, playerId, matchId }}
+        linkedEntity={{ competition, team, playerId, matchId, matchSlug }}
       >
         <ArticleBodyRenderer content={article.content} />
       </NewsArticleClient>

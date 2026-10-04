@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { Match, MatchStatus } from '@/types/match'
+import { buildMatchSlug } from '@/lib/football/matchUrl'
 
 function mapDbStatusToMatchStatus(status: string): MatchStatus {
   switch (status.toUpperCase()) {
@@ -52,7 +53,7 @@ export function formatDbMatchToAppMatch(m: any): Match {
   const homeName = m.homeTeam?.name || 'Home Team'
   const awayName = m.awayTeam?.name || 'Away Team'
   const leagueName = m.competition?.name || 'Competition'
-  const matchSlug = `${slugify(homeName)}-vs-${slugify(awayName)}`
+  const matchSlug = buildMatchSlug(homeName, awayName, m.providerFixtureId)
   const kickoffDate = new Date(m.kickoff)
 
   return {
@@ -395,3 +396,177 @@ export async function getStoredTeamsByCompetition(competitionProviderId: number,
     return []
   }
 }
+
+/**
+ * Retrieves Head-to-Head previous finished matches between two teams from MySQL.
+ */
+export async function getStoredMatchH2H(
+  homeTeamId: string,
+  awayTeamId: string,
+  excludeFixtureId?: number,
+  limit = 5
+): Promise<Match[]> {
+  try {
+    const records = await prisma.match.findMany({
+      where: {
+        OR: [
+          { homeTeamId, awayTeamId },
+          { homeTeamId: awayTeamId, awayTeamId: homeTeamId },
+        ],
+        isFinal: true,
+        ...(excludeFixtureId ? { providerFixtureId: { not: excludeFixtureId } } : {}),
+      },
+      include: {
+        competition: { include: { country: true } },
+        season: true,
+        homeTeam: true,
+        awayTeam: true,
+      },
+      orderBy: { kickoff: 'desc' },
+      take: limit,
+    })
+    return records.map(formatDbMatchToAppMatch)
+  } catch (err) {
+    console.error('[Football Persistence] Error querying H2H matches:', err)
+    return []
+  }
+}
+
+export interface TeamRecentMatchRecord {
+  id: string
+  slug: string
+  opponent: {
+    id: string
+    name: string
+    logo?: string
+  }
+  isHome: boolean
+  teamScore: number | null
+  opponentScore: number | null
+  result: 'W' | 'D' | 'L'
+  date: string
+  competitionName: string
+}
+
+/**
+ * Retrieves last N finished matches for a team from MySQL with calculated form (W/D/L).
+ */
+export async function getTeamRecentMatches(
+  teamId: string,
+  excludeFixtureId?: number,
+  limit = 5
+): Promise<TeamRecentMatchRecord[]> {
+  try {
+    const records = await prisma.match.findMany({
+      where: {
+        OR: [{ homeTeamId: teamId }, { awayTeamId: teamId }],
+        isFinal: true,
+        ...(excludeFixtureId ? { providerFixtureId: { not: excludeFixtureId } } : {}),
+      },
+      include: {
+        competition: true,
+        homeTeam: true,
+        awayTeam: true,
+      },
+      orderBy: { kickoff: 'desc' },
+      take: limit,
+    })
+
+    return records.map((m: any) => {
+      const isHome = m.homeTeamId === teamId
+      const teamScore = isHome ? m.homeScore : m.awayScore
+      const opponentScore = isHome ? m.awayScore : m.homeScore
+      const opponent = isHome ? m.awayTeam : m.homeTeam
+
+      let result: 'W' | 'D' | 'L' = 'D'
+      if (teamScore !== null && opponentScore !== null) {
+        if (teamScore > opponentScore) result = 'W'
+        else if (teamScore < opponentScore) result = 'L'
+        else result = 'D'
+      }
+
+      const matchSlug = buildMatchSlug(m.homeTeam.name, m.awayTeam.name, m.providerFixtureId)
+
+      return {
+        id: String(m.providerFixtureId),
+        slug: matchSlug,
+        opponent: {
+          id: String(opponent.providerId || opponent.id),
+          name: opponent.name,
+          logo: opponent.logo || undefined,
+        },
+        isHome,
+        teamScore,
+        opponentScore,
+        result,
+        date: new Date(m.kickoff).toISOString(),
+        competitionName: m.competition?.name || 'League',
+      }
+    })
+  } catch (err) {
+    console.error(`[Football Persistence] Error querying recent matches for team ${teamId}:`, err)
+    return []
+  }
+}
+
+/**
+ * Retrieves published News CMS articles related to a match, teams, or competition.
+ */
+export async function getRelatedArticlesForMatch(params: {
+  fixtureId: number
+  homeTeamName: string
+  awayTeamName: string
+  homeTeamId?: string
+  awayTeamId?: string
+  competitionId?: string
+  limit?: number
+}): Promise<any[]> {
+  const { fixtureId, homeTeamName, awayTeamName, homeTeamId, awayTeamId, competitionId, limit = 3 } = params
+  try {
+    const orConditions: any[] = [
+      { matchId: String(fixtureId) },
+    ]
+
+    if (homeTeamId) orConditions.push({ teamId: homeTeamId })
+    if (awayTeamId) orConditions.push({ teamId: awayTeamId })
+    if (competitionId) orConditions.push({ competitionId })
+
+    if (homeTeamName && homeTeamName.length >= 3) {
+      orConditions.push({ title: { contains: homeTeamName } })
+    }
+    if (awayTeamName && awayTeamName.length >= 3) {
+      orConditions.push({ title: { contains: awayTeamName } })
+    }
+
+    const articles = await prisma.article.findMany({
+      where: {
+        status: 'PUBLISHED',
+        publishedAt: { lte: new Date() },
+        OR: orConditions,
+      },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        excerpt: true,
+        language: true,
+        publishedAt: true,
+        featuredImage: true,
+        category: {
+          select: { name: true, slug: true },
+        },
+        author: {
+          select: { name: true },
+        },
+      },
+      orderBy: { publishedAt: 'desc' },
+      take: limit,
+    })
+
+    return articles
+  } catch (err) {
+    console.warn(`[Football Persistence] Error finding related articles for fixture ${fixtureId}:`, err)
+    return []
+  }
+}
+

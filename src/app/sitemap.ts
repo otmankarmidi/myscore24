@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import { prisma } from '@/lib/prisma'
+import { buildMatchSlug } from '@/lib/football/matchUrl'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -101,7 +102,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let matchRoutes: MetadataRoute.Sitemap = []
 
   try {
-    const [dbArticles, competitions, teams, matches] = await Promise.all([
+    const [dbArticles, competitions, teams, matches, completedMatches] = await Promise.all([
       prisma.article.findMany({
         where: {
           status: 'PUBLISHED',
@@ -121,11 +122,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         select: { providerId: true, name: true, updatedAt: true },
         take: 500,
       }),
+      // Query upcoming matches first (priority indexing for pre-match SEO)
       prisma.match.findMany({
         where: {
-          OR: [{ isFinal: true }, { status: 'scheduled' }],
+          status: { in: ['NS', 'TBD', '1H', '2H', 'HT', 'LIVE'] },
+          kickoff: { gte: new Date(now.getTime() - 24 * 60 * 60 * 1000) },
         },
-        select: { providerFixtureId: true, updatedAt: true },
+        select: {
+          providerFixtureId: true,
+          status: true,
+          kickoff: true,
+          updatedAt: true,
+          homeTeam: { select: { name: true } },
+          awayTeam: { select: { name: true } },
+        },
+        orderBy: { kickoff: 'asc' },
+        take: 1500,
+      }),
+      // Query recent completed matches for archive indexing
+      prisma.match.findMany({
+        where: {
+          OR: [
+            { isFinal: true },
+            { status: { in: ['FT', 'AET', 'PEN'] } },
+          ],
+        },
+        select: {
+          providerFixtureId: true,
+          status: true,
+          kickoff: true,
+          updatedAt: true,
+          homeTeam: { select: { name: true } },
+          awayTeam: { select: { name: true } },
+        },
         orderBy: { kickoff: 'desc' },
         take: 1500,
       }),
@@ -154,12 +183,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }))
 
-    matchRoutes = matches.map((m: any) => ({
-      url: `${BASE_URL}/match/${m.providerFixtureId}`,
-      lastModified: m.updatedAt || now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.6,
-    }))
+    // Combine upcoming and completed matches, de-duplicating by providerFixtureId
+    const seenFixtures = new Set<number>()
+    const combinedMatches = [...matches, ...completedMatches].filter((m: any) => {
+      if (!m.providerFixtureId || seenFixtures.has(m.providerFixtureId)) return false
+      seenFixtures.add(m.providerFixtureId)
+      return true
+    })
+
+    matchRoutes = combinedMatches.map((m: any) => {
+      const isUpcoming = m.status === 'NS' || m.status === 'TBD'
+      const isLive = ['1H', '2H', 'HT', 'LIVE'].includes(m.status)
+      const matchSlug = (m.homeTeam?.name && m.awayTeam?.name)
+        ? buildMatchSlug(m.homeTeam.name, m.awayTeam.name, m.providerFixtureId)
+        : String(m.providerFixtureId)
+
+      return {
+        url: `${BASE_URL}/match/${matchSlug}`,
+        lastModified: m.updatedAt || now,
+        changeFrequency: isLive ? ('always' as const) : isUpcoming ? ('hourly' as const) : ('weekly' as const),
+        priority: isLive ? 0.9 : isUpcoming ? 0.85 : 0.6,
+      }
+    })
   } catch (err) {
     console.error('[Sitemap Generator] Database query failed, using static sitemap only:', err)
   }

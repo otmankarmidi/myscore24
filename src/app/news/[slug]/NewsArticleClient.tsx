@@ -20,6 +20,7 @@ interface LinkedEntity {
   team?: { id: string; name: string; logo: string | null } | null
   playerId?: string | null
   matchId?: string | null
+  matchSlug?: string | null
 }
 
 interface NewsArticleClientProps {
@@ -287,7 +288,7 @@ export default function NewsArticleClient({
                 )}
                 {linkedEntity.matchId && (
                   <Link
-                    href={`/match/${linkedEntity.matchId}`}
+                    href={`/match/${linkedEntity.matchSlug || linkedEntity.matchId}`}
                     className="px-3 py-1.5 rounded-lg bg-surface-bright text-xs font-semibold text-primary hover:bg-surface-container-highest transition-colors"
                   >
                     View Match Centre &rarr;

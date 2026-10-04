@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import TeamLogo from '@/components/common/TeamLogo'
 import { Match } from '@/types/match'
+import { buildMatchUrl } from '@/lib/football/matchUrl'
 
 const QUICK_LINKS = [
   { name: 'Premier League', href: '/competition/39', icon: '/leagues/premier-league.png' },
@@ -210,7 +211,7 @@ export default function RightSidebar() {
             topMatches.map((match) => {
               const isScheduled = match.status === 'scheduled'
               const hasValidId = Boolean(match.id && String(match.id).trim() !== '' && String(match.id) !== 'undefined')
-              const matchHref = hasValidId ? `/match/${match.id}` : '#'
+              const matchHref = hasValidId ? buildMatchUrl(match) : '#'
 
               return (
                 <Link

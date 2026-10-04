@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { NewsArticle, ArticleTranslationRef } from '@/types/news'
 import { normalizeArticleImageUrl } from '@/lib/newsImage'
+import { buildMatchSlug } from '@/lib/football/matchUrl'
 
 function estimateReadTime(text: string): number {
   const words = text.trim().split(/\s+/).length
@@ -138,6 +139,7 @@ export async function getArticleBySlug(
   team?: { id: string; name: string; logo: string | null } | null
   playerId?: string | null
   matchId?: string | null
+  matchSlug?: string | null
 }> {
   try {
     const decodedSlug = safeDecodeFully(slug)
@@ -195,6 +197,25 @@ export async function getArticleBySlug(
         })
       }
 
+      let matchSlug: string | null = null
+      if (dbArticle.matchId) {
+        const fixtureNum = parseInt(dbArticle.matchId, 10)
+        if (!isNaN(fixtureNum)) {
+          const m = await prisma.match.findFirst({
+            where: {
+              OR: [
+                { providerFixtureId: fixtureNum },
+                { id: dbArticle.matchId },
+              ],
+            },
+            include: { homeTeam: true, awayTeam: true },
+          })
+          if (m && m.homeTeam && m.awayTeam) {
+            matchSlug = buildMatchSlug(m.homeTeam.name, m.awayTeam.name, m.providerFixtureId)
+          }
+        }
+      }
+
       // Fetch linked translations if part of a translation group
       let siblingTranslations: ArticleTranslationRef[] = []
       if (dbArticle.translationGroupId) {
@@ -222,6 +243,7 @@ export async function getArticleBySlug(
         team,
         playerId: dbArticle.playerId,
         matchId: dbArticle.matchId,
+        matchSlug,
       }
     }
   } catch (err) {

@@ -25,6 +25,7 @@ import { useLanguage } from '@/context/LanguageContext'
 import PlayerImage from '@/components/common/PlayerImage'
 import { Match } from '@/types/match'
 import { LeagueStanding, GroupedStanding } from '@/types/standing'
+import { TeamRecentMatchRecord } from '@/lib/football/persistence/queries'
 import { trackMatchOpen } from '@/lib/analytics'
 import { formatDate } from '@/lib/utils'
 
@@ -33,14 +34,28 @@ type MatchTab = 'summary' | 'lineups' | 'h2h' | 'commentary' | 'standings'
 interface MatchDetailClientProps {
   slug: string
   initialMatch?: Match | null
+  initialH2h?: Match[]
+  initialHomeRecent?: TeamRecentMatchRecord[]
+  initialAwayRecent?: TeamRecentMatchRecord[]
+  initialRelatedNews?: any[]
 }
 
-export default function MatchDetailClient({ slug, initialMatch }: MatchDetailClientProps) {
+export default function MatchDetailClient({
+  slug,
+  initialMatch,
+  initialH2h,
+  initialHomeRecent,
+  initialAwayRecent,
+  initialRelatedNews,
+}: MatchDetailClientProps) {
   const { activeTimezone } = useTimezone()
   const { t, locale } = useLanguage()
 
   const [match, setMatch] = useState<Match | null>(initialMatch || null)
-  const [h2hHistory, setH2hHistory] = useState<Match[]>([])
+  const [h2hHistory, setH2hHistory] = useState<Match[]>(initialH2h || [])
+  const [homeRecentMatches, setHomeRecentMatches] = useState<TeamRecentMatchRecord[]>(initialHomeRecent || [])
+  const [awayRecentMatches, setAwayRecentMatches] = useState<TeamRecentMatchRecord[]>(initialAwayRecent || [])
+  const [relatedNews, setRelatedNews] = useState<any[]>(initialRelatedNews || [])
   const [standings, setStandings] = useState<LeagueStanding[]>([])
   const [isLoading, setIsLoading] = useState(!initialMatch)
   const [errorInfo, setErrorInfo] = useState<{ message: string; code?: string } | null>(null)
@@ -141,6 +156,14 @@ export default function MatchDetailClient({ slug, initialMatch }: MatchDetailCli
   )
 
   useEffect(() => {
+    // If initialMatch is provided and match is scheduled (upcoming) or final (finished),
+    // do not trigger unnecessary client re-fetches on initial mount.
+    if (
+      initialMatch &&
+      (initialMatch.status === 'scheduled' || initialMatch.isFinal || initialMatch.status === 'full_time')
+    ) {
+      return
+    }
     fetchMatchDetails(!initialMatch)
   }, [fetchMatchDetails, initialMatch])
 
@@ -258,10 +281,45 @@ export default function MatchDetailClient({ slug, initialMatch }: MatchDetailCli
                 : 'border-surface-bright'
             }`}
           >
-            {/* Primary Semantic H1 for SEO & Accessibility */}
-            <h1 className="sr-only">
-              {match.homeTeam.name} vs {match.awayTeam.name} - {match.league.name}
-            </h1>
+            {/* Primary Semantic H1 for SEO, Crawlers & Users */}
+            <div className="text-center space-y-1.5 pb-2">
+              <h1 className="font-geist font-black text-xl sm:text-2xl md:text-3xl text-on-surface tracking-tight">
+                {match.homeTeam.name} vs {match.awayTeam.name}
+              </h1>
+              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs text-on-surface-variant font-medium">
+                <span className="text-primary font-semibold">
+                  {match.league.name}
+                  {match.league.currentRound ? ` • ${match.league.currentRound}` : ''}
+                </span>
+                <span>•</span>
+                <span>{formatDate(match.kickoff, 'dd MMM yyyy', activeTimezone, locale)}</span>
+                <span>•</span>
+                <span>
+                  {formatDate(match.kickoff, 'HH:mm', activeTimezone, locale)} ({activeTimezone || 'UTC'})
+                </span>
+                {match.venue && (
+                  <>
+                    <span>•</span>
+                    <span className="flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[13px]" aria-hidden="true">
+                        stadium
+                      </span>
+                      {match.venue}
+                    </span>
+                  </>
+                )}
+                <span>•</span>
+                <span className="uppercase font-bold text-[10px] px-2 py-0.5 rounded bg-surface-container-high border border-surface-bright text-on-surface">
+                  {match.status === 'scheduled'
+                    ? 'Upcoming'
+                    : match.status === 'live'
+                    ? 'LIVE'
+                    : match.isFinal
+                    ? 'Full Time'
+                    : match.status}
+                </span>
+              </div>
+            </div>
 
             {/* Top Bar: League Info & Favorite */}
             <div className="flex items-center justify-between pb-3 border-b border-surface-bright/60">
@@ -434,17 +492,229 @@ export default function MatchDetailClient({ slug, initialMatch }: MatchDetailCli
                   />
                 )}
                 <MatchBroadcastAndInfo match={match} standings={standings} />
+
+                {/* Recent Form Section (Real MySQL data) */}
+                {(homeRecentMatches.length > 0 || awayRecentMatches.length > 0) && (
+                  <div className="bg-surface-container rounded-xl border border-surface-bright p-4 sm:p-5 space-y-4">
+                    <div className="flex items-center justify-between border-b border-surface-bright/60 pb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="material-symbols-outlined text-primary text-lg" aria-hidden="true">trending_up</span>
+                        <h2 className="font-geist font-bold text-sm sm:text-base text-on-surface">
+                          Recent Form & Last Matches
+                        </h2>
+                      </div>
+                      <span className="text-[11px] text-on-surface-variant font-medium">Last 5 Matches</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Home Team Recent */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <TeamLogo name={match.homeTeam.name} logo={match.homeTeam.logo} size="sm" />
+                            <span className="font-bold text-xs sm:text-sm text-on-surface">{match.homeTeam.name}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            {homeRecentMatches.slice(0, 5).map((m, idx) => (
+                              <span
+                                key={idx}
+                                className={`w-5 h-5 rounded text-[10px] font-bold flex items-center justify-center font-mono ${
+                                  m.result === 'W'
+                                    ? 'bg-secondary text-black'
+                                    : m.result === 'D'
+                                    ? 'bg-surface-bright text-on-surface'
+                                    : 'bg-error text-white'
+                                }`}
+                                title={`${m.result === 'W' ? 'Win' : m.result === 'D' ? 'Draw' : 'Loss'} vs ${m.opponent.name}`}
+                              >
+                                {m.result}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="divide-y divide-surface-bright/50 rounded-lg bg-surface-container-low border border-surface-bright/40 overflow-hidden">
+                          {homeRecentMatches.slice(0, 5).map((m) => (
+                            <Link
+                              key={m.id}
+                              href={`/match/${m.slug}`}
+                              className="p-2 sm:px-3 flex items-center justify-between text-xs hover:bg-surface-container transition-colors"
+                            >
+                              <span className="text-on-surface-variant text-[11px] w-14 shrink-0">
+                                {formatDate(m.date, 'dd MMM', activeTimezone, locale)}
+                              </span>
+                              <span className="flex-1 truncate text-on-surface text-[12px] px-2">
+                                vs {m.opponent.name}
+                              </span>
+                              <span className="font-mono font-bold text-[12px] text-on-surface">
+                                {m.teamScore ?? '-'} : {m.opponentScore ?? '-'}
+                              </span>
+                              <span
+                                className={`ml-2 w-4 h-4 rounded text-[9px] font-bold flex items-center justify-center ${
+                                  m.result === 'W'
+                                    ? 'bg-secondary/20 text-secondary'
+                                    : m.result === 'D'
+                                    ? 'bg-surface-bright text-on-surface-variant'
+                                    : 'bg-error/20 text-error'
+                                }`}
+                              >
+                                {m.result}
+                              </span>
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Away Team Recent */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <TeamLogo name={match.awayTeam.name} logo={match.awayTeam.logo} size="sm" />
+                            <span className="font-bold text-xs sm:text-sm text-on-surface">{match.awayTeam.name}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            {awayRecentMatches.slice(0, 5).map((m, idx) => (
+                              <span
+                                key={idx}
+                                className={`w-5 h-5 rounded text-[10px] font-bold flex items-center justify-center font-mono ${
+                                  m.result === 'W'
+                                    ? 'bg-secondary text-black'
+                                    : m.result === 'D'
+                                    ? 'bg-surface-bright text-on-surface'
+                                    : 'bg-error text-white'
+                                }`}
+                                title={`${m.result === 'W' ? 'Win' : m.result === 'D' ? 'Draw' : 'Loss'} vs ${m.opponent.name}`}
+                              >
+                                {m.result}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="divide-y divide-surface-bright/50 rounded-lg bg-surface-container-low border border-surface-bright/40 overflow-hidden">
+                          {awayRecentMatches.slice(0, 5).map((m) => (
+                            <Link
+                              key={m.id}
+                              href={`/match/${m.slug}`}
+                              className="p-2 sm:px-3 flex items-center justify-between text-xs hover:bg-surface-container transition-colors"
+                            >
+                              <span className="text-on-surface-variant text-[11px] w-14 shrink-0">
+                                {formatDate(m.date, 'dd MMM', activeTimezone, locale)}
+                              </span>
+                              <span className="flex-1 truncate text-on-surface text-[12px] px-2">
+                                vs {m.opponent.name}
+                              </span>
+                              <span className="font-mono font-bold text-[12px] text-on-surface">
+                                {m.teamScore ?? '-'} : {m.opponentScore ?? '-'}
+                              </span>
+                              <span
+                                className={`ml-2 w-4 h-4 rounded text-[9px] font-bold flex items-center justify-center ${
+                                  m.result === 'W'
+                                    ? 'bg-secondary/20 text-secondary'
+                                    : m.result === 'D'
+                                    ? 'bg-surface-bright text-on-surface-variant'
+                                    : 'bg-error/20 text-error'
+                                }`}
+                              >
+                                {m.result}
+                              </span>
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Head-to-Head in Summary for Upcoming Matches */}
+                {match.status === 'scheduled' && h2hHistory.length > 0 && (
+                  <div className="space-y-2">
+                    <MatchH2H
+                      history={h2hHistory}
+                      homeTeamName={match.homeTeam.name}
+                      awayTeamName={match.awayTeam.name}
+                      homeTeamLogo={match.homeTeam.logo}
+                      awayTeamLogo={match.awayTeam.logo}
+                    />
+                  </div>
+                )}
+
+                {/* Related News from CMS (0 external calls) */}
+                {relatedNews.length > 0 && (
+                  <div className="bg-surface-container rounded-xl border border-surface-bright p-4 sm:p-5 space-y-3">
+                    <div className="flex items-center justify-between border-b border-surface-bright/60 pb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="material-symbols-outlined text-primary text-lg" aria-hidden="true">newspaper</span>
+                        <h2 className="font-geist font-bold text-sm sm:text-base text-on-surface">
+                          Related News & Previews
+                        </h2>
+                      </div>
+                      <Link
+                        href={`/${locale === 'ar' ? 'ar' : 'en'}/news`}
+                        className="text-xs text-primary hover:underline font-semibold"
+                      >
+                        All Football News &rarr;
+                      </Link>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      {relatedNews.map((article: any) => (
+                        <Link
+                          key={article.id}
+                          href={`/${article.language || (locale === 'ar' ? 'ar' : 'en')}/news/${encodeURIComponent(article.slug)}`}
+                          className="group p-3 rounded-lg bg-surface-container-low hover:bg-surface-container-high border border-surface-bright/50 transition-colors flex flex-col justify-between space-y-2"
+                        >
+                          <div className="space-y-1.5">
+                            {article.category?.name && (
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
+                                {article.category.name}
+                              </span>
+                            )}
+                            <h3 className="text-xs font-bold text-on-surface group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+                              {article.title}
+                            </h3>
+                            {article.excerpt && (
+                              <p className="text-[11px] text-on-surface-variant line-clamp-2">
+                                {article.excerpt}
+                              </p>
+                            )}
+                          </div>
+                          <div className="text-[10px] text-on-surface-variant/70 pt-1 border-t border-surface-bright/30">
+                            {formatDate(article.publishedAt, 'dd MMM yyyy', activeTimezone, locale)}
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
-            {activeTab === 'lineups' && match.lineups && (
-              <LineupPitch
-                lineups={match.lineups}
-                homeTeamName={match.homeTeam.name}
-                awayTeamName={match.awayTeam.name}
-                homeTeamLogo={match.homeTeam.logo}
-                awayTeamLogo={match.awayTeam.logo}
-              />
+            {activeTab === 'lineups' && (
+              match.lineups ? (
+                <LineupPitch
+                  lineups={match.lineups}
+                  homeTeamName={match.homeTeam.name}
+                  awayTeamName={match.awayTeam.name}
+                  homeTeamLogo={match.homeTeam.logo}
+                  awayTeamLogo={match.awayTeam.logo}
+                />
+              ) : (
+                <div className="bg-surface-container rounded-xl border border-surface-bright p-8 text-center space-y-3">
+                  <div className="w-12 h-12 rounded-full bg-surface-bright/40 flex items-center justify-center mx-auto text-primary">
+                    <span className="material-symbols-outlined text-2xl" aria-hidden="true">sports</span>
+                  </div>
+                  <h3 className="font-bold text-sm sm:text-base text-on-surface">
+                    Official Lineups Not Yet Announced
+                  </h3>
+                  <p className="text-xs sm:text-sm text-on-surface-variant max-w-md mx-auto">
+                    Lineups will appear here when officially available.
+                  </p>
+                  <p className="text-[11px] text-on-surface-variant/70">
+                    Official starting lineups are typically confirmed 60 minutes before kickoff.
+                  </p>
+                </div>
+              )
             )}
 
             {activeTab === 'h2h' && (

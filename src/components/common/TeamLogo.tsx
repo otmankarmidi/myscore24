@@ -5,7 +5,7 @@ import { getOptimizedImageUrl } from '@/lib/image'
 
 interface TeamLogoProps {
   name: string
-  abbreviation: string
+  abbreviation?: string
   logo?: string
   size?: 'xs' | 'sm' | 'md' | 'lg'
 }
