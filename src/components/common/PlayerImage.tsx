@@ -41,9 +41,8 @@ export function getPlayerImageUrl(playerId?: string | number, photo?: string): s
   }
 
   const idStr = String(playerId).trim()
-  const digits = idStr.match(/\d+/)
-  if (digits) {
-    return `https://media.api-sports.io/football/players/${digits[0]}.png`
+  if (/^\d+$/.test(idStr)) {
+    return `https://media.api-sports.io/football/players/${idStr}.png`
   }
 
   return ''
@@ -95,7 +94,7 @@ export default function PlayerImage({
   }
 
   // Step 2: External API photo fallback
-  const rawApiSrc = directRemote || getPlayerImageUrl(playerId || slug, photo)
+  const rawApiSrc = directRemote || getPlayerImageUrl(playerId || slug || name, photo)
   const pixelSizeMap: Record<string, number> = {
     xs: 24,
     sm: 32,

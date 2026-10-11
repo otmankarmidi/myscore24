@@ -64,6 +64,16 @@ export default function MatchDetailClient({
   const [isGoalCelebrating, setIsGoalCelebrating] = useState(false)
   const [selectedMatchGroup, setSelectedMatchGroup] = useState<string>('MATCH')
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const tabParam = params.get('tab') as MatchTab
+      if (tabParam && ['summary', 'lineups', 'h2h', 'commentary', 'standings'].includes(tabParam)) {
+        setActiveTab(tabParam)
+      }
+    }
+  }, [])
+
   const matchGroups = useMemo<GroupedStanding[]>(() => {
     if (!standings || standings.length === 0) return []
     const groupsMap = new Map<string, LeagueStanding[]>()
