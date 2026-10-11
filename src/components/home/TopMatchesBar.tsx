@@ -8,6 +8,7 @@ import { useLanguage } from '@/context/LanguageContext'
 import { useTimezone } from '@/context/TimezoneContext'
 import { formatMatchTime, isLiveStatus, isToday } from '@/lib/utils'
 import { buildMatchUrl } from '@/lib/football/matchUrl'
+import { getCompetitionPriority, getCleanLeagueDisplayName } from '@/config/competitions'
 
 interface TopMatchesBarProps {
   matches: Match[]
@@ -83,24 +84,49 @@ export default function TopMatchesBar({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Collect unique leagues for the "All Competitions" dropdown
+  // Collect unique leagues for the "All Competitions" dropdown with clean names & priority order
   const uniqueLeagues = useMemo(() => {
-    const map = new Map<string, { id: string; name: string }>()
+    const map = new Map<string, { id: string; name: string; priority: number }>()
     matches.forEach((m) => {
       const key = String(m.league?.id || m.league?.slug || '')
       if (key && !map.has(key)) {
-        map.set(key, { id: key, name: m.league?.name || 'Competition' })
+        map.set(key, {
+          id: key,
+          name: getCleanLeagueDisplayName(m.league, locale),
+          priority: getCompetitionPriority(m.league),
+        })
       }
     })
-    return Array.from(map.values())
-  }, [matches])
+    const list = Array.from(map.values())
+    list.sort((a, b) => a.priority - b.priority)
+    return list
+  }, [matches, locale])
 
-  // Filter matches by selected competition
+  // Filter matches by selected competition & ALWAYS sort top 6 leagues and top games FIRST!
   const displayMatches = useMemo(() => {
-    if (selectedLeagueId === 'all') return matches
-    return matches.filter(
-      (m) => String(m.league?.id || m.league?.slug || '') === selectedLeagueId
-    )
+    const baseList =
+      selectedLeagueId === 'all'
+        ? matches
+        : matches.filter(
+            (m) => String(m.league?.id || m.league?.slug || '') === selectedLeagueId
+          )
+
+    return [...baseList].sort((a, b) => {
+      // 1. Top 6 leagues / competition priority first (Lower number = higher priority: PL, UCL, LaLiga, SerieA, Bundesliga, Ligue 1)
+      const pA = getCompetitionPriority(a.league)
+      const pB = getCompetitionPriority(b.league)
+      if (pA !== pB) return pA - pB
+
+      // 2. Live matches first within the same tier
+      const aLive = isLiveStatus(a.status) ? 1 : 0
+      const bLive = isLiveStatus(b.status) ? 1 : 0
+      if (aLive !== bLive) return bLive - aLive
+
+      // 3. Chronological kickoff time
+      const timeA = new Date(a.kickoff || 0).getTime()
+      const timeB = new Date(b.kickoff || 0).getTime()
+      return timeA - timeB
+    })
   }, [matches, selectedLeagueId])
 
   const dateItems = useMemo(() => {
@@ -326,7 +352,7 @@ export default function TopMatchesBar({
                     {/* Top Row: League name + Status badge */}
                     <div className="flex items-center justify-between text-[11px] leading-tight gap-1">
                       <span className="text-slate-400 font-medium truncate max-w-[130px]">
-                        {match.league?.name || 'Football'}
+                        {getCleanLeagueDisplayName(match.league, locale) || match.league?.name || 'Football'}
                       </span>
                       <span
                         className={`font-semibold shrink-0 ${

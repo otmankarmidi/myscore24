@@ -268,7 +268,7 @@ export default function HomeClient({
 
       {/* Top Matches Carousel Bar (Matching Image 3) */}
       <TopMatchesBar
-        matches={matches}
+        matches={approvedMatches.length > 0 ? approvedMatches : matches}
         selectedDate={selectedDate}
         onSelectDate={setSelectedDate}
         isLoading={isLoading}

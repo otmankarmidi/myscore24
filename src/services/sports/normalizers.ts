@@ -5,11 +5,19 @@ import { Player, PlayerStats, PlayerCompetitionItem } from '@/types/player'
 import { Standing, TopScorer } from '@/types/standing'
 import { NewsArticle } from '@/types/news'
 import { ApiFootballFixtureRaw, ApiFootballEventRaw, ApiFootballLineupRaw, ApiFootballTeamStatsRaw } from './apiFootballProvider'
+import { getCleanLeagueDisplayName } from '@/config/competitions'
 
 // Pass-through normalizers
 export const normalizeMatch = (raw: Match): Match => raw
 export const normalizeTeam = (raw: Team): Team => raw
-export const normalizeLeague = (raw: League): League => raw
+export const normalizeLeague = (raw: League): League => {
+  if (!raw) return raw
+  const clean = getCleanLeagueDisplayName(raw, 'en')
+  return {
+    ...raw,
+    name: clean || raw.name,
+  }
+}
 export const normalizePlayer = (raw: Player): Player => raw
 export const normalizeStanding = (raw: Standing): Standing => raw
 export const normalizeNewsArticle = (raw: NewsArticle): NewsArticle => raw
@@ -60,7 +68,10 @@ function slugify(text: string): string {
 export function normalizeApiFootballMatch(raw: ApiFootballFixtureRaw): Match {
   const homeName = raw?.teams?.home?.name || 'Home Team'
   const awayName = raw?.teams?.away?.name || 'Away Team'
-  const leagueName = raw?.league?.name || 'League'
+  const rawLeagueName = raw?.league?.name || 'League'
+  const leagueCountry = raw?.league?.country || 'Global'
+  const leagueId = String(raw?.league?.id || '0')
+  const cleanLeagueName = getCleanLeagueDisplayName({ id: leagueId, name: rawLeagueName, country: leagueCountry }, 'en') || rawLeagueName
   const fixtureId = raw?.fixture?.id != null ? String(raw.fixture.id) : ''
   const matchSlug = `${slugify(homeName)}-vs-${slugify(awayName)}`
 
@@ -68,12 +79,12 @@ export function normalizeApiFootballMatch(raw: ApiFootballFixtureRaw): Match {
     id: fixtureId,
     slug: matchSlug,
     league: {
-      id: String(raw?.league?.id || '0'),
-      slug: slugify(leagueName),
-      name: leagueName,
-      shortName: leagueName.slice(0, 4).toUpperCase(),
+      id: leagueId,
+      slug: slugify(cleanLeagueName),
+      name: cleanLeagueName,
+      shortName: cleanLeagueName.slice(0, 4).toUpperCase(),
       logo: raw?.league?.logo,
-      country: raw?.league?.country || 'Global',
+      country: leagueCountry,
       countryCode: (raw?.league?.country || 'WW').slice(0, 2).toUpperCase(),
       countryFlag: raw?.league?.flag,
       season: String(raw?.league?.season || 2026),

@@ -12,6 +12,7 @@ import CountryFlag from '@/components/common/CountryFlag'
 import { sportsService } from '@/services/sports/sportsService'
 import { useFavorites } from '@/hooks/useFavorites'
 import { useLanguage } from '@/context/LanguageContext'
+import { getCompetitionPriority, getCleanLeagueDisplayName } from '@/config/competitions'
 import { League } from '@/types/league'
 
 export default function CompetitionsClient() {
@@ -20,7 +21,7 @@ export default function CompetitionsClient() {
   const [filterRegion, setFilterRegion] = useState<string>('all')
 
   const { isLeagueFavorite, toggleFavoriteLeague } = useFavorites()
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
 
   useEffect(() => {
     async function loadCompetitions() {
@@ -37,11 +38,13 @@ export default function CompetitionsClient() {
     loadCompetitions()
   }, [])
 
-  const filteredLeagues = leagues.filter((l) => {
-    if (filterRegion === 'europe') return l.continent === 'Europe' || ['England', 'Spain', 'Germany', 'Italy', 'France'].includes(l.country)
-    if (filterRegion === 'international') return l.type === 'international'
-    return true
-  })
+  const filteredLeagues = leagues
+    .filter((l) => {
+      if (filterRegion === 'europe') return l.continent === 'Europe' || ['England', 'Spain', 'Germany', 'Italy', 'France'].includes(l.country)
+      if (filterRegion === 'international') return l.type === 'international'
+      return true
+    })
+    .sort((a, b) => getCompetitionPriority(a) - getCompetitionPriority(b))
 
   return (
     <div className="min-h-screen flex flex-col bg-surface text-on-surface pb-20 md:pb-6">
@@ -113,7 +116,7 @@ export default function CompetitionsClient() {
                     </div>
                     <div className="min-w-0">
                       <h3 className="font-bold text-body-md text-on-surface group-hover:text-primary transition-colors truncate">
-                        {league.name}
+                        {getCleanLeagueDisplayName(league, locale) || league.name}
                       </h3>
                       <div className="flex items-center gap-1.5 text-xs text-on-surface-variant truncate mt-0.5">
                         <CountryFlag country={league.country} flagUrl={league.countryFlag} width={16} height={12} />

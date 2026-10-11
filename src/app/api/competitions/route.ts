@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { mockLeagues } from '@/data/mockLeagues'
 import { getCountryCode, getCountryFlagUrl } from '@/lib/countries'
-import { getCompetitionPriority } from '@/config/competitions'
+import { getCompetitionPriority, getCleanLeagueDisplayName } from '@/config/competitions'
 import { League } from '@/types/league'
 
 export const dynamic = 'force-dynamic'
@@ -39,9 +39,11 @@ export async function GET() {
       const countryName = dbMatch?.country?.name || ml.country
       const countryCode = getCountryCode(countryName, dbMatch?.country?.code || ml.countryCode)
       const countryFlag = getCountryFlagUrl(countryName, dbMatch?.country?.flag || ml.countryFlag)
+      const cleanName = getCleanLeagueDisplayName({ id: ml.id, name: ml.name, country: countryName }, 'en')
 
       return {
         ...ml,
+        name: cleanName,
         logo: dbMatch?.logo || ml.logo,
         country: countryName,
         countryCode,
@@ -56,12 +58,13 @@ export async function GET() {
         const countryName = c.country?.name || 'Global'
         const countryCode = getCountryCode(countryName, c.country?.code)
         const countryFlag = getCountryFlagUrl(countryName, c.country?.flag)
+        const cleanName = getCleanLeagueDisplayName({ id: String(c.providerId), name: c.name, country: countryName }, 'en')
 
         results.push({
           id: String(c.providerId),
           slug: c.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') || `league-${c.providerId}`,
-          name: c.name,
-          shortName: c.name,
+          name: cleanName,
+          shortName: cleanName,
           logo: c.logo || `https://media.api-sports.io/football/leagues/${c.providerId}.png`,
           country: countryName,
           countryCode,

@@ -395,7 +395,16 @@ export function getCompetitionPriority(league: {
   if (league.name) {
     const cleanName = league.name.toLowerCase().trim()
     const matched = CONFIG_BY_ALIAS.get(cleanName)
-    if (matched) return matched.priority
+    if (matched) {
+      // Prevent false positives (e.g. Mongolia Premier League vs England Premier League)
+      if (matched.category === 'big5') {
+        const country = (league.country || '').toLowerCase().trim()
+        if (country && !matched.country.toLowerCase().includes(country) && !country.includes(matched.country.toLowerCase())) {
+          return 999
+        }
+      }
+      return matched.priority
+    }
 
     // Fallbacks
     if (cleanName.includes('world cup')) return 21
@@ -432,4 +441,138 @@ export function getLocalLeagueLogo(league: {
   }
 
   return undefined
+}
+
+/**
+ * Resolves a clean, distinguished, and unambiguous display name for any league.
+ * Solves the issue where 27 different countries have generic names like "Premier League" or "Super League".
+ */
+export function getCleanLeagueDisplayName(
+  league?: {
+    id?: string | number | null
+    name?: string | null
+    country?: string | null
+  } | null,
+  locale: string = 'en'
+): string {
+  if (!league || !league.name) return 'Competition'
+  const name = league.name.trim()
+  const country = (league.country || '').trim()
+  const lowerName = name.toLowerCase()
+  const lowerCountry = country.toLowerCase()
+  const numId = normalizeLeagueId(league.id)
+
+  const isAr = locale === 'ar'
+
+  // 1. English Premier League (ID 39 or England)
+  if (
+    numId === 39 ||
+    (lowerName === 'premier league' &&
+      (lowerCountry === 'england' || lowerCountry === 'great britain' || lowerCountry === 'united kingdom'))
+  ) {
+    return isAr ? 'الدوري الإنجليزي الممتاز' : 'Premier League'
+  }
+
+  // 2. UEFA Champions League
+  if (numId === 2 || lowerName.includes('champions league') || lowerName === 'ucl') {
+    return isAr ? 'دوري أبطال أوروبا' : 'UEFA Champions League'
+  }
+
+  // 3. Spain La Liga
+  if (
+    numId === 140 ||
+    lowerName === 'la liga' ||
+    lowerName === 'laliga' ||
+    (lowerName === 'primera division' && lowerCountry === 'spain')
+  ) {
+    return isAr ? 'الدوري الإسباني (لا ليغا)' : 'La Liga'
+  }
+
+  // 4. Italy Serie A
+  if (numId === 135 || (lowerName === 'serie a' && lowerCountry === 'italy')) {
+    return isAr ? 'الدوري الإيطالي (سيري آ)' : 'Serie A'
+  }
+
+  // 5. Germany Bundesliga
+  if (numId === 78 || (lowerName === 'bundesliga' && lowerCountry === 'germany')) {
+    return isAr ? 'الدوري الألماني (بوندسليغا)' : 'Bundesliga'
+  }
+
+  // 6. France Ligue 1
+  if (numId === 61 || (lowerName === 'ligue 1' && lowerCountry === 'france')) {
+    return isAr ? 'الدوري الفرنسي (ليغ 1)' : 'Ligue 1'
+  }
+
+  // 7. UEFA Europa League
+  if (numId === 3 || lowerName.includes('europa league')) {
+    return isAr ? 'الدوري الأوروبي' : 'UEFA Europa League'
+  }
+
+  // 8. UEFA Conference League
+  if (numId === 848 || lowerName.includes('conference league')) {
+    return isAr ? 'دوري المؤتمر الأوروبي' : 'UEFA Conference League'
+  }
+
+  // 9. Morocco Botola Pro
+  if (
+    numId === 200 ||
+    lowerName.includes('botola') ||
+    (lowerCountry === 'morocco' && lowerName === 'premier league')
+  ) {
+    return isAr ? 'الدوري المغربي (البطولة برو)' : 'Botola Pro'
+  }
+
+  // 10. Saudi Pro League
+  if (
+    numId === 307 ||
+    lowerName.includes('saudi pro') ||
+    (lowerCountry === 'saudi arabia' && (lowerName === 'premier league' || lowerName === 'pro league'))
+  ) {
+    return isAr ? 'دوري روشن السعودي' : 'Saudi Pro League'
+  }
+
+  // 11. Generic duplicated league names across the world:
+  const genericDuplicates = [
+    'premier league',
+    'super league',
+    '1. division',
+    'first division',
+    'second division',
+    'primera division',
+    'segunda division',
+    'serie a',
+    'serie b',
+    'ligue 1',
+    'ligue 2',
+    'bundesliga',
+    'cup',
+    'fa cup',
+    'super cup',
+    'league cup',
+    'national cup',
+    'first league',
+    'second league',
+    'pro league',
+  ]
+
+  if (country && !lowerName.includes(lowerCountry) && genericDuplicates.includes(lowerName)) {
+    // English custom adjectives or prefixes
+    let formattedEn = `${country} ${name}`
+    if (lowerCountry === 'ukraine' && lowerName === 'premier league') formattedEn = 'Ukrainian Premier League'
+    else if (lowerCountry === 'russia' && lowerName === 'premier league') formattedEn = 'Russian Premier League'
+    else if (lowerCountry === 'egypt' && lowerName === 'premier league') formattedEn = 'Egyptian Premier League'
+    else if (lowerCountry === 'brazil' && lowerName === 'serie a') formattedEn = 'Brasileirão Série A'
+    else if (lowerCountry === 'austria' && lowerName === 'bundesliga') formattedEn = 'Austrian Bundesliga'
+
+    if (isAr) {
+      if (lowerName === 'premier league') return `دوري ${country} الممتاز`
+      if (lowerName === 'super league') return `الدوري الممتاز (${country})`
+      if (lowerName === 'cup' || lowerName === 'fa cup') return `كأس ${country}`
+      return `${name} (${country})`
+    }
+
+    return formattedEn
+  }
+
+  return name
 }
