@@ -175,6 +175,10 @@ export const KNOWN_API_PLAYER_IDS: Record<string, string> = {
   'cr7': '874',
   'lionel-messi': '154',
   'messi': '154',
+  'leo-messi': '154',
+  'l-messi': '154',
+  '154': '154',
+  'lionel-andres-messi': '154',
   'antoine-griezmann': '244',
   'griezmann': '244',
   'heung-min-son': '186',
@@ -199,6 +203,12 @@ export function resolveApiFootballPlayerId(identifier?: string | number): string
   // Purely numeric ID
   if (/^\d+$/.test(str)) {
     return str
+  }
+
+  // Handle prefix like 'player-154'
+  const playerPrefixMatch = /^player-(\d+)$/.exec(str)
+  if (playerPrefixMatch) {
+    return playerPrefixMatch[1]
   }
 
   // Known dictionary lookup

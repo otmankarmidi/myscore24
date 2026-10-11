@@ -633,6 +633,26 @@ export const mockTeams: Team[] = [
     countryFlag: '🇩🇪',
     logo: 'https://media.api-sports.io/football/teams/172.png',
   },
+  {
+    id: 'mia',
+    slug: 'inter-miami',
+    name: 'Inter Miami',
+    shortName: 'Inter Miami',
+    abbreviation: 'MIA',
+    country: 'USA',
+    countryFlag: '🇺🇸',
+    logo: 'https://media.api-sports.io/football/teams/9568.png',
+  },
+  {
+    id: 'nas',
+    slug: 'al-nassr',
+    name: 'Al-Nassr',
+    shortName: 'Al-Nassr',
+    abbreviation: 'NAS',
+    country: 'Saudi Arabia',
+    countryFlag: '🇸🇦',
+    logo: 'https://media.api-sports.io/football/teams/2939.png',
+  },
 ]
 
 export const getTeamBySlug = (slug: string) => mockTeams.find(t => t.slug === slug)

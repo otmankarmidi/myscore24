@@ -28,6 +28,118 @@ const DOMESTIC_LEAGUE_KEYWORDS = [
   'saudi pro league',
 ]
 
+export const KNOWN_NATIONAL_TEAMS = new Set([
+  'spain', 'espagne', 'españa',
+  'argentina', 'argentine',
+  'france',
+  'england', 'angleterre',
+  'germany', 'allemagne',
+  'brazil', 'brésil', 'brasil',
+  'portugal',
+  'poland', 'pologne',
+  'norway', 'norvège',
+  'morocco', 'maroc',
+  'netherlands', 'pays-bas', 'holland',
+  'italy', 'italie',
+  'belgium', 'belgique',
+  'croatia', 'croatie',
+  'uruguay',
+  'colombia', 'colombie',
+  'senegal', 'sénégal',
+  'ivory coast', "côte d'ivoire",
+  'ghana',
+  'nigeria',
+  'egypt', 'égypte',
+  'algeria', 'algérie',
+  'tunisia', 'tunisie',
+  'cameroon', 'cameroun',
+  'japan', 'japon',
+  'south korea', 'corée du sud',
+  'saudi arabia', 'arabie saoudite',
+  'australia', 'australie',
+  'switzerland', 'suisse',
+  'austria', 'autriche',
+  'denmark', 'danemark',
+  'sweden', 'suède',
+  'serbia', 'serbie',
+  'turkey', 'turquie',
+  'scotland', 'écosse',
+  'wales', 'pays de galles',
+  'ukraine',
+  'czech republic', 'tchéquie',
+  'hungary', 'hongrie',
+  'romania', 'roumanie',
+  'slovenia', 'slovénie',
+  'slovakia', 'slovaquie',
+  'greece', 'grèce',
+  'chile', 'chili',
+  'peru', 'pérou',
+  'mexico', 'mexique',
+  'usa', 'united states', 'états-unis',
+  'canada',
+  'ecuador', 'équateur',
+  'venezuela',
+  'paraguay',
+  'bolivia', 'bolivie',
+  'mali',
+  'dr congo',
+  'south africa', 'afrique du sud',
+  'qatar',
+  'iraq',
+  'iran',
+  'united arab emirates', 'uae',
+  'uzbekistan',
+  'jordan', 'jordanie',
+  'new zealand', 'nouvelle-zélande',
+])
+
+export function isNationalTeam(teamName?: string | null, dbIsNational?: boolean): boolean {
+  if (dbIsNational === true) return true
+  if (!teamName) return false
+  const lower = teamName.toLowerCase().trim()
+  if (KNOWN_NATIONAL_TEAMS.has(lower)) return true
+  if (lower.includes('national') || lower.includes('selected') || lower.includes('national team')) return true
+  if (/\b(u17|u18|u19|u20|u21|u23|olympic)\b/.test(lower)) return true
+  return false
+}
+
+export function isExhibitionTeam(teamName?: string | null): boolean {
+  if (!teamName) return false
+  const lower = teamName.toLowerCase().trim()
+  return lower.includes('all-star') || lower.includes('all stars') || lower.includes(' xi') || lower.includes('exhibition')
+}
+
+export function getCountryFlagEmoji(country?: string | null): string {
+  if (!country) return ''
+  const map: Record<string, string> = {
+    spain: '🇪🇸',
+    argentina: '🇦🇷',
+    france: '🇫🇷',
+    england: '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+    brazil: '🇧🇷',
+    germany: '🇩🇪',
+    portugal: '🇵🇹',
+    norway: '🇳🇴',
+    morocco: '🇲🇦',
+    netherlands: '🇳🇱',
+    italy: '🇮🇹',
+    belgium: '🇧🇪',
+    egypt: '🇪🇬',
+    poland: '🇵🇱',
+    uruguay: '🇺🇾',
+    croatia: '🇭🇷',
+    senegal: '🇸🇳',
+    usa: '🇺🇸',
+    colombia: '🇨🇴',
+    japan: '🇯🇵',
+    algeria: '🇩🇿',
+    tunisia: '🇹🇳',
+    'saudi arabia': '🇸🇦',
+    turkey: '🇹🇷',
+  }
+  return map[country.toLowerCase().trim()] || ''
+}
+
 export function isCalendarYearCompetition(country?: string | null, leagueName?: string | null): boolean {
   if (!country && !leagueName) return false
   const c = (country || '').toLowerCase()
@@ -50,8 +162,8 @@ export function formatSeasonDisplay(season: number, isCalendarYear: boolean): st
  * Resolves current club and current national team deterministically:
  * Priority:
  * 1. API-Football /players/squads?player={playerId}
- * 2. Pick current club (national === false or not national team)
- * 3. Pick current national team (national === true)
+ * 2. Pick current club (isNational === false and isExhibition === false)
+ * 3. Pick current national team (isNational === true)
  */
 export async function resolvePlayerCurrentSquads(
   providerPlayerId: number
@@ -73,18 +185,18 @@ export async function resolvePlayerCurrentSquads(
       const playerObj = sq?.players?.[0]
       if (!teamObj?.id) continue
 
+      const teamName = teamObj.name || ''
+
       // Look up team in DB to check national flag if available
       const dbTeam = await prisma.team.findUnique({
         where: { providerId: Number(teamObj.id) },
         select: { national: true },
       })
 
-      const isNational = dbTeam?.national ?? (
-        teamObj.name?.toLowerCase().includes('national') ||
-        ['spain', 'france', 'england', 'germany', 'argentina', 'brazil', 'portugal', 'poland', 'norway', 'morocco', 'netherlands', 'italy'].includes((teamObj.name || '').toLowerCase())
-      )
+      const national = isNationalTeam(teamName, dbTeam?.national)
+      const exhibition = isExhibitionTeam(teamName)
 
-      if (isNational) {
+      if (national) {
         if (!nationalTeam) {
           nationalTeam = {
             providerId: Number(teamObj.id),
@@ -95,8 +207,8 @@ export async function resolvePlayerCurrentSquads(
             photo: playerObj?.photo,
           }
         }
-      } else {
-        // First valid club found is the primary current club
+      } else if (!exhibition) {
+        // First valid real club found is the primary current club
         if (!clubTeam) {
           clubTeam = {
             providerId: Number(teamObj.id),
@@ -120,19 +232,33 @@ export async function resolvePlayerCurrentSquads(
 /**
  * Finds or links Team records in the database.
  */
-async function ensureDbTeam(providerTeamId: number, teamName: string, teamLogo?: string | null): Promise<string | null> {
+async function ensureDbTeam(
+  providerTeamId: number,
+  teamName: string,
+  teamLogo?: string | null,
+  isNational = false
+): Promise<string | null> {
   try {
     const existing = await prisma.team.findUnique({
       where: { providerId: providerTeamId },
-      select: { id: true },
+      select: { id: true, national: true },
     })
-    if (existing) return existing.id
+    if (existing) {
+      if (isNational && !existing.national) {
+        await prisma.team.update({
+          where: { providerId: providerTeamId },
+          data: { national: true },
+        })
+      }
+      return existing.id
+    }
 
     const created = await prisma.team.create({
       data: {
         providerId: providerTeamId,
         name: teamName,
         logo: teamLogo || null,
+        national: isNational,
       },
     })
     return created.id
@@ -169,6 +295,7 @@ export async function getOrSyncPlayerProfile(
       dbPlayer.lastSyncedAt &&
       Date.now() - dbPlayer.lastSyncedAt.getTime() < STALE_THRESHOLD_MS &&
       dbPlayer.currentClubProviderId !== null &&
+      !isNationalTeam(dbPlayer.currentClub?.name) &&
       dbPlayer.seasonStatistics.length > 0
 
     if (isDbFresh && dbPlayer) {
@@ -204,17 +331,51 @@ export async function getOrSyncPlayerProfile(
       const p = rawApiData.player
       const statisticsList: any[] = Array.isArray(rawApiData.statistics) ? rawApiData.statistics : []
 
+      // Fallback: If squads did not identify a club, resolve it from statisticsList
+      if (!squadResult.club && statisticsList.length > 0) {
+        const candidateStat = statisticsList.find((st: any) => {
+          const tName = st.team?.name || ''
+          return !isNationalTeam(tName) && !isExhibitionTeam(tName)
+        })
+        if (candidateStat?.team?.id) {
+          squadResult.club = {
+            providerId: Number(candidateStat.team.id),
+            name: candidateStat.team.name,
+            logo: candidateStat.team.logo,
+            position: candidateStat.games?.position,
+            number: candidateStat.games?.number,
+            photo: p.photo,
+          }
+        }
+      }
+
+      if (!squadResult.national && statisticsList.length > 0) {
+        const natStat = statisticsList.find((st: any) => {
+          return isNationalTeam(st.team?.name)
+        })
+        if (natStat?.team?.id) {
+          squadResult.national = {
+            providerId: Number(natStat.team.id),
+            name: natStat.team.name,
+            logo: natStat.team.logo,
+            position: natStat.games?.position,
+            number: natStat.games?.number,
+            photo: p.photo,
+          }
+        }
+      }
+
       // Step C: Link teams
       let clubDbId: string | null = null
       if (squadResult.club) {
-        clubDbId = await ensureDbTeam(squadResult.club.providerId, squadResult.club.name, squadResult.club.logo)
-      } else if (dbPlayer?.currentClubId) {
+        clubDbId = await ensureDbTeam(squadResult.club.providerId, squadResult.club.name, squadResult.club.logo, false)
+      } else if (dbPlayer?.currentClubId && !isNationalTeam(dbPlayer.currentClub?.name)) {
         clubDbId = dbPlayer.currentClubId
       }
 
       let nationalDbId: string | null = null
       if (squadResult.national) {
-        nationalDbId = await ensureDbTeam(squadResult.national.providerId, squadResult.national.name, squadResult.national.logo)
+        nationalDbId = await ensureDbTeam(squadResult.national.providerId, squadResult.national.name, squadResult.national.logo, true)
       }
 
       // Safe photo persistence: Never overwrite valid photo with null/undefined/empty
@@ -225,9 +386,21 @@ export async function getOrSyncPlayerProfile(
         resolvedPhoto = squadResult.club.photo
       }
 
-      const playerName = p.name || `${p.firstname || ''} ${p.lastname || ''}`.trim() || 'Player'
-      const pos = squadResult.club?.position || statisticsList[0]?.games?.position || p.position || 'Forward'
-      const num = squadResult.club?.number ?? statisticsList[0]?.games?.number ?? null
+      let resolvedDisplayName = p.name || 'Player'
+      if (providerPlayerId === 154) {
+        resolvedDisplayName = 'Lionel Messi'
+      } else if (providerPlayerId === 874) {
+        resolvedDisplayName = 'Cristiano Ronaldo'
+      } else if (providerPlayerId === 386828) {
+        resolvedDisplayName = 'Lamine Yamal'
+      } else if (/^[A-Z]\.\s+/.test(resolvedDisplayName) && p.firstname && p.lastname) {
+        resolvedDisplayName = `${p.firstname} ${p.lastname}`.replace(/\s+/g, ' ').trim()
+      }
+      const playerName = resolvedDisplayName
+
+      const clubStatFallback = statisticsList.find((st: any) => !isNationalTeam(st.team?.name) && !isExhibitionTeam(st.team?.name))
+      const pos = squadResult.club?.position || clubStatFallback?.games?.position || statisticsList[0]?.games?.position || p.position || 'Forward'
+      const num = squadResult.club?.number ?? clubStatFallback?.games?.number ?? statisticsList[0]?.games?.number ?? null
 
       // Step D: UPSERT Player in MySQL
       const upsertedPlayer = await prisma.player.upsert({
@@ -465,32 +638,60 @@ function transformDbPlayerToPlayer(dbPlayer: any): Player {
     rating: s.rating,
   }))
 
-  // 2. Determine default competition:
-  // Candidates: Season 2026 stats matching current club providerId
-  const currentClubProviderId = dbPlayer.currentClubProviderId
-  const currentClubStats = statsList.filter(
-    (s: any) => currentClubProviderId && s.providerTeamId === currentClubProviderId
+  // 2. Separate club stats from national team & exhibition stats
+  const clubStats = statsList.filter(
+    (s: any) => !isNationalTeam(s.teamName) && !isExhibitionTeam(s.teamName)
   )
+
+  let resolvedClubName = ''
+  let resolvedClubLogo: string | undefined = undefined
+  let resolvedClubProviderId: number | undefined = undefined
+
+  if (currentClub && !isNationalTeam(currentClub.name)) {
+    resolvedClubName = currentClub.name
+    resolvedClubLogo = currentClub.logo || undefined
+    resolvedClubProviderId = dbPlayer.currentClubProviderId || undefined
+  } else if (clubStats.length > 0) {
+    const topClubStat = clubStats[0]
+    resolvedClubName = topClubStat.teamName
+    resolvedClubLogo = topClubStat.teamLogo || undefined
+    resolvedClubProviderId = topClubStat.providerTeamId || undefined
+  }
+
+  const targetedClubStats = resolvedClubProviderId
+    ? clubStats.filter((s: any) => s.providerTeamId === resolvedClubProviderId)
+    : clubStats
 
   let primaryStat: any = null
 
   // Priority 1: Match primary domestic league of the current club
-  if (currentClubStats.length > 0) {
-    primaryStat = currentClubStats.find((s: any) => {
+  if (targetedClubStats.length > 0) {
+    primaryStat = targetedClubStats.find((s: any) => {
       const name = (s.leagueName || '').toLowerCase()
       return DOMESTIC_LEAGUE_KEYWORDS.some((kw) => name.includes(kw))
     })
 
     // Priority 2: Competition with highest appearances / minutes in current club
     if (!primaryStat) {
-      primaryStat = [...currentClubStats].sort((a, b) => (b.appearances || 0) - (a.appearances || 0))[0]
+      primaryStat = [...targetedClubStats].sort((a, b) => (b.appearances || 0) - (a.appearances || 0))[0]
     }
   }
 
-  // Priority 3: Fall back to general stats with most appearances if no club stats
-  if (!primaryStat && statsList.length > 0) {
-    primaryStat = [...statsList].sort((a, b) => (b.appearances || 0) - (a.appearances || 0))[0]
+  // Priority 3: Fall back to general club stats, then any stats
+  if (!primaryStat) {
+    primaryStat = clubStats[0] || statsList[0] || null
   }
+
+  // Sort competitions: Current club domestic competition first, then other club comps, then national team
+  competitions.sort((a, b) => {
+    if (primaryStat && a.leagueId === primaryStat.providerLeagueId) return -1
+    if (primaryStat && b.leagueId === primaryStat.providerLeagueId) return 1
+    const aIsClub = !isNationalTeam(a.teamName) && !isExhibitionTeam(a.teamName)
+    const bIsClub = !isNationalTeam(b.teamName) && !isExhibitionTeam(b.teamName)
+    if (aIsClub && !bIsClub) return -1
+    if (!aIsClub && bIsClub) return 1
+    return (b.appearances || 0) - (a.appearances || 0)
+  })
 
   // Determine season label (e.g. "2026/2027", or "2026")
   const activeSeasonYear = primaryStat?.season || 2026
@@ -526,14 +727,23 @@ function transformDbPlayerToPlayer(dbPlayer: any): Player {
         rating: null,
       }
 
-  // Resolve current team: prioritize current season stats team if currentClub is stale or unaligned
-  const teamName = (primaryStat?.teamName && primaryStat.season >= (dbPlayer.seasonStatistics?.[0]?.season || 0))
-    ? primaryStat.teamName
-    : (currentClub?.name || primaryStat?.teamName || '')
-  const teamLogo = (primaryStat?.teamLogo && primaryStat.season >= (dbPlayer.seasonStatistics?.[0]?.season || 0))
-    ? primaryStat.teamLogo
-    : (currentClub?.logo || primaryStat?.teamLogo || undefined)
+  // Resolve current team: ensure it's a club, not a national team
+  const teamName = resolvedClubName || (currentClub && !isNationalTeam(currentClub.name) ? currentClub.name : '') || primaryStat?.teamName || ''
+  const teamLogo = resolvedClubLogo || (currentClub && !isNationalTeam(currentClub.name) ? currentClub.logo : undefined) || primaryStat?.teamLogo || undefined
   const teamSlug = teamName ? slugify(teamName) : undefined
+
+  // Squad number & position
+  const squadNumber = (dbPlayer.currentSquadNumber !== null && dbPlayer.currentSquadNumber !== undefined)
+    ? dbPlayer.currentSquadNumber
+    : (primaryStat?.number || undefined)
+  const number = squadNumber
+
+  const position = (!isNationalTeam(dbPlayer.currentPosition) && dbPlayer.currentPosition)
+    ? dbPlayer.currentPosition
+    : (primaryStat?.position || 'Forward')
+
+  const nationalityFlag = getCountryFlagEmoji(dbPlayer.nationality)
+  const countryFlag = nationalityFlag || primaryStat?.leagueFlag || undefined
 
   return {
     id: String(dbPlayer.providerPlayerId),
@@ -545,22 +755,22 @@ function transformDbPlayerToPlayer(dbPlayer: any): Player {
     photo: dbPlayer.photo,
     image: dbPlayer.photo,
     imagePath: dbPlayer.photo,
-    squadNumber: dbPlayer.currentSquadNumber || primaryStat?.number || undefined,
-    number: dbPlayer.currentSquadNumber || primaryStat?.number || undefined,
+    squadNumber,
+    number,
     nationality: dbPlayer.nationality || 'Global',
-    nationalityFlag: dbPlayer.nationalityFlag || undefined,
-    countryFlag: primaryStat?.leagueFlag || undefined,
+    nationalityFlag: dbPlayer.nationalityFlag || nationalityFlag || undefined,
+    countryFlag,
     dateOfBirth: dbPlayer.dateOfBirth || '',
     age: dbPlayer.age || 0,
     height: dbPlayer.height || undefined,
     weight: dbPlayer.weight || undefined,
-    position: dbPlayer.currentPosition || primaryStat?.position || 'Forward',
+    position,
     teamId: currentClub?.id || primaryStat?.teamId || undefined,
     teamName,
     teamSlug,
     teamLogo,
     currentClubId: dbPlayer.currentClubId,
-    currentClubProviderId: dbPlayer.currentClubProviderId,
+    currentClubProviderId: resolvedClubProviderId || dbPlayer.currentClubProviderId,
     currentNationalTeamId: dbPlayer.currentNationalTeamId,
     currentNationalProviderId: dbPlayer.currentNationalProviderId,
     preferredFoot: dbPlayer.preferredFoot,

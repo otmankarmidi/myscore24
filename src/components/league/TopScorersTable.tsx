@@ -34,7 +34,7 @@ export default function TopScorersTable({ scorers }: TopScorersTableProps) {
           <tbody className="divide-y divide-surface-bright/60 text-body-sm font-geist">
             {scorers.map((item: any, index) => {
               const pName = item.playerName || item.player?.name || 'Player'
-              const pSlug = item.playerSlug || item.player?.slug || `player-${item.playerId || index + 1}`
+              const pSlug = item.playerSlug || item.player?.slug || (item.playerId ? String(item.playerId) : `player-${index + 1}`)
               const photoUrl = item.photo || item.player?.photo
               const tName = item.teamName || item.team?.name || 'Club'
               const tSlug = item.teamSlug || item.team?.slug || 'club'

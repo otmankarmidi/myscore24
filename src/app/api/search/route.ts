@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
       if (dbPlayers.length > 0) {
         matchingPlayers = dbPlayers.map((p: any) => ({
           id: String(p.providerPlayerId),
-          slug: String(p.providerPlayerId),
+          slug: p.slug || String(p.providerPlayerId),
           name: p.name,
           position: p.currentPosition || 'Player',
           number: p.currentSquadNumber || undefined,
@@ -55,27 +55,32 @@ export async function GET(req: NextRequest) {
       console.warn('[Search] DB player search error:', dbErr)
     }
 
-    // Fallback to mock players if database returned no results
-    if (matchingPlayers.length === 0) {
-      matchingPlayers = mockPlayers
-        .filter(
-          (p) =>
-            p.name.toLowerCase().includes(q) ||
-            p.firstName?.toLowerCase().includes(q) ||
-            p.lastName?.toLowerCase().includes(q) ||
-            p.team?.name.toLowerCase().includes(q)
-        )
-        .slice(0, 6)
-        .map((p) => ({
-          id: p.id,
-          slug: p.slug,
-          name: p.name,
-          position: p.position,
-          number: p.number,
-          teamName: p.team?.name || 'Club',
-          teamLogo: p.team?.logo,
-          photo: p.photo,
-        }))
+    // Merge mock/curated players so popular icons (Messi, Ronaldo, Yamal) are always discoverable
+    for (const mp of mockPlayers) {
+      if (matchingPlayers.length >= 6) break
+      const matchesQuery =
+        mp.name.toLowerCase().includes(q) ||
+        mp.firstName?.toLowerCase().includes(q) ||
+        mp.lastName?.toLowerCase().includes(q) ||
+        mp.slug.toLowerCase().includes(q) ||
+        (mp.team?.name || '').toLowerCase().includes(q)
+
+      const alreadyExists = matchingPlayers.some(
+        (existing) => existing.id === mp.id || existing.slug === mp.slug
+      )
+
+      if (matchesQuery && !alreadyExists) {
+        matchingPlayers.push({
+          id: mp.id,
+          slug: mp.slug,
+          name: mp.name,
+          position: mp.position,
+          number: mp.number,
+          teamName: mp.team?.name || 'Club',
+          teamLogo: mp.team?.logo,
+          photo: mp.photo,
+        })
+      }
     }
 
     // 2. Search Teams in MySQL
