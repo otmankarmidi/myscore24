@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { NewsArticle } from '@/types/news'
 import { useLanguage } from '@/context/LanguageContext'
+import styles from '@/components/common/PurpleDesignBar.module.css'
 
 interface LeagueBanner {
   id: string
@@ -17,20 +18,20 @@ interface LeagueBanner {
 
 const BANNERS: LeagueBanner[] = [
   {
-    id: 'epl',
-    titleAr: 'الدوري الإنجليزي الممتاز',
-    titleEn: 'Premier League',
-    categorySlug: 'premier-league',
-    logo: 'https://media.api-sports.io/football/leagues/39.png',
-    accentColor: '#38003c',
-  },
-  {
     id: 'laliga',
     titleAr: 'الدوري الإسباني',
     titleEn: 'La Liga',
     categorySlug: 'la-liga',
     logo: 'https://media.api-sports.io/football/leagues/140.png',
     accentColor: '#ee2e24',
+  },
+  {
+    id: 'epl',
+    titleAr: 'الدوري الإنجليزي الممتاز',
+    titleEn: 'Premier League',
+    categorySlug: 'premier-league',
+    logo: 'https://media.api-sports.io/football/leagues/39.png',
+    accentColor: '#38003c',
   },
   {
     id: 'ligue1',
@@ -58,8 +59,8 @@ export default function LeagueBannersShowcase({ articles = [] }: LeagueBannersSh
   const { locale } = useLanguage()
   const isAr = locale === 'ar'
 
-  // Only show banners that actually have articles published for them
-  const visibleBanners = BANNERS.filter((banner) => {
+  // Match banners with published articles, or default to the top featured leagues
+  const matchedBanners = BANNERS.filter((banner) => {
     return articles.some((a) => {
       const slug = (a.categorySlug || '').toLowerCase()
       const cat = (a.category || '').toLowerCase()
@@ -110,10 +111,8 @@ export default function LeagueBannersShowcase({ articles = [] }: LeagueBannersSh
     })
   })
 
-  // If no articles match any of the banners, hide the entire section
-  if (visibleBanners.length === 0) {
-    return null
-  }
+  // Display matched banners or default to top leagues so the banner bar is always available
+  const visibleBanners = matchedBanners.length > 0 ? matchedBanners : [BANNERS[0]]
 
   return (
     <div className="w-full space-y-3" aria-label="League Navigation Banners">
@@ -123,38 +122,30 @@ export default function LeagueBannersShowcase({ articles = [] }: LeagueBannersSh
           <Link
             key={banner.id}
             href={`/${locale === 'ar' ? 'ar' : 'en'}/news?category=${banner.categorySlug}`}
-            className="group relative w-full h-[64px] sm:h-[70px] rounded-2xl overflow-hidden bg-gradient-to-r from-[#060b14] via-[#091222] to-[#0c162a] border border-[#182740] hover:border-sky-400/50 flex items-center justify-between px-5 sm:px-6 transition-all duration-300 shadow-md hover:shadow-lg hover:shadow-sky-500/5"
+            className={`${styles['purple-bar']} group transition-transform duration-200 hover:scale-[1.008] hover:brightness-110 active:scale-[0.995] text-white no-underline`}
+            dir={isAr ? 'rtl' : 'ltr'}
           >
-            {/* Left Diagonal Hatched / Watermark Lines pattern (Matching Image 1) */}
-            <div
-              className="absolute left-0 top-0 bottom-0 w-32 sm:w-44 pointer-events-none opacity-20 group-hover:opacity-35 transition-opacity"
-              style={{
-                backgroundImage:
-                  'repeating-linear-gradient(45deg, #0284c7 0, #0284c7 2px, transparent 0, transparent 10px)',
-              }}
-            />
-
-            {/* Left Subtle chevron accent */}
-            <div className="relative z-10 flex items-center text-slate-500 group-hover:text-sky-400 transition-colors">
-              <span className="material-symbols-outlined text-2xl font-bold rtl:rotate-180">
-                chevron_right
-              </span>
-            </div>
-
-            {/* Right side: Bold Title + White Emblem League Logo */}
-            <div className="relative z-10 flex items-center gap-3.5">
-              <span className="text-sm sm:text-base md:text-lg font-black text-white group-hover:text-sky-400 transition-colors tracking-tight">
-                {title}
-              </span>
-              <div className="w-8 h-8 sm:w-9 sm:h-9 relative shrink-0 flex items-center justify-center p-0.5 rounded-lg bg-black/40 border border-white/10 group-hover:scale-105 transition-transform">
+            {/* Start side: Authentic Colored League Emblem + Crisp Bold Title */}
+            <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 relative shrink-0 flex items-center justify-center">
                 <Image
                   src={banner.logo}
                   alt={banner.titleEn}
-                  width={32}
-                  height={32}
-                  className="object-contain filter brightness-0 invert drop-shadow"
+                  width={34}
+                  height={34}
+                  className="object-contain drop-shadow-md"
                 />
               </div>
+              <span className="text-base sm:text-lg md:text-xl font-black font-geist text-white tracking-tight truncate">
+                {title}
+              </span>
+            </div>
+
+            {/* End side: Subtle, sleek chevron navigation arrow */}
+            <div className="flex items-center text-white/80 group-hover:text-white group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-all shrink-0">
+              <span className="material-symbols-outlined text-2xl font-bold rtl:rotate-180">
+                chevron_right
+              </span>
             </div>
           </Link>
         )

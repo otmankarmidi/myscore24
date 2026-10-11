@@ -109,9 +109,9 @@ export default function DesktopSidebar() {
 
       {/* Favorite Leagues */}
       <div className="mb-4">
-        <div className="px-2.5 py-1 font-geist text-[10px] font-bold uppercase tracking-widest text-outline flex items-center justify-between">
+        <div className="px-2.5 py-1 font-geist text-[11px] font-extrabold uppercase tracking-wider text-[#6425A6] flex items-center justify-between">
           <span>{t('common.favorite_leagues', 'Favorite Leagues')}</span>
-          <span className="material-symbols-outlined" style={{ fontSize: 14 }}>tune</span>
+          <span className="material-symbols-outlined text-[#6425A6]" style={{ fontSize: 14 }}>tune</span>
         </div>
         <div className="flex flex-col gap-0.5 mt-1">
           {favoriteLeagues.map(league => (
@@ -122,7 +122,7 @@ export default function DesktopSidebar() {
               <Link
                 href={`/league/${league.id || league.slug}`}
                 prefetch={false}
-                className="flex items-center gap-2 min-w-0 flex-1 hover:text-primary transition-colors"
+                className="flex items-center gap-2 min-w-0 flex-1 hover:text-[#6425A6] transition-colors"
               >
                 <CompetitionLogo
                   logo={league.logo}
@@ -134,20 +134,20 @@ export default function DesktopSidebar() {
                   size={20}
                   showBackground={true}
                 />
-                <span className="truncate text-on-surface group-hover:text-primary transition-colors text-[12px] font-medium">
+                <span className="truncate text-on-surface group-hover:text-[#6425A6] transition-colors text-[12px] font-medium">
                   {league.name}
                 </span>
               </Link>
               <div className="flex items-center gap-1.5 shrink-0">
-                <span className="font-geist text-[10px] font-bold text-outline">{league.countryCode}</span>
+                <span className="font-geist text-[10px] font-bold text-[#6425A6] bg-[#F3ECFA] px-1.5 py-0.5 rounded">{league.countryCode}</span>
                 <button
                   onClick={() => toggleLeague(league.slug)}
-                  className="text-outline hover:text-primary transition-colors"
+                  className="text-[#9CA3AF] hover:text-[#6425A6] transition-colors"
                   aria-label={`${isFavoriteLeague(league.slug) ? 'Remove' : 'Add'} ${league.name} from favorites`}
                 >
                   <span
                     className="material-symbols-outlined"
-                    style={{ fontSize: 14, fontVariationSettings: isFavoriteLeague(league.slug) ? "'FILL' 1" : "'FILL' 0", color: isFavoriteLeague(league.slug) ? 'var(--color-primary)' : undefined }}
+                    style={{ fontSize: 14, fontVariationSettings: isFavoriteLeague(league.slug) ? "'FILL' 1" : "'FILL' 0", color: isFavoriteLeague(league.slug) ? '#6425A6' : undefined }}
                   >
                     star
                   </span>
@@ -160,9 +160,9 @@ export default function DesktopSidebar() {
 
       {/* Countries */}
       <div>
-        <div className="px-2.5 py-1 font-geist text-[10px] font-bold uppercase tracking-widest text-outline flex items-center justify-between">
+        <div className="px-2.5 py-1 font-geist text-[11px] font-extrabold uppercase tracking-wider text-[#6425A6] flex items-center justify-between">
           <span>{t('common.countries', 'Countries')}</span>
-          <span className="material-symbols-outlined" style={{ fontSize: 14 }}>expand_more</span>
+          <span className="material-symbols-outlined text-[#6425A6]" style={{ fontSize: 14 }}>expand_more</span>
         </div>
         <div className="flex flex-col gap-0.5 mt-1">
           {COUNTRIES.map(c => (
@@ -178,11 +178,11 @@ export default function DesktopSidebar() {
                   height={15}
                   className="shrink-0"
                 />
-                <span className="truncate text-[12px] font-medium text-on-surface group-hover:text-primary transition-colors">
+                <span className="truncate text-[12px] font-medium text-on-surface group-hover:text-[#6425A6] transition-colors">
                   {t(`countries.${c.name}`, c.name)}
                 </span>
               </div>
-              <span className="font-geist text-[11px] font-semibold text-outline tabular-nums shrink-0">{c.count}</span>
+              <span className="font-geist text-[11px] font-bold text-[#6425A6] bg-[#F3ECFA] px-2 py-0.5 rounded-full tabular-nums shrink-0">{c.count}</span>
             </Link>
           ))}
         </div>

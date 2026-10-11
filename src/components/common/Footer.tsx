@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { openCookieSettings } from '@/lib/analytics'
@@ -7,15 +8,25 @@ import { useLanguage } from '@/context/LanguageContext'
 
 export default function Footer() {
   const pathname = usePathname()
-  const { t } = useLanguage()
+  const { locale, t } = useLanguage()
+  const isAr = locale === 'ar'
 
   // Do not render public consumer footer on CMS / admin portal pages
   if (pathname?.startsWith('/admin') || pathname?.startsWith('/api')) {
     return null
   }
 
+  const scrollToTop = () => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
   return (
-    <footer className="w-full bg-surface-container border-t border-surface-bright mt-auto pt-10 pb-24 md:pb-10 px-4 text-on-surface-variant relative z-10">
+    <footer
+      className="w-full bg-[#521c85] bg-gradient-to-br from-[#421270] via-[#521c85] to-[#6425a6] text-white mt-auto pt-10 pb-24 md:pb-10 px-4 sm:px-6 lg:px-8 relative z-10 border-t border-purple-900/50 shadow-2xl"
+      dir={isAr ? 'rtl' : 'ltr'}
+    >
       <div className="max-w-[1440px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
         {/* Brand Info */}
         <div className="space-y-3 sm:col-span-2 lg:col-span-1">
@@ -27,21 +38,25 @@ export default function Footer() {
               height={32}
               loading="lazy"
               decoding="async"
-              className="w-8 h-8 object-contain shrink-0"
+              className="w-8 h-8 object-contain shrink-0 brightness-0 invert drop-shadow"
             />
-            <span className="text-lg font-extrabold text-on-surface tracking-tight">
-              MyScore<span className="text-primary">24</span>
+            <span className="text-lg font-black font-geist text-white tracking-tight uppercase">
+              MyScore<span className="text-[#ccff80]">24</span>
             </span>
           </div>
-          <p className="text-xs text-on-surface-variant/80 leading-relaxed">
-            Real-time live football scores, standings, fixtures, results, top scorers, match statistics, and verified football news across global competitions.
+          <p className="text-xs text-white/80 leading-relaxed">
+            {isAr
+              ? 'نتائج كرة القدم المباشرة والترتيب وجدول المباريات والإحصائيات والأخبار الموثوقة لجميع البطولات العالمية.'
+              : 'Real-time live football scores, standings, fixtures, results, top scorers, match statistics, and verified football news across global competitions.'}
           </p>
           <div className="pt-1">
             <a
               href="mailto:contact@myscore24.com"
-              className="text-xs text-primary hover:text-primary-container font-mono transition-colors inline-flex items-center gap-1.5"
+              className="text-xs text-white/90 hover:text-white font-mono transition-colors inline-flex items-center gap-1.5 hover:underline"
             >
-              <span className="material-symbols-outlined text-[15px]" aria-hidden="true">mail</span>
+              <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
               <span>contact@myscore24.com</span>
             </a>
           </div>
@@ -49,33 +64,33 @@ export default function Footer() {
 
         {/* Navigation */}
         <div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface mb-3">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-3 border-b border-white/20 pb-1.5">
             {t('nav.scores', 'Scores')}
           </h3>
-          <ul className="space-y-2 text-xs">
+          <ul className="space-y-2 text-xs text-white/85">
             <li>
-              <Link href="/" className="hover:text-primary transition-colors">
-                Live Scores
+              <Link href="/" className="hover:text-white hover:underline transition-colors">
+                {isAr ? 'النتائج المباشرة' : 'Live Scores'}
               </Link>
             </li>
             <li>
-              <Link href="/fixtures" className="hover:text-primary transition-colors">
-                Fixtures
+              <Link href="/fixtures" className="hover:text-white hover:underline transition-colors">
+                {isAr ? 'جدول المباريات' : 'Fixtures'}
               </Link>
             </li>
             <li>
-              <Link href="/results" className="hover:text-primary transition-colors">
-                Results
+              <Link href="/results" className="hover:text-white hover:underline transition-colors">
+                {isAr ? 'النتائج النهائية' : 'Results'}
               </Link>
             </li>
             <li>
-              <Link href="/competitions" className="hover:text-primary transition-colors">
-                Competitions
+              <Link href="/competitions" className="hover:text-white hover:underline transition-colors">
+                {isAr ? 'البطولات' : 'Competitions'}
               </Link>
             </li>
             <li>
-              <Link href="/news" className="hover:text-primary transition-colors">
-                Football News
+              <Link href="/news" className="hover:text-white hover:underline transition-colors">
+                {isAr ? 'أخبار كرة القدم' : 'Football News'}
               </Link>
             </li>
           </ul>
@@ -83,33 +98,33 @@ export default function Footer() {
 
         {/* Top Leagues */}
         <div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface mb-3">
-            Top Leagues
+          <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-3 border-b border-white/20 pb-1.5">
+            {isAr ? 'أبرز الدوريات' : 'Top Leagues'}
           </h3>
-          <ul className="space-y-2 text-xs">
+          <ul className="space-y-2 text-xs text-white/85">
             <li>
-              <Link href="/league/39" className="hover:text-primary transition-colors">
-                Premier League
+              <Link href="/league/39" className="hover:text-white hover:underline transition-colors">
+                {isAr ? 'الدوري الإنجليزي الممتاز' : 'Premier League'}
               </Link>
             </li>
             <li>
-              <Link href="/league/140" className="hover:text-primary transition-colors">
-                La Liga
+              <Link href="/league/140" className="hover:text-white hover:underline transition-colors">
+                {isAr ? 'الدوري الإسباني' : 'La Liga'}
               </Link>
             </li>
             <li>
-              <Link href="/league/2" className="hover:text-primary transition-colors">
-                UEFA Champions League
+              <Link href="/league/2" className="hover:text-white hover:underline transition-colors">
+                {isAr ? 'دوري أبطال أوروبا' : 'UEFA Champions League'}
               </Link>
             </li>
             <li>
-              <Link href="/league/135" className="hover:text-primary transition-colors">
-                Serie A
+              <Link href="/league/135" className="hover:text-white hover:underline transition-colors">
+                {isAr ? 'الدوري الإيطالي' : 'Serie A'}
               </Link>
             </li>
             <li>
-              <Link href="/league/78" className="hover:text-primary transition-colors">
-                Bundesliga
+              <Link href="/league/78" className="hover:text-white hover:underline transition-colors">
+                {isAr ? 'الدوري الألماني' : 'Bundesliga'}
               </Link>
             </li>
           </ul>
@@ -117,18 +132,18 @@ export default function Footer() {
 
         {/* Company */}
         <div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface mb-3">
-            Company
+          <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-3 border-b border-white/20 pb-1.5">
+            {isAr ? 'عن المنصة' : 'Company'}
           </h3>
-          <ul className="space-y-2 text-xs">
+          <ul className="space-y-2 text-xs text-white/85">
             <li>
-              <Link href="/about" className="hover:text-primary transition-colors">
-                About Us
+              <Link href="/about" className="hover:text-white hover:underline transition-colors">
+                {isAr ? 'من نحن' : 'About Us'}
               </Link>
             </li>
             <li>
-              <Link href="/contact" className="hover:text-primary transition-colors">
-                Contact Us
+              <Link href="/contact" className="hover:text-white hover:underline transition-colors">
+                {isAr ? 'اتصل بنا' : 'Contact Us'}
               </Link>
             </li>
           </ul>
@@ -136,42 +151,62 @@ export default function Footer() {
 
         {/* Legal */}
         <div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface mb-3">
-            Legal
+          <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-3 border-b border-white/20 pb-1.5">
+            {isAr ? 'قانوني' : 'Legal'}
           </h3>
-          <ul className="space-y-2 text-xs">
+          <ul className="space-y-2 text-xs text-white/85">
             <li>
-              <Link href="/privacy-policy" className="hover:text-primary transition-colors">
-                Privacy Policy
+              <Link href="/privacy-policy" className="hover:text-white hover:underline transition-colors">
+                {isAr ? 'سياسة الخصوصية' : 'Privacy Policy'}
               </Link>
             </li>
             <li>
-              <Link href="/cookie-policy" className="hover:text-primary transition-colors">
-                Cookie Policy
+              <Link href="/cookie-policy" className="hover:text-white hover:underline transition-colors">
+                {isAr ? 'سياسة ملفات الارتباط' : 'Cookie Policy'}
               </Link>
             </li>
             <li>
-              <Link href="/terms" className="hover:text-primary transition-colors">
-                Terms of Use
+              <Link href="/terms" className="hover:text-white hover:underline transition-colors">
+                {isAr ? 'شروط الاستخدام' : 'Terms of Use'}
               </Link>
             </li>
             <li>
               <button
                 type="button"
                 onClick={openCookieSettings}
-                className="hover:text-primary text-left transition-colors cursor-pointer inline-flex items-center gap-1"
+                className="hover:text-white text-left rtl:text-right transition-colors cursor-pointer inline-flex items-center gap-1 hover:underline text-white/85"
               >
-                <span>Cookie Settings</span>
+                <span>{isAr ? 'إعدادات ملفات الارتباط' : 'Cookie Settings'}</span>
               </button>
             </li>
           </ul>
         </div>
       </div>
 
-      <div className="max-w-[1440px] mx-auto pt-6 border-t border-surface-bright/50 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-on-surface-variant/70">
-        <p>© 2026 MyScore24. All rights reserved.</p>
-        <p className="text-center sm:text-right">
-          Independent football scores & information platform. Official competition organizers remain authoritative for official records.
+      <div className="max-w-[1440px] mx-auto pt-6 border-t border-white/15 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/80">
+        <button
+          type="button"
+          onClick={scrollToTop}
+          className="group inline-flex items-center gap-1.5 text-white font-bold hover:text-[#ccff80] transition-colors cursor-pointer"
+        >
+          <svg
+            className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform shrink-0"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2.5}
+            aria-hidden="true"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+          </svg>
+          <span>{isAr ? 'الرجوع إلى البداية' : locale === 'fr' ? 'Haut de page' : 'Back to top'}</span>
+        </button>
+
+        <p className="font-geist">© 2026 MyScore24. {isAr ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}</p>
+        <p className="text-center sm:text-right rtl:sm:text-left text-white/70">
+          {isAr
+            ? 'منصة رياضية مستقلة للنتائج والمعلومات الرياضية.'
+            : 'Independent football scores & information platform. Official competition organizers remain authoritative for official records.'}
         </p>
       </div>
     </footer>

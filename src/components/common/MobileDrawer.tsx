@@ -123,7 +123,7 @@ export default function MobileDrawer({ isOpen, onClose, onOpenNotifications }: M
 
         {/* 1. Language Selection */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold uppercase tracking-wider text-outline block">
+          <label className="text-xs font-bold uppercase tracking-wider text-[#6425A6] block">
             {t('common.language', 'Language')}
           </label>
           <div className="grid grid-cols-3 gap-2">
@@ -148,7 +148,7 @@ export default function MobileDrawer({ isOpen, onClose, onOpenNotifications }: M
 
         {/* 2. Timezone Selector */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold uppercase tracking-wider text-outline block">
+          <label className="text-xs font-bold uppercase tracking-wider text-[#6425A6] block">
             {t('common.displayTimezone', 'Timezone Preference')}
           </label>
           <select

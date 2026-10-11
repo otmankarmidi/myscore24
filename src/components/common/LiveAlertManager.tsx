@@ -139,6 +139,21 @@ export function LiveAlertManager() {
     }
   }, [isMatchNotified, isMatchFavorite, isTeamFavorite, playAlertSound, showSystemNotification])
 
+  // Listen for direct in-app test or client-dispatched alerts
+  useEffect(() => {
+    function handleCustomAlert(e: any) {
+      if (e.detail) {
+        setActiveAlert(e.detail)
+        setToastProgress(100)
+        setTimeout(() => setToastProgress(0), 40)
+      }
+    }
+    window.addEventListener('myscore24_show_alert', handleCustomAlert)
+    return () => {
+      window.removeEventListener('myscore24_show_alert', handleCustomAlert)
+    }
+  }, [])
+
   // Poll for alerts every 10 seconds (initial check after 3 seconds)
   useEffect(() => {
     let interval: NodeJS.Timeout
@@ -168,55 +183,44 @@ export function LiveAlertManager() {
         return {
           icon: '⏱️',
           title: locale === 'ar' ? 'استراحة الشوطين' : locale === 'fr' ? 'MI-TEMPS' : 'HALF-TIME',
-          subtitle: locale === 'ar' ? 'نهاية الشوط الأول' : locale === 'fr' ? 'Fin de la 1ère mi-temps' : 'End of first half',
-          borderColor: 'border-cyan-400/80 shadow-[0_12px_36px_rgba(0,0,0,0.5),0_0_25px_rgba(34,211,238,0.25)]',
-          badgeBg: 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40',
-          accentColor: 'text-cyan-400',
+          subtitle: locale === 'ar' ? 'نهاية الشوط الأول' : locale === 'fr' ? 'Fin de la 1ère mi-temps' : 'Half-time result',
         }
       case 'full_time':
         return {
           icon: '🏁',
           title: locale === 'ar' ? 'نهاية المباراة' : locale === 'fr' ? 'FIN DU MATCH' : 'FULL-TIME',
           subtitle: locale === 'ar' ? 'النتيجة النهائية' : locale === 'fr' ? 'Résultat final' : 'Final result',
-          borderColor: 'border-amber-400/80 shadow-[0_12px_36px_rgba(0,0,0,0.5),0_0_25px_rgba(251,191,36,0.3)]',
-          badgeBg: 'bg-amber-500/20 text-amber-400 border border-amber-500/40',
-          accentColor: 'text-amber-400',
+        }
+      case 'goal':
+      case 'penalty':
+        return {
+          icon: '⚽',
+          title: locale === 'ar' ? 'هدف!' : locale === 'fr' ? 'BUT !' : 'GOAL!',
+          subtitle: activeAlert?.scorerName ? `${activeAlert.scorerName}${activeAlert.minute ? ` (${activeAlert.minute}')` : ''}` : 'Goal scored',
         }
       case 'red_card':
         return {
           icon: '🟥',
           title: locale === 'ar' ? 'بطاقة حمراء' : locale === 'fr' ? 'CARTON ROUGE' : 'RED CARD',
-          subtitle: locale === 'ar' ? 'طرد مباشر' : locale === 'fr' ? 'Expulsion' : 'Player sent off',
-          borderColor: 'border-red-500/80 shadow-[0_12px_36px_rgba(0,0,0,0.5),0_0_30px_rgba(239,68,68,0.35)]',
-          badgeBg: 'bg-red-500/20 text-red-400 border border-red-500/40',
-          accentColor: 'text-red-400',
+          subtitle: activeAlert?.scorerName ? `${activeAlert.scorerName} - ${locale === 'ar' ? 'طرد' : 'Red card'}` : 'Player sent off',
         }
       case 'yellow_card':
         return {
           icon: '🟨',
           title: locale === 'ar' ? 'بطاقة صفراء' : locale === 'fr' ? 'CARTON JAUNE' : 'YELLOW CARD',
-          subtitle: locale === 'ar' ? 'إنذار' : locale === 'fr' ? 'Avertissement' : 'Caution',
-          borderColor: 'border-amber-400/70 shadow-[0_12px_36px_rgba(0,0,0,0.5),0_0_20px_rgba(245,158,11,0.2)]',
-          badgeBg: 'bg-amber-400/20 text-amber-300 border border-amber-400/40',
-          accentColor: 'text-amber-300',
+          subtitle: activeAlert?.scorerName ? `${activeAlert.scorerName} - ${locale === 'ar' ? 'إنذار' : 'Yellow card'}` : 'Caution',
         }
       case 'match_started':
         return {
           icon: '📢',
           title: locale === 'ar' ? 'انطلاق المباراة' : locale === 'fr' ? "COUP D'ENVOI" : 'MATCH KICK-OFF',
           subtitle: locale === 'ar' ? 'بدء اللقاء الآن' : locale === 'fr' ? 'Le match a débuté' : 'Match underway',
-          borderColor: 'border-emerald-400/80 shadow-[0_12px_36px_rgba(0,0,0,0.5),0_0_25px_rgba(16,185,129,0.25)]',
-          badgeBg: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40',
-          accentColor: 'text-emerald-400',
         }
       default:
         return {
           icon: '🔔',
           title: activeAlert?.title || 'MATCH UPDATE',
           subtitle: activeAlert?.message || '',
-          borderColor: 'border-surface-bright/80 shadow-2xl',
-          badgeBg: 'bg-surface-bright text-on-surface-variant',
-          accentColor: 'text-primary',
         }
     }
   }
@@ -231,7 +235,7 @@ export function LiveAlertManager() {
         onDismiss={() => setActiveGoalAlert(null)}
       />
 
-      {/* Floating expert-motion toast notification for Halftime, Fulltime, Cards & Kickoff */}
+      {/* Floating toast notification matching reference image */}
       {activeAlert && alertMeta && (
         <aside
           role="alert"
@@ -240,20 +244,16 @@ export function LiveAlertManager() {
             router.push(`/match/${activeAlert.matchId || activeAlert.matchSlug}`)
             setActiveAlert(null)
           }}
-          className={`fixed top-4 md:top-6 right-3 sm:right-6 z-50 w-[94%] sm:w-[380px] max-w-sm bg-surface-container-high/95 backdrop-blur-2xl border-2 rounded-2xl p-3.5 shadow-2xl cursor-pointer hover:scale-[1.02] active:scale-[0.99] transition-transform animate-toast-spring overflow-hidden ${alertMeta.borderColor}`}
+          className="fixed top-5 right-4 sm:right-6 z-50 w-[94%] sm:w-[350px] max-w-sm bg-white border border-[#E5E5E5] rounded-2xl p-3.5 sm:p-4 shadow-[0_10px_35px_rgba(0,0,0,0.12)] cursor-pointer hover:shadow-[0_14px_40px_rgba(0,0,0,0.16)] transition-all animate-toast-spring overflow-hidden text-slate-900"
+          dir={locale === 'ar' ? 'rtl' : 'ltr'}
         >
-          {/* Top Row: Event Badge, Minute, and Dismiss Button */}
-          <div className="flex items-center justify-between gap-2 pb-2 border-b border-surface-bright/40">
+          {/* Top Row: Event Icon + Purple Pill Badge + Close Button */}
+          <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <span className="text-base select-none">{alertMeta.icon}</span>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] md:text-[11px] font-black tracking-wider uppercase font-geist ${alertMeta.badgeBg}`}>
+              <span className="text-lg leading-none select-none">{alertMeta.icon}</span>
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black tracking-wider uppercase bg-[#F3ECFA] text-[#6425A6] font-geist">
                 {alertMeta.title}
               </span>
-              {activeAlert.minute ? (
-                <span className="font-mono text-[10px] md:text-[11px] font-bold px-1.5 py-0.2 rounded bg-surface-container text-on-surface-variant border border-surface-bright/60 tabular-nums">
-                  ⏱️ {activeAlert.minute}&apos;
-                </span>
-              ) : null}
             </div>
 
             <button
@@ -262,101 +262,77 @@ export function LiveAlertManager() {
                 e.stopPropagation()
                 setActiveAlert(null)
               }}
-              className="text-on-surface-variant hover:text-on-surface p-1 rounded-full hover:bg-surface-bright/80 transition-colors shrink-0"
+              className="text-slate-400 hover:text-slate-700 transition-colors p-1 -mr-1 rounded-lg"
               aria-label="Dismiss alert"
             >
-              <span className="material-symbols-outlined text-[16px] block">close</span>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           </div>
 
-          {/* Middle Body: Team Matchup, Scores & Event Spotlight */}
-          <div className="mt-2.5 flex items-center gap-3">
-            {/* Player Headshot if card event with player */}
-            {(activeAlert.type === 'red_card' || activeAlert.type === 'yellow_card') && activeAlert.scorerName ? (
-              <div className="shrink-0">
-                <PlayerImage
-                  playerId={activeAlert.playerId}
-                  photo={activeAlert.playerPhoto}
-                  name={activeAlert.scorerName}
-                  size="md"
-                  className={activeAlert.type === 'red_card' ? 'border-2 border-red-500/80 shadow-[0_0_10px_rgba(239,68,68,0.4)]' : 'border border-amber-400/80'}
+          {/* Middle Body: Home Team - Cream Score Badge - Away Team */}
+          <div className="mt-3 flex items-center justify-between gap-2">
+            {/* Home Team (Logo on left, Name on right) */}
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              {activeAlert.homeTeamLogo && (
+                <img
+                  src={activeAlert.homeTeamLogo}
+                  alt={activeAlert.homeTeamName}
+                  className="w-5 h-5 sm:w-6 sm:h-6 object-contain shrink-0"
+                  onError={(e) => { e.currentTarget.style.display = 'none' }}
                 />
-              </div>
-            ) : null}
+              )}
+              <span className="font-bold text-sm sm:text-[15px] text-slate-900 truncate">
+                {activeAlert.homeTeamName}
+              </span>
+            </div>
 
-            <div className="flex-1 min-w-0">
-              {/* Match Headline / Score Display */}
-              <div className="flex items-center gap-2">
-                {/* Home Team */}
-                <div className="flex items-center gap-1 min-w-0 max-w-[42%]">
-                  {activeAlert.homeTeamLogo && (
-                    <img
-                      src={activeAlert.homeTeamLogo}
-                      alt={activeAlert.homeTeamName}
-                      className="w-4 h-4 object-contain shrink-0"
-                      onError={(e) => { e.currentTarget.style.display = 'none' }}
-                    />
-                  )}
-                  <span className="font-bold text-xs md:text-sm text-on-surface truncate">
-                    {activeAlert.homeTeamName}
-                  </span>
-                </div>
+            {/* Score in Warm Beige / Cream Badge with Amber Numbers */}
+            <div className="bg-[#FBF2DE] text-[#9A6014] font-extrabold text-sm sm:text-[15px] px-2.5 sm:px-3 py-1 rounded-lg tabular-nums tracking-wide shrink-0 shadow-2xs min-w-[50px] text-center font-geist">
+              {activeAlert.type === 'match_started' ? 'VS' : `${activeAlert.homeScore ?? 0} - ${activeAlert.awayScore ?? 0}`}
+            </div>
 
-                {/* Score or VS Badge */}
-                <span className={`px-2 py-0.5 rounded font-mono font-extrabold text-xs md:text-sm tabular-nums bg-surface-container-lowest shrink-0 ${alertMeta.accentColor}`}>
-                  {activeAlert.type === 'match_started' ? 'VS' : `${activeAlert.homeScore ?? 0} – ${activeAlert.awayScore ?? 0}`}
-                </span>
-
-                {/* Away Team */}
-                <div className="flex items-center gap-1 min-w-0 max-w-[42%]">
-                  <span className="font-bold text-xs md:text-sm text-on-surface truncate">
-                    {activeAlert.awayTeamName}
-                  </span>
-                  {activeAlert.awayTeamLogo && (
-                    <img
-                      src={activeAlert.awayTeamLogo}
-                      alt={activeAlert.awayTeamName}
-                      className="w-4 h-4 object-contain shrink-0"
-                      onError={(e) => { e.currentTarget.style.display = 'none' }}
-                    />
-                  )}
-                </div>
-              </div>
-
-              {/* Event detail description (e.g. Dani Carvajal (68') or "First half ended") */}
-              <p className="text-[11px] md:text-xs text-on-surface-variant font-medium mt-1 truncate">
-                {activeAlert.scorerName
-                  ? `${activeAlert.scorerName}${activeAlert.minute ? ` (${activeAlert.minute}')` : ''}`
-                  : alertMeta.subtitle || activeAlert.message}
-              </p>
+            {/* Away Team (Name on left, Logo on right) */}
+            <div className="flex items-center gap-2 min-w-0 flex-1 justify-end">
+              <span className="font-bold text-sm sm:text-[15px] text-slate-900 truncate text-right rtl:text-left">
+                {activeAlert.awayTeamName}
+              </span>
+              {activeAlert.awayTeamLogo && (
+                <img
+                  src={activeAlert.awayTeamLogo}
+                  alt={activeAlert.awayTeamName}
+                  className="w-5 h-5 sm:w-6 sm:h-6 object-contain shrink-0"
+                  onError={(e) => { e.currentTarget.style.display = 'none' }}
+                />
+              )}
             </div>
           </div>
 
-          {/* Bottom Bar: Action prompt + Smooth countdown bar */}
-          <div className="mt-2.5 flex items-center justify-between text-[11px] text-on-surface-variant/80 pt-1.5 border-t border-surface-bright/30">
-            <span className="text-[10px] text-on-surface-variant flex items-center gap-1 font-semibold hover:underline">
-              {t('common.viewMatch', 'Open Match')}
-              <span className="material-symbols-outlined text-[13px]">arrow_forward</span>
+          {/* Subtitle / Event Description (e.g. Final result) */}
+          <p className="text-xs text-slate-400 font-normal mt-1.5 truncate">
+            {activeAlert.scorerName
+              ? `${activeAlert.scorerName}${activeAlert.minute ? ` (${activeAlert.minute}')` : ''}`
+              : alertMeta.subtitle || activeAlert.message || (activeAlert.type === 'full_time' ? 'Final result' : '')}
+          </p>
+
+          {/* Bottom Bar: Action link & Branding */}
+          <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
+            <span className="text-xs font-bold text-[#6425A6] flex items-center gap-1.5 hover:underline">
+              <span>{t('common.viewMatch', 'Open Match')}</span>
+              <svg className="w-3.5 h-3.5 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
             </span>
-            <span className="text-[10px] font-mono text-on-surface-variant/60">
+            <span className="text-[10px] font-mono text-slate-400">
               MyScore24 Live
             </span>
           </div>
 
-          {/* Smooth Linear Progress Countdown Bar */}
-          <div className="absolute bottom-0 inset-x-0 h-[2.5px] bg-surface-container-highest overflow-hidden">
+          {/* Subtle Progress Bar */}
+          <div className="absolute bottom-0 inset-x-0 h-[2px] bg-slate-100 overflow-hidden">
             <div
-              className={`h-full bg-gradient-to-r transition-all duration-[6400ms] ease-linear ${
-                activeAlert.type === 'half_time'
-                  ? 'from-cyan-400 to-blue-500'
-                  : activeAlert.type === 'full_time'
-                  ? 'from-amber-400 to-yellow-500'
-                  : activeAlert.type === 'red_card'
-                  ? 'from-red-500 to-rose-600'
-                  : activeAlert.type === 'yellow_card'
-                  ? 'from-yellow-400 to-amber-500'
-                  : 'from-emerald-400 to-green-500'
-              }`}
+              className="h-full bg-[#6425A6] transition-all duration-[6400ms] ease-linear"
               style={{ width: `${toastProgress}%` }}
             />
           </div>
