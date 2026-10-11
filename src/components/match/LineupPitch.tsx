@@ -206,6 +206,40 @@ function calculateTeamPositions(
 ): Array<{ player: LineupPlayer; x: number; y: number }> {
   if (!players || players.length === 0) return []
 
+  // ── Preferred path: provider grid "row:col" ────────────────────────────────
+  // Row 1 = goalkeeper, higher rows = closer to the opponent goal.
+  // Col 1 = the team's own left side (looking toward the opponent goal).
+  // Home attacks down the page (their left is the spectator's right); away attacks up.
+  const parsed = players.map(p => {
+    const m = /^(\d+):(\d+)$/.exec(String(p.grid || '').trim())
+    return { p, row: m ? parseInt(m[1], 10) : 0, col: m ? parseInt(m[2], 10) : 0 }
+  })
+  if (players.length >= 7 && parsed.every(g => g.row > 0 && g.col > 0)) {
+    const rowKeys = [...new Set(parsed.map(g => g.row))].sort((a, b) => a - b)
+    const outfieldRowKeys = rowKeys.filter(r => r !== rowKeys[0])
+    const out: Array<{ player: LineupPlayer; x: number; y: number }> = []
+
+    rowKeys.forEach(rk => {
+      const inRow = parsed.filter(g => g.row === rk).sort((a, b) => a.col - b.col)
+      const isGkRow = rk === rowKeys[0]
+      let y: number
+      if (isGkRow) {
+        y = isHome ? 7 : 93
+      } else {
+        const idx = outfieldRowKeys.indexOf(rk)
+        const n = outfieldRowKeys.length
+        const t = n > 1 ? idx / (n - 1) : 0.5
+        y = isHome ? 19 + t * 26 : 81 - t * 26
+      }
+      const ordered = isHome ? [...inRow].reverse() : inRow
+      ordered.forEach((g, i) => {
+        const x = ordered.length === 1 ? 50 : 12 + ((i + 1) / (ordered.length + 1)) * 76
+        out.push({ player: g.p, x, y })
+      })
+    })
+    return out
+  }
+
   const outfieldRows = parseFormationRows(formationStr)
 
   // 1. Identify Goalkeeper
@@ -355,7 +389,7 @@ export default function LineupPitch({ lineups, homeTeamName, awayTeamName, homeT
 
       {viewMode === 'pitch' ? (
         /* Pitch Container: minimum responsive heights to prevent vertical crowding */
-        <div className="relative w-full min-h-[580px] sm:min-h-[640px] md:min-h-[700px] bg-emerald-950 rounded-xl overflow-hidden border-2 border-emerald-800/80 shadow-inner select-none">
+        <div className="relative w-full min-h-[780px] sm:min-h-[860px] md:min-h-[940px] bg-emerald-950 rounded-xl overflow-hidden border-2 border-emerald-800/80 shadow-inner select-none">
           {/* Pitch Turf & Field Marking overlay */}
           <div className="absolute inset-0 bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-950 opacity-95" />
           <div

@@ -279,6 +279,7 @@ function normalizeLineups(
         name: decodeEntities(item?.player?.name) || 'Player',
         number: item?.player?.number || (idx + 1),
         position: item?.player?.pos || statMatch?.position || 'M',
+        grid: item?.player?.grid || undefined,
         positionX: coords.x,
         positionY: coords.y,
         rating: statMatch?.rating,

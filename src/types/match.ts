@@ -57,6 +57,7 @@ export interface LineupPlayer {
   positionX: number
   positionY: number
   formationPlace?: string | number
+  grid?: string
   rating?: number
   ratingIsLive?: boolean
   ratingUpdatedAt?: string
