@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { normalizeArticleImageUrl } from '@/lib/newsImage'
 
 export const dynamic = 'force-dynamic'
 
@@ -9,12 +10,15 @@ function estimateReadTime(text: string): number {
 }
 
 function formatArticle(art: any) {
+  const normalizedImage = normalizeArticleImageUrl(art.featuredImage) || undefined
+
   return {
     id: art.id,
     slug: art.slug,
     title: art.title,
     excerpt: art.excerpt,
     content: art.content,
+    language: art.language || 'en',
     author: {
       name: art.author?.name || 'MyScore24 Desk',
       avatar: art.author?.avatar || undefined,
@@ -24,8 +28,8 @@ function formatArticle(art: any) {
     updatedAt: art.updatedAt ? new Date(art.updatedAt).toISOString() : undefined,
     category: art.category?.name || 'General',
     tags: art.tags ? art.tags.map((t: any) => t.tag?.name || t.name) : [],
-    imageUrl: art.featuredImage || undefined,
-    image: art.featuredImage || undefined,
+    imageUrl: normalizedImage,
+    image: normalizedImage,
     readTimeMinutes: estimateReadTime(art.content || ''),
     readTime: estimateReadTime(art.content || ''),
     competitionId: art.competitionId,
@@ -41,10 +45,18 @@ export async function GET(req: NextRequest) {
     const leagueId = searchParams.get('leagueId')
     const category = searchParams.get('category')
     const slug = searchParams.get('slug')
+    const language = searchParams.get('language') || searchParams.get('lang')
     const limit = Math.max(1, Math.min(50, parseInt(searchParams.get('limit') || '10', 10)))
 
     const where: any = {
       status: 'PUBLISHED',
+      publishedAt: {
+        lte: new Date(Date.now() + 60 * 1000),
+      },
+    }
+
+    if (language) {
+      where.language = language
     }
 
     if (slug) {

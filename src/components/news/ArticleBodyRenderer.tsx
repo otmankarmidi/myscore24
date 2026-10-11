@@ -7,10 +7,27 @@ interface ArticleBodyRendererProps {
   content: string
 }
 
+function parseInlineMarkdown(text: string): string {
+  // Convert markdown bold **text** to <strong>text</strong>
+  let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+  // Convert markdown italic *text* to <em>$1</em>
+  html = html.replace(/(?<!\*)\*(?!\*)(.*?)(?<!\*)\*(?!\*)/g, '<em>$1</em>')
+  // Convert markdown link [text](url) to <a href="url" class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">$1</a>
+  html = html.replace(/\[(.*?)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">$1</a>')
+  return html
+}
+
+function stripOuterTag(html: string, tag: string): string {
+  const openRegex = new RegExp(`^<${tag}[^>]*>`, 'i')
+  const closeRegex = new RegExp(`<\/${tag}>$`, 'i')
+  return html.replace(openRegex, '').replace(closeRegex, '').trim()
+}
+
 /**
  * Server-rendered Article Body Renderer
  * ─────────────────────────────────────
  * Renders headings, paragraphs, lists, quotes, and images as pure Server Component HTML.
+ * Supports both Markdown and standard HTML tags (<p>, <h2>, <h3>, <blockquote>, <strong>).
  * Only social embeds are mounted as dynamic Client Component islands.
  */
 export default function ArticleBodyRenderer({ content }: ArticleBodyRendererProps) {
@@ -39,33 +56,44 @@ export default function ArticleBodyRenderer({ content }: ArticleBodyRendererProp
           }
         }
 
-        // ── 2. Markdown Headings ─────────────────────────────────────────────
-        if (trimmed.startsWith('## ')) {
+        // ── 2. Headings (Markdown & HTML) ────────────────────────────────────
+        if (trimmed.startsWith('## ') || /^<h2[^>]*>/i.test(trimmed)) {
+          const headingText = trimmed.startsWith('## ')
+            ? trimmed.replace(/^##\s+/, '')
+            : stripOuterTag(trimmed, 'h2')
           return (
-            <h2 key={idx} className="text-xl font-bold text-on-surface pt-4 pb-1 border-b border-surface-bright">
-              {trimmed.replace(/^##\s+/, '')}
-            </h2>
+            <h2
+              key={idx}
+              className="text-xl font-bold text-on-surface pt-4 pb-1 border-b border-surface-bright"
+              dangerouslySetInnerHTML={{ __html: parseInlineMarkdown(headingText) }}
+            />
           )
         }
 
-        if (trimmed.startsWith('### ')) {
+        if (trimmed.startsWith('### ') || /^<h3[^>]*>/i.test(trimmed)) {
+          const headingText = trimmed.startsWith('### ')
+            ? trimmed.replace(/^###\s+/, '')
+            : stripOuterTag(trimmed, 'h3')
           return (
-            <h3 key={idx} className="text-lg font-bold text-on-surface pt-2">
-              {trimmed.replace(/^###\s+/, '')}
-            </h3>
+            <h3
+              key={idx}
+              className="text-lg font-bold text-on-surface pt-2"
+              dangerouslySetInnerHTML={{ __html: parseInlineMarkdown(headingText) }}
+            />
           )
         }
 
-        // ── 3. Blockquotes ───────────────────────────────────────────────────
-        if (trimmed.startsWith('>')) {
-          const quoteText = trimmed.replace(/^>\s*/gm, '')
+        // ── 3. Blockquotes (Markdown & HTML) ─────────────────────────────────
+        if (trimmed.startsWith('>') || /^<blockquote[^>]*>/i.test(trimmed)) {
+          const quoteText = trimmed.startsWith('>')
+            ? trimmed.replace(/^>\s*/gm, '')
+            : stripOuterTag(trimmed, 'blockquote')
           return (
             <blockquote
               key={idx}
               className="border-l-4 border-primary pl-4 py-2 italic text-on-surface font-medium bg-surface-container/60 rounded-r my-4"
-            >
-              &ldquo;{quoteText}&rdquo;
-            </blockquote>
+              dangerouslySetInnerHTML={{ __html: `&ldquo;${parseInlineMarkdown(quoteText)}&rdquo;` }}
+            />
           )
         }
 
@@ -96,17 +124,26 @@ export default function ArticleBodyRenderer({ content }: ArticleBodyRendererProp
           return (
             <ul key={idx} className="list-disc list-inside space-y-1 pl-2 text-on-surface/90">
               {items.map((item, itemIdx) => (
-                <li key={itemIdx}>{item.replace(/^[-*]\s+/, '')}</li>
+                <li
+                  key={itemIdx}
+                  dangerouslySetInnerHTML={{ __html: parseInlineMarkdown(item.replace(/^[-*]\s+/, '')) }}
+                />
               ))}
             </ul>
           )
         }
 
-        // ── 6. Regular Paragraph ─────────────────────────────────────────────
+        // ── 6. Paragraphs (HTML <p>...</p> or Plain Text / Markdown) ─────────
+        const paragraphText = /^<p[^>]*>/i.test(trimmed)
+          ? stripOuterTag(trimmed, 'p')
+          : trimmed
+
         return (
-          <p key={idx} className="leading-relaxed">
-            {trimmed}
-          </p>
+          <p
+            key={idx}
+            className="leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: parseInlineMarkdown(paragraphText) }}
+          />
         )
       })}
     </div>

@@ -3,6 +3,9 @@ import HomeClient from './HomeClient'
 import { getInitialTrendingMatches } from '@/lib/football/trending'
 import { getHomepageLatestArticles } from '@/lib/articles'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export const metadata: Metadata = {
   title: 'Football Live Scores, Results & Fixtures | MyScore24',
   description:
@@ -64,8 +67,8 @@ const homeStructuredData = {
 export default async function Page() {
   const [initialTrendingMatches, latestArticlesEn, latestArticlesAr] = await Promise.all([
     getInitialTrendingMatches(),
-    getHomepageLatestArticles(4, 'en'),
-    getHomepageLatestArticles(4, 'ar'),
+    getHomepageLatestArticles(16, 'en'),
+    getHomepageLatestArticles(16, 'ar'),
   ])
 
   return (

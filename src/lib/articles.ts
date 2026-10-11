@@ -44,7 +44,7 @@ export async function getPublishedArticles(language?: string): Promise<NewsArtic
     const whereClause: any = {
       status: 'PUBLISHED',
       publishedAt: {
-        lte: new Date(),
+        lte: new Date(Date.now() + 60 * 1000),
       },
     }
 
@@ -82,7 +82,7 @@ export async function getPublishedArticles(language?: string): Promise<NewsArtic
  * Limits to top N articles by language and avoids loading heavy tags or unnecessary relations.
  */
 export async function getHomepageLatestArticles(
-  limit: number = 4,
+  limit: number = 6,
   language: string = 'en'
 ): Promise<NewsArticle[]> {
   try {
@@ -90,7 +90,7 @@ export async function getHomepageLatestArticles(
       where: {
         status: 'PUBLISHED',
         publishedAt: {
-          lte: new Date(),
+          lte: new Date(Date.now() + 60 * 1000),
         },
         language: language,
       },
@@ -223,7 +223,7 @@ export async function getArticleBySlug(
           where: {
             translationGroupId: dbArticle.translationGroupId,
             status: 'PUBLISHED',
-            publishedAt: { lte: new Date() },
+            publishedAt: { lte: new Date(Date.now() + 60 * 1000) },
             id: { not: dbArticle.id },
           },
           select: {
@@ -231,6 +231,7 @@ export async function getArticleBySlug(
             slug: true,
             language: true,
             title: true,
+            status: true,
           },
         })
       }

@@ -11,8 +11,8 @@ import CompetitionGroup from '@/components/match/CompetitionGroup'
 import SkeletonMatchRow from '@/components/common/SkeletonLoader'
 import EmptyState from '@/components/common/EmptyState'
 import ErrorState from '@/components/common/ErrorState'
-import TrendingMatches from '@/components/common/TrendingMatches'
-import HomeLatestNews from '@/components/home/HomeLatestNews'
+import TopMatchesBar from '@/components/home/TopMatchesBar'
+import HomeNewsMagazine from '@/components/home/HomeNewsMagazine'
 import { sportsService } from '@/services/sports/sportsService'
 import { useLanguage } from '@/context/LanguageContext'
 import { Match } from '@/types/match'
@@ -35,10 +35,61 @@ export default function HomeClient({
   const { t, locale } = useLanguage()
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
 
+  const [articlesEn, setArticlesEn] = useState<NewsArticle[]>(latestArticles)
+  const [articlesAr, setArticlesAr] = useState<NewsArticle[]>(latestArticlesAr)
+
+  useEffect(() => {
+    if (latestArticles && latestArticles.length > 0) {
+      setArticlesEn(latestArticles)
+    }
+  }, [latestArticles])
+
+  useEffect(() => {
+    if (latestArticlesAr && latestArticlesAr.length > 0) {
+      setArticlesAr(latestArticlesAr)
+    }
+  }, [latestArticlesAr])
+
+  // Client-side refresh for news to catch newly published stories without full page reload
+  useEffect(() => {
+    let isCancelled = false
+
+    async function refreshLatestNews() {
+      try {
+        const [resEn, resAr] = await Promise.all([
+          fetch('/api/news?language=en&limit=16').then((r) => (r.ok ? r.json() : null)),
+          fetch('/api/news?language=ar&limit=16').then((r) => (r.ok ? r.json() : null)),
+        ])
+        if (isCancelled) return
+        if (resEn?.articles && resEn.articles.length > 0) {
+          setArticlesEn(resEn.articles)
+        }
+        if (resAr?.articles && resAr.articles.length > 0) {
+          setArticlesAr(resAr.articles)
+        }
+      } catch {
+        // Silent background fallback
+      }
+    }
+
+    refreshLatestNews()
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible' && !isCancelled) {
+        refreshLatestNews()
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+
+    return () => {
+      isCancelled = true
+      document.removeEventListener('visibilitychange', handleVisibility)
+    }
+  }, [])
+
   // Select news matching active locale, falling back to English if Arabic articles not available
-  const currentArticles = (locale === 'ar' && latestArticlesAr.length > 0)
-    ? latestArticlesAr
-    : latestArticles
+  const currentArticles =
+    locale === 'ar' && articlesAr.length > 0 ? articlesAr : articlesEn
   const [activeFilter, setActiveFilter] = useState<'all' | 'live' | 'upcoming' | 'finished'>('all')
   const [soundOn, setSoundOn] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -215,11 +266,12 @@ export default function HomeClient({
       {/* Top Application Header */}
       <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
-      {/* Horizontal Trending Matches Ticker Bar */}
-      <TrendingMatches
+      {/* Top Matches Carousel Bar (Matching Image 3) */}
+      <TopMatchesBar
         matches={matches}
-        initialMatches={initialTrendingMatches}
-        onSelectToday={() => setSelectedDate(new Date())}
+        selectedDate={selectedDate}
+        onSelectDate={setSelectedDate}
+        isLoading={isLoading}
       />
 
       {/* Main Page Layout Container */}
@@ -228,37 +280,45 @@ export default function HomeClient({
         <DesktopSidebar />
 
         {/* Center Main Content Stream */}
-        <main className="flex-1 min-w-0 w-full space-y-4">
-          {/* Homepage Latest News Section (Placed at the top) */}
-          <HomeLatestNews articles={currentArticles} />
+        <main className="flex-1 min-w-0 w-full space-y-6">
+          {/* Main Meaningful H1 for Google SEO & Accessibility */}
+          <h1 className="sr-only">
+            {locale === 'ar'
+              ? 'موقع MyScore24 - نتائج المباريات المباشرة وأحدث أخبار كرة القدم العالمية'
+              : 'MyScore24 - Live Football Scores, Results & Latest Football News'}
+          </h1>
 
-          {/* Main Meaningful H1 Heading for SEO & Accessibility */}
-          <div className="flex items-center justify-between px-1 pt-1">
-            <h1 className="text-lg md:text-xl font-bold font-geist text-on-surface">
-              {activeFilter === 'live'
-                ? t('filters.liveScores', 'Live Football Scores')
-                : activeFilter === 'finished'
-                ? t('filters.finishedMatches', 'Finished Football Results')
-                : activeFilter === 'upcoming'
-                ? t('filters.upcomingFixtures', 'Upcoming Football Fixtures')
-                : t('common.todaysMatches', "Today's Football Matches")}
-            </h1>
-            <span className="text-xs text-on-surface-variant font-medium">
-              {counts.all} matches
-            </span>
-          </div>
+          {/* Editorial News Magazine Portal (Matching Image 1 & Image 2) */}
+          <HomeNewsMagazine articles={currentArticles} />
 
-          {/* Calendar Strip */}
-          <DateSelector selectedDate={selectedDate} onSelectDate={setSelectedDate} />
+          {/* Section: Live Scores & Match Center */}
+          <section className="space-y-3 pt-4 border-t border-surface-bright/50" aria-label="Match Center">
+            <div className="flex items-center justify-between px-1">
+              <div className="flex items-center gap-2">
+                <span className="w-1.5 h-4 rounded-full bg-primary" />
+                <h2 className="text-base sm:text-lg font-bold font-geist text-on-surface">
+                  {activeFilter === 'live'
+                    ? t('filters.liveScores', 'Live Football Scores')
+                    : activeFilter === 'finished'
+                    ? t('filters.finishedMatches', 'Finished Football Results')
+                    : activeFilter === 'upcoming'
+                    ? t('filters.upcomingFixtures', 'Upcoming Football Fixtures')
+                    : (locale === 'ar' ? 'مركز المباريات والنتائج المباشرة' : "Today's Match Center & Live Scores")}
+                </h2>
+              </div>
+              <span className="text-xs text-on-surface-variant font-medium">
+                {counts.all} {locale === 'ar' ? 'مباراة' : 'matches'}
+              </span>
+            </div>
 
-          {/* Filter Bar */}
-          <MatchFilters
-            activeFilter={activeFilter}
-            onFilterChange={setActiveFilter}
-            counts={counts}
-            soundOn={soundOn}
-            onToggleSound={() => setSoundOn(!soundOn)}
-          />
+            {/* Filter Bar */}
+            <MatchFilters
+              activeFilter={activeFilter}
+              onFilterChange={setActiveFilter}
+              counts={counts}
+              soundOn={soundOn}
+              onToggleSound={() => setSoundOn(!soundOn)}
+            />
 
           {/* Content States */}
           {isLoading ? (
@@ -304,6 +364,7 @@ export default function HomeClient({
               ))}
             </div>
           )}
+          </section>
         </main>
 
         {/* Right Info Sidebar */}
