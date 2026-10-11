@@ -291,7 +291,7 @@ export const sportsService = {
     // 1. Try to resolve API-Football numeric ID
     let numericPlayerId = resolveApiFootballPlayerId(normSlug)
 
-    // 2. Database-first fetch & sync via playerService with current 2024/25 season
+    // 2. Database-first fetch & sync via playerService with current 2026/2027 season
     if (numericPlayerId) {
       try {
         const { getOrSyncPlayerProfile } = await import('./playerService')
@@ -307,7 +307,7 @@ export const sportsService = {
       }
     }
 
-    // 3. Curated 2024/25 season players (Lamine Yamal, Haaland, Mbappé, Saka, Raphinha, Salah, Vinicius, Bellingham, Hakimi, Palmer)
+    // 3. Curated 2026/2027 season players (Lamine Yamal, Haaland, Mbappé, Saka, Raphinha, Salah, Vinicius, Bellingham, Hakimi, Palmer)
     const mockP = await provider.getPlayerBySlug(normSlug)
     if (mockP) {
       return normalizePlayer(mockP)
@@ -379,7 +379,7 @@ export const sportsService = {
         teamName: csvMatch?.['Team name'] || match?.club || 'Team',
         teamSlug: match?.club_key || 'team',
         marketValue: undefined,
-        seasonLabel: '2024/25',
+        seasonLabel: '2026/2027',
         stats: { appearances, goals, assists, yellowCards, redCards, minutesPlayed, rating },
         seasonStats: { appearances, goals, assists, yellowCards, redCards, minutesPlayed, rating },
       }

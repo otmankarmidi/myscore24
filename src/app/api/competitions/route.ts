@@ -69,7 +69,7 @@ export async function GET() {
           country: countryName,
           countryCode,
           countryFlag: countryFlag || undefined,
-          season: '2024/25',
+          season: '2026/2027',
           type: 'league',
         })
       }

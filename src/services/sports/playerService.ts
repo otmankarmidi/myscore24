@@ -38,12 +38,12 @@ export function isCalendarYearCompetition(country?: string | null, leagueName?: 
 }
 
 export function formatSeasonDisplay(season: number, isCalendarYear: boolean): string {
-  const normSeason = season >= 2026 ? 2024 : season
+  const normSeason = season || 2026
   if (isCalendarYear) {
     return String(normSeason)
   }
-  const nextYearShort = String((normSeason + 1) % 100).padStart(2, '0')
-  return `${normSeason}/${nextYearShort}`
+  const nextYear = normSeason + 1
+  return `${normSeason}/${nextYear}`
 }
 
 /**
@@ -185,11 +185,11 @@ export async function getOrSyncPlayerProfile(
       // Step A: Resolve current squad (club & national)
       const squadResult = await resolvePlayerCurrentSquads(providerPlayerId)
       
-      // Step B: Query current/active season statistics (try 2024 first as current active global season, fallback to 2026 if empty)
-      let rawApiData = await apiFootballProvider.getPlayerDetailsAndStats(providerPlayerId, 2024)
-      let statSeason = 2024
+      // Step B: Query current/active season statistics for 2026 (2026/2027 season)
+      let rawApiData = await apiFootballProvider.getPlayerDetailsAndStats(providerPlayerId, 2026)
+      let statSeason = 2026
       if (!rawApiData || !rawApiData.player || !Array.isArray(rawApiData.statistics) || rawApiData.statistics.length === 0) {
-        const altData = await apiFootballProvider.getPlayerDetailsAndStats(providerPlayerId, 2026)
+        const altData = await apiFootballProvider.getPlayerDetailsAndStats(providerPlayerId, 2025)
         if (altData && altData.player) {
           rawApiData = altData
           statSeason = 2026
@@ -279,7 +279,7 @@ export async function getOrSyncPlayerProfile(
 
         const statTeamProviderId = Number(teamObj.id)
         const statLeagueProviderId = Number(leagueObj.id)
-        const targetSeason = Number(statSeason) || 2024
+        const targetSeason = Number(statSeason) || 2026
 
         // Check if calendar year
         const calendarYear = isCalendarYearCompetition(leagueObj.country, leagueObj.name)
@@ -492,8 +492,8 @@ function transformDbPlayerToPlayer(dbPlayer: any): Player {
     primaryStat = [...statsList].sort((a, b) => (b.appearances || 0) - (a.appearances || 0))[0]
   }
 
-  // Determine season label (e.g. "2024/25", or "2024")
-  const activeSeasonYear = primaryStat?.season || 2024
+  // Determine season label (e.g. "2026/2027", or "2026")
+  const activeSeasonYear = primaryStat?.season || 2026
   const isCalendar = primaryStat ? primaryStat.isCalendarYear : false
   const seasonLabel = formatSeasonDisplay(activeSeasonYear, isCalendar)
 

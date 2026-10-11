@@ -37,11 +37,11 @@ export default function PlayerClient({ player }: PlayerClientProps) {
     (c) => String(c.leagueId) === String(selectedCompId)
   )
 
-  // Determine season label (e.g. "2024/25" for European leagues, "2024" for calendar-year leagues)
+  // Determine season label (e.g. "2026/2027" for European leagues, "2026" for calendar-year leagues)
   const isCalendar = activeComp ? activeComp.isCalendarYear : (player.competitions?.[0]?.isCalendarYear ?? false)
-  let seasonLabel = player.seasonLabel || (isCalendar ? '2024' : '2024/25')
-  if (seasonLabel.includes('2026')) {
-    seasonLabel = isCalendar ? '2024' : '2024/25'
+  let seasonLabel = player.seasonLabel || (isCalendar ? '2026' : '2026/2027')
+  if (seasonLabel.includes('2024') || seasonLabel === '2026/27') {
+    seasonLabel = isCalendar ? '2026' : '2026/2027'
   }
 
   // Format stats: If null -> display "-", if 0 -> display "0"
