@@ -29,6 +29,7 @@ function formatTrendingMeta(publishedAt?: string, tagOrCategory?: string, locale
 
 export default function HomeTrendingNews({ articles = [] }: HomeTrendingNewsProps) {
   const { locale } = useLanguage()
+  const [heroImgError, setHeroImgError] = useState(false)
 
   if (!articles || articles.length === 0) {
     return null
@@ -40,7 +41,6 @@ export default function HomeTrendingNews({ articles = [] }: HomeTrendingNewsProp
   const stackedArticles = articles.slice(1, 4)
 
   const heroImageUrl = normalizeArticleImageUrl(heroArticle.imageUrl || heroArticle.image)
-  const [heroImgError, setHeroImgError] = useState(false)
   const validHeroImg = !heroImgError && heroImageUrl ? heroImageUrl : null
 
   return (

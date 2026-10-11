@@ -126,13 +126,18 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
           {/* Logo */}
           <div className="flex items-center gap-2 shrink-0">
             <Link href="/" className="flex items-center gap-2">
-              <img
-                src="/logo.png"
-                alt="MyScore24 Logo"
-                width={36}
-                height={36}
-                className="w-8 h-8 sm:w-9 sm:h-9 object-contain shrink-0"
-              />
+              {/* Animated logo (transparent WebP, plays once and holds final frame).
+                  Users with reduced-motion preference get the static final frame. */}
+              <picture className="shrink-0">
+                <source srcSet="/logo-mark.png" media="(prefers-reduced-motion: reduce)" />
+                <img
+                  src="/logo-animated.webp"
+                  alt="MyScore24 Logo"
+                  width={46}
+                  height={36}
+                  className="site-logo-anim h-8 sm:h-9 w-auto object-contain"
+                />
+              </picture>
               <div className="flex flex-col leading-none">
                 <span className="font-geist font-bold text-[15px] sm:text-[16px] tracking-tight text-on-surface">
                   MyScore<span className="text-primary">24</span>

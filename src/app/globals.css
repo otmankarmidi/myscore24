@@ -651,3 +651,8 @@ html, body {
   }
 }
 
+
+/* Animated header logo is cream-on-transparent; invert it so it stays visible in light mode */
+html.light .site-logo-anim {
+  filter: invert(1);
+}
