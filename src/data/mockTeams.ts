@@ -21,6 +21,19 @@ export const mockTeams: Team[] = [
   { id: 'psg', slug: 'paris-saint-germain', name: 'Paris Saint-Germain', shortName: 'PSG', abbreviation: 'PSG', country: 'France', countryFlag: '🇫🇷', founded: 1970, stadium: 'Parc des Princes', stadiumCapacity: 47929 },
   { id: 'int', slug: 'inter-milan', name: 'Inter Milan', shortName: 'Inter', abbreviation: 'INT', country: 'Italy', countryFlag: '🇮🇹', founded: 1908, stadium: 'Giuseppe Meazza', stadiumCapacity: 75923 },
   { id: 'bvb', slug: 'borussia-dortmund', name: 'Borussia Dortmund', shortName: 'Dortmund', abbreviation: 'BVB', country: 'Germany', countryFlag: '🇩🇪', founded: 1909, stadium: 'Signal Iduna Park', stadiumCapacity: 81365 },
+  // Moroccan Botola Pro teams matching Image 2
+  { id: 'mas', slug: 'maghreb-fes', name: 'المغرب الفاسي', shortName: 'المغرب الفاسي', abbreviation: 'MAS', country: 'Morocco', countryFlag: '🇲🇦', logo: 'https://media.api-sports.io/football/teams/968.png' },
+  { id: 'uts', slug: 'union-touarga', name: 'إتحاد تواركة', shortName: 'إتحاد تواركة', abbreviation: 'UTS', country: 'Morocco', countryFlag: '🇲🇦', logo: 'https://media.api-sports.io/football/teams/14109.png' },
+  { id: 'husa', slug: 'hassania-agadir', name: 'حسنية أكادير', shortName: 'حسنية أكادير', abbreviation: 'HUSA', country: 'Morocco', countryFlag: '🇲🇦', logo: 'https://media.api-sports.io/football/teams/965.png' },
+  { id: 'kacm', slug: 'kawkab-marrakech', name: 'الكوكب المراكشي', shortName: 'الكوكب المراكشي', abbreviation: 'KACM', country: 'Morocco', countryFlag: '🇲🇦', logo: 'https://media.api-sports.io/football/teams/966.png' },
+  { id: 'irt', slug: 'ittihad-tanger', name: 'اتحاد طنجة', shortName: 'اتحاد طنجة', abbreviation: 'IRT', country: 'Morocco', countryFlag: '🇲🇦', logo: 'https://media.api-sports.io/football/teams/969.png' },
+  // Additional European Top Teams
+  { id: 'nap', slug: 'napoli', name: 'Napoli', shortName: 'Napoli', abbreviation: 'NAP', country: 'Italy', countryFlag: '🇮🇹' },
+  { id: 'juv', slug: 'juventus', name: 'Juventus', shortName: 'Juventus', abbreviation: 'JUV', country: 'Italy', countryFlag: '🇮🇹' },
+  { id: 'acm', slug: 'ac-milan', name: 'AC Milan', shortName: 'AC Milan', abbreviation: 'ACM', country: 'Italy', countryFlag: '🇮🇹' },
+  { id: 'asm', slug: 'monaco', name: 'AS Monaco', shortName: 'Monaco', abbreviation: 'ASM', country: 'France', countryFlag: '🇫🇷' },
+  { id: 'om', slug: 'marseille', name: 'Marseille', shortName: 'Marseille', abbreviation: 'OM', country: 'France', countryFlag: '🇫🇷' },
+  { id: 'los', slug: 'lille', name: 'Lille', shortName: 'Lille', abbreviation: 'LOSC', country: 'France', countryFlag: '🇫🇷' },
 ]
 
 export const getTeamBySlug = (slug: string) => mockTeams.find(t => t.slug === slug)

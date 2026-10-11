@@ -67,8 +67,8 @@ const homeStructuredData = {
 export default async function Page() {
   const [initialTrendingMatches, latestArticlesEn, latestArticlesAr] = await Promise.all([
     getInitialTrendingMatches(),
-    getHomepageLatestArticles(16, 'en'),
-    getHomepageLatestArticles(16, 'ar'),
+    getHomepageLatestArticles(36, 'en'),
+    getHomepageLatestArticles(36, 'ar'),
   ])
 
   return (

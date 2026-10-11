@@ -13,6 +13,9 @@ import EmptyState from '@/components/common/EmptyState'
 import ErrorState from '@/components/common/ErrorState'
 import TopMatchesBar from '@/components/home/TopMatchesBar'
 import HomeNewsMagazine from '@/components/home/HomeNewsMagazine'
+import HomeTrendingNews from '@/components/home/HomeTrendingNews'
+import TopLeaguesStandingsWidget from '@/components/home/TopLeaguesStandingsWidget'
+import LeagueVideoNewsGrid from '@/components/home/LeagueVideoNewsGrid'
 import { sportsService } from '@/services/sports/sportsService'
 import { useLanguage } from '@/context/LanguageContext'
 import { Match } from '@/types/match'
@@ -275,8 +278,11 @@ export default function HomeClient({
       />
 
       {/* Editorial News Magazine Portal (Full Showcase matching uploaded screenshot) */}
-      <div className="w-full max-w-[1440px] mx-auto px-2 sm:px-4 pt-3 pb-2">
+      <div className="w-full max-w-[1440px] mx-auto px-2 sm:px-4 pt-3 pb-2 space-y-6">
         <HomeNewsMagazine articles={currentArticles} />
+
+        {/* Section matching Image 1: الأخبار الرائجة (Trending News with flame icon) */}
+        <HomeTrendingNews articles={currentArticles.slice(3)} />
       </div>
 
       {/* Main Page Layout Container (Match Center + Sidebars) */}
@@ -285,13 +291,19 @@ export default function HomeClient({
         <DesktopSidebar />
 
         {/* Center Main Content Stream */}
-        <main className="flex-1 min-w-0 w-full space-y-6">
+        <main className="flex-1 min-w-0 w-full space-y-8">
           {/* Main Meaningful H1 for Google SEO & Accessibility */}
           <h1 className="sr-only">
             {locale === 'ar'
               ? 'موقع MyScore24 - نتائج المباريات المباشرة وأحدث أخبار كرة القدم العالمية'
               : 'MyScore24 - Live Football Scores, Results & Latest Football News'}
           </h1>
+
+          {/* Section matching Image 2: ترتيب أحسن 5 دوريات (Top 5 Leagues Standings) */}
+          <TopLeaguesStandingsWidget />
+
+          {/* Section matching Image 3: دوريات وبطولات (League Video & News Grids) */}
+          <LeagueVideoNewsGrid articles={currentArticles} />
 
           {/* Section: Live Scores & Match Center */}
           <section className="space-y-3 pt-2" aria-label="Match Center">
