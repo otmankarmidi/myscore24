@@ -111,7 +111,7 @@ export const APPROVED_COMPETITIONS: CompetitionConfig[] = [
     category: 'europe',
     priority: 10,
     localLogo: '/leagues/champions-league.png',
-    aliases: ['UEFA Champions League', 'Champions League', 'UCL'],
+    aliases: ['UEFA Champions League', 'UCL'],
   },
   {
     id: 3,
@@ -138,6 +138,46 @@ export const APPROVED_COMPETITIONS: CompetitionConfig[] = [
       'Conference League',
       'UECL',
     ],
+  },
+  {
+    id: 17,
+    slug: 'afc-champions-league-elite',
+    name: 'AFC Champions League Elite',
+    displayName: 'AFC Champions League Elite',
+    country: 'Asia',
+    category: 'europe',
+    priority: 13,
+    aliases: ['AFC Champions League Elite', 'AFC Champions League', 'ACL Elite', 'Asian Champions League Elite'],
+  },
+  {
+    id: 18,
+    slug: 'afc-champions-league-two',
+    name: 'AFC Champions League Two',
+    displayName: 'AFC Champions League Two',
+    country: 'Asia',
+    category: 'europe',
+    priority: 14,
+    aliases: ['AFC Champions League Two', 'ACL Two', 'AFC Cup'],
+  },
+  {
+    id: 12,
+    slug: 'caf-champions-league',
+    name: 'CAF Champions League',
+    displayName: 'CAF Champions League',
+    country: 'Africa',
+    category: 'europe',
+    priority: 15,
+    aliases: ['CAF Champions League', 'TotalEnergies CAF Champions League', 'African Champions League'],
+  },
+  {
+    id: 20,
+    slug: 'caf-confederation-cup',
+    name: 'CAF Confederation Cup',
+    displayName: 'CAF Confederation Cup',
+    country: 'Africa',
+    category: 'europe',
+    priority: 16,
+    aliases: ['CAF Confederation Cup', 'TotalEnergies CAF Confederation Cup'],
   },
 
   // ── 3. INTERNATIONAL ──────────────────────────────────────────────────────
@@ -473,8 +513,70 @@ export function getCleanLeagueDisplayName(
     return isAr ? 'الدوري الإنجليزي الممتاز' : 'Premier League'
   }
 
-  // 2. UEFA Champions League
-  if (numId === 2 || lowerName.includes('champions league') || lowerName === 'ucl') {
+  // ── Continental Club Champions Competitions ──────────────────────────────
+  // 2a. AFC Champions League Elite (Asia)
+  if (
+    numId === 17 ||
+    lowerName === 'afc champions league elite' ||
+    lowerName === 'afc champions league' ||
+    lowerName === 'acl elite' ||
+    (lowerName.includes('champions league') &&
+      (lowerName.includes('afc') || lowerName.includes('asia') || lowerCountry.includes('asia')) &&
+      (lowerName.includes('elite') || !lowerName.includes('two')))
+  ) {
+    return isAr ? 'دوري أبطال آسيا للنخبة' : 'AFC Champions League Elite'
+  }
+
+  // 2b. AFC Champions League Two (Asia)
+  if (
+    numId === 18 ||
+    lowerName === 'afc champions league two' ||
+    lowerName === 'acl two' ||
+    lowerName.includes('champions league two') ||
+    (lowerName.includes('champions league') && (lowerName.includes('two') || lowerName.includes(' 2')))
+  ) {
+    return isAr ? 'دوري أبطال آسيا 2' : 'AFC Champions League Two'
+  }
+
+  // 2c. CAF Champions League (Africa)
+  if (
+    numId === 12 ||
+    lowerName === 'caf champions league' ||
+    (lowerName.includes('champions league') &&
+      (lowerName.includes('caf') || lowerName.includes('africa') || lowerCountry.includes('africa')))
+  ) {
+    return isAr ? 'دوري أبطال إفريقيا' : 'CAF Champions League'
+  }
+
+  // 2d. CAF Confederation Cup (Africa)
+  if (
+    numId === 20 ||
+    lowerName.includes('caf confederation') ||
+    lowerName.includes('confederation cup')
+  ) {
+    return isAr ? 'كأس الكونفيدرالية الإفريقية' : 'CAF Confederation Cup'
+  }
+
+  // 2e. CONCACAF Champions Cup
+  if (numId === 16 || lowerName.includes('concacaf champions')) {
+    return isAr ? 'دوري أبطال الكونكاكاف' : 'CONCACAF Champions Cup'
+  }
+
+  // 2f. UEFA Champions League (Europe) - STRICT
+  if (
+    numId === 2 ||
+    lowerName === 'uefa champions league' ||
+    lowerName === 'ucl' ||
+    (lowerName.includes('champions league') &&
+      !lowerName.includes('afc') &&
+      !lowerName.includes('caf') &&
+      !lowerName.includes('concacaf') &&
+      !lowerName.includes('asia') &&
+      !lowerName.includes('asian') &&
+      !lowerName.includes('africa') &&
+      !lowerCountry.includes('asia') &&
+      !lowerCountry.includes('africa'))
+  ) {
     return isAr ? 'دوري أبطال أوروبا' : 'UEFA Champions League'
   }
 

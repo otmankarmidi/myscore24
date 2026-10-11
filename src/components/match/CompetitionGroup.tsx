@@ -7,6 +7,7 @@ import MatchRow from './MatchRow'
 import CompetitionLogo from '@/components/common/CompetitionLogo'
 import { useFavorites } from '@/hooks/useFavorites'
 import { useLanguage } from '@/context/LanguageContext'
+import { getCleanLeagueDisplayName } from '@/config/competitions'
 
 interface CompetitionGroupProps {
   league: League
@@ -16,13 +17,13 @@ interface CompetitionGroupProps {
 
 export default function CompetitionGroup({ league, matches, defaultExpanded = true }: CompetitionGroupProps) {
   const { isFavoriteMatch, toggleMatch, isFavoriteLeague, toggleLeague } = useFavorites()
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
 
   if (!league) return null
 
   const providerCompetitionId = league.id || league.slug || '39'
   const competitionHref = `/league/${providerCompetitionId}`
-  const safeName = league.name || 'Competition'
+  const safeName = getCleanLeagueDisplayName(league, locale) || league.name || 'Competition'
   const isFavorited =
     (league.slug && isFavoriteLeague(league.slug)) ||
     (league.id && isFavoriteLeague(league.id))

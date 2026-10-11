@@ -15,6 +15,8 @@ export function getLeagueCountry(nameOrSlug: string): string {
   if (s.includes('primeira') || s.includes('por') || s.includes('portugal')) return 'Portugal'
   if (s.includes('eredivisie') || s.includes('ned') || s.includes('dutch') || s.includes('netherlands')) return 'Netherlands'
   if (s.includes('mls') || s.includes('major league soccer') || s.includes('usa') || s.includes('america')) return 'USA'
+  if (s.includes('afc') || s.includes('asia')) return 'Asia'
+  if (s.includes('caf') || s.includes('africa')) return 'Africa'
   if (s.includes('champions') || s.includes('europa') || s.includes('uefa')) return 'Europe'
   return 'International'
 }
