@@ -315,7 +315,7 @@ export default function HomeClient({
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-5 rounded-full bg-amber-400 shadow-sm" />
-                <h2 className="text-base sm:text-lg font-extrabold font-geist text-white tracking-tight">
+                <h2 className="text-base sm:text-lg font-extrabold font-geist text-slate-900 dark:text-white tracking-tight">
                   {activeFilter === 'live'
                     ? t('filters.liveScores', 'Live Football Scores')
                     : activeFilter === 'finished'
@@ -325,7 +325,7 @@ export default function HomeClient({
                     : (locale === 'ar' ? 'مركز المباريات والنتائج المباشرة' : "Today's Match Center & Live Scores")}
                 </h2>
               </div>
-              <span className="text-xs text-slate-400 font-semibold px-2 py-0.5 rounded-md bg-[#0a101d] border border-[#162236]">
+              <span className="text-xs text-slate-600 dark:text-slate-400 font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-[#0a101d] border border-slate-200 dark:border-[#162236]">
                 {counts.all} {locale === 'ar' ? 'مباراة' : 'matches'}
               </span>
             </div>

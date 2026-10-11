@@ -37,7 +37,7 @@ const nextConfig = {
         ],
       },
       {
-        source: '/(icons|images)/:path*',
+        source: '/(icons|images|leagues)/:path*',
         headers: [
           {
             key: 'Cache-Control',
@@ -46,7 +46,16 @@ const nextConfig = {
         ],
       },
       {
-        source: '/:file(logo.*|favicon.*)',
+        source: '/:file(logo.*|logo-animated.*|logo-mark.*|favicon.*|apple-touch-icon.*|og-image.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=2592000, stale-while-revalidate=86400',
+          },
+        ],
+      },
+      {
+        source: '/:file(.*\\.(?:ico|png|svg|webp|avif|woff2))',
         headers: [
           {
             key: 'Cache-Control',

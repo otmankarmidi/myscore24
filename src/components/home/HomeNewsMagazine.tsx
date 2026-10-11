@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { NewsArticle } from '@/types/news'
@@ -53,44 +53,82 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
   const { locale } = useLanguage()
   const isAr = locale === 'ar'
   const [activeTag, setActiveTag] = useState<string>('all')
+  const [heroIndex, setHeroIndex] = useState<number>(0)
 
   if (!articles || articles.length === 0) {
     return null
   }
 
-  // Hero article (index 0)
-  const heroArticle = articles[0]
+  // 1. Featured Hero Stories (up to 3 for interactive carousel navigation)
+  const featuredArticles = articles.slice(0, Math.min(3, articles.length))
+  const heroArticle = featuredArticles[heroIndex] || articles[0]
   const heroImage =
     normalizeArticleImageUrl(heroArticle.imageUrl || heroArticle.image) ||
     'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=1200&auto=format&fit=crop&q=80'
 
-  // Latest news list (next 4 articles)
+  // 2. Latest News List (next 4 articles, displayed in the 38% right panel)
   const latestArticles = articles.slice(1, 5)
 
-  // Top Stories row (next 3 articles)
-  const topStories = articles.slice(5, 8).length > 0 ? articles.slice(5, 8) : articles.slice(0, 3)
+  // 3. Filtered Top Stories (in-memory filtering without any API calls)
+  const filteredTopStories = useMemo(() => {
+    if (activeTag === 'all') {
+      return articles.slice(5, 8).length > 0 ? articles.slice(5, 8) : articles.slice(1, 4)
+    }
 
-  // Trending widget article
-  const trendingArticle = articles.length > 8 ? articles[8] : articles[0]
+    const query = activeTag.toLowerCase().replace(/-/g, ' ')
+    const matches = articles.filter((a) => {
+      const cat = (a.category || '').toLowerCase()
+      const slug = (a.categorySlug || '').toLowerCase()
+      const title = (a.title || '').toLowerCase()
+      const tags = (a.tags || []).map((t) => t.toLowerCase())
+
+      return (
+        cat.includes(query) ||
+        slug.includes(activeTag) ||
+        title.includes(query) ||
+        tags.some((t) => t.includes(query) || t.includes(activeTag))
+      )
+    })
+
+    return matches.length > 0
+      ? matches.slice(0, 3)
+      : articles.slice(5, 8).length > 0
+      ? articles.slice(5, 8)
+      : articles.slice(1, 4)
+  }, [articles, activeTag])
+
+  // 4. Trending Stories (top real published stories for the right-hand column)
+  const trendingArticles = useMemo(() => {
+    const pool = articles.length > 8 ? articles.slice(8, 11) : articles.slice(0, 3)
+    return pool
+  }, [articles])
+
+  const handlePrevHero = () => {
+    setHeroIndex((prev) => (prev > 0 ? prev - 1 : featuredArticles.length - 1))
+  }
+
+  const handleNextHero = () => {
+    setHeroIndex((prev) => (prev < featuredArticles.length - 1 ? prev + 1 : 0))
+  }
 
   return (
     <section className="w-full space-y-6 select-none" aria-label="Hero Editorial and Latest News">
-      {/* ── TOP SECTION: Hero Story (Left) + Latest News Sidebar (Right) ── */}
+      {/* ── TOP SECTION: Hero Story (approx 62%) + Latest News Sidebar (approx 38%) ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-        {/* Dominant Hero Card (8 cols) matching Reference Image */}
+        {/* Dominant Hero Card (62% desktop / 8 cols) matching Reference Image */}
         <div className="lg:col-span-8 flex flex-col">
-          <div className="group relative w-full h-[400px] sm:h-[460px] md:h-[500px] rounded-3xl overflow-hidden bg-slate-900 border border-slate-200/20 dark:border-slate-800 shadow-xl flex flex-col justify-end p-6 sm:p-8 md:p-10">
+          <div className="group relative w-full h-[420px] sm:h-[470px] md:h-[510px] rounded-3xl overflow-hidden bg-slate-900 border border-slate-200/40 dark:border-slate-800/80 shadow-md flex flex-col justify-end p-6 sm:p-8 md:p-10">
             {/* Background Hero Image with high-priority responsive optimization */}
             <Image
               src={heroImage}
               alt={heroArticle.title}
               fill
               priority
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 900px"
-              className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 920px"
+              className="object-cover object-top transition-transform duration-700 group-hover:scale-[1.03]"
             />
 
-            {/* Cinematic dark gradients matching reference */}
+            {/* Cinematic dark gradients matching reference image */}
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent pointer-events-none" />
             <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/30 to-transparent pointer-events-none" />
 
@@ -114,7 +152,7 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
 
               {/* Excerpt / Summary */}
               {heroArticle.excerpt && (
-                <p className="text-xs sm:text-sm text-slate-300 line-clamp-2 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-200/90 line-clamp-2 leading-relaxed">
                   {heroArticle.excerpt}
                 </p>
               )}
@@ -130,41 +168,54 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
                 </Link>
 
                 {/* Left/Right Round Chevrons + Progress Bars matching image */}
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      aria-label="Previous story"
-                      className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
-                    >
-                      <span className="material-symbols-outlined text-sm rtl:rotate-180">chevron_left</span>
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Next story"
-                      className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
-                    >
-                      <span className="material-symbols-outlined text-sm rtl:rotate-180">chevron_right</span>
-                    </button>
+                {featuredArticles.length > 1 && (
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={handlePrevHero}
+                        aria-label="Previous story"
+                        className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
+                      >
+                        <span className="material-symbols-outlined text-sm rtl:rotate-180">chevron_left</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleNextHero}
+                        aria-label="Next story"
+                        className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
+                      >
+                        <span className="material-symbols-outlined text-sm rtl:rotate-180">chevron_right</span>
+                      </button>
+                    </div>
+
+                    {/* Progress Indicator Bars */}
+                    <div className="flex items-center gap-1.5">
+                      {featuredArticles.map((_, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setHeroIndex(idx)}
+                          aria-label={`Go to slide ${idx + 1}`}
+                          className={`h-1 rounded-full transition-all cursor-pointer ${
+                            idx === heroIndex ? 'w-6 bg-amber-400' : 'w-4 bg-white/30 hover:bg-white/50'
+                          }`}
+                        />
+                      ))}
+                    </div>
                   </div>
-                  {/* Active / Inactive Progress Pill Bars */}
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-5 h-1 rounded-full bg-amber-400" />
-                    <span className="w-5 h-1 rounded-full bg-white/30" />
-                    <span className="w-5 h-1 rounded-full bg-white/20" />
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Latest News Sidebar Card (4 cols) matching Reference Image */}
+        {/* Latest News Sidebar Card (38% desktop / 4 cols) matching Reference Image */}
         <div className="lg:col-span-4 flex flex-col">
-          <div className="h-full rounded-3xl bg-white dark:bg-[#0c121e] border border-slate-200 dark:border-[#182335] shadow-lg p-5 flex flex-col justify-between">
+          <div className="h-full rounded-3xl bg-white dark:bg-[#0c121e] border border-slate-200/80 dark:border-[#182335] shadow-sm p-5 sm:p-6 flex flex-col justify-between">
             {/* Header: "Latest News" on left, "View All News ->" on right */}
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800/80">
-              <h2 className="text-lg font-black text-slate-900 dark:text-white tracking-tight">
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 dark:border-slate-800/80">
+              <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
                 {isAr ? 'آخر الأخبار' : 'Latest News'}
               </h2>
               <Link
@@ -177,20 +228,20 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
             </div>
 
             {/* 4 Stacked News Rows matching Reference Image */}
-            <div className="divide-y divide-slate-100 dark:divide-slate-800/60 my-2 space-y-2.5">
+            <div className="divide-y divide-slate-100 dark:divide-slate-800/60 my-2 space-y-3">
               {latestArticles.map((art) => {
                 const img =
                   normalizeArticleImageUrl(art.imageUrl || art.image) ||
                   'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=300&auto=format&fit=crop&q=80'
 
                 return (
-                  <article key={art.id} className="pt-2.5 first:pt-0">
+                  <article key={art.id} className="pt-3 first:pt-0">
                     <Link
                       href={`/${art.language || 'en'}/news/${encodeURIComponent(art.slug)}`}
                       className="group flex items-center gap-3.5 text-start cursor-pointer"
                     >
                       {/* Left Thumbnail with rounded corners */}
-                      <div className="relative w-20 sm:w-22 h-14 sm:h-16 rounded-xl overflow-hidden bg-slate-800 shrink-0 border border-slate-200/40 dark:border-slate-700/60">
+                      <div className="relative w-22 sm:w-24 h-15 sm:h-16 rounded-xl overflow-hidden bg-slate-800 shrink-0 border border-slate-200/60 dark:border-slate-800 shadow-inner">
                         <Image
                           src={img}
                           alt={art.title}
@@ -203,14 +254,16 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
 
                       {/* Right Text */}
                       <div className="flex-1 min-w-0 space-y-1">
-                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                          <span className="text-amber-500">{art.category || 'GENERAL'}</span>
-                          <span>•</span>
-                          <span className="text-slate-400 lowercase first-letter:uppercase">
+                        <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider">
+                          <span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-400">
+                            {art.category || 'ANALYSIS'}
+                          </span>
+                          <span className="text-slate-400">•</span>
+                          <span className="text-slate-400 lowercase first-letter:uppercase font-medium">
                             {formatTimeAgo(art.publishedAt, locale)}
                           </span>
                         </div>
-                        <h3 className="text-xs sm:text-[13px] font-bold text-slate-800 dark:text-slate-100 group-hover:text-amber-500 transition-colors line-clamp-2 leading-snug">
+                        <h3 className="text-xs sm:text-[13px] font-bold text-slate-900 dark:text-slate-100 group-hover:text-amber-500 transition-colors line-clamp-2 leading-snug">
                           {art.title}
                         </h3>
                       </div>
@@ -252,8 +305,8 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
                     onClick={() => setActiveTag(tag.id)}
                     className={`px-3 py-1 rounded-full font-semibold transition-all shrink-0 cursor-pointer ${
                       isActive
-                        ? 'bg-slate-900 text-white dark:bg-[#141e30] dark:text-amber-400 dark:border dark:border-[#223350] shadow-sm'
-                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                        ? 'bg-slate-950 text-white dark:bg-[#182335] dark:text-amber-400 shadow-sm'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80'
                     }`}
                   >
                     {isAr ? tag.labelAr : tag.label}
@@ -265,7 +318,7 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
 
           {/* 3 Equal Cards in Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {topStories.map((story) => {
+            {filteredTopStories.map((story) => {
               const img =
                 normalizeArticleImageUrl(story.imageUrl || story.image) ||
                 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=600&auto=format&fit=crop&q=80'
@@ -273,7 +326,7 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
               return (
                 <article
                   key={story.id}
-                  className="rounded-2xl overflow-hidden bg-white dark:bg-[#0c121e] border border-slate-200 dark:border-[#182335] shadow-sm group flex flex-col justify-between"
+                  className="rounded-2xl overflow-hidden bg-white dark:bg-[#0c121e] border border-slate-200/80 dark:border-[#182335] shadow-sm hover:shadow-md transition-shadow group flex flex-col justify-between"
                 >
                   <Link
                     href={`/${story.language || 'en'}/news/${encodeURIComponent(story.slug)}`}
@@ -290,7 +343,7 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
                       />
                     </div>
                     <div className="p-3.5 space-y-1.5">
-                      <h3 className="text-xs sm:text-sm font-bold text-slate-800 dark:text-white group-hover:text-amber-500 transition-colors line-clamp-2 leading-snug">
+                      <h3 className="text-xs sm:text-[13px] font-bold text-slate-900 dark:text-white group-hover:text-amber-500 transition-colors line-clamp-2 leading-snug">
                         {story.title}
                       </h3>
                     </div>
@@ -303,51 +356,59 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
 
         {/* Trending Side Widget (4 cols) matching reference image */}
         <div className="lg:col-span-4 flex flex-col">
-          <div className="rounded-3xl bg-white dark:bg-[#0c121e] border border-slate-200 dark:border-[#182335] shadow-lg p-5 space-y-3.5">
+          <div className="rounded-3xl bg-white dark:bg-[#0c121e] border border-slate-200/80 dark:border-[#182335] shadow-sm p-5 space-y-3.5">
             {/* Header: Flame Icon + "Trending" + "Today v" dropdown pill */}
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800/80">
+            <div className="flex items-center justify-between pb-2.5 border-b border-slate-100 dark:border-slate-800/80">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-orange-500 text-lg">local_fire_department</span>
                 <h3 className="text-base font-black text-slate-900 dark:text-white">
                   {isAr ? 'الأكثر تداولاً' : 'Trending'}
                 </h3>
               </div>
-              <div className="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-[#121c2d] border border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
+              <div className="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-[#121c2d] border border-slate-200/80 dark:border-slate-800 text-[11px] font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
                 <span>{isAr ? 'اليوم' : 'Today'}</span>
                 <span className="material-symbols-outlined text-xs text-slate-400">expand_more</span>
               </div>
             </div>
 
-            {/* Trending Item #1 */}
-            <Link
-              href={`/${trendingArticle.language || 'en'}/news/${encodeURIComponent(trendingArticle.slug)}`}
-              className="group flex items-center gap-3 text-start p-1.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors cursor-pointer"
-            >
-              <div className="w-6 text-center font-black text-sm text-slate-700 dark:text-slate-300">
-                1
-              </div>
-              <div className="relative w-11 h-11 rounded-lg overflow-hidden bg-slate-800 shrink-0 border border-slate-200 dark:border-slate-700">
-                <Image
-                  src={
-                    normalizeArticleImageUrl(trendingArticle.imageUrl || trendingArticle.image) ||
-                    'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=100&auto=format&fit=crop&q=80'
-                  }
-                  alt={trendingArticle.title}
-                  fill
-                  loading="lazy"
-                  sizes="48px"
-                  className="object-cover"
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-amber-500 transition-colors line-clamp-2 leading-snug">
-                  {trendingArticle.title}
-                </h4>
-              </div>
-              <div className="shrink-0 text-red-500">
-                <span className="material-symbols-outlined text-sm">trending_up</span>
-              </div>
-            </Link>
+            {/* Trending Items List */}
+            <div className="space-y-2">
+              {trendingArticles.map((art, idx) => {
+                const img =
+                  normalizeArticleImageUrl(art.imageUrl || art.image) ||
+                  'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=100&auto=format&fit=crop&q=80'
+
+                return (
+                  <Link
+                    key={art.id}
+                    href={`/${art.language || 'en'}/news/${encodeURIComponent(art.slug)}`}
+                    className="group flex items-center gap-3 text-start p-1.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors cursor-pointer"
+                  >
+                    <div className="w-5 text-center font-black text-sm text-slate-500 dark:text-slate-400">
+                      {idx + 1}
+                    </div>
+                    <div className="relative w-11 h-11 rounded-lg overflow-hidden bg-slate-800 shrink-0 border border-slate-200/60 dark:border-slate-700 shadow-inner">
+                      <Image
+                        src={img}
+                        alt={art.title}
+                        fill
+                        loading="lazy"
+                        sizes="48px"
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-xs font-bold text-slate-900 dark:text-slate-200 group-hover:text-amber-500 transition-colors line-clamp-2 leading-snug">
+                        {art.title}
+                      </h4>
+                    </div>
+                    <div className="shrink-0 text-red-500">
+                      <span className="material-symbols-outlined text-sm">trending_up</span>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
           </div>
         </div>
       </div>

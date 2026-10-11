@@ -120,17 +120,17 @@ export default function TopMatchesBar({
           </button>
         </div>
 
-        {/* Center Cards Track */}
+        {/* Center Cards Track with CSS scroll-snap */}
         <div
           ref={scrollRef}
-          className="flex-1 flex items-center gap-2.5 overflow-x-auto scrollbar-none py-0.5 scroll-smooth"
+          className="flex-1 flex items-center gap-2.5 overflow-x-auto scrollbar-none py-0.5 scroll-smooth snap-x snap-mandatory"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {isLoading ? (
             Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
-                className="shrink-0 w-[190px] sm:w-[205px] h-[78px] rounded-xl bg-[#121a29] animate-pulse border border-[#1b263b] p-2.5"
+                className="shrink-0 w-[190px] sm:w-[205px] h-[78px] rounded-xl bg-[#121a29] animate-pulse border border-[#1b263b] p-2.5 snap-start"
               />
             ))
           ) : displayMatches.length === 0 ? (
@@ -138,7 +138,7 @@ export default function TopMatchesBar({
               {isAr ? 'لا توجد مباريات مجدولة لهذا اليوم' : 'No matches scheduled for this date'}
             </div>
           ) : (
-            displayMatches.map((match) => {
+            displayMatches.slice(0, 12).map((match) => {
               const live = isLiveStatus(match.status)
               const isFinished = match.status === 'full_time' || match.status === 'penalties'
               const isScheduled = match.status === 'scheduled'
@@ -179,7 +179,7 @@ export default function TopMatchesBar({
                   key={match.id}
                   href={matchHref}
                   prefetch={false}
-                  className="shrink-0 w-[190px] sm:w-[205px] h-[78px] p-2 sm:p-2.5 rounded-xl bg-[#121a29] border border-[#1b263b] hover:border-slate-500 hover:bg-[#162134] transition-all flex flex-col justify-between cursor-pointer group shadow-sm"
+                  className="shrink-0 w-[190px] sm:w-[205px] h-[78px] p-2 sm:p-2.5 rounded-xl bg-[#121a29] border border-[#1b263b] hover:border-slate-500 hover:bg-[#162134] transition-all flex flex-col justify-between cursor-pointer group shadow-sm snap-start"
                 >
                   {/* Top Row: Kickoff / Live badge on Left, League name & logo on Right */}
                   <div className="flex items-center justify-between text-[11px] leading-tight gap-1">

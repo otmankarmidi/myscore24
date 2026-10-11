@@ -58,7 +58,7 @@ export default function AboutPage() {
               { icon: 'person', title: 'Player Profiles', desc: 'Squad numbers, positions, and player data' },
               { icon: 'percent', title: 'Football Statistics', desc: 'Top scorers, discipline stats, and team metrics' },
               { icon: 'newspaper', title: 'Football News & Reports', desc: 'Match previews, analytical reports, and debriefs' },
-              { icon: 'emoji_events', title: 'International Football', desc: 'Global tournaments, qualifiers, and cup competitions' },
+              { icon: 'trophy', title: 'International Football', desc: 'Global tournaments, qualifiers, and cup competitions' },
             ].map((item, idx) => (
               <div key={idx} className="bg-surface-container-high/60 rounded-lg p-3.5 border border-surface-bright/50 space-y-1">
                 <div className="flex items-center gap-2 text-primary">
