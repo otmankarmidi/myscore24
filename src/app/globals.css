@@ -49,13 +49,13 @@
   --color-surface-variant:           #2e3544;
 
   /* Primary (lime green) */
-  --color-primary:                   #ccff80;
-  --color-on-primary:                #213600;
-  --color-primary-container:         #a3e635;
-  --color-on-primary-container:      #416400;
+  --color-primary:                   #00d4ff;
+  --color-on-primary:                #002538;
+  --color-primary-container:         #0284c7;
+  --color-on-primary-container:      #e0f2fe;
   --color-inverse-primary:           #446900;
-  --color-primary-fixed:             #b2f746;
-  --color-primary-fixed-dim:         #98da27;
+  --color-primary-fixed:             #38bdf8;
+  --color-primary-fixed-dim:         #0ea5e9;
   --color-on-primary-fixed:          #121f00;
   --color-on-primary-fixed-variant:  #334f00;
 
@@ -506,9 +506,9 @@ html.light {
   --color-inverse-on-surface:        #F4F6F8;
 
   /* Primary (MyScore24 Green Accent for Light Mode) */
-  --color-primary:                   #2e6b00;
+  --color-primary:                   #0284c7;
   --color-on-primary:                #FFFFFF;
-  --color-primary-container:         #84cc16;
+  --color-primary-container:         #0ea5e9;
   --color-on-primary-container:      #122100;
   --color-inverse-primary:           #ccff80;
   --color-primary-fixed:             #84cc16;

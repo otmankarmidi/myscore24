@@ -300,14 +300,14 @@ export default function HomeClient({
               : 'MyScore24 - Live Football Scores, Results & Latest Football News'}
           </h1>
 
-          {/* Section matching Image 2: ترتيب أحسن 5 دوريات (Top 5 Leagues Standings) */}
-          <TopLeaguesStandingsWidget />
-
-          {/* Section matching Image 1: Top Leagues Full-Width Banners */}
-          <LeagueBannersShowcase />
+          {/* Section matching Image 1: Top Leagues Full-Width Banners (only if articles linked) */}
+          <LeagueBannersShowcase articles={currentArticles} />
 
           {/* Section: دوريات وبطولات (League Video & News Grids) */}
           <LeagueVideoNewsGrid articles={currentArticles} />
+
+          {/* Section matching Image 2: ترتيب أحسن 5 دوريات (Top 5 Leagues Standings) — Moved below articles */}
+          <TopLeaguesStandingsWidget />
 
           {/* Section: Live Scores & Match Center (Matching Image 3) */}
           <section className="space-y-3 pt-2" aria-label="Match Center">

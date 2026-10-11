@@ -63,7 +63,7 @@ export default function DesktopSidebar() {
   const favoriteLeagues = mockLeagues.slice(0, 6)
 
   return (
-    <aside className="w-[230px] shrink-0 h-[calc(100vh-3.5rem)] sticky top-14 py-3 overflow-y-auto border-r rtl:border-r-0 rtl:border-l border-surface-bright/30 pr-2 rtl:pr-0 rtl:pl-2 hidden md:block">
+    <aside className="w-[230px] shrink-0 h-[calc(100vh-4.5rem)] sticky top-[70px] py-3 overflow-y-auto border-r rtl:border-r-0 rtl:border-l border-surface-bright/30 pr-2 rtl:pr-0 rtl:pl-2 hidden md:block">
       {/* Main Navigation */}
       <nav className="flex flex-col gap-0.5 mb-4" aria-label={t('nav.scores', 'Main navigation')}>
         {navItems.map(item => {

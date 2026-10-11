@@ -108,7 +108,9 @@ export default function TopLeaguesStandingsWidget() {
                     alt={league.nameEn}
                     width={28}
                     height={28}
-                    className="object-contain"
+                    className={`object-contain filter ${
+                      league.id === 'epl' || league.id === 'ligue1' ? 'brightness-0 invert' : 'brightness-110'
+                    }`}
                   />
                 </div>
               </button>

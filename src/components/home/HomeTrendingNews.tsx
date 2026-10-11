@@ -53,27 +53,11 @@ export default function HomeTrendingNews({ articles = [] }: HomeTrendingNewsProp
       <div className="absolute top-1/2 -left-28 -translate-y-1/2 w-56 h-56 rounded-full border border-orange-500/15 pointer-events-none" />
       <div className="absolute top-1/2 -left-20 -translate-y-1/2 w-40 h-40 rounded-full border border-orange-500/10 pointer-events-none" />
 
-      {/* Header: "الأخبار الرائجة" with Fire Icon in circle */}
-      <div className={`relative z-10 flex items-center gap-2.5 pb-4 border-b border-slate-800/60 mb-4 ${locale === 'ar' ? 'justify-end' : 'justify-start'}`}>
-        {locale === 'ar' ? (
-          <>
-            <h2 className="text-lg sm:text-xl font-black text-white tracking-tight">
-              الأخبار الرائجة
-            </h2>
-            <div className="w-7 h-7 rounded-full bg-orange-600/20 border border-orange-500/40 flex items-center justify-center text-orange-500 shadow-sm shrink-0">
-              <span className="material-symbols-outlined text-[17px] leading-none">local_fire_department</span>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="w-7 h-7 rounded-full bg-orange-600/20 border border-orange-500/40 flex items-center justify-center text-orange-500 shadow-sm shrink-0">
-              <span className="material-symbols-outlined text-[17px] leading-none">local_fire_department</span>
-            </div>
-            <h2 className="text-lg sm:text-xl font-black text-white tracking-tight">
-              {locale === 'fr' ? 'Actualités Tendances' : 'Trending News'}
-            </h2>
-          </>
-        )}
+      {/* Header: "الأخبار الرائجة" (Matching requested style without the icon) */}
+      <div className={`relative z-10 flex items-center pb-4 border-b border-slate-800/60 mb-4 ${locale === 'ar' ? 'justify-end' : 'justify-start'}`}>
+        <h2 className="text-lg sm:text-xl font-black text-white tracking-tight">
+          {locale === 'ar' ? 'الأخبار الرائجة' : locale === 'fr' ? 'Actualités Tendances' : 'Trending News'}
+        </h2>
       </div>
 
       {/* Main 2-Column Grid (In RTL Hero on Right, in LTR Hero on Left) */}

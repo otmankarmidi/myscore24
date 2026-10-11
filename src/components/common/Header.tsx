@@ -121,11 +121,11 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
 
   return (
     <>
-      <header className="sticky top-0 left-0 right-0 z-30 bg-surface/95 backdrop-blur-md border-b border-surface-bright/70 pt-[env(safe-area-inset-top,0px)]">
-        <div className="max-w-[1480px] mx-auto h-14 px-3 sm:px-4 flex items-center justify-between gap-2 sm:gap-4">
+      <header className="sticky top-0 left-0 right-0 z-30 bg-surface/95 backdrop-blur-md border-b border-surface-bright/70 pt-[env(safe-area-inset-top,0px)] shadow-sm">
+        <div className="max-w-[1480px] mx-auto h-16 sm:h-[70px] px-3 sm:px-5 flex items-center justify-between gap-3 sm:gap-6">
           {/* Logo */}
-          <div className="flex items-center gap-2 shrink-0">
-            <Link href="/" className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5 shrink-0">
+            <Link href="/" className="flex items-center gap-2.5 group">
               {/* Animated logo (transparent WebP, plays once and holds final frame).
                   Users with reduced-motion preference get the static final frame. */}
               <picture className="shrink-0">
@@ -133,16 +133,16 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
                 <img
                   src="/logo-animated.webp"
                   alt="MyScore24 Logo"
-                  width={46}
-                  height={36}
-                  className="site-logo-anim h-8 sm:h-9 w-auto object-contain"
+                  width={56}
+                  height={44}
+                  className="site-logo-anim h-10 sm:h-11 w-auto object-contain transition-transform group-hover:scale-105"
                 />
               </picture>
               <div className="flex flex-col leading-none">
-                <span className="font-geist font-bold text-[15px] sm:text-[16px] tracking-tight text-on-surface">
+                <span className="font-geist font-extrabold text-[17px] sm:text-[19px] tracking-tight text-on-surface">
                   MyScore<span className="text-primary">24</span>
                 </span>
-                <span className="font-geist font-bold text-[8px] sm:text-[9px] tracking-widest text-on-surface-variant uppercase mt-0.5">
+                <span className="font-geist font-bold text-[9px] sm:text-[10px] tracking-widest text-on-surface-variant uppercase mt-1">
                   Scores. Stats. Live.
                 </span>
               </div>

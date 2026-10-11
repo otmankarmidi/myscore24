@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import sharp from 'sharp'
 import crypto from 'crypto'
 import fs from 'fs'
 import path from 'path'
@@ -110,33 +109,51 @@ export async function GET(request: NextRequest) {
 
     const sourceBuffer = Buffer.from(await res.arrayBuffer())
 
-    // 3. Process with sharp
-    const webpBuffer = await sharp(sourceBuffer)
-      .resize({
-        width,
-        fit: 'inside',
-        withoutEnlargement: true,
-      })
-      .webp({
-        quality,
-        effort: 4,
-      })
-      .toBuffer()
-
-    // 4. Save to disk cache asynchronously
+    // 3. Process with sharp if available on host, otherwise proxy raw source directly
     try {
-      ensureCacheDir()
-      fs.writeFile(cachePath, webpBuffer, () => {})
+      // Dynamic require with fallback
+      const sharpModName = 'sharp'
+      // @ts-ignore
+      const sharpModule = typeof require !== 'undefined' ? require(sharpModName) : null
+      if (sharpModule) {
+        const webpBuffer = await sharpModule(sourceBuffer)
+          .resize({
+            width,
+            fit: 'inside',
+            withoutEnlargement: true,
+          })
+          .webp({
+            quality,
+            effort: 4,
+          })
+          .toBuffer()
+
+        try {
+          ensureCacheDir()
+          fs.writeFile(cachePath, webpBuffer, () => {})
+        } catch {
+          // Non-fatal
+        }
+
+        return new NextResponse(webpBuffer, {
+          headers: {
+            'Content-Type': 'image/webp',
+            'Cache-Control': 'public, max-age=2592000, immutable',
+            'ETag': `"${hash}"`,
+            'X-Image-Cache': 'MISS',
+          },
+        })
+      }
     } catch {
-      // Non-fatal
+      // Fall through to streaming raw buffer
     }
 
-    return new NextResponse(webpBuffer, {
+    const contentType = res.headers.get('content-type') || 'image/png'
+    return new NextResponse(sourceBuffer, {
       headers: {
-        'Content-Type': 'image/webp',
+        'Content-Type': contentType,
         'Cache-Control': 'public, max-age=2592000, immutable',
         'ETag': `"${hash}"`,
-        'X-Image-Cache': 'MISS',
       },
     })
   } catch (err: any) {

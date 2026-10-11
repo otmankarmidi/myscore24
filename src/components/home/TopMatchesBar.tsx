@@ -443,7 +443,9 @@ export default function TopMatchesBar({
                               alt={leagueDisplay}
                               width={16}
                               height={16}
-                              className="object-contain"
+                              className={`object-contain ${
+                                isPl ? 'filter brightness-0 invert' : ''
+                              }`}
                             />
                           </div>
                         )}
