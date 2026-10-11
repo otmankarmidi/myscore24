@@ -71,16 +71,16 @@ export default function TopLeaguesStandingsWidget() {
   return (
     <section
       aria-label="Top 5 Leagues Standings"
-      className="w-full rounded-2xl bg-[#0c121e] border border-[#182335] p-4 sm:p-5 select-none shadow-lg space-y-4"
+      className="w-full rounded-2xl bg-white dark:bg-[#0c121e] border border-[#E5E5E5] dark:border-[#182335] p-4 sm:p-5 select-none shadow-xs space-y-4"
     >
       {/* Header Row: Title on primary side, League Switcher in center, More link on secondary side */}
-      <div className="flex items-center justify-between gap-3 flex-wrap border-b border-slate-800/70 pb-3.5">
+      <div className="flex items-center justify-between gap-3 flex-wrap border-b border-[#E5E5E5] dark:border-slate-800/70 pb-3.5">
         {/* Primary Side: Section Title with Trophy Icon */}
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-slate-800/70 border border-slate-700/60 flex items-center justify-center text-slate-300">
+          <div className="w-7 h-7 rounded-lg bg-[#F3ECFA] dark:bg-slate-800/70 border border-[#6425A6]/20 dark:border-slate-700/60 flex items-center justify-center text-[#6425A6] dark:text-slate-300">
             <span className="material-symbols-outlined text-base">emoji_events</span>
           </div>
-          <h2 className="text-base sm:text-lg font-black text-white">
+          <h2 className="text-base sm:text-lg font-black text-[#171717] dark:text-white">
             {isAr ? 'ترتيب أحسن 5 دوريات' : 'Top 5 Leagues Standings'}
           </h2>
         </div>
@@ -98,8 +98,8 @@ export default function TopLeaguesStandingsWidget() {
                 aria-label={isAr ? league.nameAr : league.nameEn}
                 className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full p-1.5 flex items-center justify-center transition-all cursor-pointer shrink-0 ${
                   isActive
-                    ? 'bg-[#1e2538] ring-2 ring-purple-500/80 shadow-lg scale-105'
-                    : 'bg-[#141926] hover:bg-[#1c2234] border border-slate-800 opacity-80 hover:opacity-100'
+                    ? 'bg-[#F3ECFA] dark:bg-[#1e2538] ring-2 ring-[#6425A6] dark:ring-purple-500/80 shadow-sm scale-105'
+                    : 'bg-[#F5F5F5] dark:bg-[#141926] hover:bg-[#F3ECFA] dark:hover:bg-[#1c2234] border border-[#E5E5E5] dark:border-slate-800 opacity-80 hover:opacity-100'
                 }`}
               >
                 <div className="relative w-full h-full flex items-center justify-center">
@@ -109,7 +109,7 @@ export default function TopLeaguesStandingsWidget() {
                     width={28}
                     height={28}
                     className={`object-contain filter ${
-                      league.id === 'epl' || league.id === 'ligue1' ? 'brightness-0 invert' : 'brightness-110'
+                      league.id === 'epl' || league.id === 'ligue1' ? 'filter brightness-0 dark:invert' : 'brightness-105'
                     }`}
                   />
                 </div>
@@ -121,7 +121,7 @@ export default function TopLeaguesStandingsWidget() {
         {/* Secondary Side: View More Standings Pill Button */}
         <Link
           href={`/league/${activeLeague.slug}`}
-          className="px-3.5 py-1.5 rounded-full bg-[#101e30] border border-sky-800/50 hover:border-sky-600 text-sky-400 hover:text-sky-300 font-bold text-xs transition-all flex items-center gap-1 shadow-sm shrink-0 cursor-pointer"
+          className="px-3.5 py-1.5 rounded-full bg-[#F3ECFA] dark:bg-[#101e30] border border-[#6425A6]/30 dark:border-sky-800/50 hover:bg-[#6425A6] hover:text-white text-[#6425A6] dark:text-sky-400 font-bold text-xs transition-all flex items-center gap-1 shadow-xs shrink-0 cursor-pointer"
         >
           <span>{isAr ? 'المزيد' : 'More'}</span>
           <span className="material-symbols-outlined text-[15px] rtl:rotate-180">arrow_forward</span>
@@ -130,25 +130,25 @@ export default function TopLeaguesStandingsWidget() {
 
       {/* Subheader: Active League Display Name */}
       <div className={`${isAr ? 'text-end' : 'text-start'} px-1`}>
-        <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
+        <h3 className="text-base sm:text-lg font-bold text-[#171717] dark:text-white tracking-tight">
           {isAr ? activeLeague.nameAr : activeLeague.nameEn}
         </h3>
       </div>
 
       {/* Standings Table (Top 6 Teams - Matching Image 2) */}
       <div className="w-full overflow-x-auto scrollbar-none">
-        <table className="w-full text-xs text-slate-300 text-center border-collapse">
+        <table className="w-full text-xs text-[#6B7280] dark:text-slate-300 text-center border-collapse">
           <thead>
-            <tr className="text-slate-400 font-semibold border-b border-slate-800/60 text-[11px] sm:text-xs">
+            <tr className="text-[#6B7280] dark:text-slate-400 font-semibold border-b border-[#E5E5E5] dark:border-slate-800/60 text-[11px] sm:text-xs">
               {isAr ? (
                 <>
-                  <th className="py-2.5 px-2 text-start font-bold">الفريق</th>
-                  <th className="py-2.5 px-2 font-bold">#</th>
+                  <th className="py-2.5 px-2 text-start font-bold text-[#171717] dark:text-white">الفريق</th>
+                  <th className="py-2.5 px-2 font-bold text-[#171717] dark:text-white">#</th>
                 </>
               ) : (
                 <>
-                  <th className="py-2.5 px-2 font-bold">#</th>
-                  <th className="py-2.5 px-2 text-start font-bold">Team</th>
+                  <th className="py-2.5 px-2 font-bold text-[#171717] dark:text-white">#</th>
+                  <th className="py-2.5 px-2 text-start font-bold text-[#171717] dark:text-white">Team</th>
                 </>
               )}
               <th className="py-2.5 px-2 font-medium">{isAr ? 'ل' : 'P'}</th>
@@ -158,14 +158,14 @@ export default function TopLeaguesStandingsWidget() {
               <th className="py-2.5 px-2 font-medium">{isAr ? 'له' : 'GF'}</th>
               <th className="py-2.5 px-2 font-medium">{isAr ? 'عليه' : 'GA'}</th>
               <th className="py-2.5 px-2 font-medium">{isAr ? 'الفرق' : 'GD'}</th>
-              <th className="py-2.5 px-2 font-bold text-white">{isAr ? 'ن' : 'Pts'}</th>
+              <th className="py-2.5 px-2 font-bold text-[#171717] dark:text-white">{isAr ? 'ن' : 'Pts'}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/40">
+          <tbody className="divide-y divide-[#F5F5F5] dark:divide-slate-800/40">
             {standingsData.map((row) => (
               <tr
                 key={row.position}
-                className="hover:bg-[#141a27] transition-colors rounded-lg group"
+                className="hover:bg-[#F3ECFA] dark:hover:bg-[#141a27] transition-colors rounded-lg group"
               >
                 {isAr ? (
                   <>
@@ -177,21 +177,21 @@ export default function TopLeaguesStandingsWidget() {
                           name={row.team?.name || ''}
                           size="xs"
                         />
-                        <span className="font-bold text-white group-hover:text-amber-400 transition-colors truncate">
+                        <span className="font-bold text-[#171717] dark:text-white group-hover:text-[#6425A6] dark:group-hover:text-amber-400 transition-colors truncate">
                           {row.team?.name}
                         </span>
                       </div>
                     </td>
 
                     {/* Position */}
-                    <td className="py-2.5 px-2 font-black text-white tabular-nums">
+                    <td className="py-2.5 px-2 font-black text-[#171717] dark:text-white tabular-nums">
                       {row.position}
                     </td>
                   </>
                 ) : (
                   <>
                     {/* Position */}
-                    <td className="py-2.5 px-2 font-black text-white tabular-nums">
+                    <td className="py-2.5 px-2 font-black text-[#171717] dark:text-white tabular-nums">
                       {row.position}
                     </td>
 
@@ -203,7 +203,7 @@ export default function TopLeaguesStandingsWidget() {
                           name={row.team?.name || ''}
                           size="xs"
                         />
-                        <span className="font-bold text-white group-hover:text-amber-400 transition-colors truncate">
+                        <span className="font-bold text-[#171717] dark:text-white group-hover:text-[#6425A6] dark:group-hover:text-amber-400 transition-colors truncate">
                           {row.team?.name}
                         </span>
                       </div>
@@ -212,42 +212,42 @@ export default function TopLeaguesStandingsWidget() {
                 )}
 
                 {/* Played */}
-                <td className="py-2.5 px-2 tabular-nums text-slate-300 font-medium">
+                <td className="py-2.5 px-2 tabular-nums text-[#6B7280] dark:text-slate-300 font-medium">
                   {row.played}
                 </td>
 
                 {/* Won */}
-                <td className="py-2.5 px-2 tabular-nums text-slate-300 font-medium">
+                <td className="py-2.5 px-2 tabular-nums text-[#6B7280] dark:text-slate-300 font-medium">
                   {row.won}
                 </td>
 
                 {/* Drawn */}
-                <td className="py-2.5 px-2 tabular-nums text-slate-300 font-medium">
+                <td className="py-2.5 px-2 tabular-nums text-[#6B7280] dark:text-slate-300 font-medium">
                   {row.drawn}
                 </td>
 
                 {/* Lost */}
-                <td className="py-2.5 px-2 tabular-nums text-slate-300 font-medium">
+                <td className="py-2.5 px-2 tabular-nums text-[#6B7280] dark:text-slate-300 font-medium">
                   {row.lost}
                 </td>
 
                 {/* Goals For */}
-                <td className="py-2.5 px-2 tabular-nums text-slate-300 font-medium">
+                <td className="py-2.5 px-2 tabular-nums text-[#6B7280] dark:text-slate-300 font-medium">
                   {row.goalsFor}
                 </td>
 
                 {/* Goals Against */}
-                <td className="py-2.5 px-2 tabular-nums text-slate-300 font-medium">
+                <td className="py-2.5 px-2 tabular-nums text-[#6B7280] dark:text-slate-300 font-medium">
                   {row.goalsAgainst}
                 </td>
 
                 {/* Goal Difference */}
-                <td className="py-2.5 px-2 tabular-nums text-slate-300 font-medium">
+                <td className="py-2.5 px-2 tabular-nums text-[#6B7280] dark:text-slate-300 font-medium">
                   {row.goalDifference > 0 ? `+${row.goalDifference}` : row.goalDifference}
                 </td>
 
                 {/* Points */}
-                <td className="py-2.5 px-2 font-black text-white tabular-nums text-sm">
+                <td className="py-2.5 px-2 font-black text-[#6425A6] dark:text-white tabular-nums text-sm">
                   {row.points}
                 </td>
               </tr>

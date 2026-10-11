@@ -10,6 +10,7 @@ import PlayerImage from '@/components/common/PlayerImage'
 import TeamLogo from '@/components/common/TeamLogo'
 import CompetitionLogo from '@/components/common/CompetitionLogo'
 import { trackSearch } from '@/lib/analytics'
+import { useTheme } from '@/hooks/useTheme'
 import { Locale } from '@/types/common'
 import { MatchAlert } from '@/types/alerts'
 
@@ -38,6 +39,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
   const { label, changeLocale, locale, t } = useLanguage()
   const { totalFavorites } = useFavorites()
   const { selectedTimezone, setTimezonePreference } = useTimezone()
+  const { theme, toggle: toggleTheme, isDark } = useTheme()
 
   const [internalQuery, setInternalQuery] = useState(searchQuery)
   const [isOpen, setIsOpen] = useState(false)
@@ -119,7 +121,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
 
   return (
     <>
-      <header className="sticky top-0 left-0 right-0 z-30 bg-[#0c121e]/95 backdrop-blur-md border-b border-[#182335] pt-[env(safe-area-inset-top,0px)] shadow-sm">
+      <header className="sticky top-0 left-0 right-0 z-30 bg-white/95 dark:bg-[#0c121e]/95 backdrop-blur-md border-b border-[#E5E5E5] dark:border-[#182335] pt-[env(safe-area-inset-top,0px)] shadow-xs">
         <div className="max-w-[1480px] mx-auto h-16 sm:h-[70px] px-3 sm:px-5 flex items-center justify-between gap-3 sm:gap-6">
           {/* Logo */}
           <div className="flex items-center gap-2.5 shrink-0">
@@ -133,14 +135,14 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
                   height={42}
                   fetchPriority="high"
                   decoding="async"
-                  className="h-10 sm:h-11 w-auto object-contain transition-transform group-hover:scale-105"
+                  className="h-10 sm:h-11 w-auto object-contain transition-transform group-hover:scale-105 filter brightness-0 dark:filter-none"
                 />
               </picture>
               <div className="flex flex-col leading-none">
-                <span className="font-geist font-extrabold text-[17px] sm:text-[19px] tracking-tight text-on-surface">
-                  MyScore<span className="text-primary">24</span>
+                <span className="font-geist font-extrabold text-[17px] sm:text-[19px] tracking-tight text-[#171717] dark:text-[#dce2f6]">
+                  MyScore<span className="text-[#6425A6] dark:text-primary">24</span>
                 </span>
-                <span className="font-geist font-bold text-[9px] sm:text-[10px] tracking-widest text-on-surface-variant uppercase mt-1">
+                <span className="font-geist font-bold text-[9px] sm:text-[10px] tracking-widest text-[#6B7280] dark:text-on-surface-variant uppercase mt-1">
                   Scores. Stats. Live.
                 </span>
               </div>
@@ -153,46 +155,46 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
               href="/"
               className={`text-sm font-bold transition-all py-2 px-1 relative ${
                 pathname === '/'
-                  ? 'text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-amber-400 after:rounded-full'
-                  : 'text-slate-200 hover:text-white'
+                  ? 'text-[#6425A6] dark:text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-[#6425A6] dark:after:bg-primary after:rounded-full'
+                  : 'text-[#6B7280] dark:text-slate-200 hover:text-[#6425A6] dark:hover:text-white'
               }`}
             >
               {locale === 'ar' ? 'الرئيسية' : 'Home'}
             </Link>
             <Link
               href="/#matches"
-              className="text-sm font-semibold text-slate-200 hover:text-white transition-colors py-2 px-1"
+              className="text-sm font-semibold text-[#6B7280] dark:text-slate-200 hover:text-[#6425A6] dark:hover:text-white transition-colors py-2 px-1"
             >
               {locale === 'ar' ? 'المباريات' : 'Matches'}
             </Link>
             <Link
               href="/competitions"
-              className="text-sm font-semibold text-slate-200 hover:text-white transition-colors py-2 px-1"
+              className="text-sm font-semibold text-[#6B7280] dark:text-slate-200 hover:text-[#6425A6] dark:hover:text-white transition-colors py-2 px-1"
             >
               {locale === 'ar' ? 'الدوريات' : 'Leagues'}
             </Link>
             <Link
               href="/news"
-              className="text-sm font-semibold text-slate-200 hover:text-white transition-colors py-2 px-1"
+              className="text-sm font-semibold text-[#6B7280] dark:text-slate-200 hover:text-[#6425A6] dark:hover:text-white transition-colors py-2 px-1"
             >
               {locale === 'ar' ? 'الأخبار' : 'News'}
             </Link>
             <div className="relative group">
               <button
                 type="button"
-                className="text-sm font-semibold text-slate-200 hover:text-white transition-colors flex items-center gap-1 cursor-pointer py-2 px-1"
+                className="text-sm font-semibold text-[#6B7280] dark:text-slate-200 hover:text-[#6425A6] dark:hover:text-white transition-colors flex items-center gap-1 cursor-pointer py-2 px-1"
               >
                 <span>{locale === 'ar' ? 'المزيد' : 'More'}</span>
                 <span className="material-symbols-outlined text-sm">expand_more</span>
               </button>
-              <div className="absolute top-9 right-0 rtl:right-auto rtl:left-0 hidden group-hover:flex flex-col bg-[#0f1728] border border-slate-800 rounded-xl shadow-xl py-1.5 w-40 z-50">
-                <Link href="/favorites" className="px-3.5 py-2 text-xs font-semibold text-slate-100 hover:bg-slate-800">
+              <div className="absolute top-9 right-0 rtl:right-auto rtl:left-0 hidden group-hover:flex flex-col bg-white dark:bg-[#0f1728] border border-[#E5E5E5] dark:border-slate-800 rounded-xl shadow-xl py-1.5 w-40 z-50">
+                <Link href="/favorites" className="px-3.5 py-2 text-xs font-semibold text-[#171717] dark:text-slate-100 hover:bg-[#F3ECFA] dark:hover:bg-slate-800 hover:text-[#6425A6]">
                   {t('nav.favorites', 'Favorites')}
                 </Link>
-                <Link href="/about" className="px-3.5 py-2 text-xs font-semibold text-slate-100 hover:bg-slate-800">
+                <Link href="/about" className="px-3.5 py-2 text-xs font-semibold text-[#171717] dark:text-slate-100 hover:bg-[#F3ECFA] dark:hover:bg-slate-800 hover:text-[#6425A6]">
                   {locale === 'ar' ? 'من نحن' : 'About Us'}
                 </Link>
-                <Link href="/contact" className="px-3.5 py-2 text-xs font-semibold text-slate-100 hover:bg-slate-800">
+                <Link href="/contact" className="px-3.5 py-2 text-xs font-semibold text-[#171717] dark:text-slate-100 hover:bg-[#F3ECFA] dark:hover:bg-slate-800 hover:text-[#6425A6]">
                   {locale === 'ar' ? 'اتصل بنا' : 'Contact'}
                 </Link>
               </div>
@@ -202,7 +204,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
           {/* Search Bar — desktop rounded pill */}
           <div ref={searchContainerRef} className="hidden md:flex items-center flex-1 max-w-xs lg:max-w-sm mx-2 gap-2 relative">
             <div className="relative flex-1 flex items-center">
-              <span className="material-symbols-outlined absolute left-3 rtl:left-auto rtl:right-3 text-slate-400 pointer-events-none" style={{ fontSize: 16 }}>search</span>
+              <span className="material-symbols-outlined absolute left-3 rtl:left-auto rtl:right-3 text-[#6425A6] dark:text-slate-400 pointer-events-none" style={{ fontSize: 16 }}>search</span>
               <input
                 value={internalQuery}
                 onChange={(e) => handleInputChange(e.target.value)}
@@ -210,7 +212,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
                   if (internalQuery.trim().length >= 2) setIsOpen(true)
                 }}
                 onKeyDown={handleKeyDown}
-                className="w-full bg-[#0e1626] border border-[#1e2a40] rounded-full pl-9 pr-10 rtl:pl-10 rtl:pr-9 py-1.5 font-inter text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-amber-400 transition-colors text-left rtl:text-right"
+                className="w-full bg-[#F5F5F5] dark:bg-[#0e1626] border border-[#E5E5E5] dark:border-[#1e2a40] rounded-full pl-9 pr-10 rtl:pl-10 rtl:pr-9 py-1.5 font-inter text-xs text-[#171717] dark:text-white placeholder:text-[#6B7280] dark:placeholder:text-slate-400 focus:outline-none focus:border-[#6425A6] focus:bg-white dark:focus:bg-[#0e1626] transition-colors text-left rtl:text-right"
                 placeholder={t('common.search_placeholder', 'Search teams, players, leagues...')}
                 type="search"
                 aria-label={t('common.search_placeholder', 'Search')}
@@ -370,38 +372,49 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
 
           {/* Actions & Utilities Matching Reference Image Header */}
           <div className="flex items-center gap-2 shrink-0">
+            {/* Theme Toggle Pill */}
+            <button
+              onClick={toggleTheme}
+              className="h-8 w-8 rounded-full bg-[#F5F5F5] dark:bg-[#121c2d] hover:bg-[#F3ECFA] dark:hover:bg-[#19273f] text-[#6425A6] dark:text-amber-400 flex items-center justify-center transition-colors border border-[#E5E5E5] dark:border-slate-800"
+              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              aria-label="Toggle theme"
+            >
+              <span className="material-symbols-outlined text-[17px]">
+                {isDark ? 'light_mode' : 'dark_mode'}
+              </span>
+            </button>
+
             {/* Language picker pill */}
             <div className="relative group hidden sm:block">
               <button
-                className="h-8 px-2.5 rounded-full bg-[#121c2d] hover:bg-[#19273f] text-xs font-bold text-slate-200 flex items-center gap-1 transition-colors border border-slate-800"
+                className="h-8 px-2.5 rounded-full bg-[#F5F5F5] dark:bg-[#121c2d] hover:bg-[#F3ECFA] dark:hover:bg-[#19273f] text-xs font-bold text-[#171717] dark:text-slate-200 flex items-center gap-1 transition-colors border border-[#E5E5E5] dark:border-slate-800"
                 aria-label="Select Language"
               >
                 <span className="uppercase">{label}</span>
-                <span className="material-symbols-outlined text-slate-400" style={{ fontSize: 14 }}>expand_more</span>
+                <span className="material-symbols-outlined text-[#6B7280] dark:text-slate-400" style={{ fontSize: 14 }}>expand_more</span>
               </button>
-              <div className="absolute right-0 rtl:right-auto rtl:left-0 top-9 hidden group-hover:flex flex-col bg-[#0f1728] border border-slate-800 rounded-xl shadow-xl z-50 min-w-[110px] overflow-hidden py-1">
+              <div className="absolute right-0 rtl:right-auto rtl:left-0 top-9 hidden group-hover:flex flex-col bg-white dark:bg-[#0f1728] border border-[#E5E5E5] dark:border-slate-800 rounded-xl shadow-xl z-50 min-w-[110px] overflow-hidden py-1">
                 {LOCALES.map(l => (
                   <button
                     key={l.code}
                     onClick={() => changeLocale(l.code)}
-                    className={`px-3 py-1.5 text-left rtl:text-right font-geist text-xs font-semibold hover:bg-slate-800 transition-colors flex items-center justify-between gap-2 ${
-                      l.code === locale ? 'text-amber-500 font-bold' : 'text-slate-300'
+                    className={`px-3 py-1.5 text-left rtl:text-right font-geist text-xs font-semibold hover:bg-[#F3ECFA] dark:hover:bg-slate-800 transition-colors flex items-center justify-between gap-2 ${
+                      l.code === locale ? 'text-[#6425A6] dark:text-amber-500 font-bold' : 'text-[#171717] dark:text-slate-300'
                     }`}
                   >
                     <span>{l.name}</span>
                     {l.code === locale && (
-                      <span className="material-symbols-outlined text-amber-500" style={{ fontSize: 14 }}>check</span>
+                      <span className="material-symbols-outlined text-[#6425A6] dark:text-amber-500" style={{ fontSize: 14 }}>check</span>
                     )}
                   </button>
                 ))}
               </div>
             </div>
 
-
             {/* Mobile Search Button */}
             <button
               onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-              className="md:hidden w-8 h-8 rounded-full flex items-center justify-center bg-slate-800 text-slate-200 transition-colors border border-slate-700"
+              className="md:hidden w-8 h-8 rounded-full flex items-center justify-center bg-[#F5F5F5] dark:bg-slate-800 text-[#171717] dark:text-slate-200 transition-colors border border-[#E5E5E5] dark:border-slate-700"
               title="Search"
               aria-label="Toggle mobile search"
             >
@@ -413,7 +426,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsDrawerOpen(true)}
-              className="xl:hidden w-8 h-8 rounded-full flex items-center justify-center bg-slate-800 text-slate-200 transition-colors border border-slate-700"
+              className="xl:hidden w-8 h-8 rounded-full flex items-center justify-center bg-[#F5F5F5] dark:bg-slate-800 text-[#171717] dark:text-slate-200 transition-colors border border-[#E5E5E5] dark:border-slate-700"
               title={t('common.more', 'Menu')}
               aria-label="Open navigation drawer"
             >

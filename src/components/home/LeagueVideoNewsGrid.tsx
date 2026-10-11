@@ -161,14 +161,14 @@ export default function LeagueVideoNewsGrid({ articles = [] }: LeagueVideoNewsGr
                 return (
                   <article
                     key={art.id}
-                    className="rounded-xl overflow-hidden bg-[#0c121e] border border-[#182335] hover:border-amber-500/60 transition-all shadow-sm group flex flex-col justify-between"
+                    className="rounded-xl overflow-hidden bg-white dark:bg-[#0c121e] border border-[#E5E5E5] dark:border-[#182335] hover:border-[#6425A6]/50 transition-all shadow-xs group flex flex-col justify-between"
                   >
                     <Link
                       href={`/${art.language || (locale === 'ar' ? 'ar' : 'en')}/news/${encodeURIComponent(art.slug)}`}
                       className="block text-start cursor-pointer"
                     >
-                      {/* Top Image with Video Play Icon Overlay (Matching Image 3) */}
-                      <div className="relative w-full aspect-[16/9] overflow-hidden bg-slate-900 shrink-0">
+                      {/* Top Image with Video Play Icon Overlay */}
+                      <div className="relative w-full aspect-[16/9] overflow-hidden bg-slate-100 dark:bg-slate-900 shrink-0">
                         <Image
                           src={imageUrl}
                           alt={art.title}
@@ -178,8 +178,8 @@ export default function LeagueVideoNewsGrid({ articles = [] }: LeagueVideoNewsGr
                           className="object-cover group-hover:scale-105 transition-transform duration-300"
                         />
 
-                        {/* Video Play Circle Icon in Bottom Corner (as seen in Image 3) */}
-                        <div className="absolute bottom-2 end-2 w-7 h-7 rounded-full bg-black/65 border border-white/40 flex items-center justify-center text-white shadow-md pointer-events-none group-hover:bg-amber-500 group-hover:text-black group-hover:border-amber-500 transition-colors">
+                        {/* Video Play Circle Icon in Bottom Corner */}
+                        <div className="absolute bottom-2 end-2 w-7 h-7 rounded-full bg-black/65 border border-white/40 flex items-center justify-center text-white shadow-md pointer-events-none group-hover:bg-[#6425A6] group-hover:text-white group-hover:border-[#6425A6] transition-colors">
                           <span className="material-symbols-outlined text-[16px] leading-none">play_arrow</span>
                         </div>
                       </div>
@@ -187,12 +187,12 @@ export default function LeagueVideoNewsGrid({ articles = [] }: LeagueVideoNewsGr
                       {/* Card Content Below Image */}
                       <div className="p-3 space-y-1.5">
                         {/* League Tag */}
-                        <div className="text-[11px] font-bold text-slate-400 group-hover:text-amber-400 transition-colors">
+                        <div className="text-[11px] font-bold text-[#6B7280] dark:text-slate-400 group-hover:text-[#6425A6] dark:group-hover:text-amber-400 transition-colors">
                           {categoryLabel}
                         </div>
 
                         {/* Headline */}
-                        <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-amber-400 transition-colors line-clamp-2 leading-snug">
+                        <h3 className="text-xs sm:text-sm font-bold text-[#171717] dark:text-white group-hover:text-[#6425A6] dark:group-hover:text-amber-400 transition-colors line-clamp-2 leading-snug">
                           {art.title}
                         </h3>
                       </div>

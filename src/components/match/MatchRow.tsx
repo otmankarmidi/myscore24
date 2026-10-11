@@ -139,18 +139,18 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
       onClick={(e) => {
         if (!hasValidId) e.preventDefault()
       }}
-      className={`match-row block px-3.5 py-2.5 group transition-all duration-200 relative bg-[#0c121e] hover:bg-[#131d2e] ${
+      className={`match-row block px-3.5 py-2.5 group transition-all duration-200 relative bg-white hover:bg-[#F3ECFA] dark:bg-[#0c121e] dark:hover:bg-[#131d2e] ${
         isFlashingGoal
-          ? 'animate-score-flash ring-2 ring-primary/80 rounded-lg shadow-[0_0_20px_rgba(204,255,128,0.35)]'
+          ? 'animate-score-flash ring-2 ring-[#6425A6]/80 rounded-lg shadow-[0_0_20px_rgba(100,37,166,0.35)]'
           : ''
       }`}
       aria-label={`${safeHome.name} vs ${safeAway.name}, ${status || 'scheduled'}`}
     >
       <div className="flex items-center justify-between gap-3">
-        {/* Status / Kickoff column (Matching Image 3: dark rounded box with amber text) */}
+        {/* Status / Kickoff column */}
         <div className="w-16 shrink-0 flex flex-col items-center justify-center">
           {status === 'scheduled' ? (
-            <span className="w-full py-1.5 rounded-lg bg-[#101826] border border-[#182335] text-center font-geist font-bold text-xs text-amber-400 tabular-nums shadow-xs">
+            <span className="w-full py-1.5 rounded-lg bg-[#F5F5F5] dark:bg-[#101826] border border-[#E5E5E5] dark:border-[#182335] text-center font-geist font-bold text-xs text-[#6425A6] dark:text-amber-400 tabular-nums shadow-xs">
               {formatMatchTime(kickoff, activeTimezone, locale)}
             </span>
           ) : (

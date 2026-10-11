@@ -29,24 +29,10 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
 
   const safeMatches = (matches || []).filter(Boolean)
 
-  // Color per league based on Image 3
-  const getLeagueTitleColor = (id?: string, slug?: string) => {
-    const s = `${id || ''} ${slug || ''}`.toLowerCase()
-    if (s.includes('epl') || s.includes('premier') || s.includes('39')) return 'text-amber-400'
-    if (s.includes('laliga') || s.includes('la-liga') || s.includes('140')) return 'text-[#f87171]'
-    if (s.includes('serie') || s.includes('135')) return 'text-[#38bdf8]'
-    if (s.includes('botola') || s.includes('200')) return 'text-[#34d399]'
-    if (s.includes('ligue') || s.includes('61')) return 'text-[#a78bfa]'
-    if (s.includes('bundes') || s.includes('78')) return 'text-[#fb923c]'
-    return 'text-amber-400'
-  }
-
-  const titleColor = getLeagueTitleColor(league.id, league.slug)
-
   return (
-    <div className="competition-group-container bg-[#0c121e] rounded-xl border border-[#182335] overflow-hidden shadow-md animate-fade-in divide-y divide-[#182335]">
-      {/* Competition header (Matching Image 3) */}
-      <div className="h-10 bg-[#101826] px-3.5 flex items-center justify-between text-slate-200 border-b border-[#182335]">
+    <div className="competition-group-container bg-white dark:bg-[#0c121e] rounded-xl border border-[#E5E5E5] dark:border-[#182335] overflow-hidden shadow-xs animate-fade-in divide-y divide-[#E5E5E5] dark:divide-[#182335]">
+      {/* Competition header */}
+      <div className="h-10 bg-[#FAFAFA] dark:bg-[#101826] px-3.5 flex items-center justify-between text-[#171717] dark:text-slate-200 border-b border-[#E5E5E5] dark:border-[#182335]">
         <div className="flex items-center gap-2.5 min-w-0">
           {/* Clickable Competition Logo with fallback chain */}
           <Link
@@ -70,13 +56,13 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
           <Link
             href={competitionHref}
             prefetch={false}
-            className={`font-geist text-xs uppercase font-extrabold tracking-wider truncate hover:brightness-125 transition-all ${titleColor}`}
+            className="font-geist text-xs uppercase font-extrabold tracking-wider truncate text-[#6425A6] dark:text-primary hover:opacity-80 transition-all"
           >
             {safeName}
           </Link>
 
           {league.currentRound && (
-            <span className="font-geist text-[11px] text-slate-400 font-medium shrink-0">
+            <span className="font-geist text-[11px] text-[#6B7280] dark:text-slate-400 font-medium shrink-0">
               • {league.currentRound}
             </span>
           )}
@@ -88,7 +74,7 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
               if (league.slug) toggleLeague(league.slug)
               if (league.id && league.id !== league.slug) toggleLeague(league.id)
             }}
-            className="text-slate-500 hover:text-amber-400 transition-colors"
+            className="text-[#9CA3AF] dark:text-slate-500 hover:text-[#6425A6] dark:hover:text-amber-400 transition-colors"
             title={isFavorited ? t('common.unpinLeague', 'Unpin League') : t('common.pinLeague', 'Pin League')}
             aria-label={`${isFavorited ? 'Unpin' : 'Pin'} ${safeName}`}
           >
@@ -97,7 +83,7 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
               style={{
                 fontSize: 18,
                 fontVariationSettings: isFavorited ? "'FILL' 1" : "'FILL' 0",
-                color: isFavorited ? '#fbbf24' : undefined,
+                color: isFavorited ? '#6425A6' : undefined,
               }}
             >
               star
@@ -107,7 +93,7 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
           <Link
             href={competitionHref}
             prefetch={false}
-            className="font-geist text-[11px] uppercase font-bold text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1 group/std"
+            className="font-geist text-[11px] uppercase font-bold text-[#6425A6] dark:text-amber-400 hover:opacity-80 transition-colors flex items-center gap-1 group/std"
             aria-label={`${t('common.viewStandings', 'View')} ${safeName} ${t('common.standings', 'standings')}`}
           >
             <span className="material-symbols-outlined text-xs group-hover/std:scale-110 transition-transform">star</span>
@@ -118,7 +104,7 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
       </div>
 
       {/* Match rows */}
-      <div className="flex flex-col divide-y divide-[#141e30]">
+      <div className="flex flex-col divide-y divide-[#F5F5F5] dark:divide-[#141e30]">
         {safeMatches.map((match) => (
           <MatchRow
             key={match.id}

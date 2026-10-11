@@ -30,64 +30,66 @@
 }
 
 @theme inline {
-  /* === OBSIDIAN PITCH COLOR SYSTEM (Unified #0c121e Palette) === */
-  --color-surface:                   #0c121e;
-  --color-surface-dim:               #080d17;
-  --color-surface-bright:            #1e293b;
-  --color-surface-container-lowest:  #060a12;
-  --color-surface-container-low:     #0f1726;
-  --color-surface-container:         #131c2e;
-  --color-surface-container-high:    #182335;
-  --color-surface-container-highest: #1f2d44;
-  --color-on-surface:                #f1f5f9;
-  --color-on-surface-variant:        #94a3b8;
-  --color-inverse-surface:           #f1f5f9;
-  --color-inverse-on-surface:        #0c121e;
-  --color-outline:                   #64748b;
-  --color-outline-variant:           #334155;
-  --color-surface-tint:              #38bdf8;
-  --color-surface-variant:           #182335;
+  /* === LIGHT THEME (DEFAULT PALETTE: #EEEEEE / #FFFFFF / #6425A6) === */
+  --color-page-bg:                   #EEEEEE;
+  --color-background:                #EEEEEE;
+  --color-surface:                   #EEEEEE;
+  --color-surface-dim:               #E5E5E5;
+  --color-surface-bright:            #FFFFFF;
+  --color-surface-container-lowest:  #FFFFFF;
+  --color-surface-container-low:     #FFFFFF;
+  --color-surface-container:         #FFFFFF;
+  --color-surface-container-high:    #F3ECFA;
+  --color-surface-container-highest: #E5E5E5;
+  --color-on-surface:                #171717;
+  --color-on-surface-variant:        #6B7280;
+  --color-inverse-surface:           #171717;
+  --color-inverse-on-surface:        #FFFFFF;
+  --color-outline:                   #E5E5E5;
+  --color-outline-variant:           #E5E5E5;
+  --color-surface-tint:              #6425A6;
+  --color-surface-variant:           #FFFFFF;
 
-  /* Primary (lime green) */
-  --color-primary:                   #00d4ff;
-  --color-on-primary:                #002538;
-  --color-primary-container:         #0284c7;
-  --color-on-primary-container:      #e0f2fe;
-  --color-inverse-primary:           #446900;
-  --color-primary-fixed:             #38bdf8;
-  --color-primary-fixed-dim:         #0ea5e9;
-  --color-on-primary-fixed:          #121f00;
-  --color-on-primary-fixed-variant:  #334f00;
+  /* Primary Accent (#6425A6 Rich Purple) */
+  --color-primary:                   #6425A6;
+  --color-on-primary:                #FFFFFF;
+  --color-primary-container:         #F3ECFA;
+  --color-on-primary-container:      #6425A6;
+  --color-inverse-primary:           #a855f7;
+  --color-primary-fixed:             #6425A6;
+  --color-primary-fixed-dim:         #531e8c;
+  --color-on-primary-fixed:          #FFFFFF;
+  --color-on-primary-fixed-variant:  #F3ECFA;
 
-  /* Secondary (green) */
-  --color-secondary:                 #4ae176;
-  --color-on-secondary:              #003915;
-  --color-secondary-container:       #00b954;
-  --color-on-secondary-container:    #004119;
-  --color-secondary-fixed:           #6bff8f;
-  --color-secondary-fixed-dim:       #4ae176;
-  --color-on-secondary-fixed:        #002109;
-  --color-on-secondary-fixed-variant:#005321;
+  /* Secondary */
+  --color-secondary:                 #7c3aed;
+  --color-on-secondary:              #FFFFFF;
+  --color-secondary-container:       #F3ECFA;
+  --color-on-secondary-container:    #6425A6;
+  --color-secondary-fixed:           #ddd6fe;
+  --color-secondary-fixed-dim:       #c4b5fd;
+  --color-on-secondary-fixed:        #2e1065;
+  --color-on-secondary-fixed-variant:#4c1d95;
 
-  /* Tertiary (pink/red for cards) */
-  --color-tertiary:                  #ffeaea;
-  --color-on-tertiary:               #67001b;
-  --color-tertiary-container:        #ffc4c7;
-  --color-on-tertiary-container:     #b60237;
-  --color-tertiary-fixed:            #ffdadb;
-  --color-tertiary-fixed-dim:        #ffb2b7;
-  --color-on-tertiary-fixed:         #40000d;
-  --color-on-tertiary-fixed-variant: #92002a;
+  /* Tertiary */
+  --color-tertiary:                  #f59e0b;
+  --color-on-tertiary:               #ffffff;
+  --color-tertiary-container:        #fef3c7;
+  --color-on-tertiary-container:     #92400e;
+  --color-tertiary-fixed:            #fde68a;
+  --color-tertiary-fixed-dim:        #fcd34d;
+  --color-on-tertiary-fixed:         #78350f;
+  --color-on-tertiary-fixed-variant: #b45309;
 
-  /* Error (live red) */
-  --color-error:                     #ffb4ab;
-  --color-on-error:                  #690005;
-  --color-error-container:           #93000a;
-  --color-on-error-container:        #ffdad6;
+  /* Error / Live Status */
+  --color-error:                     #dc2626;
+  --color-on-error:                  #ffffff;
+  --color-error-container:           #fee2e2;
+  --color-on-error-container:        #991b1b;
 
   /* Background */
-  --color-background:                #0c121e;
-  --color-on-background:             #f1f5f9;
+  --color-background:                #EEEEEE;
+  --color-on-background:             #171717;
 
   /* === TYPOGRAPHY === */
   --font-geist:  'Geist', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -485,6 +487,36 @@
   animation: whistle-soundwave 1.5s ease-in-out infinite;
 }
 
+
+/* =====================
+   DARK THEME (SAVED PREFERENCE)
+   ===================== */
+html.dark {
+  --color-page-bg:                   #0c121e;
+  --color-background:                #0c121e;
+  --color-surface:                   #0c121e;
+  --color-surface-dim:               #080d17;
+  --color-surface-bright:            #1e293b;
+  --color-surface-container-lowest:  #060a12;
+  --color-surface-container-low:     #0f1726;
+  --color-surface-container:         #131c2e;
+  --color-surface-container-high:    #182335;
+  --color-surface-container-highest: #1f2d44;
+  --color-on-surface:                #f1f5f9;
+  --color-on-surface-variant:        #94a3b8;
+  --color-inverse-surface:           #f1f5f9;
+  --color-inverse-on-surface:        #0c121e;
+  --color-outline:                   #182335;
+  --color-outline-variant:           #1e293b;
+  --color-surface-tint:              #a855f7;
+  --color-surface-variant:           #182335;
+
+  --color-primary:                   #a855f7;
+  --color-on-primary:                #082f49;
+  --color-primary-container:         #2e1065;
+  --color-on-primary-container:      #f3e8ff;
+  --color-on-background:             #f1f5f9;
+}
 
 /* =====================
    RTL SUPPORT
