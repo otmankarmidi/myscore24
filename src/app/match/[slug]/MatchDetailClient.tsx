@@ -138,11 +138,14 @@ export default function MatchDetailClient({
             : (prevMatch?.events && prevMatch.events.length > 0 ? prevMatch.events : (fresh.events || []))
 
           const mergedStats = fresh.statistics || prevMatch?.statistics || undefined
-          const mergedLineup = (fresh.lineup?.home?.startingXI?.length)
+          const hasXI = (l: any) => Boolean(l?.home?.starters?.length || l?.home?.startingXI?.length)
+          const mergedLineup = hasXI(fresh.lineup)
             ? fresh.lineup
-            : (fresh.lineups?.home?.startingXI?.length
-                ? fresh.lineups
-                : (prevMatch?.lineup?.home?.startingXI?.length ? prevMatch.lineup : (prevMatch?.lineups || fresh.lineup || fresh.lineups)))
+            : hasXI(fresh.lineups)
+              ? fresh.lineups
+              : hasXI(prevMatch?.lineup)
+                ? prevMatch?.lineup
+                : (prevMatch?.lineups || fresh.lineup || fresh.lineups)
 
           const mergedCommentary = (fresh.commentary && fresh.commentary.length > 0)
             ? fresh.commentary
@@ -195,9 +198,18 @@ export default function MatchDetailClient({
   useEffect(() => {
     // If initialMatch is provided and match is scheduled (upcoming) or final (finished),
     // do not trigger unnecessary client re-fetches on initial mount.
+    const hasRichData = Boolean(
+      initialMatch?.events?.length ||
+      initialMatch?.statistics ||
+      initialMatch?.lineup?.home?.starters?.length ||
+      initialMatch?.lineup?.home?.startingXI?.length ||
+      initialMatch?.lineups?.home?.starters?.length ||
+      initialMatch?.lineups?.home?.startingXI?.length
+    )
     if (
       initialMatch &&
-      (initialMatch.status === 'scheduled' || initialMatch.isFinal || initialMatch.status === 'full_time')
+      (initialMatch.status === 'scheduled' ||
+        ((initialMatch.isFinal || initialMatch.status === 'full_time') && hasRichData))
     ) {
       return
     }

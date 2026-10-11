@@ -7,6 +7,13 @@ import { NewsArticle } from '@/types/news'
 import { ApiFootballFixtureRaw, ApiFootballEventRaw, ApiFootballLineupRaw, ApiFootballTeamStatsRaw } from './apiFootballProvider'
 import { getCleanLeagueDisplayName } from '@/config/competitions'
 
+function decodeEntities(s?: string): string {
+  return (s || '')
+    .replace(/&apos;|&#39;|&#x27;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&')
+}
+
 // Pass-through normalizers
 export const normalizeMatch = (raw: Match): Match => raw
 export const normalizeTeam = (raw: Team): Team => raw
@@ -269,7 +276,7 @@ function normalizeLineups(
       const statMatch = playerStatsMap.get(pId)
       return {
         id: pId,
-        name: item?.player?.name || 'Player',
+        name: decodeEntities(item?.player?.name) || 'Player',
         number: item?.player?.number || (idx + 1),
         position: item?.player?.pos || statMatch?.position || 'M',
         positionX: coords.x,
@@ -286,7 +293,7 @@ function normalizeLineups(
       const statMatch = playerStatsMap.get(pId)
       return {
         id: pId,
-        name: item?.player?.name || 'Player',
+        name: decodeEntities(item?.player?.name) || 'Player',
         number: item?.player?.number || (idx + 1),
         position: item?.player?.pos || 'SUB',
         positionX: 50,
