@@ -169,7 +169,7 @@ export default function Footer() {
       </div>
 
       <div className="max-w-[1440px] mx-auto pt-6 border-t border-surface-bright/50 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-on-surface-variant/70">
-        <p>© {new Date().getFullYear()} MyScore24. All rights reserved.</p>
+        <p>© 2026 MyScore24. All rights reserved.</p>
         <p className="text-center sm:text-right">
           Independent football scores & information platform. Official competition organizers remain authoritative for official records.
         </p>

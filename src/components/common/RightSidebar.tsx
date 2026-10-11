@@ -5,14 +5,15 @@ import Link from 'next/link'
 import TeamLogo from '@/components/common/TeamLogo'
 import { Match } from '@/types/match'
 import { buildMatchUrl } from '@/lib/football/matchUrl'
+import { formatMatchTime } from '@/lib/utils'
 
 const QUICK_LINKS = [
-  { name: 'Premier League', href: '/competition/39', icon: '/leagues/premier-league.png' },
-  { name: 'LaLiga', href: '/competition/140', icon: '/leagues/laliga.png' },
-  { name: 'Bundesliga', href: '/competition/78', icon: '/leagues/bundesliga.png' },
-  { name: 'Serie A', href: '/competition/135', icon: '/leagues/serie-a.png' },
-  { name: 'Ligue 1', href: '/competition/61', icon: '/leagues/ligue-1.png' },
-  { name: 'Champions League', href: '/competition/2', icon: '/leagues/champions-league.png' },
+  { name: 'Premier League', href: '/league/39', icon: '/leagues/premier-league.png' },
+  { name: 'LaLiga', href: '/league/140', icon: '/leagues/laliga.png' },
+  { name: 'Bundesliga', href: '/league/78', icon: '/leagues/bundesliga.png' },
+  { name: 'Serie A', href: '/league/135', icon: '/leagues/serie-a.png' },
+  { name: 'Ligue 1', href: '/league/61', icon: '/leagues/ligue-1.png' },
+  { name: 'Champions League', href: '/league/2', icon: '/leagues/champions-league.png' },
 ]
 
 const LEAGUE_PRESTIGE_WEIGHTS: Record<string, number> = {
@@ -141,8 +142,8 @@ function renderStatusBadge(match: Match) {
     )
   }
 
-  // Scheduled / Upcoming: Display kickoff time
-  const timeStr = match.kickoffTime || (match.kickoff ? new Date(match.kickoff).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '19:00')
+  // Scheduled / Upcoming: Display kickoff time deterministically (UTC / en-GB 24h format)
+  const timeStr = match.kickoffTime || (match.kickoff ? formatMatchTime(match.kickoff, 'UTC', 'en') : '19:00')
   return (
     <span className="font-mono text-body-sm text-on-surface-variant font-medium shrink-0">
       {timeStr}

@@ -117,7 +117,7 @@ export default function PlayerClient({ player }: PlayerClientProps) {
               {/* Current Club Header (Authoritative) */}
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
                 <Link
-                  href={`/team/${player.teamSlug || player.team?.slug || 'team'}`}
+                  href={`/team/${player.currentClubProviderId || player.teamSlug || player.team?.slug || 'team'}`}
                   className="inline-flex items-center gap-2 text-body-sm font-semibold text-primary hover:underline bg-surface-container-high px-3 py-1.5 rounded-lg border border-surface-bright"
                 >
                   <TeamLogo

@@ -198,7 +198,7 @@ function SearchContent() {
             {leagues.map(league => (
               <Link
                 key={league.id}
-                href={`/competition/${league.id || league.slug}`}
+                href={`/league/${league.id || league.slug}`}
                 prefetch={false}
                 className="flex items-center gap-3 p-3 bg-surface-container-high/60 rounded-lg border border-surface-bright hover:border-primary/50 transition-all group"
               >

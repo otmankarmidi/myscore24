@@ -28,25 +28,18 @@ function formatTimeAgo(dateString?: string, locale: string = 'en') {
   if (isNaN(date.getTime())) return 'Recently'
   const isAr = locale === 'ar'
 
-  const timeStr = date.toLocaleTimeString(isAr ? 'ar-EG' : 'en-GB', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  })
+  const hours = String(date.getUTCHours()).padStart(2, '0')
+  const minutes = String(date.getUTCMinutes()).padStart(2, '0')
+  const timeStr = `${hours}:${minutes}`
 
-  const now = new Date()
-  const isYesterday =
-    date.getDate() === now.getDate() - 1 &&
-    date.getMonth() === now.getMonth() &&
-    date.getFullYear() === now.getFullYear()
-
-  if (isYesterday) {
-    return isAr ? `أمس في ${timeStr}` : `Yesterday at ${timeStr}`
-  }
+  const day = date.getUTCDate()
+  const monthNamesEn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  const monthNamesAr = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']
+  const monthStr = isAr ? monthNamesAr[date.getUTCMonth()] : monthNamesEn[date.getUTCMonth()]
 
   return isAr
-    ? `${date.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' })} في ${timeStr}`
-    : `${date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} at ${timeStr}`
+    ? `${day} ${monthStr} في ${timeStr}`
+    : `${day} ${monthStr} at ${timeStr}`
 }
 
 export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProps) {

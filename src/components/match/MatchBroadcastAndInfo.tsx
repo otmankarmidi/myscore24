@@ -131,7 +131,7 @@ export default function MatchBroadcastAndInfo({ match, standings }: MatchBroadca
         {/* Row 2: Competition */}
         <div className="flex items-center justify-between gap-3 pb-3 border-b border-surface-bright/40">
           <Link
-            href={`/competition/${match.league?.id || match.league?.slug}`}
+            href={`/league/${match.league?.id || match.league?.slug}`}
             className="flex items-center gap-1 text-on-surface hover:text-primary transition-colors text-left rtl:text-right"
           >
             <span className="material-symbols-outlined text-[16px] text-on-surface-variant rtl:rotate-180">

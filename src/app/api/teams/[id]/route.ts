@@ -100,14 +100,45 @@ export async function GET(
       }
 
       if (!dbTeamRecord && cleanName) {
+        // First try exact case-insensitive match or code match
         dbTeamRecord = await prisma.team.findFirst({
           where: {
             OR: [
-              { name: { contains: cleanName } },
+              { name: { equals: cleanName } },
               { code: { equals: rawSlugOrId.toUpperCase() } },
             ],
           },
         })
+
+        // If not found, try matching club teams (national: false) where name starts with cleanName
+        if (!dbTeamRecord) {
+          dbTeamRecord = await prisma.team.findFirst({
+            where: {
+              name: { startsWith: cleanName },
+              national: false,
+            },
+          })
+        }
+
+        // Final fallback: any club team matching name contains
+        if (!dbTeamRecord) {
+          dbTeamRecord = await prisma.team.findFirst({
+            where: {
+              name: { contains: cleanName },
+              national: false,
+            },
+          })
+        }
+
+        // Last resort: any team matching contains
+        if (!dbTeamRecord) {
+          dbTeamRecord = await prisma.team.findFirst({
+            where: {
+              name: { contains: cleanName },
+            },
+          })
+        }
+
         if (dbTeamRecord?.providerId) {
           teamProviderId = dbTeamRecord.providerId
         }

@@ -51,20 +51,13 @@ const TOP_5_LEAGUES: LeagueTab[] = [
     logo: 'https://media.api-sports.io/football/leagues/61.png',
     slug: 'ligue-1',
   },
-  {
-    id: 'botola',
-    nameAr: 'الدوري المغربي الإحترافي',
-    nameEn: 'Botola Pro Inwi',
-    logo: 'https://media.api-sports.io/football/leagues/200.png',
-    slug: 'botola-pro',
-  },
 ]
 
 export default function TopLeaguesStandingsWidget() {
   const { locale } = useLanguage()
   const isAr = locale === 'ar'
 
-  const [activeLeagueId, setActiveLeagueId] = useState<string>('botola')
+  const [activeLeagueId, setActiveLeagueId] = useState<string>('epl')
 
   const activeLeague = useMemo(() => {
     return TOP_5_LEAGUES.find((l) => l.id === activeLeagueId) || TOP_5_LEAGUES[0]
@@ -127,7 +120,7 @@ export default function TopLeaguesStandingsWidget() {
 
         {/* Secondary Side: View More Standings Pill Button */}
         <Link
-          href={`/competitions`}
+          href={`/league/${activeLeague.slug}`}
           className="px-3.5 py-1.5 rounded-full bg-[#101e30] border border-sky-800/50 hover:border-sky-600 text-sky-400 hover:text-sky-300 font-bold text-xs transition-all flex items-center gap-1 shadow-sm shrink-0 cursor-pointer"
         >
           <span>{isAr ? 'المزيد' : 'More'}</span>

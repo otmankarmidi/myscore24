@@ -155,48 +155,48 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
           <nav className="hidden xl:flex items-center gap-6 mx-2 shrink-0" aria-label="Main navigation">
             <Link
               href="/"
-              className={`text-sm font-bold transition-all py-1 relative ${
+              className={`text-sm font-bold transition-all py-2 px-1 relative ${
                 pathname === '/'
                   ? 'text-slate-900 dark:text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-amber-400 after:rounded-full'
-                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                  : 'text-slate-700 dark:text-slate-100 hover:text-slate-950 dark:hover:text-white'
               }`}
             >
               {locale === 'ar' ? 'الرئيسية' : 'Home'}
             </Link>
             <Link
               href="/#matches"
-              className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
+              className="text-sm font-semibold text-slate-700 dark:text-slate-100 hover:text-slate-950 dark:hover:text-white transition-colors py-2 px-1"
             >
               {locale === 'ar' ? 'المباريات' : 'Matches'}
             </Link>
             <Link
               href="/competitions"
-              className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
+              className="text-sm font-semibold text-slate-700 dark:text-slate-100 hover:text-slate-950 dark:hover:text-white transition-colors py-2 px-1"
             >
               {locale === 'ar' ? 'الدوريات' : 'Leagues'}
             </Link>
             <Link
               href="/news"
-              className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
+              className="text-sm font-semibold text-slate-700 dark:text-slate-100 hover:text-slate-950 dark:hover:text-white transition-colors py-2 px-1"
             >
               {locale === 'ar' ? 'الأخبار' : 'News'}
             </Link>
             <div className="relative group">
               <button
                 type="button"
-                className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
+                className="text-sm font-semibold text-slate-700 dark:text-slate-100 hover:text-slate-950 dark:hover:text-white transition-colors flex items-center gap-1 cursor-pointer py-2 px-1"
               >
                 <span>{locale === 'ar' ? 'المزيد' : 'More'}</span>
                 <span className="material-symbols-outlined text-sm">expand_more</span>
               </button>
-              <div className="absolute top-7 right-0 rtl:right-auto rtl:left-0 hidden group-hover:flex flex-col bg-white dark:bg-[#0f1728] border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl py-1.5 w-40 z-50">
-                <Link href="/favorites" className="px-3.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+              <div className="absolute top-9 right-0 rtl:right-auto rtl:left-0 hidden group-hover:flex flex-col bg-white dark:bg-[#0f1728] border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl py-1.5 w-40 z-50">
+                <Link href="/favorites" className="px-3.5 py-2 text-xs font-semibold text-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800">
                   {t('nav.favorites', 'Favorites')}
                 </Link>
-                <Link href="/about" className="px-3.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+                <Link href="/about" className="px-3.5 py-2 text-xs font-semibold text-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800">
                   {locale === 'ar' ? 'من نحن' : 'About Us'}
                 </Link>
-                <Link href="/contact" className="px-3.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+                <Link href="/contact" className="px-3.5 py-2 text-xs font-semibold text-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800">
                   {locale === 'ar' ? 'اتصل بنا' : 'Contact'}
                 </Link>
               </div>
@@ -327,7 +327,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
                       {searchResults.leagues.map((lItem) => (
                         <Link
                           key={lItem.id}
-                          href={`/competition/${lItem.id || lItem.slug}`}
+                          href={`/league/${lItem.id || lItem.slug}`}
                           prefetch={false}
                           onClick={() => {
                             setIsOpen(false)
@@ -574,7 +574,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
                       {searchResults.leagues.map((lItem) => (
                         <Link
                           key={lItem.id}
-                          href={`/competition/${lItem.id || lItem.slug}`}
+                          href={`/league/${lItem.id || lItem.slug}`}
                           prefetch={false}
                           onClick={() => {
                             setIsOpen(false)

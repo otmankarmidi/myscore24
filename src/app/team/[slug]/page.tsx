@@ -20,11 +20,36 @@ async function getStoredTeam(slug: string) {
 
     const cleanName = slug.replace(/-/g, ' ').trim()
     if (cleanName) {
-      const teamByName = await prisma.team.findFirst({
+      // 1. Exact name match
+      let teamByName = await prisma.team.findFirst({
         where: {
-          name: {
-            contains: cleanName,
-          },
+          name: { equals: cleanName },
+        },
+      })
+      if (teamByName) return teamByName
+
+      // 2. Club team starting with cleanName
+      teamByName = await prisma.team.findFirst({
+        where: {
+          name: { startsWith: cleanName },
+          national: false,
+        },
+      })
+      if (teamByName) return teamByName
+
+      // 3. Any club team containing cleanName
+      teamByName = await prisma.team.findFirst({
+        where: {
+          name: { contains: cleanName },
+          national: false,
+        },
+      })
+      if (teamByName) return teamByName
+
+      // 4. Fallback
+      teamByName = await prisma.team.findFirst({
+        where: {
+          name: { contains: cleanName },
         },
       })
       if (teamByName) return teamByName

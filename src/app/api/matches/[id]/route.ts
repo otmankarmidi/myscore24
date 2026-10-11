@@ -92,8 +92,13 @@ export async function GET(
       const kickoffTime = new Date(storedMatch.kickoff).getTime()
       const isUpcomingFar = storedMatch.status === 'scheduled' && kickoffTime - Date.now() > 30 * 60 * 1000 // > 30 mins away
 
-      // If finished or upcoming far in the future, serve from MySQL directly (0 external API calls)
-      if (isFinished || isUpcomingFar) {
+      const hasRichData = Boolean(
+        storedMatch.events?.length ||
+        storedMatch.statistics ||
+        storedMatch.lineup?.home?.startingXI?.length
+      )
+      // Only short-circuit if the stored record already contains rich match data (or if upcoming and > 30m away)
+      if ((isFinished && hasRichData) || isUpcomingFar) {
         apiTelemetry.recordHit('FALLBACK_HIT')
         const response = NextResponse.json({
           match: storedMatch,

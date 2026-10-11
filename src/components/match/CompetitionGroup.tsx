@@ -21,7 +21,7 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
   if (!league) return null
 
   const providerCompetitionId = league.id || league.slug || '39'
-  const competitionHref = `/competition/${providerCompetitionId}`
+  const competitionHref = `/league/${providerCompetitionId}`
   const safeName = league.name || 'Competition'
   const isFavorited =
     (league.slug && isFavoriteLeague(league.slug)) ||

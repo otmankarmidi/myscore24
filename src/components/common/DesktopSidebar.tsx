@@ -120,7 +120,7 @@ export default function DesktopSidebar() {
               className="flex items-center justify-between gap-1.5 px-2 py-1.5 rounded font-inter text-[13px] text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors group"
             >
               <Link
-                href={`/competition/${league.id || league.slug}`}
+                href={`/league/${league.id || league.slug}`}
                 prefetch={false}
                 className="flex items-center gap-2 min-w-0 flex-1 hover:text-primary transition-colors"
               >

@@ -119,7 +119,30 @@ export default function MatchDetailClient({
           return
         }
 
-        setMatch(res.match)
+        setMatch((prevMatch) => {
+          const fresh = res.match!
+          // Guard: Preserve populated events, statistics, lineups, and commentary if fresh response has empty arrays/null
+          const mergedEvents = (fresh.events && fresh.events.length > 0)
+            ? fresh.events
+            : (prevMatch?.events && prevMatch.events.length > 0 ? prevMatch.events : (fresh.events || []))
+
+          const mergedStats = fresh.statistics || prevMatch?.statistics || undefined
+          const mergedLineup = (fresh.lineup?.home?.startingXI?.length)
+            ? fresh.lineup
+            : (prevMatch?.lineup?.home?.startingXI?.length ? prevMatch.lineup : fresh.lineup)
+
+          const mergedCommentary = (fresh.commentary && fresh.commentary.length > 0)
+            ? fresh.commentary
+            : (prevMatch?.commentary && prevMatch.commentary.length > 0 ? prevMatch.commentary : (fresh.commentary || []))
+
+          return {
+            ...fresh,
+            events: mergedEvents,
+            statistics: mergedStats,
+            lineup: mergedLineup,
+            commentary: mergedCommentary,
+          }
+        })
         trackMatchOpen({
           matchId: res.match.id,
           homeTeam: res.match.homeTeam?.name || 'Home',
@@ -324,7 +347,7 @@ export default function MatchDetailClient({
             {/* Top Bar: League Info & Favorite */}
             <div className="flex items-center justify-between pb-3 border-b border-surface-bright/60">
               <Link
-                href={`/competition/${match.league.id || match.league.slug}`}
+                href={`/league/${match.league.id || match.league.slug}`}
                 prefetch={false}
                 className="flex items-center gap-2 text-body-sm font-semibold text-on-surface hover:text-primary transition-colors"
               >
