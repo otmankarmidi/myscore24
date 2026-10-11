@@ -17,10 +17,7 @@ const inter = Inter({
 })
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#EEEEEE' },
-    { media: '(prefers-color-scheme: dark)', color: '#0c121e' },
-  ],
+  themeColor: '#FFFFFF',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
@@ -129,14 +126,8 @@ export default function RootLayout({
                   document.documentElement.lang = 'fr';
                   document.documentElement.dir = 'ltr';
                 }
-                var t = localStorage.getItem('myscore24_theme');
-                if (t === 'dark') {
-                  document.documentElement.classList.remove('light');
-                  document.documentElement.classList.add('dark');
-                } else {
-                  document.documentElement.classList.remove('dark');
-                  document.documentElement.classList.add('light');
-                }
+                document.documentElement.classList.remove('dark');
+                document.documentElement.classList.add('light');
               } catch(e) {}
             `,
           }}
