@@ -27,9 +27,9 @@ export default function Footer() {
       className="w-full bg-[#521c85] bg-gradient-to-br from-[#421270] via-[#521c85] to-[#6425a6] text-white mt-auto pt-10 pb-24 md:pb-10 px-4 sm:px-6 lg:px-8 relative z-10 border-t border-purple-900/50 shadow-2xl"
       dir={isAr ? 'rtl' : 'ltr'}
     >
-      <div className="max-w-[1440px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
+      <div className="max-w-[1440px] mx-auto grid grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-8 mb-8">
         {/* Brand Info */}
-        <div className="space-y-3 sm:col-span-2 lg:col-span-1">
+        <div className="space-y-3 col-span-2 lg:col-span-1">
           <div className="flex items-center gap-2">
             <img
               src="/logo-mark.png"

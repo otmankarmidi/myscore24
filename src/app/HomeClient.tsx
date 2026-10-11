@@ -16,6 +16,7 @@ import HomeNewsMagazine from '@/components/home/HomeNewsMagazine'
 import TopLeaguesStandingsWidget from '@/components/home/TopLeaguesStandingsWidget'
 import LeagueVideoNewsGrid from '@/components/home/LeagueVideoNewsGrid'
 import LeagueBannersShowcase from '@/components/home/LeagueBannersShowcase'
+import MobileQuickLeaguesBar from '@/components/common/MobileQuickLeaguesBar'
 import { sportsService } from '@/services/sports/sportsService'
 import { useLanguage } from '@/context/LanguageContext'
 import { Match } from '@/types/match'
@@ -300,6 +301,9 @@ export default function HomeClient({
               ? 'موقع MyScore24 - نتائج المباريات المباشرة وأحدث أخبار كرة القدم العالمية'
               : 'MyScore24 - Live Football Scores, Results & Latest Football News'}
           </h1>
+
+          {/* Mobile Favorite Leagues & Quick Links Bar (Parity with Desktop Sidebars) */}
+          <MobileQuickLeaguesBar />
 
           {/* Section matching Image 1: Top Leagues Full-Width Banners (only if articles linked) */}
           <LeagueBannersShowcase articles={currentArticles} />

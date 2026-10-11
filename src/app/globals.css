@@ -25,9 +25,9 @@
 }
 
 .competition-group-container {
-  content-visibility: auto;
-  contain-intrinsic-size: 0 160px;
+  /* Ensure full immediate paint on mobile & desktop */
 }
+
 
 @theme inline {
   /* === LIGHT THEME (DEFAULT PALETTE: #EEEEEE / #FFFFFF / #6425A6) === */

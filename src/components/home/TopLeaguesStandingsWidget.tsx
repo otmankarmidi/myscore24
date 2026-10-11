@@ -151,14 +151,14 @@ export default function TopLeaguesStandingsWidget() {
                   <th className="py-2.5 px-2 text-start font-bold text-[#171717] dark:text-white">Team</th>
                 </>
               )}
-              <th className="py-2.5 px-2 font-medium">{isAr ? 'ل' : 'P'}</th>
-              <th className="py-2.5 px-2 font-medium">{isAr ? 'ف' : 'W'}</th>
-              <th className="py-2.5 px-2 font-medium">{isAr ? 'ت' : 'D'}</th>
-              <th className="py-2.5 px-2 font-medium">{isAr ? 'خ' : 'L'}</th>
-              <th className="py-2.5 px-2 font-medium">{isAr ? 'له' : 'GF'}</th>
-              <th className="py-2.5 px-2 font-medium">{isAr ? 'عليه' : 'GA'}</th>
-              <th className="py-2.5 px-2 font-medium">{isAr ? 'الفرق' : 'GD'}</th>
-              <th className="py-2.5 px-2 font-bold text-[#171717] dark:text-white">{isAr ? 'ن' : 'Pts'}</th>
+              <th className="py-2.5 px-1.5 sm:px-2 font-medium">{isAr ? 'ل' : 'P'}</th>
+              <th className="py-2.5 px-2 font-medium hidden sm:table-cell">{isAr ? 'ف' : 'W'}</th>
+              <th className="py-2.5 px-2 font-medium hidden sm:table-cell">{isAr ? 'ت' : 'D'}</th>
+              <th className="py-2.5 px-2 font-medium hidden sm:table-cell">{isAr ? 'خ' : 'L'}</th>
+              <th className="py-2.5 px-2 font-medium hidden sm:table-cell">{isAr ? 'له' : 'GF'}</th>
+              <th className="py-2.5 px-2 font-medium hidden sm:table-cell">{isAr ? 'عليه' : 'GA'}</th>
+              <th className="py-2.5 px-1.5 sm:px-2 font-medium">{isAr ? 'الفرق' : 'GD'}</th>
+              <th className="py-2.5 px-1.5 sm:px-2 font-bold text-[#6425A6] dark:text-purple-400">{isAr ? 'ن' : 'Pts'}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#F5F5F5] dark:divide-slate-800/40">
@@ -171,7 +171,7 @@ export default function TopLeaguesStandingsWidget() {
                   <>
                     {/* Team Column (Name + Logo in RTL) */}
                     <td className="py-2.5 px-2 text-start">
-                      <div className="flex items-center gap-2.5 min-w-[140px]">
+                      <div className="flex items-center gap-2 min-w-[110px] sm:min-w-[140px]">
                         <TeamLogo
                           logo={row.team?.logo}
                           name={row.team?.name || ''}
@@ -184,20 +184,20 @@ export default function TopLeaguesStandingsWidget() {
                     </td>
 
                     {/* Position */}
-                    <td className="py-2.5 px-2 font-black text-[#171717] dark:text-white tabular-nums">
+                    <td className="py-2.5 px-1.5 sm:px-2 font-black text-[#171717] dark:text-white tabular-nums">
                       {row.position}
                     </td>
                   </>
                 ) : (
                   <>
                     {/* Position */}
-                    <td className="py-2.5 px-2 font-black text-[#171717] dark:text-white tabular-nums">
+                    <td className="py-2.5 px-1.5 sm:px-2 font-black text-[#171717] dark:text-white tabular-nums">
                       {row.position}
                     </td>
 
                     {/* Team Column (Name + Logo in LTR) */}
                     <td className="py-2.5 px-2 text-start">
-                      <div className="flex items-center gap-2.5 min-w-[140px]">
+                      <div className="flex items-center gap-2 min-w-[110px] sm:min-w-[140px]">
                         <TeamLogo
                           logo={row.team?.logo}
                           name={row.team?.name || ''}
@@ -212,42 +212,42 @@ export default function TopLeaguesStandingsWidget() {
                 )}
 
                 {/* Played */}
-                <td className="py-2.5 px-2 tabular-nums text-[#6B7280] dark:text-slate-300 font-medium">
+                <td className="py-2.5 px-1.5 sm:px-2 tabular-nums text-[#6B7280] dark:text-slate-300 font-medium">
                   {row.played}
                 </td>
 
                 {/* Won */}
-                <td className="py-2.5 px-2 tabular-nums text-[#6B7280] dark:text-slate-300 font-medium">
+                <td className="py-2.5 px-2 tabular-nums text-[#6B7280] dark:text-slate-300 font-medium hidden sm:table-cell">
                   {row.won}
                 </td>
 
                 {/* Drawn */}
-                <td className="py-2.5 px-2 tabular-nums text-[#6B7280] dark:text-slate-300 font-medium">
+                <td className="py-2.5 px-2 tabular-nums text-[#6B7280] dark:text-slate-300 font-medium hidden sm:table-cell">
                   {row.drawn}
                 </td>
 
                 {/* Lost */}
-                <td className="py-2.5 px-2 tabular-nums text-[#6B7280] dark:text-slate-300 font-medium">
+                <td className="py-2.5 px-2 tabular-nums text-[#6B7280] dark:text-slate-300 font-medium hidden sm:table-cell">
                   {row.lost}
                 </td>
 
                 {/* Goals For */}
-                <td className="py-2.5 px-2 tabular-nums text-[#6B7280] dark:text-slate-300 font-medium">
+                <td className="py-2.5 px-2 tabular-nums text-[#6B7280] dark:text-slate-300 font-medium hidden sm:table-cell">
                   {row.goalsFor}
                 </td>
 
                 {/* Goals Against */}
-                <td className="py-2.5 px-2 tabular-nums text-[#6B7280] dark:text-slate-300 font-medium">
+                <td className="py-2.5 px-2 tabular-nums text-[#6B7280] dark:text-slate-300 font-medium hidden sm:table-cell">
                   {row.goalsAgainst}
                 </td>
 
                 {/* Goal Difference */}
-                <td className="py-2.5 px-2 tabular-nums text-[#6B7280] dark:text-slate-300 font-medium">
+                <td className="py-2.5 px-1.5 sm:px-2 tabular-nums text-[#6B7280] dark:text-slate-300 font-medium">
                   {row.goalDifference > 0 ? `+${row.goalDifference}` : row.goalDifference}
                 </td>
 
                 {/* Points */}
-                <td className="py-2.5 px-2 font-black text-[#6425A6] dark:text-white tabular-nums text-sm">
+                <td className="py-2.5 px-1.5 sm:px-2 font-black text-[#6425A6] dark:text-purple-400 tabular-nums text-sm">
                   {row.points}
                 </td>
               </tr>

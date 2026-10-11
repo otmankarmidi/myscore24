@@ -385,13 +385,13 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
             </button>
 
             {/* Language picker pill */}
-            <div className="relative group hidden sm:block">
+            <div className="relative group flex">
               <button
-                className="h-8 px-2.5 rounded-full bg-[#F5F5F5] dark:bg-[#121c2d] hover:bg-[#F3ECFA] dark:hover:bg-[#19273f] text-xs font-bold text-[#171717] dark:text-slate-200 flex items-center gap-1 transition-colors border border-[#E5E5E5] dark:border-slate-800"
+                className="h-8 px-2 sm:px-2.5 rounded-full bg-[#F5F5F5] dark:bg-[#121c2d] hover:bg-[#F3ECFA] dark:hover:bg-[#19273f] text-xs font-bold text-[#171717] dark:text-slate-200 flex items-center gap-0.5 sm:gap-1 transition-colors border border-[#E5E5E5] dark:border-slate-800"
                 aria-label="Select Language"
               >
-                <span className="uppercase">{label}</span>
-                <span className="material-symbols-outlined text-[#6B7280] dark:text-slate-400" style={{ fontSize: 14 }}>expand_more</span>
+                <span className="uppercase text-[11px] sm:text-xs">{label}</span>
+                <span className="material-symbols-outlined text-[#6B7280] dark:text-slate-400" style={{ fontSize: 13 }}>expand_more</span>
               </button>
               <div className="absolute right-0 rtl:right-auto rtl:left-0 top-9 hidden group-hover:flex flex-col bg-white dark:bg-[#0f1728] border border-[#E5E5E5] dark:border-slate-800 rounded-xl shadow-xl z-50 min-w-[110px] overflow-hidden py-1">
                 {LOCALES.map(l => (
@@ -434,6 +434,56 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
             </button>
           </div>
         </div>
+
+        {/* Mobile Horizontal Navigation Bar — exact visual parity with desktop */}
+        <nav className="xl:hidden flex items-center justify-around px-2 border-t border-[#E5E5E5] dark:border-[#182335] bg-white dark:bg-[#0c121e] overflow-x-auto scrollbar-none" aria-label="Mobile main navigation">
+          <Link
+            href="/"
+            className={`text-xs font-bold transition-all py-2 px-2 relative whitespace-nowrap ${
+              pathname === '/'
+                ? 'text-[#6425A6] dark:text-white after:absolute after:bottom-0 after:left-1 after:right-1 after:h-[2px] after:bg-[#6425A6] dark:after:bg-primary after:rounded-full'
+                : 'text-[#6B7280] dark:text-slate-200 hover:text-[#6425A6] dark:hover:text-white'
+            }`}
+          >
+            {locale === 'ar' ? 'الرئيسية' : 'Home'}
+          </Link>
+          <Link
+            href="/#matches"
+            className="text-xs font-semibold text-[#6B7280] dark:text-slate-200 hover:text-[#6425A6] dark:hover:text-white transition-colors py-2 px-2 whitespace-nowrap"
+          >
+            {locale === 'ar' ? 'المباريات' : 'Matches'}
+          </Link>
+          <Link
+            href="/competitions"
+            className={`text-xs font-semibold transition-all py-2 px-2 whitespace-nowrap relative ${
+              pathname === '/competitions'
+                ? 'text-[#6425A6] dark:text-white after:absolute after:bottom-0 after:left-1 after:right-1 after:h-[2px] after:bg-[#6425A6] dark:after:bg-primary after:rounded-full'
+                : 'text-[#6B7280] dark:text-slate-200 hover:text-[#6425A6] dark:hover:text-white'
+            }`}
+          >
+            {locale === 'ar' ? 'الدوريات' : 'Leagues'}
+          </Link>
+          <Link
+            href="/news"
+            className={`text-xs font-semibold transition-all py-2 px-2 whitespace-nowrap relative ${
+              pathname === '/news'
+                ? 'text-[#6425A6] dark:text-white after:absolute after:bottom-0 after:left-1 after:right-1 after:h-[2px] after:bg-[#6425A6] dark:after:bg-primary after:rounded-full'
+                : 'text-[#6B7280] dark:text-slate-200 hover:text-[#6425A6] dark:hover:text-white'
+            }`}
+          >
+            {locale === 'ar' ? 'الأخبار' : 'News'}
+          </Link>
+          <Link
+            href="/favorites"
+            className={`text-xs font-semibold transition-all py-2 px-2 whitespace-nowrap relative ${
+              pathname === '/favorites'
+                ? 'text-[#6425A6] dark:text-white after:absolute after:bottom-0 after:left-1 after:right-1 after:h-[2px] after:bg-[#6425A6] dark:after:bg-primary after:rounded-full'
+                : 'text-[#6B7280] dark:text-slate-200 hover:text-[#6425A6] dark:hover:text-white'
+            }`}
+          >
+            {t('nav.favorites', 'Favorites')}
+          </Link>
+        </nav>
 
         {/* Mobile Search Bar Expansion */}
         {isMobileSearchOpen && (

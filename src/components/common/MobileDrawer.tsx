@@ -54,16 +54,16 @@ export default function MobileDrawer({ isOpen, onClose, onOpenNotifications }: M
       <div className="absolute inset-0" onClick={onClose} />
 
       {/* Bottom Sheet Container */}
-      <div className="relative w-full max-w-lg bg-surface-container border-t sm:border border-surface-bright/50 rounded-t-2xl sm:rounded-2xl shadow-2xl p-4 max-h-[85vh] overflow-y-auto space-y-4 text-on-surface z-10 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+      <div className="relative w-full max-w-lg bg-white dark:bg-[#0c121e] border-t sm:border border-[#E5E5E5] dark:border-[#182335] rounded-t-2xl sm:rounded-2xl shadow-2xl p-4 max-h-[85vh] overflow-y-auto space-y-4 text-[#171717] dark:text-slate-100 z-10 pb-[calc(1rem+env(safe-area-inset-bottom))]">
         {/* Header Drag Bar / Close */}
-        <div className="flex items-center justify-between pb-2 border-b border-surface-bright/40">
+        <div className="flex items-center justify-between pb-2 border-b border-[#E5E5E5] dark:border-slate-800">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary">tune</span>
-            <h3 className="font-bold text-body-md font-geist">{t('common.more', 'Settings & Options')}</h3>
+            <span className="material-symbols-outlined text-[#6425A6]">tune</span>
+            <h3 className="font-bold text-sm font-geist text-[#171717] dark:text-white">{t('common.more', 'Settings & Options')}</h3>
           </div>
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-surface-container-high hover:bg-surface-bright flex items-center justify-center active:scale-95 transition-colors min-w-[36px] min-h-[36px]"
+            className="w-9 h-9 rounded-full bg-[#F5F5F5] dark:bg-slate-800 hover:bg-[#F3ECFA] text-[#171717] dark:text-slate-200 flex items-center justify-center active:scale-95 transition-colors min-w-[36px] min-h-[36px] border border-[#E5E5E5] dark:border-slate-700"
             aria-label={t('common.close', 'Close settings')}
           >
             <span className="material-symbols-outlined text-[20px]">close</span>
@@ -72,15 +72,15 @@ export default function MobileDrawer({ isOpen, onClose, onOpenNotifications }: M
 
         {/* PWA Install Button (Hidden if already installed in standalone mode) */}
         {!isInstalled && (
-          <div className="p-3 rounded-xl bg-gradient-to-r from-surface-container-high to-surface-container border border-primary/30 space-y-2">
+          <div className="p-3 rounded-xl bg-[#F9FAFB] dark:bg-[#121a29] border border-[#E5E5E5] dark:border-[#1b263b] space-y-2">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-surface-container-lowest border border-surface-bright/60 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-white dark:bg-[#0c121e] border border-[#E5E5E5] dark:border-slate-700 flex items-center justify-center shrink-0 shadow-xs">
                   <img src="/icons/icon-192x192.png" alt="MyScore24" className="w-7 h-7 object-contain" />
                 </div>
                 <div className="min-w-0">
-                  <h4 className="text-xs font-bold text-on-surface truncate">MyScore24 App</h4>
-                  <p className="text-[11px] text-on-surface-variant truncate">
+                  <h4 className="text-xs font-bold text-[#171717] dark:text-white truncate">MyScore24 App</h4>
+                  <p className="text-[11px] text-[#6B7280] dark:text-slate-400 truncate">
                     Install for fast, fullscreen scores
                   </p>
                 </div>
@@ -90,7 +90,7 @@ export default function MobileDrawer({ isOpen, onClose, onOpenNotifications }: M
                 type="button"
                 onClick={handleInstallClick}
                 disabled={installing}
-                className="py-2 px-3.5 rounded-lg bg-primary text-on-primary font-geist font-bold text-xs hover:brightness-110 active:scale-95 transition-all shadow-md shrink-0 flex items-center gap-1.5 min-h-[36px]"
+                className="py-2 px-3.5 rounded-lg bg-[#6425A6] text-white font-geist font-bold text-xs hover:bg-[#521c85] active:scale-95 transition-all shadow-md shrink-0 flex items-center gap-1.5 min-h-[36px]"
               >
                 <span className="material-symbols-outlined text-sm">
                   {isIOS ? 'add_box' : 'download'}
@@ -101,13 +101,13 @@ export default function MobileDrawer({ isOpen, onClose, onOpenNotifications }: M
 
             {/* iOS Safari Instructions Accordion/Card */}
             {showIOSInstructions && isIOS && (
-              <div className="p-3 rounded-lg bg-surface-container-low border border-surface-bright/50 text-xs space-y-2 animate-fade-in text-on-surface-variant">
-                <p className="font-bold text-on-surface text-[11px] uppercase tracking-wider text-primary">
+              <div className="p-3 rounded-lg bg-white dark:bg-[#0c121e] border border-[#E5E5E5] dark:border-slate-800 text-xs space-y-2 animate-fade-in text-[#6B7280] dark:text-slate-400">
+                <p className="font-bold text-[#6425A6] text-[11px] uppercase tracking-wider">
                   How to install on iPhone &amp; iPad:
                 </p>
                 <ol className="space-y-1.5 pl-4 list-decimal text-[11px]">
                   <li>
-                    Tap the <strong>Share</strong> button <span className="font-mono text-primary">[↑]</span> at the bottom of Safari.
+                    Tap the <strong>Share</strong> button <span className="font-mono text-[#6425A6]">[↑]</span> at the bottom of Safari.
                   </li>
                   <li>
                     Scroll down and tap <strong>Add to Home Screen</strong> <span className="material-symbols-outlined text-xs align-middle">add_box</span>.
@@ -135,8 +135,8 @@ export default function MobileDrawer({ isOpen, onClose, onOpenNotifications }: M
                 }}
                 className={`py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 border transition-all min-h-[44px] touch-manipulation ${
                   locale === l.code
-                    ? 'bg-primary-container text-on-primary-container border-primary-container'
-                    : 'bg-surface-container-low border-surface-bright/50 text-on-surface-variant hover:text-on-surface'
+                    ? 'bg-[#F3ECFA] text-[#6425A6] border-[#6425A6] font-bold shadow-xs'
+                    : 'bg-[#F5F5F5] dark:bg-[#121a29] border-[#E5E5E5] dark:border-[#1b263b] text-[#171717] dark:text-slate-200 hover:text-[#6425A6]'
                 }`}
               >
                 <span>{l.flag}</span>
@@ -154,7 +154,7 @@ export default function MobileDrawer({ isOpen, onClose, onOpenNotifications }: M
           <select
             value={selectedTimezone}
             onChange={(e) => setTimezonePreference(e.target.value)}
-            className="w-full py-2.5 px-3 rounded-lg bg-surface-container-low border border-surface-bright/50 text-on-surface text-xs font-medium focus:outline-none focus:border-primary min-h-[44px]"
+            className="w-full py-2.5 px-3 rounded-lg bg-[#F5F5F5] dark:bg-[#121a29] border border-[#E5E5E5] dark:border-[#1b263b] text-[#171717] dark:text-slate-100 text-xs font-medium focus:outline-none focus:border-[#6425A6] min-h-[44px]"
           >
             {TIMEZONE_OPTIONS.map((tz) => (
               <option key={tz.value} value={tz.value}>
@@ -165,43 +165,43 @@ export default function MobileDrawer({ isOpen, onClose, onOpenNotifications }: M
         </div>
 
         {/* 3. Actions: Notifications */}
-        <div className="pt-2 border-t border-surface-bright/40">
+        <div className="pt-2 border-t border-[#E5E5E5] dark:border-slate-800">
           <button
             onClick={() => {
               onClose()
               onOpenNotifications()
             }}
-            className="w-full py-2.5 px-3 rounded-lg bg-surface-container-low border border-surface-bright/50 text-on-surface hover:bg-surface-container-high flex items-center justify-center gap-2 text-xs font-semibold min-h-[44px] touch-manipulation"
+            className="w-full py-2.5 px-3 rounded-lg bg-[#F5F5F5] dark:bg-[#121a29] border border-[#E5E5E5] dark:border-[#1b263b] text-[#171717] dark:text-white hover:bg-[#F3ECFA] flex items-center justify-center gap-2 text-xs font-semibold min-h-[44px] touch-manipulation"
           >
-            <span className="material-symbols-outlined text-[18px] text-primary">notifications</span>
+            <span className="material-symbols-outlined text-[18px] text-[#6425A6]">notifications</span>
             <span>{t('common.notifications', 'Match Alerts')}</span>
           </button>
         </div>
 
         {/* Quick Links / Extras */}
-        <div className="pt-2 border-t border-surface-bright/40 space-y-1">
+        <div className="pt-2 border-t border-[#E5E5E5] dark:border-slate-800 space-y-1">
           <Link
             href="/news"
             onClick={onClose}
-            className="px-3 py-2 rounded-lg bg-surface-container-low hover:bg-surface-container-high flex items-center justify-between text-xs font-medium text-on-surface min-h-[44px]"
+            className="px-3 py-2 rounded-lg bg-[#F5F5F5] dark:bg-[#121a29] border border-[#E5E5E5] dark:border-[#1b263b] hover:bg-[#F3ECFA] flex items-center justify-between text-xs font-medium text-[#171717] dark:text-slate-200 min-h-[44px]"
           >
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-[18px] text-primary">newspaper</span>
+              <span className="material-symbols-outlined text-[18px] text-[#6425A6]">newspaper</span>
               <span>{t('nav.news', 'Football News')}</span>
             </div>
-            <span className="material-symbols-outlined text-[16px] text-outline">chevron_right</span>
+            <span className="material-symbols-outlined text-[16px] text-[#6B7280]">chevron_right</span>
           </Link>
 
           <Link
             href="/privacy-policy"
             onClick={onClose}
-            className="px-3 py-2 rounded-lg bg-surface-container-low hover:bg-surface-container-high flex items-center justify-between text-xs font-medium text-on-surface min-h-[44px]"
+            className="px-3 py-2 rounded-lg bg-[#F5F5F5] dark:bg-[#121a29] border border-[#E5E5E5] dark:border-[#1b263b] hover:bg-[#F3ECFA] flex items-center justify-between text-xs font-medium text-[#171717] dark:text-slate-200 min-h-[44px]"
           >
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-[18px] text-outline">shield</span>
+              <span className="material-symbols-outlined text-[18px] text-[#6B7280]">shield</span>
               <span>{t('nav.privacy', 'Privacy & Terms')}</span>
             </div>
-            <span className="material-symbols-outlined text-[16px] text-outline">chevron_right</span>
+            <span className="material-symbols-outlined text-[16px] text-[#6B7280]">chevron_right</span>
           </Link>
         </div>
       </div>
