@@ -149,10 +149,74 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
             </Link>
           </div>
 
-          {/* Search Bar — desktop */}
-          <div ref={searchContainerRef} className="hidden md:flex items-center flex-1 max-w-xl mx-4 gap-2 relative">
+          {/* Desktop Center Navigation Links (Matching Reference Image) */}
+          <nav className="hidden xl:flex items-center gap-6 mx-2 shrink-0" aria-label="Main navigation">
+            <Link
+              href="/"
+              className={`text-sm font-bold transition-all py-1 relative ${
+                pathname === '/'
+                  ? 'text-slate-900 dark:text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-amber-400 after:rounded-full'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              {locale === 'ar' ? 'الرئيسية' : 'Home'}
+            </Link>
+            <Link
+              href="/#matches"
+              className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
+            >
+              {locale === 'ar' ? 'المباريات' : 'Matches'}
+            </Link>
+            <Link
+              href="/competitions"
+              className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
+            >
+              {locale === 'ar' ? 'الدوريات' : 'Leagues'}
+            </Link>
+            <Link
+              href="/news"
+              className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
+            >
+              {locale === 'ar' ? 'الأخبار' : 'News'}
+            </Link>
+            <Link
+              href="/competitions"
+              className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
+            >
+              {locale === 'ar' ? 'الفرق' : 'Teams'}
+            </Link>
+            <Link
+              href="/news"
+              className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
+            >
+              {locale === 'ar' ? 'اللاعبون' : 'Players'}
+            </Link>
+            <div className="relative group">
+              <button
+                type="button"
+                className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
+              >
+                <span>{locale === 'ar' ? 'المزيد' : 'More'}</span>
+                <span className="material-symbols-outlined text-sm">expand_more</span>
+              </button>
+              <div className="absolute top-7 right-0 rtl:right-auto rtl:left-0 hidden group-hover:flex flex-col bg-white dark:bg-[#0f1728] border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl py-1.5 w-40 z-50">
+                <Link href="/favorites" className="px-3.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  {t('nav.favorites', 'Favorites')}
+                </Link>
+                <Link href="/about" className="px-3.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  {locale === 'ar' ? 'من نحن' : 'About Us'}
+                </Link>
+                <Link href="/contact" className="px-3.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+                  {locale === 'ar' ? 'اتصل بنا' : 'Contact'}
+                </Link>
+              </div>
+            </div>
+          </nav>
+
+          {/* Search Bar — desktop rounded pill */}
+          <div ref={searchContainerRef} className="hidden md:flex items-center flex-1 max-w-xs lg:max-w-sm mx-2 gap-2 relative">
             <div className="relative flex-1 flex items-center">
-              <span className="material-symbols-outlined absolute left-2.5 rtl:left-auto rtl:right-2.5 text-outline pointer-events-none" style={{ fontSize: 16 }}>search</span>
+              <span className="material-symbols-outlined absolute left-3 rtl:left-auto rtl:right-3 text-slate-400 pointer-events-none" style={{ fontSize: 16 }}>search</span>
               <input
                 value={internalQuery}
                 onChange={(e) => handleInputChange(e.target.value)}
@@ -160,12 +224,12 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
                   if (internalQuery.trim().length >= 2) setIsOpen(true)
                 }}
                 onKeyDown={handleKeyDown}
-                className="w-full bg-surface-container-high/60 border border-surface-bright/70 rounded-lg pl-8 pr-12 rtl:pl-12 rtl:pr-8 py-1.5 font-inter text-[12px] text-on-surface placeholder:text-outline focus:outline-none focus:border-primary transition-colors text-left rtl:text-right"
+                className="w-full bg-slate-100 dark:bg-[#0e1626] border border-slate-200 dark:border-[#1e2a40] rounded-full pl-9 pr-10 rtl:pl-10 rtl:pr-9 py-1.5 font-inter text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-amber-400 dark:focus:border-amber-400 transition-colors text-left rtl:text-right"
                 placeholder={t('common.search_placeholder', 'Search teams, players, leagues...')}
                 type="search"
                 aria-label={t('common.search_placeholder', 'Search')}
               />
-              <kbd className="absolute right-2 rtl:right-auto rtl:left-2 px-1.5 py-0.5 rounded bg-surface-container-high font-geist text-[10px] text-on-surface-variant border border-surface-bright/50">/</kbd>
+              <kbd className="absolute right-3 rtl:right-auto rtl:left-3 px-1.5 py-0.5 rounded bg-white dark:bg-[#152033] font-geist text-[10px] text-slate-400 border border-slate-200 dark:border-slate-700">/</kbd>
             </div>
 
             {/* Instant Search Results Dropdown — Desktop */}
@@ -318,111 +382,91 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
             )}
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
-            {/* Desktop-only secondary controls: Language, Timezone, Theme */}
-            <div className="hidden md:flex items-center gap-1.5">
-              {/* Language picker */}
-              <div className="relative group">
-                <button
-                  className="h-8 px-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container font-geist text-[11px] font-semibold text-on-surface flex items-center gap-1 transition-colors border border-surface-bright/70"
-                  aria-label="Select Language"
-                >
-                  <span className="uppercase">{label}</span>
-                  <span className="material-symbols-outlined text-outline" style={{ fontSize: 14 }}>expand_more</span>
-                </button>
-                <div className="absolute right-0 rtl:right-auto rtl:left-0 top-9 hidden group-hover:flex flex-col bg-surface-container border border-surface-bright/70 rounded-lg shadow-xl z-50 min-w-[110px] overflow-hidden py-1">
-                  {LOCALES.map(l => (
-                    <button
-                      key={l.code}
-                      onClick={() => changeLocale(l.code)}
-                      className={`px-3 py-1.5 text-left rtl:text-right font-geist text-[11px] font-semibold hover:bg-surface-container-high transition-colors flex items-center justify-between gap-2 ${
-                        l.code === locale ? 'text-primary bg-primary/10' : 'text-on-surface'
-                      }`}
-                    >
-                      <span>{l.name}</span>
-                      {l.code === locale && (
-                        <span className="material-symbols-outlined text-primary" style={{ fontSize: 14 }}>check</span>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Timezone picker */}
-              <div className="relative group">
-                <button className="h-8 px-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container font-geist text-[11px] font-semibold text-on-surface flex items-center gap-1 transition-colors border border-surface-bright/70">
-                  <span className="material-symbols-outlined text-outline" style={{ fontSize: 15 }}>schedule</span>
-                  <span className="max-w-[70px] md:max-w-[100px] truncate">
-                    {selectedTimezone === 'auto' ? t('common.timezoneAuto', 'Auto') : selectedTimezone.split('/')[1] || selectedTimezone}
-                  </span>
-                  <span className="material-symbols-outlined text-outline" style={{ fontSize: 14 }}>expand_more</span>
-                </button>
-                <div className="absolute right-0 rtl:right-auto rtl:left-0 top-9 hidden group-hover:flex flex-col bg-surface-container border border-surface-bright/70 rounded-xl shadow-xl z-50 min-w-[200px] overflow-hidden p-1 space-y-0.5">
-                  <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-outline border-b border-surface-bright/70 text-left rtl:text-right">
-                    {t('common.displayTimezone', 'Display Timezone')}
-                  </div>
-                  {TIMEZONE_OPTIONS.map(tz => (
-                    <button
-                      key={tz.value}
-                      onClick={() => setTimezonePreference(tz.value)}
-                      className={`px-3 py-1.5 text-left rtl:text-right font-geist text-[11px] font-semibold rounded hover:bg-surface-container-high transition-colors flex items-center justify-between ${
-                        tz.value === selectedTimezone ? 'text-primary bg-primary/10' : 'text-on-surface'
-                      }`}
-                    >
-                      <span className="truncate">{tz.value === 'auto' ? `Auto (${t('common.timezoneAuto', 'Local')})` : tz.label}</span>
-                      {tz.value === selectedTimezone && (
-                        <span className="material-symbols-outlined text-primary" style={{ fontSize: 14 }}>check</span>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Theme toggle */}
+          {/* Actions & Utilities Matching Reference Image Header */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Language picker pill */}
+            <div className="relative group hidden sm:block">
               <button
-                onClick={toggle}
-                className="w-8 h-8 rounded-lg flex items-center justify-center bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors border border-surface-bright/70"
-                title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-                aria-label="Toggle theme"
+                className="h-8 px-2.5 rounded-full bg-slate-100 dark:bg-[#121c2d] hover:bg-slate-200 dark:hover:bg-[#19273f] text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1 transition-colors border border-slate-200 dark:border-slate-800"
+                aria-label="Select Language"
               >
-                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
-                  {isDark ? 'light_mode' : 'dark_mode'}
-                </span>
+                <span className="uppercase">{label}</span>
+                <span className="material-symbols-outlined text-slate-400" style={{ fontSize: 14 }}>expand_more</span>
+              </button>
+              <div className="absolute right-0 rtl:right-auto rtl:left-0 top-9 hidden group-hover:flex flex-col bg-white dark:bg-[#0f1728] border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl z-50 min-w-[110px] overflow-hidden py-1">
+                {LOCALES.map(l => (
+                  <button
+                    key={l.code}
+                    onClick={() => changeLocale(l.code)}
+                    className={`px-3 py-1.5 text-left rtl:text-right font-geist text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-between gap-2 ${
+                      l.code === locale ? 'text-amber-500 font-bold' : 'text-slate-700 dark:text-slate-300'
+                    }`}
+                  >
+                    <span>{l.name}</span>
+                    {l.code === locale && (
+                      <span className="material-symbols-outlined text-amber-500" style={{ fontSize: 14 }}>check</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Sun / Moon Theme Toggle Icons matching image */}
+            <div className="hidden sm:flex items-center gap-1 bg-slate-100 dark:bg-[#121c2d] p-1 rounded-full border border-slate-200 dark:border-slate-800">
+              <button
+                onClick={() => {
+                  if (isDark) toggle()
+                }}
+                className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${
+                  !isDark ? 'bg-amber-400 text-slate-900 shadow-sm' : 'text-slate-400 hover:text-amber-400'
+                }`}
+                title="Light mode"
+                aria-label="Light mode"
+              >
+                <span className="material-symbols-outlined text-[16px]">light_mode</span>
+              </button>
+              <button
+                onClick={() => {
+                  if (!isDark) toggle()
+                }}
+                className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${
+                  isDark ? 'bg-[#1e293b] text-amber-400 shadow-sm' : 'text-slate-500 hover:text-slate-900'
+                }`}
+                title="Dark mode"
+                aria-label="Dark mode"
+              >
+                <span className="material-symbols-outlined text-[16px]">dark_mode</span>
               </button>
             </div>
+
+            {/* Sign in Button Matching Image */}
+            <Link
+              href="/admin/login"
+              className="h-8 px-4 rounded-full bg-slate-900 hover:bg-black dark:bg-[#121c2d] dark:hover:bg-[#1c2c46] dark:border dark:border-slate-700 text-white font-bold text-xs transition-all flex items-center justify-center shadow-sm cursor-pointer"
+            >
+              <span>{locale === 'ar' ? 'تسجيل الدخول' : 'Sign in'}</span>
+            </Link>
 
             {/* Mobile Search Button */}
             <button
               onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-              className="md:hidden w-9 h-9 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors border border-surface-bright/70 min-w-[36px] min-h-[36px]"
+              className="md:hidden w-8 h-8 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 transition-colors border border-slate-200 dark:border-slate-700"
               title="Search"
               aria-label="Toggle mobile search"
             >
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
+              <span className="material-symbols-outlined text-base">
                 {isMobileSearchOpen ? 'close' : 'search'}
               </span>
             </button>
 
-            {/* Notifications Button */}
-            <button
-              onClick={() => setIsNotificationModalOpen(true)}
-              className="w-9 h-9 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-on-surface relative transition-colors border border-surface-bright/70 min-w-[36px] min-h-[36px]"
-              title={t('common.notifications', 'Match Alerts')}
-              aria-label={t('common.notifications', 'Match Alerts')}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>notifications</span>
-              <span className="absolute top-1.5 right-1.5 rtl:right-auto rtl:left-1.5 w-2 h-2 rounded-full bg-primary border border-surface animate-pulse" />
-            </button>
-
-            {/* Mobile Menu Button (opens Settings/More Drawer) */}
+            {/* Mobile Menu Button */}
             <button
               onClick={() => setIsDrawerOpen(true)}
-              className="md:hidden w-9 h-9 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-on-surface transition-colors border border-surface-bright/70 min-w-[36px] min-h-[36px]"
+              className="xl:hidden w-8 h-8 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 transition-colors border border-slate-200 dark:border-slate-700"
               title={t('common.more', 'Menu')}
               aria-label="Open navigation drawer"
             >
-              <span className="material-symbols-outlined" style={{ fontSize: 20 }}>menu</span>
+              <span className="material-symbols-outlined text-lg">menu</span>
             </button>
           </div>
         </div>

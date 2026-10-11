@@ -13,7 +13,6 @@ import EmptyState from '@/components/common/EmptyState'
 import ErrorState from '@/components/common/ErrorState'
 import TopMatchesBar from '@/components/home/TopMatchesBar'
 import HomeNewsMagazine from '@/components/home/HomeNewsMagazine'
-import HomeTrendingNews from '@/components/home/HomeTrendingNews'
 import TopLeaguesStandingsWidget from '@/components/home/TopLeaguesStandingsWidget'
 import LeagueVideoNewsGrid from '@/components/home/LeagueVideoNewsGrid'
 import LeagueBannersShowcase from '@/components/home/LeagueBannersShowcase'
@@ -278,12 +277,9 @@ export default function HomeClient({
         isLoading={isLoading}
       />
 
-      {/* Editorial News Magazine Portal (Full Showcase matching uploaded screenshot) */}
+      {/* Editorial News Magazine Portal (Full Showcase matching reference screenshot) */}
       <div className="w-full max-w-[1440px] mx-auto px-2 sm:px-4 pt-3 pb-2 space-y-6">
         <HomeNewsMagazine articles={currentArticles} />
-
-        {/* Section matching Image 1: الأخبار الرائجة (Trending News with flame icon) */}
-        <HomeTrendingNews articles={currentArticles.slice(3)} />
       </div>
 
       {/* Main Page Layout Container (Match Center + Sidebars) */}
