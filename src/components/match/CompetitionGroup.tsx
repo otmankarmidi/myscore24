@@ -44,9 +44,9 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
   const titleColor = getLeagueTitleColor(league.id, league.slug)
 
   return (
-    <div className="competition-group-container bg-[#080e1a] rounded-xl border border-[#162236] overflow-hidden shadow-md animate-fade-in divide-y divide-[#141e30]">
+    <div className="competition-group-container bg-[#0c121e] rounded-xl border border-[#182335] overflow-hidden shadow-md animate-fade-in divide-y divide-[#182335]">
       {/* Competition header (Matching Image 3) */}
-      <div className="h-10 bg-[#0c1322] px-3.5 flex items-center justify-between text-slate-300 border-b border-[#18263d]">
+      <div className="h-10 bg-[#101826] px-3.5 flex items-center justify-between text-slate-200 border-b border-[#182335]">
         <div className="flex items-center gap-2.5 min-w-0">
           {/* Clickable Competition Logo with fallback chain */}
           <Link

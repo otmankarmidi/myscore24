@@ -114,7 +114,6 @@ export default function CookiePolicyPage() {
                 These client-side entries allow MyScore24 to remember choices you make and provide personalized, enhanced features across your visits:
               </p>
               <ul className="list-disc list-inside text-xs text-on-surface-variant space-y-1 pl-1">
-                <li><code className="text-primary font-mono">myscore24_theme</code>: Remembers your Dark mode or Light mode interface selection.</li>
                 <li><code className="text-primary font-mono">myscore24_locale</code>: Remembers your selected language (English, French, or Arabic) and layout direction.</li>
                 <li><code className="text-primary font-mono">myscore24_timezone_preference</code>: Remembers your preferred kickoff timezone offset.</li>
                 <li><code className="text-primary font-mono">myscore24_favorites_*</code>: Stores your pinned favorite teams, leagues, and live score alerts locally on your device.</li>

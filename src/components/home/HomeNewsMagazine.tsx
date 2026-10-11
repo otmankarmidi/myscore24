@@ -110,7 +110,7 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
         {/* Dominant Hero Card (62% desktop / 8 cols) matching Reference Image */}
         <div className="lg:col-span-8 flex flex-col">
-          <div className="group relative w-full h-[420px] sm:h-[470px] md:h-[510px] rounded-3xl overflow-hidden bg-slate-900 border border-slate-200/40 dark:border-slate-800/80 shadow-md flex flex-col justify-end p-6 sm:p-8 md:p-10">
+          <div className="group relative w-full h-[420px] sm:h-[470px] md:h-[510px] rounded-3xl overflow-hidden bg-[#0c121e] border border-[#182335] shadow-md flex flex-col justify-end p-6 sm:p-8 md:p-10">
             {/* Background Hero Image with high-priority responsive optimization */}
             <Image
               src={heroImage}
@@ -205,15 +205,15 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
 
         {/* Latest News Sidebar Card (38% desktop / 4 cols) matching Reference Image */}
         <div className="lg:col-span-4 flex flex-col">
-          <div className="h-full rounded-3xl bg-white dark:bg-[#0c121e] border border-slate-200/80 dark:border-[#182335] shadow-sm p-5 sm:p-6 flex flex-col justify-between">
+          <div className="h-full rounded-3xl bg-[#0c121e] border border-[#182335] shadow-sm p-5 sm:p-6 flex flex-col justify-between">
             {/* Header: "Latest News" on left, "View All News ->" on right */}
-            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 dark:border-slate-800/80">
-              <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-800/80">
+              <h2 className="text-xl font-black text-white tracking-tight">
                 {isAr ? 'آخر الأخبار' : 'Latest News'}
               </h2>
               <Link
                 href={`/${isAr ? 'ar' : 'en'}/news`}
-                className="text-xs font-bold text-slate-500 hover:text-amber-500 dark:text-slate-400 dark:hover:text-amber-400 transition-colors flex items-center gap-1 cursor-pointer"
+                className="text-xs font-bold text-slate-400 hover:text-amber-400 transition-colors flex items-center gap-1 cursor-pointer"
               >
                 <span>{isAr ? 'عرض الكل' : 'View All News'}</span>
                 <span className="material-symbols-outlined text-sm rtl:rotate-180">arrow_forward</span>
@@ -221,7 +221,7 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
             </div>
 
             {/* 4 Stacked News Rows matching Reference Image */}
-            <div className="divide-y divide-slate-100 dark:divide-slate-800/60 my-2 space-y-3">
+            <div className="divide-y divide-slate-800/60 my-2 space-y-3">
               {latestArticles.map((art) => {
                 const img =
                   normalizeArticleImageUrl(art.imageUrl || art.image) ||
@@ -234,7 +234,7 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
                       className="group flex items-center gap-3.5 text-start cursor-pointer"
                     >
                       {/* Left Thumbnail with rounded corners */}
-                      <div className="relative w-22 sm:w-24 h-15 sm:h-16 rounded-xl overflow-hidden bg-slate-800 shrink-0 border border-slate-200/60 dark:border-slate-800 shadow-inner">
+                      <div className="relative w-22 sm:w-24 h-15 sm:h-16 rounded-xl overflow-hidden bg-slate-800 shrink-0 border border-slate-800 shadow-inner">
                         <Image
                           src={img}
                           alt={art.title}
@@ -248,7 +248,7 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
                       {/* Right Text */}
                       <div className="flex-1 min-w-0 space-y-1">
                         <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider">
-                          <span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-400">
+                          <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400">
                             {art.category || 'ANALYSIS'}
                           </span>
                           <span className="text-slate-400">•</span>
@@ -256,7 +256,7 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
                             {formatTimeAgo(art.publishedAt, locale)}
                           </span>
                         </div>
-                        <h3 className="text-xs sm:text-[13px] font-bold text-slate-900 dark:text-slate-100 group-hover:text-amber-500 transition-colors line-clamp-2 leading-snug">
+                        <h3 className="text-xs sm:text-[13px] font-bold text-slate-100 group-hover:text-amber-400 transition-colors line-clamp-2 leading-snug">
                           {art.title}
                         </h3>
                       </div>
@@ -282,7 +282,7 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-5 rounded-full bg-amber-400 shadow-sm" />
-              <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight">
+              <h2 className="text-base sm:text-lg font-black text-white tracking-tight">
                 {isAr ? 'أهم القصص' : 'Top Stories'}
               </h2>
             </div>
@@ -298,8 +298,8 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
                     onClick={() => setActiveTag(tag.id)}
                     className={`px-3 py-1 rounded-full font-semibold transition-all shrink-0 cursor-pointer ${
                       isActive
-                        ? 'bg-slate-950 text-white dark:bg-[#182335] dark:text-amber-400 shadow-sm'
-                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80'
+                        ? 'bg-[#182335] text-amber-400 shadow-sm'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-800/80'
                     }`}
                   >
                     {isAr ? tag.labelAr : tag.label}
@@ -319,7 +319,7 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
               return (
                 <article
                   key={story.id}
-                  className="rounded-2xl overflow-hidden bg-white dark:bg-[#0c121e] border border-slate-200/80 dark:border-[#182335] shadow-sm hover:shadow-md transition-shadow group flex flex-col justify-between"
+                  className="rounded-2xl overflow-hidden bg-[#0c121e] border border-[#182335] shadow-sm hover:shadow-md transition-shadow group flex flex-col justify-between"
                 >
                   <Link
                     href={`/${story.language || 'en'}/news/${encodeURIComponent(story.slug)}`}
@@ -336,7 +336,7 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
                       />
                     </div>
                     <div className="p-3.5 space-y-1.5">
-                      <h3 className="text-xs sm:text-[13px] font-bold text-slate-900 dark:text-white group-hover:text-amber-500 transition-colors line-clamp-2 leading-snug">
+                      <h3 className="text-xs sm:text-[13px] font-bold text-white group-hover:text-amber-400 transition-colors line-clamp-2 leading-snug">
                         {story.title}
                       </h3>
                     </div>
@@ -349,16 +349,16 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
 
         {/* Trending Side Widget (4 cols) matching reference image */}
         <div className="lg:col-span-4 flex flex-col">
-          <div className="rounded-3xl bg-white dark:bg-[#0c121e] border border-slate-200/80 dark:border-[#182335] shadow-sm p-5 space-y-3.5">
+          <div className="rounded-3xl bg-[#0c121e] border border-[#182335] shadow-sm p-5 space-y-3.5">
             {/* Header: Flame Icon + "Trending" + "Today v" dropdown pill */}
-            <div className="flex items-center justify-between pb-2.5 border-b border-slate-100 dark:border-slate-800/80">
+            <div className="flex items-center justify-between pb-2.5 border-b border-slate-800/80">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-orange-500 text-lg">local_fire_department</span>
-                <h3 className="text-base font-black text-slate-900 dark:text-white">
+                <h3 className="text-base font-black text-white">
                   {isAr ? 'الأكثر تداولاً' : 'Trending'}
                 </h3>
               </div>
-              <div className="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-[#121c2d] border border-slate-200/80 dark:border-slate-800 text-[11px] font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1">
+              <div className="px-2.5 py-1 rounded-full bg-[#121c2d] border border-slate-800 text-[11px] font-bold text-slate-300 flex items-center gap-1">
                 <span>{isAr ? 'اليوم' : 'Today'}</span>
                 <span className="material-symbols-outlined text-xs text-slate-400">expand_more</span>
               </div>
@@ -375,12 +375,12 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
                   <Link
                     key={art.id}
                     href={`/${art.language || 'en'}/news/${encodeURIComponent(art.slug)}`}
-                    className="group flex items-center gap-3 text-start p-1.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors cursor-pointer"
+                    className="group flex items-center gap-3 text-start p-1.5 rounded-xl hover:bg-slate-800/40 transition-colors cursor-pointer"
                   >
-                    <div className="w-5 text-center font-black text-sm text-slate-500 dark:text-slate-400">
+                    <div className="w-5 text-center font-black text-sm text-slate-400">
                       {idx + 1}
                     </div>
-                    <div className="relative w-11 h-11 rounded-lg overflow-hidden bg-slate-800 shrink-0 border border-slate-200/60 dark:border-slate-700 shadow-inner">
+                    <div className="relative w-11 h-11 rounded-lg overflow-hidden bg-slate-800 shrink-0 border border-slate-700 shadow-inner">
                       <Image
                         src={img}
                         alt={art.title}
@@ -391,7 +391,7 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-xs font-bold text-slate-900 dark:text-slate-200 group-hover:text-amber-500 transition-colors line-clamp-2 leading-snug">
+                      <h4 className="text-xs font-bold text-slate-200 group-hover:text-amber-400 transition-colors line-clamp-2 leading-snug">
                         {art.title}
                       </h4>
                     </div>

@@ -115,7 +115,7 @@ function renderStatusBadge(match: Match) {
   }
   if (match.status === 'half_time') {
     return (
-      <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-600 dark:text-amber-400 font-mono text-[11px] font-bold shrink-0">
+      <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 font-mono text-[11px] font-bold shrink-0">
         HT
       </span>
     )

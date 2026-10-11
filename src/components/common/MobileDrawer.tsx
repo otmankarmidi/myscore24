@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useLanguage } from '@/context/LanguageContext'
 import { useTimezone, TIMEZONE_OPTIONS } from '@/context/TimezoneContext'
-import { useTheme } from '@/hooks/useTheme'
 import { usePwaInstall } from '@/hooks/usePwaInstall'
 import { Locale } from '@/types/common'
 
@@ -23,7 +22,6 @@ const LOCALES: { code: Locale; name: string; flag: string }[] = [
 export default function MobileDrawer({ isOpen, onClose, onOpenNotifications }: MobileDrawerProps) {
   const { locale, changeLocale, t } = useLanguage()
   const { selectedTimezone, setTimezonePreference } = useTimezone()
-  const { isDark, toggle } = useTheme()
   const { isInstalled, isIOS, showIOSInstructions, setShowIOSInstructions, triggerInstall } = usePwaInstall()
   const [installing, setInstalling] = useState(false)
 
@@ -166,24 +164,14 @@ export default function MobileDrawer({ isOpen, onClose, onOpenNotifications }: M
           </select>
         </div>
 
-        {/* 3. Actions Grid: Theme, Notifications, News */}
-        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-surface-bright/40">
-          <button
-            onClick={toggle}
-            className="py-2.5 px-3 rounded-lg bg-surface-container-low border border-surface-bright/50 text-on-surface hover:bg-surface-container-high flex items-center gap-2 text-xs font-semibold min-h-[44px] touch-manipulation"
-          >
-            <span className="material-symbols-outlined text-[18px] text-primary">
-              {isDark ? 'light_mode' : 'dark_mode'}
-            </span>
-            <span>{isDark ? t('common.lightMode', 'Light Mode') : t('common.darkMode', 'Dark Mode')}</span>
-          </button>
-
+        {/* 3. Actions: Notifications */}
+        <div className="pt-2 border-t border-surface-bright/40">
           <button
             onClick={() => {
               onClose()
               onOpenNotifications()
             }}
-            className="py-2.5 px-3 rounded-lg bg-surface-container-low border border-surface-bright/50 text-on-surface hover:bg-surface-container-high flex items-center gap-2 text-xs font-semibold min-h-[44px] touch-manipulation"
+            className="w-full py-2.5 px-3 rounded-lg bg-surface-container-low border border-surface-bright/50 text-on-surface hover:bg-surface-container-high flex items-center justify-center gap-2 text-xs font-semibold min-h-[44px] touch-manipulation"
           >
             <span className="material-symbols-outlined text-[18px] text-primary">notifications</span>
             <span>{t('common.notifications', 'Match Alerts')}</span>

@@ -36,9 +36,9 @@ export default function MatchFilters({
   const offText = t('common.off', 'OFF')
 
   return (
-    <div className="bg-[#0a101d] rounded-xl border border-[#162236] px-3 py-2 flex flex-wrap items-center justify-between gap-2.5 shadow-md">
+    <div className="bg-[#0c121e] rounded-xl border border-[#182335] px-3 py-2 flex flex-wrap items-center justify-between gap-2.5 shadow-md">
       {/* Status tabs */}
-      <div className="flex items-center gap-1 bg-[#060b14] p-1 rounded-lg border border-[#141e30]">
+      <div className="flex items-center gap-1 bg-[#080d16] p-1 rounded-lg border border-[#182335]">
         {tabs.map((tab) => {
           const isActive = activeFilter === tab.key
           const isLive = tab.key === 'live'
@@ -52,7 +52,7 @@ export default function MatchFilters({
                   ? isLive
                     ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40 shadow-xs'
                     : 'bg-[#152033] text-white border border-[#273852] shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-[#0f1726]/60'
+                  : 'text-slate-400 hover:text-white hover:bg-[#101826]'
               }`}
               aria-pressed={isActive}
             >
@@ -80,19 +80,19 @@ export default function MatchFilters({
           className={`h-7 px-2.5 rounded-lg font-geist text-[11px] font-bold uppercase flex items-center gap-1.5 transition-all border ${
             oddsOn
               ? 'bg-amber-400/10 text-amber-400 border-amber-400/30'
-              : 'bg-[#0e1626] text-slate-400 hover:text-slate-200 border-[#1c2940]'
+              : 'bg-[#101826] text-slate-400 hover:text-white border-[#182335]'
           }`}
           aria-pressed={oddsOn}
         >
           <span className="material-symbols-outlined" style={{ fontSize: 14 }}>percent</span>
-          <span>{t('common.odds', 'Odds')}: <strong className={oddsOn ? 'text-amber-400' : 'text-slate-300'}>{oddsOn ? onText : offText}</strong></span>
+          <span>{t('common.odds', 'Odds')}: <strong className={oddsOn ? 'text-amber-400' : 'text-slate-200'}>{oddsOn ? onText : offText}</strong></span>
         </button>
         <button
           onClick={onToggleSound}
           className={`h-7 px-2.5 rounded-lg font-geist text-[11px] font-bold uppercase flex items-center gap-1.5 transition-all border ${
             soundOn
               ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-              : 'bg-[#0e1626] text-slate-400 hover:text-slate-200 border-[#1c2940]'
+              : 'bg-[#101826] text-slate-400 hover:text-white border-[#182335]'
           }`}
           aria-pressed={soundOn}
         >

@@ -161,7 +161,7 @@ export default function LeagueVideoNewsGrid({ articles = [] }: LeagueVideoNewsGr
                 return (
                   <article
                     key={art.id}
-                    className="rounded-xl overflow-hidden bg-[#0d121c] border border-[#1b2334] hover:border-amber-500/60 transition-all shadow-sm group flex flex-col justify-between"
+                    className="rounded-xl overflow-hidden bg-[#0c121e] border border-[#182335] hover:border-amber-500/60 transition-all shadow-sm group flex flex-col justify-between"
                   >
                     <Link
                       href={`/${art.language || (locale === 'ar' ? 'ar' : 'en')}/news/${encodeURIComponent(art.slug)}`}

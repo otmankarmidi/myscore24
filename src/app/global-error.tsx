@@ -15,7 +15,7 @@ export default function GlobalError({
 
   return (
     <html lang="en" className="dark">
-      <body className="min-h-screen bg-[#0c1321] text-[#dce2f6] flex items-center justify-center p-4 font-sans antialiased">
+      <body className="min-h-screen bg-[#0c121e] text-[#dce2f6] flex items-center justify-center p-4 font-sans antialiased">
         <div className="max-w-md w-full bg-[#19202e] border border-[#323949] rounded-2xl p-6 text-center shadow-2xl space-y-4">
           <div className="w-14 h-14 mx-auto rounded-full bg-[#ccff80]/10 border border-[#ccff80]/20 flex items-center justify-center text-[#ccff80] text-2xl">
             ⚠️

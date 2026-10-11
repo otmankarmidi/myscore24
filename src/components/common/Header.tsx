@@ -2,7 +2,6 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useTheme } from '@/hooks/useTheme'
 import { useLanguage } from '@/context/LanguageContext'
 import { useFavorites } from '@/hooks/useFavorites'
 import { useTimezone, TIMEZONE_OPTIONS } from '@/context/TimezoneContext'
@@ -36,7 +35,6 @@ interface HeaderProps {
 export default function Header({ searchQuery = '', onSearchChange }: HeaderProps) {
   const router = useRouter()
   const pathname = usePathname()
-  const { toggle, isDark } = useTheme()
   const { label, changeLocale, locale, t } = useLanguage()
   const { totalFavorites } = useFavorites()
   const { selectedTimezone, setTimezonePreference } = useTimezone()
@@ -121,7 +119,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
 
   return (
     <>
-      <header className="sticky top-0 left-0 right-0 z-30 bg-surface/95 backdrop-blur-md border-b border-surface-bright/70 pt-[env(safe-area-inset-top,0px)] shadow-sm">
+      <header className="sticky top-0 left-0 right-0 z-30 bg-[#0c121e]/95 backdrop-blur-md border-b border-[#182335] pt-[env(safe-area-inset-top,0px)] shadow-sm">
         <div className="max-w-[1480px] mx-auto h-16 sm:h-[70px] px-3 sm:px-5 flex items-center justify-between gap-3 sm:gap-6">
           {/* Logo */}
           <div className="flex items-center gap-2.5 shrink-0">
@@ -157,46 +155,46 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
               href="/"
               className={`text-sm font-bold transition-all py-2 px-1 relative ${
                 pathname === '/'
-                  ? 'text-slate-900 dark:text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-amber-400 after:rounded-full'
-                  : 'text-slate-700 dark:text-slate-100 hover:text-slate-950 dark:hover:text-white'
+                  ? 'text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-amber-400 after:rounded-full'
+                  : 'text-slate-200 hover:text-white'
               }`}
             >
               {locale === 'ar' ? 'الرئيسية' : 'Home'}
             </Link>
             <Link
               href="/#matches"
-              className="text-sm font-semibold text-slate-700 dark:text-slate-100 hover:text-slate-950 dark:hover:text-white transition-colors py-2 px-1"
+              className="text-sm font-semibold text-slate-200 hover:text-white transition-colors py-2 px-1"
             >
               {locale === 'ar' ? 'المباريات' : 'Matches'}
             </Link>
             <Link
               href="/competitions"
-              className="text-sm font-semibold text-slate-700 dark:text-slate-100 hover:text-slate-950 dark:hover:text-white transition-colors py-2 px-1"
+              className="text-sm font-semibold text-slate-200 hover:text-white transition-colors py-2 px-1"
             >
               {locale === 'ar' ? 'الدوريات' : 'Leagues'}
             </Link>
             <Link
               href="/news"
-              className="text-sm font-semibold text-slate-700 dark:text-slate-100 hover:text-slate-950 dark:hover:text-white transition-colors py-2 px-1"
+              className="text-sm font-semibold text-slate-200 hover:text-white transition-colors py-2 px-1"
             >
               {locale === 'ar' ? 'الأخبار' : 'News'}
             </Link>
             <div className="relative group">
               <button
                 type="button"
-                className="text-sm font-semibold text-slate-700 dark:text-slate-100 hover:text-slate-950 dark:hover:text-white transition-colors flex items-center gap-1 cursor-pointer py-2 px-1"
+                className="text-sm font-semibold text-slate-200 hover:text-white transition-colors flex items-center gap-1 cursor-pointer py-2 px-1"
               >
                 <span>{locale === 'ar' ? 'المزيد' : 'More'}</span>
                 <span className="material-symbols-outlined text-sm">expand_more</span>
               </button>
-              <div className="absolute top-9 right-0 rtl:right-auto rtl:left-0 hidden group-hover:flex flex-col bg-white dark:bg-[#0f1728] border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl py-1.5 w-40 z-50">
-                <Link href="/favorites" className="px-3.5 py-2 text-xs font-semibold text-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800">
+              <div className="absolute top-9 right-0 rtl:right-auto rtl:left-0 hidden group-hover:flex flex-col bg-[#0f1728] border border-slate-800 rounded-xl shadow-xl py-1.5 w-40 z-50">
+                <Link href="/favorites" className="px-3.5 py-2 text-xs font-semibold text-slate-100 hover:bg-slate-800">
                   {t('nav.favorites', 'Favorites')}
                 </Link>
-                <Link href="/about" className="px-3.5 py-2 text-xs font-semibold text-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800">
+                <Link href="/about" className="px-3.5 py-2 text-xs font-semibold text-slate-100 hover:bg-slate-800">
                   {locale === 'ar' ? 'من نحن' : 'About Us'}
                 </Link>
-                <Link href="/contact" className="px-3.5 py-2 text-xs font-semibold text-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800">
+                <Link href="/contact" className="px-3.5 py-2 text-xs font-semibold text-slate-100 hover:bg-slate-800">
                   {locale === 'ar' ? 'اتصل بنا' : 'Contact'}
                 </Link>
               </div>
@@ -214,12 +212,12 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
                   if (internalQuery.trim().length >= 2) setIsOpen(true)
                 }}
                 onKeyDown={handleKeyDown}
-                className="w-full bg-slate-100 dark:bg-[#0e1626] border border-slate-200 dark:border-[#1e2a40] rounded-full pl-9 pr-10 rtl:pl-10 rtl:pr-9 py-1.5 font-inter text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-amber-400 dark:focus:border-amber-400 transition-colors text-left rtl:text-right"
+                className="w-full bg-[#0e1626] border border-[#1e2a40] rounded-full pl-9 pr-10 rtl:pl-10 rtl:pr-9 py-1.5 font-inter text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-amber-400 transition-colors text-left rtl:text-right"
                 placeholder={t('common.search_placeholder', 'Search teams, players, leagues...')}
                 type="search"
                 aria-label={t('common.search_placeholder', 'Search')}
               />
-              <kbd className="absolute right-3 rtl:right-auto rtl:left-3 px-1.5 py-0.5 rounded bg-white dark:bg-[#152033] font-geist text-[10px] text-slate-400 border border-slate-200 dark:border-slate-700">/</kbd>
+              <kbd className="absolute right-3 rtl:right-auto rtl:left-3 px-1.5 py-0.5 rounded bg-[#152033] font-geist text-[10px] text-slate-400 border border-slate-700">/</kbd>
             </div>
 
             {/* Instant Search Results Dropdown — Desktop */}
@@ -377,19 +375,19 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
             {/* Language picker pill */}
             <div className="relative group hidden sm:block">
               <button
-                className="h-8 px-2.5 rounded-full bg-slate-100 dark:bg-[#121c2d] hover:bg-slate-200 dark:hover:bg-[#19273f] text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1 transition-colors border border-slate-200 dark:border-slate-800"
+                className="h-8 px-2.5 rounded-full bg-[#121c2d] hover:bg-[#19273f] text-xs font-bold text-slate-200 flex items-center gap-1 transition-colors border border-slate-800"
                 aria-label="Select Language"
               >
                 <span className="uppercase">{label}</span>
                 <span className="material-symbols-outlined text-slate-400" style={{ fontSize: 14 }}>expand_more</span>
               </button>
-              <div className="absolute right-0 rtl:right-auto rtl:left-0 top-9 hidden group-hover:flex flex-col bg-white dark:bg-[#0f1728] border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl z-50 min-w-[110px] overflow-hidden py-1">
+              <div className="absolute right-0 rtl:right-auto rtl:left-0 top-9 hidden group-hover:flex flex-col bg-[#0f1728] border border-slate-800 rounded-xl shadow-xl z-50 min-w-[110px] overflow-hidden py-1">
                 {LOCALES.map(l => (
                   <button
                     key={l.code}
                     onClick={() => changeLocale(l.code)}
-                    className={`px-3 py-1.5 text-left rtl:text-right font-geist text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-between gap-2 ${
-                      l.code === locale ? 'text-amber-500 font-bold' : 'text-slate-700 dark:text-slate-300'
+                    className={`px-3 py-1.5 text-left rtl:text-right font-geist text-xs font-semibold hover:bg-slate-800 transition-colors flex items-center justify-between gap-2 ${
+                      l.code === locale ? 'text-amber-500 font-bold' : 'text-slate-300'
                     }`}
                   >
                     <span>{l.name}</span>
@@ -401,38 +399,11 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
               </div>
             </div>
 
-            {/* Sun / Moon Theme Toggle Icons matching image */}
-            <div className="hidden sm:flex items-center gap-1 bg-slate-100 dark:bg-[#121c2d] p-1 rounded-full border border-slate-200 dark:border-slate-800">
-              <button
-                onClick={() => {
-                  if (isDark) toggle()
-                }}
-                className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${
-                  !isDark ? 'bg-amber-400 text-slate-900 shadow-sm' : 'text-slate-400 hover:text-amber-400'
-                }`}
-                title="Light mode"
-                aria-label="Light mode"
-              >
-                <span className="material-symbols-outlined text-[16px]">light_mode</span>
-              </button>
-              <button
-                onClick={() => {
-                  if (!isDark) toggle()
-                }}
-                className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${
-                  isDark ? 'bg-[#1e293b] text-amber-400 shadow-sm' : 'text-slate-500 hover:text-slate-900'
-                }`}
-                title="Dark mode"
-                aria-label="Dark mode"
-              >
-                <span className="material-symbols-outlined text-[16px]">dark_mode</span>
-              </button>
-            </div>
 
             {/* Mobile Search Button */}
             <button
               onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-              className="md:hidden w-8 h-8 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 transition-colors border border-slate-200 dark:border-slate-700"
+              className="md:hidden w-8 h-8 rounded-full flex items-center justify-center bg-slate-800 text-slate-200 transition-colors border border-slate-700"
               title="Search"
               aria-label="Toggle mobile search"
             >
@@ -444,7 +415,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsDrawerOpen(true)}
-              className="xl:hidden w-8 h-8 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 transition-colors border border-slate-200 dark:border-slate-700"
+              className="xl:hidden w-8 h-8 rounded-full flex items-center justify-center bg-slate-800 text-slate-200 transition-colors border border-slate-700"
               title={t('common.more', 'Menu')}
               aria-label="Open navigation drawer"
             >

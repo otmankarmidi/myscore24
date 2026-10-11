@@ -71,7 +71,7 @@ export default function TopLeaguesStandingsWidget() {
   return (
     <section
       aria-label="Top 5 Leagues Standings"
-      className="w-full rounded-2xl bg-[#0d121c] border border-[#1b2334] p-4 sm:p-5 select-none shadow-lg space-y-4"
+      className="w-full rounded-2xl bg-[#0c121e] border border-[#182335] p-4 sm:p-5 select-none shadow-lg space-y-4"
     >
       {/* Header Row: Title on primary side, League Switcher in center, More link on secondary side */}
       <div className="flex items-center justify-between gap-3 flex-wrap border-b border-slate-800/70 pb-3.5">

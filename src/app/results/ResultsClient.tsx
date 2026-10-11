@@ -84,7 +84,7 @@ export default function ResultsClient() {
                 Full-time scores, final match statistics, and historical summaries
               </p>
             </div>
-            <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3 py-1 rounded-full text-xs font-bold font-geist border border-emerald-500/20">
+            <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold font-geist border border-emerald-500/20">
               {matches.length} {t('nav.results', 'RESULTS')}
             </span>
           </div>
