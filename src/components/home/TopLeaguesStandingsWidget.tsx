@@ -73,18 +73,19 @@ export default function TopLeaguesStandingsWidget() {
       aria-label="Top 5 Leagues Standings"
       className="w-full rounded-2xl bg-[#0d121c] border border-[#1b2334] p-4 sm:p-5 select-none shadow-lg space-y-4"
     >
-      {/* Header Row: Title on right, League Icon Switcher in center, "More" on left (Matching Image 2) */}
+      {/* Header Row: Title on primary side, League Switcher in center, More link on secondary side */}
       <div className="flex items-center justify-between gap-3 flex-wrap border-b border-slate-800/70 pb-3.5">
-        {/* Left: View More Standings Pill Button */}
-        <Link
-          href={`/competitions`}
-          className="px-3.5 py-1.5 rounded-full bg-[#101e30] border border-sky-800/50 hover:border-sky-600 text-sky-400 hover:text-sky-300 font-bold text-xs transition-all flex items-center gap-1 shadow-sm shrink-0 cursor-pointer"
-        >
-          <span className="material-symbols-outlined text-[15px] rtl:rotate-180">arrow_back</span>
-          <span>{isAr ? 'المزيد' : 'More'}</span>
-        </Link>
+        {/* Primary Side: Section Title with Trophy Icon */}
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-slate-800/70 border border-slate-700/60 flex items-center justify-center text-slate-300">
+            <span className="material-symbols-outlined text-base">emoji_events</span>
+          </div>
+          <h2 className="text-base sm:text-lg font-black text-white">
+            {isAr ? 'ترتيب أحسن 5 دوريات' : 'Top 5 Leagues Standings'}
+          </h2>
+        </div>
 
-        {/* Center / Right: Circular League Selectors */}
+        {/* Center: Circular League Selectors */}
         <div className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto scrollbar-none py-1">
           {TOP_5_LEAGUES.map((league) => {
             const isActive = league.id === activeLeagueId
@@ -115,19 +116,18 @@ export default function TopLeaguesStandingsWidget() {
           })}
         </div>
 
-        {/* Right: Section Title with Trophy Icon (in RTL) */}
-        <div className="flex items-center gap-2">
-          <h2 className="text-base sm:text-lg font-black text-white">
-            {isAr ? 'ترتيب أحسن 5 دوريات' : 'Top 5 Leagues Standings'}
-          </h2>
-          <div className="w-7 h-7 rounded-lg bg-slate-800/70 border border-slate-700/60 flex items-center justify-center text-slate-300">
-            <span className="material-symbols-outlined text-base">emoji_events</span>
-          </div>
-        </div>
+        {/* Secondary Side: View More Standings Pill Button */}
+        <Link
+          href={`/competitions`}
+          className="px-3.5 py-1.5 rounded-full bg-[#101e30] border border-sky-800/50 hover:border-sky-600 text-sky-400 hover:text-sky-300 font-bold text-xs transition-all flex items-center gap-1 shadow-sm shrink-0 cursor-pointer"
+        >
+          <span>{isAr ? 'المزيد' : 'More'}</span>
+          <span className="material-symbols-outlined text-[15px] rtl:rotate-180">arrow_forward</span>
+        </Link>
       </div>
 
       {/* Subheader: Active League Display Name */}
-      <div className="text-end px-1">
+      <div className={`${isAr ? 'text-end' : 'text-start'} px-1`}>
         <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
           {isAr ? activeLeague.nameAr : activeLeague.nameEn}
         </h3>
@@ -138,8 +138,17 @@ export default function TopLeaguesStandingsWidget() {
         <table className="w-full text-xs text-slate-300 text-center border-collapse">
           <thead>
             <tr className="text-slate-400 font-semibold border-b border-slate-800/60 text-[11px] sm:text-xs">
-              <th className="py-2.5 px-2 text-start font-bold">{isAr ? 'الفريق' : 'Team'}</th>
-              <th className="py-2.5 px-2 font-bold">{isAr ? '#' : 'Pos'}</th>
+              {isAr ? (
+                <>
+                  <th className="py-2.5 px-2 text-start font-bold">الفريق</th>
+                  <th className="py-2.5 px-2 font-bold">#</th>
+                </>
+              ) : (
+                <>
+                  <th className="py-2.5 px-2 font-bold">#</th>
+                  <th className="py-2.5 px-2 text-start font-bold">Team</th>
+                </>
+              )}
               <th className="py-2.5 px-2 font-medium">{isAr ? 'ل' : 'P'}</th>
               <th className="py-2.5 px-2 font-medium">{isAr ? 'ف' : 'W'}</th>
               <th className="py-2.5 px-2 font-medium">{isAr ? 'ت' : 'D'}</th>
@@ -156,24 +165,49 @@ export default function TopLeaguesStandingsWidget() {
                 key={row.position}
                 className="hover:bg-[#141a27] transition-colors rounded-lg group"
               >
-                {/* Team Column (Name + Logo in RTL) */}
-                <td className="py-2.5 px-2 text-start">
-                  <div className="flex items-center gap-2.5 min-w-[140px]">
-                    <TeamLogo
-                      logo={row.team?.logo}
-                      name={row.team?.name || ''}
-                      size="xs"
-                    />
-                    <span className="font-bold text-white group-hover:text-amber-400 transition-colors truncate">
-                      {row.team?.name}
-                    </span>
-                  </div>
-                </td>
+                {isAr ? (
+                  <>
+                    {/* Team Column (Name + Logo in RTL) */}
+                    <td className="py-2.5 px-2 text-start">
+                      <div className="flex items-center gap-2.5 min-w-[140px]">
+                        <TeamLogo
+                          logo={row.team?.logo}
+                          name={row.team?.name || ''}
+                          size="xs"
+                        />
+                        <span className="font-bold text-white group-hover:text-amber-400 transition-colors truncate">
+                          {row.team?.name}
+                        </span>
+                      </div>
+                    </td>
 
-                {/* Position */}
-                <td className="py-2.5 px-2 font-black text-white tabular-nums">
-                  {row.position}
-                </td>
+                    {/* Position */}
+                    <td className="py-2.5 px-2 font-black text-white tabular-nums">
+                      {row.position}
+                    </td>
+                  </>
+                ) : (
+                  <>
+                    {/* Position */}
+                    <td className="py-2.5 px-2 font-black text-white tabular-nums">
+                      {row.position}
+                    </td>
+
+                    {/* Team Column (Name + Logo in LTR) */}
+                    <td className="py-2.5 px-2 text-start">
+                      <div className="flex items-center gap-2.5 min-w-[140px]">
+                        <TeamLogo
+                          logo={row.team?.logo}
+                          name={row.team?.name || ''}
+                          size="xs"
+                        />
+                        <span className="font-bold text-white group-hover:text-amber-400 transition-colors truncate">
+                          {row.team?.name}
+                        </span>
+                      </div>
+                    </td>
+                  </>
+                )}
 
                 {/* Played */}
                 <td className="py-2.5 px-2 tabular-nums text-slate-300 font-medium">

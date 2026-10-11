@@ -158,43 +158,99 @@ export default function TopMatchesBar({
       className="w-full bg-[#0a0d14] border-y border-[#1a202c]/80 select-none py-2.5 shadow-sm"
     >
       <div className="max-w-[1440px] mx-auto px-2 sm:px-4 space-y-2.5">
-        {/* Header Row: Navigation Chevrons on left, Competitions & Date Tabs on right (Matching Uploaded Image) */}
+        {/* Header Row: Controls & Date Filters on primary side, Scroll Chevrons on secondary side */}
         <div className="flex items-center justify-between gap-2 border-b border-slate-800/60 pb-2">
-          {/* Left: Scroll Chevrons < > */}
-          <div className="flex items-center gap-1.5 shrink-0">
-            <button
-              type="button"
-              onClick={() => handleScroll('left')}
-              disabled={!canScrollLeft}
-              aria-label="Scroll matches left"
-              className="w-7 h-7 rounded bg-[#141a27] border border-slate-800 hover:bg-[#1d2638] text-slate-300 hover:text-white disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center transition-all cursor-pointer shadow-sm"
-            >
-              <span className="material-symbols-outlined text-[18px]">chevron_left</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleScroll('right')}
-              disabled={!canScrollRight}
-              aria-label="Scroll matches right"
-              className="w-7 h-7 rounded bg-[#141a27] border border-slate-800 hover:bg-[#1d2638] text-slate-300 hover:text-white disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center transition-all cursor-pointer shadow-sm"
-            >
-              <span className="material-symbols-outlined text-[18px]">chevron_right</span>
-            </button>
-          </div>
+          {/* Primary Side: Competitions Dropdown + Date Quick Filters + All Matches Link */}
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap text-xs">
+            {/* All Competitions Dropdown Selector */}
+            <div className="relative shrink-0" ref={dropdownRef}>
+              <button
+                type="button"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#141a27] border border-slate-800 hover:border-amber-500/60 text-xs font-bold text-white transition-all cursor-pointer"
+              >
+                <span className="truncate max-w-[130px] sm:max-w-[170px]">{selectedLeagueName}</span>
+                <span
+                  className={`material-symbols-outlined text-base transition-transform duration-200 text-slate-400 ${
+                    isDropdownOpen ? 'rotate-180 text-amber-400' : ''
+                  }`}
+                >
+                  keyboard_arrow_down
+                </span>
+              </button>
 
-          {/* Right: Competitions Dropdown + Date Quick Filters (Matching Screenshot) */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-end text-xs">
-            {/* All Matches Jump Link */}
+              {/* Dropdown Menu */}
+              {isDropdownOpen && (
+                <div className="absolute start-0 top-full mt-1.5 w-60 max-h-72 overflow-y-auto bg-[#141a27] border border-slate-700 rounded-lg shadow-2xl py-1 z-30 animate-fade-in text-xs">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedLeagueId('all')
+                      setIsDropdownOpen(false)
+                    }}
+                    className={`w-full text-start px-3 py-2 flex items-center justify-between hover:bg-[#1f283a] transition-colors cursor-pointer ${
+                      selectedLeagueId === 'all' ? 'text-amber-400 font-bold' : 'text-slate-200'
+                    }`}
+                  >
+                    <span>{locale === 'ar' ? 'أفضل المباريات (الكل)' : 'All Top Matches'}</span>
+                    {selectedLeagueId === 'all' && (
+                      <span className="material-symbols-outlined text-sm text-amber-400">check</span>
+                    )}
+                  </button>
+
+                  {uniqueLeagues.map((league) => (
+                    <button
+                      key={league.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedLeagueId(league.id)
+                        setIsDropdownOpen(false)
+                      }}
+                      className={`w-full text-start px-3 py-2 flex items-center justify-between hover:bg-[#1f283a] transition-colors cursor-pointer ${
+                        selectedLeagueId === league.id ? 'text-amber-400 font-bold' : 'text-slate-200'
+                      }`}
+                    >
+                      <span className="truncate">{league.name}</span>
+                      {selectedLeagueId === league.id && (
+                        <span className="material-symbols-outlined text-sm text-amber-400">check</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Yesterday Button */}
             <button
               type="button"
-              onClick={() => {
-                const el = document.getElementById('matches')
-                if (el) el.scrollIntoView({ behavior: 'smooth' })
-              }}
-              className="text-slate-400 hover:text-white transition-colors font-medium flex items-center gap-1 shrink-0 cursor-pointer text-[12px]"
+              onClick={() => onSelectDate(yesterday)}
+              className={`font-semibold transition-colors cursor-pointer px-1 py-0.5 ${
+                isYesterdayActive ? 'text-amber-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+              }`}
             >
-              <span>{locale === 'ar' ? 'جميع المباريات' : locale === 'fr' ? 'Tous les matchs' : 'All Matches'}</span>
-              <span className="material-symbols-outlined text-sm rtl:rotate-180">arrow_forward</span>
+              {locale === 'ar' ? 'أمس' : locale === 'fr' ? 'Hier' : 'Yesterday'}
+            </button>
+
+            {/* Today Button (Active Highlight in Amber as in screenshot) */}
+            <button
+              type="button"
+              onClick={() => onSelectDate(today)}
+              className={`font-bold transition-colors cursor-pointer px-1 py-0.5 ${
+                isTodayActive ? 'text-amber-400' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              {locale === 'ar' ? 'اليوم' : locale === 'fr' ? "Aujourd'hui" : 'Today'}
+            </button>
+
+            {/* Tomorrow Button */}
+            <button
+              type="button"
+              onClick={() => onSelectDate(tomorrow)}
+              className={`font-semibold transition-colors cursor-pointer px-1 py-0.5 ${
+                isTomorrowActive ? 'text-amber-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              {locale === 'ar' ? 'غداً' : locale === 'fr' ? 'Demain' : 'Tomorrow'}
             </button>
 
             {/* Calendar Icon Button with hidden native date input */}
@@ -228,98 +284,43 @@ export default function TopMatchesBar({
               />
             </div>
 
-            {/* Tomorrow Button */}
+            {/* All Matches Jump Link */}
             <button
               type="button"
-              onClick={() => onSelectDate(tomorrow)}
-              className={`font-semibold transition-colors cursor-pointer px-1 py-0.5 ${
-                isTomorrowActive ? 'text-amber-400 font-bold' : 'text-slate-400 hover:text-slate-200'
-              }`}
+              onClick={() => {
+                const el = document.getElementById('matches')
+                if (el) el.scrollIntoView({ behavior: 'smooth' })
+              }}
+              className="text-slate-400 hover:text-white transition-colors font-medium flex items-center gap-1 shrink-0 cursor-pointer text-[12px]"
             >
-              {locale === 'ar' ? 'غداً' : locale === 'fr' ? 'Demain' : 'Tomorrow'}
+              <span>{locale === 'ar' ? 'جميع المباريات' : locale === 'fr' ? 'Tous les matchs' : 'All Matches'}</span>
+              <span className="material-symbols-outlined text-sm rtl:rotate-180">arrow_forward</span>
             </button>
+          </div>
 
-            {/* Today Button (Active Highlight in Amber as in screenshot) */}
+          {/* Secondary Side: Scroll Chevrons < > */}
+          <div className="flex items-center gap-1.5 shrink-0">
             <button
               type="button"
-              onClick={() => onSelectDate(today)}
-              className={`font-bold transition-colors cursor-pointer px-1 py-0.5 ${
-                isTodayActive ? 'text-amber-400' : 'text-slate-400 hover:text-slate-200'
-              }`}
+              onClick={() => handleScroll('left')}
+              disabled={!canScrollLeft}
+              aria-label="Scroll matches left"
+              className="w-7 h-7 rounded bg-[#141a27] border border-slate-800 hover:bg-[#1d2638] text-slate-300 hover:text-white disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center transition-all cursor-pointer shadow-sm"
             >
-              {locale === 'ar' ? 'اليوم' : locale === 'fr' ? "Aujourd'hui" : 'Today'}
+              <span className="material-symbols-outlined text-[18px]">chevron_left</span>
             </button>
-
-            {/* Yesterday Button */}
             <button
               type="button"
-              onClick={() => onSelectDate(yesterday)}
-              className={`font-semibold transition-colors cursor-pointer px-1 py-0.5 ${
-                isYesterdayActive ? 'text-amber-400 font-bold' : 'text-slate-400 hover:text-slate-200'
-              }`}
+              onClick={() => handleScroll('right')}
+              disabled={!canScrollRight}
+              aria-label="Scroll matches right"
+              className="w-7 h-7 rounded bg-[#141a27] border border-slate-800 hover:bg-[#1d2638] text-slate-300 hover:text-white disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center transition-all cursor-pointer shadow-sm"
             >
-              {locale === 'ar' ? 'أمس' : locale === 'fr' ? 'Hier' : 'Yesterday'}
+              <span className="material-symbols-outlined text-[18px]">chevron_right</span>
             </button>
-
-            {/* All Competitions Dropdown Selector (Matching Image top right) */}
-            <div className="relative shrink-0" ref={dropdownRef}>
-              <button
-                type="button"
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#141a27] border border-slate-800 hover:border-amber-500/60 text-xs font-bold text-white transition-all cursor-pointer"
-              >
-                <span className="truncate max-w-[130px] sm:max-w-[170px]">{selectedLeagueName}</span>
-                <span
-                  className={`material-symbols-outlined text-base transition-transform duration-200 text-slate-400 ${
-                    isDropdownOpen ? 'rotate-180 text-amber-400' : ''
-                  }`}
-                >
-                  keyboard_arrow_down
-                </span>
-              </button>
-
-              {/* Dropdown Menu */}
-              {isDropdownOpen && (
-                <div className="absolute end-0 top-full mt-1.5 w-60 max-h-72 overflow-y-auto bg-[#141a27] border border-slate-700 rounded-lg shadow-2xl py-1 z-30 animate-fade-in text-xs">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedLeagueId('all')
-                      setIsDropdownOpen(false)
-                    }}
-                    className={`w-full text-start px-3 py-2 flex items-center justify-between hover:bg-[#1f283a] transition-colors cursor-pointer ${
-                      selectedLeagueId === 'all' ? 'text-amber-400 font-bold' : 'text-slate-200'
-                    }`}
-                  >
-                    <span>{locale === 'ar' ? 'أفضل المباريات (الكل)' : 'All Top Matches'}</span>
-                    {selectedLeagueId === 'all' && (
-                      <span className="material-symbols-outlined text-sm text-amber-400">check</span>
-                    )}
-                  </button>
-
-                  {uniqueLeagues.map((league) => (
-                    <button
-                      key={league.id}
-                      type="button"
-                      onClick={() => {
-                        setSelectedLeagueId(league.id)
-                        setIsDropdownOpen(false)
-                      }}
-                      className={`w-full text-start px-3 py-2 flex items-center justify-between hover:bg-[#1f283a] transition-colors cursor-pointer truncate ${
-                        selectedLeagueId === league.id ? 'text-amber-400 font-bold' : 'text-slate-200'
-                      }`}
-                    >
-                      <span className="truncate">{league.name}</span>
-                      {selectedLeagueId === league.id && (
-                        <span className="material-symbols-outlined text-sm text-amber-400">check</span>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
           </div>
         </div>
+
 
         {/* Cards Track: Clean, Horizontal Scrolling (Matching Uploaded Image) */}
         <div className="relative flex items-center">

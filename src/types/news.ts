@@ -35,6 +35,7 @@ export interface NewsArticle {
   publishedAt: string
   updatedAt?: string
   category: string
+  categorySlug?: string
   tags: string[]
   keywords?: string[]
   image?: string

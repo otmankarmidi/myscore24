@@ -53,7 +53,7 @@ export const mockStandings: LeagueStandings[] = [
       { position: 3, team: t('juv'), played: 28, won: 16, drawn: 8, lost: 4, goalsFor: 48, goalsAgainst: 22, goalDifference: 26, points: 56, form: ['D','W','W','D','W'], tier: 'champions_league' },
       { position: 4, team: t('ata'), played: 28, won: 16, drawn: 6, lost: 6, goalsFor: 58, goalsAgainst: 30, goalDifference: 28, points: 54, form: ['W','W','L','W','W'], tier: 'champions_league' },
       { position: 5, team: t('acm'), played: 28, won: 15, drawn: 6, lost: 7, goalsFor: 50, goalsAgainst: 34, goalDifference: 16, points: 51, form: ['L','W','D','W','W'], tier: 'europa_league' },
-      { position: 6, team: t('sev'), played: 28, won: 13, drawn: 7, lost: 8, goalsFor: 42, goalsAgainst: 33, goalDifference: 9, points: 46, form: ['W','D','L','W','D'] },
+      { position: 6, team: t('rom'), played: 28, won: 13, drawn: 7, lost: 8, goalsFor: 42, goalsAgainst: 33, goalDifference: 9, points: 46, form: ['W','D','L','W','D'] },
     ],
   },
   // 5. Ligue 1 (France)

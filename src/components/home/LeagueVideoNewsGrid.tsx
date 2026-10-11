@@ -65,78 +65,63 @@ export default function LeagueVideoNewsGrid({ articles = [] }: LeagueVideoNewsGr
   const { locale } = useLanguage()
   const isAr = locale === 'ar'
 
-  // Filter or slice articles for each league
-  const plArticles = articles.filter((a) =>
-    (a.category?.toLowerCase() || '').includes('premier') ||
-    (a.title?.toLowerCase() || '').includes('arsenal') ||
-    (a.title?.toLowerCase() || '').includes('chelsea') ||
-    (a.title?.toLowerCase() || '').includes('city') ||
-    (a.title?.toLowerCase() || '').includes('united') ||
-    (a.title || '').includes('آرسنال') ||
-    (a.title || '').includes('مانشستر') ||
-    (a.title || '').includes('تشلسي') ||
-    (a.title || '').includes('توتنهام')
-  )
+  const getLeagueArticles = (section: LeagueSectionConfig) => {
+    return articles.filter((a) => {
+      const slug = (a.categorySlug || '').toLowerCase()
+      const cat = (a.category || '').toLowerCase()
+      const tags = (a.tags || []).map((t) => t.toLowerCase())
 
-  const laligaArticles = articles.filter((a) =>
-    (a.category?.toLowerCase() || '').includes('liga') ||
-    (a.title?.toLowerCase() || '').includes('madrid') ||
-    (a.title?.toLowerCase() || '').includes('barcelona') ||
-    (a.title || '').includes('مدريد') ||
-    (a.title || '').includes('برشلونة') ||
-    (a.title || '').includes('فياريال') ||
-    (a.title || '').includes('أتلتيكو')
-  )
+      if (section.id === 'epl') {
+        return (
+          slug === 'premier-league' ||
+          cat === 'premier-league' ||
+          cat === 'premier league' ||
+          cat.includes('premier') ||
+          cat.includes('الدوري الإنجليزي') ||
+          cat.includes('الدوري الانجليزي') ||
+          tags.some((t) => t.includes('premier') || t.includes('إنجليزي') || t.includes('انجليزي') || t.includes('epl'))
+        )
+      }
+      if (section.id === 'laliga') {
+        return (
+          slug === 'la-liga' ||
+          slug === 'laliga' ||
+          cat === 'la-liga' ||
+          cat === 'la liga' ||
+          cat === 'laliga' ||
+          cat.includes('الدوري الإسباني') ||
+          cat.includes('الدوري الاسباني') ||
+          tags.some((t) => t.includes('liga') || t.includes('إسباني') || t.includes('اسباني'))
+        )
+      }
+      return slug === section.categorySlug || cat.includes(section.categorySlug)
+    })
+  }
+
+  // Filter sections that strictly have real articles published for them
+  const visibleSections = LEAGUE_SECTIONS.map((section) => ({
+    section,
+    articles: getLeagueArticles(section).slice(0, 6),
+  })).filter((item) => item.articles.length > 0)
+
+  // If there are no articles for any of the league sections, hide the whole component
+  if (visibleSections.length === 0) {
+    return null
+  }
 
   return (
     <div className="w-full space-y-8 select-none" aria-label="League News Sections">
-      {LEAGUE_SECTIONS.map((section, sIdx) => {
+      {visibleSections.map(({ section, articles: leagueArticles }) => {
         const isPl = section.id === 'epl'
-        const relevantArticles = isPl ? plArticles : laligaArticles
-        const fallbackTitles = isPl ? FALLBACK_PL_HEADLINES : FALLBACK_LALIGA_HEADLINES
-
-        // Take up to 6 cards
-        const displayCards = Array.from({ length: 6 }).map((_, idx) => {
-          const art = relevantArticles[idx] || articles[idx + (sIdx * 6)] || null
-          const title = art?.title || fallbackTitles[idx]
-          const slug = art?.slug || `news-${section.id}-${idx + 1}`
-          const rawImg = art ? normalizeArticleImageUrl(art.imageUrl || art.image) : null
-          const imageUrl =
-            rawImg ||
-            (isPl
-              ? `https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=600&auto=format&fit=crop&q=80`
-              : `https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=600&auto=format&fit=crop&q=80`)
-
-          return {
-            id: art?.id || `${section.id}-${idx}`,
-            slug,
-            title,
-            imageUrl,
-            categoryLabel: isAr
-              ? isPl
-                ? 'الدوري الإنجليزي الممتاز'
-                : 'الدوري الإسباني - لا ليغا'
-              : isPl
-              ? 'Premier League'
-              : 'La Liga',
-          }
-        })
 
         return (
           <section key={section.id} className="w-full space-y-3.5">
             {/* Branded League Header Banner (Matching Image 3) */}
             <Link
-              href={`/${locale === 'ar' ? 'ar' : 'en'}/news`}
+              href={`/${locale === 'ar' ? 'ar' : 'en'}/news?category=${section.categorySlug}`}
               className={`w-full rounded-xl px-4 py-3 flex items-center justify-between text-white transition-all shadow-md group ${section.bannerBg} border border-white/10 hover:border-white/20 cursor-pointer`}
             >
-              <div className="flex items-center gap-1.5 text-xs text-white/80 group-hover:text-white transition-colors">
-                <span className="material-symbols-outlined text-base rtl:rotate-180">chevron_left</span>
-              </div>
-
               <div className="flex items-center gap-2.5">
-                <h2 className="text-sm sm:text-base md:text-lg font-black tracking-tight">
-                  {isAr ? section.titleAr : section.titleEn}
-                </h2>
                 <div className="w-7 h-7 relative shrink-0">
                   <Image
                     src={section.logo}
@@ -146,53 +131,76 @@ export default function LeagueVideoNewsGrid({ articles = [] }: LeagueVideoNewsGr
                     className="object-contain drop-shadow"
                   />
                 </div>
+                <h2 className="text-sm sm:text-base md:text-lg font-black tracking-tight">
+                  {isAr ? section.titleAr : section.titleEn}
+                </h2>
+              </div>
+
+              <div className="flex items-center gap-1.5 text-xs text-white/80 group-hover:text-white transition-colors">
+                <span className="material-symbols-outlined text-base rtl:rotate-180">chevron_right</span>
               </div>
             </Link>
 
-            {/* 6 News / Video Cards in a 3x2 Grid (Matching Image 3) */}
+            {/* News / Video Cards in a responsive 3x2 Grid (Matching Image 3) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
-              {displayCards.map((card) => (
-                <article
-                  key={card.id}
-                  className="rounded-xl overflow-hidden bg-[#0d121c] border border-[#1b2334] hover:border-amber-500/60 transition-all shadow-sm group flex flex-col justify-between"
-                >
-                  <Link
-                    href={`/${locale === 'ar' ? 'ar' : 'en'}/news/${encodeURIComponent(card.slug)}`}
-                    className="block text-start cursor-pointer"
+              {leagueArticles.map((art) => {
+                const rawImg = normalizeArticleImageUrl(art.imageUrl || art.image)
+                const imageUrl =
+                  rawImg ||
+                  (isPl
+                    ? `https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=600&auto=format&fit=crop&q=80`
+                    : `https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=600&auto=format&fit=crop&q=80`)
+                const categoryLabel = isAr
+                  ? isPl
+                    ? 'الدوري الإنجليزي الممتاز'
+                    : 'الدوري الإسباني - لا ليغا'
+                  : isPl
+                  ? 'Premier League'
+                  : 'La Liga'
+
+                return (
+                  <article
+                    key={art.id}
+                    className="rounded-xl overflow-hidden bg-[#0d121c] border border-[#1b2334] hover:border-amber-500/60 transition-all shadow-sm group flex flex-col justify-between"
                   >
-                    {/* Top Image with Video Play Icon Overlay (Matching Image 3) */}
-                    <div className="relative w-full aspect-[16/9] overflow-hidden bg-slate-900 shrink-0">
-                      <Image
-                        src={card.imageUrl}
-                        alt={card.title}
-                        fill
-                        loading="lazy"
-                        unoptimized
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 400px"
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
+                    <Link
+                      href={`/${art.language || (locale === 'ar' ? 'ar' : 'en')}/news/${encodeURIComponent(art.slug)}`}
+                      className="block text-start cursor-pointer"
+                    >
+                      {/* Top Image with Video Play Icon Overlay (Matching Image 3) */}
+                      <div className="relative w-full aspect-[16/9] overflow-hidden bg-slate-900 shrink-0">
+                        <Image
+                          src={imageUrl}
+                          alt={art.title}
+                          fill
+                          loading="lazy"
+                          unoptimized
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 400px"
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
 
-                      {/* Video Play Circle Icon in Bottom Corner (as seen in Image 3) */}
-                      <div className="absolute bottom-2 end-2 w-7 h-7 rounded-full bg-black/65 border border-white/40 flex items-center justify-center text-white shadow-md pointer-events-none group-hover:bg-amber-500 group-hover:text-black group-hover:border-amber-500 transition-colors">
-                        <span className="material-symbols-outlined text-[16px] leading-none">play_arrow</span>
-                      </div>
-                    </div>
-
-                    {/* Card Content Below Image */}
-                    <div className="p-3 space-y-1.5">
-                      {/* League Tag */}
-                      <div className="text-[11px] font-bold text-slate-400 group-hover:text-amber-400 transition-colors">
-                        {card.categoryLabel}
+                        {/* Video Play Circle Icon in Bottom Corner (as seen in Image 3) */}
+                        <div className="absolute bottom-2 end-2 w-7 h-7 rounded-full bg-black/65 border border-white/40 flex items-center justify-center text-white shadow-md pointer-events-none group-hover:bg-amber-500 group-hover:text-black group-hover:border-amber-500 transition-colors">
+                          <span className="material-symbols-outlined text-[16px] leading-none">play_arrow</span>
+                        </div>
                       </div>
 
-                      {/* Headline */}
-                      <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-amber-400 transition-colors line-clamp-2 leading-snug">
-                        {card.title}
-                      </h3>
-                    </div>
-                  </Link>
-                </article>
-              ))}
+                      {/* Card Content Below Image */}
+                      <div className="p-3 space-y-1.5">
+                        {/* League Tag */}
+                        <div className="text-[11px] font-bold text-slate-400 group-hover:text-amber-400 transition-colors">
+                          {categoryLabel}
+                        </div>
+
+                        {/* Headline */}
+                        <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-amber-400 transition-colors line-clamp-2 leading-snug">
+                          {art.title}
+                        </h3>
+                      </div>
+                    </Link>
+                  </article>
+                )
+              })}
             </div>
           </section>
         )
@@ -200,3 +208,4 @@ export default function LeagueVideoNewsGrid({ articles = [] }: LeagueVideoNewsGr
     </div>
   )
 }
+

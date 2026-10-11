@@ -27,6 +27,7 @@ function formatArticle(art: any) {
     publishedAt: art.publishedAt ? new Date(art.publishedAt).toISOString() : new Date(art.createdAt).toISOString(),
     updatedAt: art.updatedAt ? new Date(art.updatedAt).toISOString() : undefined,
     category: art.category?.name || 'General',
+    categorySlug: art.category?.slug || undefined,
     tags: art.tags ? art.tags.map((t: any) => t.tag?.name || t.name) : [],
     imageUrl: normalizedImage,
     image: normalizedImage,

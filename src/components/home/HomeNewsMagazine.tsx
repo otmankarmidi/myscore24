@@ -164,8 +164,18 @@ function CompactNewsItem({ article }: { article: NewsArticle }) {
         {/* In RTL: Text is on Right, Thumbnail on Left */}
         {locale === 'ar' ? (
           <>
-            {/* Thumbnail on Far Left */}
-            <div className="relative w-24 sm:w-28 md:w-32 h-18 sm:h-20 md:h-[84px] rounded-lg overflow-hidden bg-slate-900 border border-slate-800/80 shrink-0 shadow-sm order-1">
+            {/* Content on Right (First child in RTL) */}
+            <div className="flex-1 min-w-0 space-y-1">
+              <div className="text-amber-500 font-bold text-[11px] sm:text-xs tracking-wide">
+                {badgeText}
+              </div>
+              <h3 className="text-xs sm:text-sm md:text-[15px] font-bold text-white group-hover:text-amber-400 transition-colors line-clamp-2 leading-snug">
+                {article.title}
+              </h3>
+            </div>
+
+            {/* Thumbnail on Left (Second child in RTL) */}
+            <div className="relative w-24 sm:w-28 md:w-32 h-18 sm:h-20 md:h-[84px] rounded-lg overflow-hidden bg-slate-900 border border-slate-800/80 shrink-0 shadow-sm">
               {imageUrl ? (
                 <Image
                   src={imageUrl}
@@ -183,20 +193,10 @@ function CompactNewsItem({ article }: { article: NewsArticle }) {
                 </div>
               )}
             </div>
-
-            {/* Content on Right */}
-            <div className="flex-1 min-w-0 space-y-1 order-2">
-              <div className="text-amber-500 font-bold text-[11px] sm:text-xs tracking-wide">
-                {badgeText}
-              </div>
-              <h3 className="text-xs sm:text-sm md:text-[15px] font-bold text-white group-hover:text-amber-400 transition-colors line-clamp-2 leading-snug">
-                {article.title}
-              </h3>
-            </div>
           </>
         ) : (
           <>
-            {/* In LTR: Thumbnail on Left, Content on Right */}
+            {/* In LTR: Thumbnail on Left (First child in LTR) */}
             <div className="relative w-24 sm:w-28 md:w-32 h-18 sm:h-20 md:h-[84px] rounded-lg overflow-hidden bg-slate-900 border border-slate-800/80 shrink-0 shadow-sm">
               {imageUrl ? (
                 <Image
@@ -216,6 +216,7 @@ function CompactNewsItem({ article }: { article: NewsArticle }) {
               )}
             </div>
 
+            {/* Content on Right (Second child in LTR) */}
             <div className="flex-1 min-w-0 space-y-1">
               <div className="text-amber-500 font-bold text-[11px] sm:text-xs tracking-wide">
                 {badgeText}
@@ -242,45 +243,50 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
     return null
   }
 
-  // Article 0: Dominant Featured Story on the Right (in RTL)
+  // Article 0: Dominant Featured Story
   const heroArticle = articles[0]
 
-  // Articles 1-4: The 4 vertically stacked stories on the Left (in RTL)
+  // Articles 1-4: The 4 stacked stories
   const stackedArticles = articles.slice(1, 5)
 
   return (
     <section className="w-full select-none space-y-6 pt-3" aria-label="Latest Football News">
       {/* Section Header: "آخر أخبار كرة القدم" + Golden Geometric Emblem */}
-      <div className="flex items-center justify-end gap-2.5 pb-2">
-        <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-          {locale === 'ar'
-            ? 'آخر أخبار كرة القدم'
-            : locale === 'fr'
-            ? 'Dernières actualités du football'
-            : 'Latest Football News'}
-        </h2>
-        <GoldenGeometricIcon />
+      <div className={`flex items-center gap-2.5 pb-2 ${locale === 'ar' ? 'justify-end' : 'justify-start'}`}>
+        {locale === 'ar' ? (
+          <>
+            <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+              آخر أخبار كرة القدم
+            </h2>
+            <GoldenGeometricIcon />
+          </>
+        ) : (
+          <>
+            <GoldenGeometricIcon />
+            <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+              {locale === 'fr'
+                ? 'Dernières actualités du football'
+                : 'Latest Football News'}
+            </h2>
+          </>
+        )}
       </div>
 
-      {/* Main 2-Column Grid (Matching Uploaded Screenshot) */}
+      {/* Main 2-Column Grid (Matching Uploaded Screenshot: In RTL Hero is on Right, in LTR Hero is on Left) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-stretch">
-        {/* Left Column in RTL / Desktop 5 cols: 4 Stacked News Items */}
+        {/* Dominant Hero Story (7 cols): In RTL renders on Right, in LTR renders on Left */}
+        <div className={stackedArticles.length > 0 ? 'lg:col-span-7' : 'lg:col-span-12'}>
+          <LargeHeroStory article={heroArticle} />
+        </div>
+
+        {/* 4 Stacked News Items (5 cols): In RTL renders on Left, in LTR renders on Right */}
         {stackedArticles.length > 0 && (
-          <div className="lg:col-span-5 flex flex-col justify-between gap-4 sm:gap-5 order-2 lg:order-1">
+          <div className="lg:col-span-5 flex flex-col justify-between gap-4 sm:gap-5">
             {stackedArticles.map((art) => (
               <CompactNewsItem key={art.id} article={art} />
             ))}
           </div>
         )}
-
-        {/* Right Column in RTL / Desktop 7 cols: Large Dominant Hero Story */}
-        <div
-          className={`${
-            stackedArticles.length > 0 ? 'lg:col-span-7' : 'lg:col-span-12'
-          } order-1 lg:order-2`}
-        >
-          <LargeHeroStory article={heroArticle} />
-        </div>
       </div>
 
       {/* Centered CTA Button: "المزيد من الأخبار ←" in Amber/Gold */}

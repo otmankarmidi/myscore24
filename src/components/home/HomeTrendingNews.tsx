@@ -54,24 +54,76 @@ export default function HomeTrendingNews({ articles = [] }: HomeTrendingNewsProp
       <div className="absolute top-1/2 -left-20 -translate-y-1/2 w-40 h-40 rounded-full border border-orange-500/10 pointer-events-none" />
 
       {/* Header: "الأخبار الرائجة" with Fire Icon in circle */}
-      <div className="relative z-10 flex items-center justify-end gap-2.5 pb-4 border-b border-slate-800/60 mb-4">
-        <h2 className="text-lg sm:text-xl font-black text-white tracking-tight">
-          {locale === 'ar'
-            ? 'الأخبار الرائجة'
-            : locale === 'fr'
-            ? 'Actualités Tendances'
-            : 'Trending News'}
-        </h2>
-        <div className="w-7 h-7 rounded-full bg-orange-600/20 border border-orange-500/40 flex items-center justify-center text-orange-500 shadow-sm shrink-0">
-          <span className="material-symbols-outlined text-[17px] leading-none">local_fire_department</span>
-        </div>
+      <div className={`relative z-10 flex items-center gap-2.5 pb-4 border-b border-slate-800/60 mb-4 ${locale === 'ar' ? 'justify-end' : 'justify-start'}`}>
+        {locale === 'ar' ? (
+          <>
+            <h2 className="text-lg sm:text-xl font-black text-white tracking-tight">
+              الأخبار الرائجة
+            </h2>
+            <div className="w-7 h-7 rounded-full bg-orange-600/20 border border-orange-500/40 flex items-center justify-center text-orange-500 shadow-sm shrink-0">
+              <span className="material-symbols-outlined text-[17px] leading-none">local_fire_department</span>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="w-7 h-7 rounded-full bg-orange-600/20 border border-orange-500/40 flex items-center justify-center text-orange-500 shadow-sm shrink-0">
+              <span className="material-symbols-outlined text-[17px] leading-none">local_fire_department</span>
+            </div>
+            <h2 className="text-lg sm:text-xl font-black text-white tracking-tight">
+              {locale === 'fr' ? 'Actualités Tendances' : 'Trending News'}
+            </h2>
+          </>
+        )}
       </div>
 
-      {/* Main 2-Column Grid (Hero on Right, 3 Stacked Cards on Left in RTL) */}
+      {/* Main 2-Column Grid (In RTL Hero on Right, in LTR Hero on Left) */}
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 items-stretch">
-        {/* Left Column in RTL (lg:col-span-6 or 7): 3 Stacked Cards */}
+        {/* Dominant Hero Trending Article (6 cols) */}
+        <div
+          className={`${
+            stackedArticles.length > 0 ? 'lg:col-span-6' : 'lg:col-span-12'
+          } flex flex-col justify-between`}
+        >
+          <Link
+            href={`/${heroArticle.language || 'en'}/news/${encodeURIComponent(heroArticle.slug)}`}
+            className="group flex flex-col h-full text-start cursor-pointer"
+          >
+            {/* Main Featured Image with Rounded Corners */}
+            <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] rounded-xl overflow-hidden bg-slate-900 border border-slate-800 shadow-md shrink-0">
+              {validHeroImg ? (
+                <Image
+                  src={validHeroImg}
+                  alt={heroArticle.title}
+                  fill
+                  priority
+                  unoptimized
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 650px"
+                  onError={() => setHeroImgError(true)}
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-black flex items-center justify-center">
+                  <span className="material-symbols-outlined text-6xl text-orange-500/30">local_fire_department</span>
+                </div>
+              )}
+            </div>
+
+            {/* Hero Text Content */}
+            <div className="pt-3 space-y-1.5">
+              <div className="flex items-center gap-1.5 text-xs text-orange-400 font-bold">
+                <span className="material-symbols-outlined text-sm">schedule</span>
+                <span>{formatTrendingMeta(heroArticle.publishedAt, heroArticle.tags?.[0] || heroArticle.category, locale)}</span>
+              </div>
+              <h3 className="text-base sm:text-lg md:text-xl font-black text-white group-hover:text-amber-400 transition-colors line-clamp-2 leading-snug">
+                {heroArticle.title}
+              </h3>
+            </div>
+          </Link>
+        </div>
+
+        {/* 3 Stacked Cards (6 cols) */}
         {stackedArticles.length > 0 && (
-          <div className="lg:col-span-6 flex flex-col justify-between gap-3 order-2 lg:order-1">
+          <div className="lg:col-span-6 flex flex-col justify-between gap-3">
             {stackedArticles.map((art) => {
               const imgUrl = normalizeArticleImageUrl(art.imageUrl || art.image)
               const metaText = formatTrendingMeta(art.publishedAt, art.tags?.[0] || art.category, locale)
@@ -84,8 +136,19 @@ export default function HomeTrendingNews({ articles = [] }: HomeTrendingNewsProp
                 >
                   {locale === 'ar' ? (
                     <>
+                      {/* Content on Right in RTL */}
+                      <div className="flex-1 min-w-0 space-y-1.5">
+                        <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-medium">
+                          <span className="material-symbols-outlined text-[13px] text-slate-400">schedule</span>
+                          <span className="truncate">{metaText}</span>
+                        </div>
+                        <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-amber-400 transition-colors line-clamp-2 leading-snug">
+                          {art.title}
+                        </h3>
+                      </div>
+
                       {/* Thumbnail on Left in RTL */}
-                      <div className="relative w-24 sm:w-28 h-18 sm:h-20 rounded-lg overflow-hidden shrink-0 bg-slate-900 border border-slate-800 order-1 shadow-inner">
+                      <div className="relative w-24 sm:w-28 h-18 sm:h-20 rounded-lg overflow-hidden shrink-0 bg-slate-900 border border-slate-800 shadow-inner">
                         {imgUrl ? (
                           <Image
                             src={imgUrl}
@@ -101,17 +164,6 @@ export default function HomeTrendingNews({ articles = [] }: HomeTrendingNewsProp
                             <span className="material-symbols-outlined text-2xl text-orange-500/40">newspaper</span>
                           </div>
                         )}
-                      </div>
-
-                      {/* Content on Right in RTL */}
-                      <div className="flex-1 min-w-0 space-y-1.5 order-2">
-                        <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-medium">
-                          <span className="material-symbols-outlined text-[13px] text-slate-400">schedule</span>
-                          <span className="truncate">{metaText}</span>
-                        </div>
-                        <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-amber-400 transition-colors line-clamp-2 leading-snug">
-                          {art.title}
-                        </h3>
                       </div>
                     </>
                   ) : (
@@ -135,6 +187,7 @@ export default function HomeTrendingNews({ articles = [] }: HomeTrendingNewsProp
                         )}
                       </div>
 
+                      {/* Content on Right in LTR */}
                       <div className="flex-1 min-w-0 space-y-1.5">
                         <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-medium">
                           <span className="material-symbols-outlined text-[13px] text-slate-400">schedule</span>
@@ -151,56 +204,8 @@ export default function HomeTrendingNews({ articles = [] }: HomeTrendingNewsProp
             })}
           </div>
         )}
-
-        {/* Right Column in RTL (lg:col-span-6): Large Featured Trending Article */}
-        <div
-          className={`${
-            stackedArticles.length > 0 ? 'lg:col-span-6' : 'lg:col-span-12'
-          } order-1 lg:order-2 flex flex-col justify-between`}
-        >
-          <Link
-            href={`/${heroArticle.language || 'en'}/news/${encodeURIComponent(heroArticle.slug)}`}
-            className="group flex flex-col h-full text-start cursor-pointer"
-          >
-            {/* Main Featured Image with Rounded Corners */}
-            <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] rounded-xl overflow-hidden bg-slate-900 border border-slate-800/80 shadow-md shrink-0">
-              {validHeroImg ? (
-                <Image
-                  src={validHeroImg}
-                  alt={heroArticle.title}
-                  fill
-                  priority
-                  unoptimized
-                  sizes="(max-width: 768px) 100vw, 640px"
-                  onError={() => setHeroImgError(true)}
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-              ) : (
-                <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-900 to-black flex items-center justify-center">
-                  <span className="material-symbols-outlined text-6xl text-orange-500/30">newspaper</span>
-                </div>
-              )}
-            </div>
-
-            {/* Content Below Image */}
-            <div className="pt-3 space-y-1.5">
-              <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
-                <span className="material-symbols-outlined text-sm text-slate-400">schedule</span>
-                <span>
-                  {formatTrendingMeta(
-                    heroArticle.publishedAt,
-                    (typeof heroArticle.author === 'string' ? heroArticle.author : heroArticle.author?.name) || heroArticle.tags?.[0] || heroArticle.category,
-                    locale
-                  )}
-                </span>
-              </div>
-              <h3 className="text-base sm:text-lg md:text-xl font-black text-white group-hover:text-amber-400 transition-colors leading-snug">
-                {heroArticle.title}
-              </h3>
-            </div>
-          </Link>
-        </div>
       </div>
     </section>
   )
 }
+
