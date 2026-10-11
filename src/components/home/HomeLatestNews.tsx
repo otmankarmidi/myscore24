@@ -39,7 +39,6 @@ function FeaturedStoryCard({ article }: { article: NewsArticle }) {
             alt={article.title}
             fill
             priority
-            unoptimized
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 60vw, 650px"
             onError={() => setImageError(true)}
             className="object-cover group-hover:scale-[1.03] transition-transform duration-500"
@@ -107,7 +106,6 @@ function LeftColumnNewsCard({ article }: { article: NewsArticle }) {
               alt={article.title}
               fill
               loading="lazy"
-              unoptimized
               sizes="(max-width: 768px) 110px, 130px"
               onError={() => setImageError(true)}
               className="object-cover group-hover:scale-[1.03] transition-transform duration-300"
@@ -163,7 +161,6 @@ function BottomRowNewsCard({ article }: { article: NewsArticle }) {
               alt={article.title}
               fill
               loading="lazy"
-              unoptimized
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
               onError={() => setImageError(true)}
               className="object-cover group-hover:scale-[1.03] transition-transform duration-300"

@@ -51,13 +51,18 @@ export default function TopMatchesBar({
     })
   }, [matches])
 
+  const rafRef = useRef<number | null>(null)
+
   const checkScroll = () => {
-    const el = scrollRef.current
-    if (!el) return
-    const { scrollLeft, scrollWidth, clientWidth } = el
-    const absScroll = Math.abs(scrollLeft)
-    setCanScrollLeft(absScroll > 4)
-    setCanScrollRight(absScroll < scrollWidth - clientWidth - 6)
+    if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    rafRef.current = requestAnimationFrame(() => {
+      const el = scrollRef.current
+      if (!el) return
+      const { scrollLeft, scrollWidth, clientWidth } = el
+      const absScroll = Math.abs(scrollLeft)
+      setCanScrollLeft(absScroll > 4)
+      setCanScrollRight(absScroll < scrollWidth - clientWidth - 6)
+    })
   }
 
   useEffect(() => {
@@ -65,7 +70,10 @@ export default function TopMatchesBar({
     const el = scrollRef.current
     if (el) {
       el.addEventListener('scroll', checkScroll, { passive: true })
-      return () => el.removeEventListener('scroll', checkScroll)
+      return () => {
+        el.removeEventListener('scroll', checkScroll)
+        if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      }
     }
   }, [displayMatches])
 

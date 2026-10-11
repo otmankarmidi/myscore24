@@ -80,13 +80,13 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
         {/* Dominant Hero Card (8 cols) matching Reference Image */}
         <div className="lg:col-span-8 flex flex-col">
           <div className="group relative w-full h-[400px] sm:h-[460px] md:h-[500px] rounded-3xl overflow-hidden bg-slate-900 border border-slate-200/20 dark:border-slate-800 shadow-xl flex flex-col justify-end p-6 sm:p-8 md:p-10">
-            {/* Background Hero Image */}
+            {/* Background Hero Image with high-priority responsive optimization */}
             <Image
               src={heroImage}
               alt={heroArticle.title}
               fill
               priority
-              unoptimized
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 900px"
               className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
             />
 
@@ -196,8 +196,7 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
                           alt={art.title}
                           fill
                           loading="lazy"
-                          unoptimized
-                          sizes="90px"
+                          sizes="(max-width: 640px) 80px, 96px"
                           className="object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       </div>
@@ -286,8 +285,7 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
                         alt={story.title}
                         fill
                         loading="lazy"
-                        unoptimized
-                        sizes="(max-width: 768px) 100vw, 300px"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>
@@ -337,8 +335,7 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
                   alt={trendingArticle.title}
                   fill
                   loading="lazy"
-                  unoptimized
-                  sizes="44px"
+                  sizes="48px"
                   className="object-cover"
                 />
               </div>

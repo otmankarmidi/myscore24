@@ -7,6 +7,14 @@ import GoogleAnalytics from '@/components/analytics/GoogleAnalytics'
 import CookieConsentBanner from '@/components/common/CookieConsentBanner'
 import Footer from '@/components/common/Footer'
 import PwaManager from '@/components/pwa/PwaManager'
+import Script from 'next/script'
+import { Inter } from 'next/font/google'
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+})
 
 export const viewport: Viewport = {
   themeColor: [
@@ -90,14 +98,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="dark scroll-smooth">
+    <html lang="en" className={`dark scroll-smooth ${inter.variable}`}>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
+        {/* Preconnect to external image CDNs for instant crest & player photo loading */}
+        <link rel="dns-prefetch" href="https://media.api-sports.io" />
+        <link rel="preconnect" href="https://media.api-sports.io" crossOrigin="anonymous" />
         <link
           rel="preload"
           href="/fonts/material-symbols.woff2"
@@ -105,9 +110,11 @@ export default function RootLayout({
           type="font/woff2"
           crossOrigin="anonymous"
         />
-        <script
-          async
+        {/* AdSense loaded during idle time via lazyOnload so it never blocks LCP, FCP, or main thread */}
+        <Script
+          id="google-adsense"
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4887048867840632"
+          strategy="lazyOnload"
           crossOrigin="anonymous"
         />
         <script

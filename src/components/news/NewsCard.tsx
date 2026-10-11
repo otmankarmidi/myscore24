@@ -39,7 +39,6 @@ export default function NewsCard({ article, variant = 'standard' }: NewsCardProp
             alt={article.title}
             fill
             priority
-            unoptimized
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 1100px"
             onError={() => setImageError(true)}
             className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -89,7 +88,6 @@ export default function NewsCard({ article, variant = 'standard' }: NewsCardProp
               alt={article.title}
               fill
               loading="lazy"
-              unoptimized
               sizes="80px"
               onError={() => setImageError(true)}
               className="object-cover group-hover:scale-105 transition-transform"
@@ -123,7 +121,6 @@ export default function NewsCard({ article, variant = 'standard' }: NewsCardProp
             alt={article.title}
             fill
             loading="lazy"
-            unoptimized
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
             onError={() => setImageError(true)}
             className="object-cover group-hover:scale-105 transition-transform duration-300"

@@ -135,6 +135,8 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
                   alt="MyScore24 Logo"
                   width={56}
                   height={44}
+                  fetchPriority="high"
+                  decoding="async"
                   className="site-logo-anim h-10 sm:h-11 w-auto object-contain transition-transform group-hover:scale-105"
                 />
               </picture>

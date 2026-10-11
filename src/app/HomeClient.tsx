@@ -53,7 +53,7 @@ export default function HomeClient({
     }
   }, [latestArticlesAr])
 
-  // Client-side refresh for news to catch newly published stories without full page reload
+  // Client-side refresh for news on tab refocus or after idle duration
   useEffect(() => {
     let isCancelled = false
 
@@ -75,8 +75,6 @@ export default function HomeClient({
       }
     }
 
-    refreshLatestNews()
-
     const handleVisibility = () => {
       if (document.visibilityState === 'visible' && !isCancelled) {
         refreshLatestNews()
@@ -84,8 +82,12 @@ export default function HomeClient({
     }
     document.addEventListener('visibilitychange', handleVisibility)
 
+    // Background refresh after 2 minutes of active browsing
+    const timer = setTimeout(refreshLatestNews, 120000)
+
     return () => {
       isCancelled = true
+      clearTimeout(timer)
       document.removeEventListener('visibilitychange', handleVisibility)
     }
   }, [])
@@ -96,17 +98,20 @@ export default function HomeClient({
   const [activeFilter, setActiveFilter] = useState<'all' | 'live' | 'upcoming' | 'finished'>('all')
   const [soundOn, setSoundOn] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(initialTrendingMatches.length === 0)
   const [hasError, setHasError] = useState(false)
   const [apiErrorMessage, setApiErrorMessage] = useState<string | null>(null)
-  const [matches, setMatches] = useState<Match[]>([])
+  const [matches, setMatches] = useState<Match[]>(initialTrendingMatches)
 
   // Load data for the selected date (uses client-side memory cache for returning visits)
   useEffect(() => {
     let isCancelled = false
 
     async function loadData() {
-      setIsLoading(true)
+      // Only show full loading skeleton if we have zero matches to show
+      if (matches.length === 0) {
+        setIsLoading(true)
+      }
       setHasError(false)
       setApiErrorMessage(null)
 

@@ -21,10 +21,12 @@ export default function Footer() {
         <div className="space-y-3 sm:col-span-2 lg:col-span-1">
           <div className="flex items-center gap-2">
             <img
-              src="/logo.png"
+              src="/logo-mark.png"
               alt="MyScore24 Logo"
               width={32}
               height={32}
+              loading="lazy"
+              decoding="async"
               className="w-8 h-8 object-contain shrink-0"
             />
             <span className="text-lg font-extrabold text-on-surface tracking-tight">

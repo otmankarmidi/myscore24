@@ -80,7 +80,6 @@ export default function HomeTrendingNews({ articles = [] }: HomeTrendingNewsProp
                   alt={heroArticle.title}
                   fill
                   priority
-                  unoptimized
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 650px"
                   onError={() => setHeroImgError(true)}
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -139,7 +138,6 @@ export default function HomeTrendingNews({ articles = [] }: HomeTrendingNewsProp
                             alt={art.title}
                             fill
                             loading="lazy"
-                            unoptimized
                             sizes="(max-width: 768px) 112px, 120px"
                             className="object-cover group-hover:scale-105 transition-transform duration-300"
                           />
@@ -160,7 +158,6 @@ export default function HomeTrendingNews({ articles = [] }: HomeTrendingNewsProp
                             alt={art.title}
                             fill
                             loading="lazy"
-                            unoptimized
                             sizes="(max-width: 768px) 112px, 120px"
                             className="object-cover group-hover:scale-105 transition-transform duration-300"
                           />
