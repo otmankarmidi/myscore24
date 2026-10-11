@@ -69,6 +69,19 @@ export const mockStandings: LeagueStandings[] = [
       { position: 6, team: t('ogc') || t('los'), played: 27, won: 12, drawn: 7, lost: 8, goalsFor: 38, goalsAgainst: 30, goalDifference: 8, points: 43, form: ['L','W','D','W','D'] },
     ],
   },
+  // 6. Bundesliga (Germany)
+  {
+    leagueId: 'bundesliga',
+    season: '2024/25',
+    standings: [
+      { position: 1, team: t('bay'), played: 26, won: 19, drawn: 5, lost: 2, goalsFor: 72, goalsAgainst: 24, goalDifference: 48, points: 62, form: ['W','W','W','D','W'], tier: 'champions_league' },
+      { position: 2, team: t('b04'), played: 26, won: 18, drawn: 6, lost: 2, goalsFor: 64, goalsAgainst: 28, goalDifference: 36, points: 60, form: ['W','D','W','W','D'], tier: 'champions_league' },
+      { position: 3, team: t('sge'), played: 26, won: 14, drawn: 6, lost: 6, goalsFor: 52, goalsAgainst: 34, goalDifference: 18, points: 48, form: ['W','W','D','L','W'], tier: 'champions_league' },
+      { position: 4, team: t('rbl'), played: 26, won: 13, drawn: 6, lost: 7, goalsFor: 44, goalsAgainst: 30, goalDifference: 14, points: 45, form: ['D','W','W','L','W'], tier: 'champions_league' },
+      { position: 5, team: t('bvb'), played: 26, won: 12, drawn: 6, lost: 8, goalsFor: 48, goalsAgainst: 38, goalDifference: 10, points: 42, form: ['L','W','W','D','L'], tier: 'europa_league' },
+      { position: 6, team: t('vfb'), played: 26, won: 11, drawn: 7, lost: 8, goalsFor: 46, goalsAgainst: 40, goalDifference: 6, points: 40, form: ['W','D','L','W','D'] },
+    ],
+  },
 ]
 
 export const getStandingsByLeagueId = (leagueId: string) => mockStandings.find(s => s.leagueId === leagueId)

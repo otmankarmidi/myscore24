@@ -144,11 +144,11 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
               </div>
 
               {/* Big Bold Headline */}
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white leading-tight drop-shadow-sm group-hover:text-amber-300 transition-colors">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white leading-tight drop-shadow-sm group-hover:text-amber-300 transition-colors">
                 <Link href={`/${heroArticle.language || 'en'}/news/${encodeURIComponent(heroArticle.slug)}`}>
                   {heroArticle.title}
                 </Link>
-              </h1>
+              </h2>
 
               {/* Excerpt / Summary */}
               {heroArticle.excerpt && (

@@ -157,7 +157,7 @@ export async function getOrSyncPlayerProfile(
         currentClub: true,
         currentNationalTeam: true,
         seasonStatistics: {
-          where: { season: 2026 },
+          orderBy: { season: 'desc' },
         },
       },
     })
@@ -184,8 +184,17 @@ export async function getOrSyncPlayerProfile(
       // Step A: Resolve current squad (club & national)
       const squadResult = await resolvePlayerCurrentSquads(providerPlayerId)
       
-      // Step B: Query 2026 statistics (/players?id={id}&season=2026)
-      const rawApiData = await apiFootballProvider.getPlayerDetailsAndStats(providerPlayerId, 2026)
+      // Step B: Query current/active season statistics (try 2024 first as current active global season, fallback to 2026 if empty)
+      let rawApiData = await apiFootballProvider.getPlayerDetailsAndStats(providerPlayerId, 2024)
+      let statSeason = 2024
+      if (!rawApiData || !rawApiData.player || !Array.isArray(rawApiData.statistics) || rawApiData.statistics.length === 0) {
+        const altData = await apiFootballProvider.getPlayerDetailsAndStats(providerPlayerId, 2026)
+        if (altData && altData.player) {
+          rawApiData = altData
+          statSeason = 2026
+        }
+      }
+
       if (!rawApiData || !rawApiData.player) {
         if (dbPlayer) return transformDbPlayerToPlayer(dbPlayer)
         return null
@@ -410,7 +419,7 @@ export async function getOrSyncPlayerProfile(
           currentClub: true,
           currentNationalTeam: true,
           seasonStatistics: {
-            where: { season: 2026 },
+            orderBy: { season: 'desc' },
           },
         },
       })
@@ -482,9 +491,10 @@ function transformDbPlayerToPlayer(dbPlayer: any): Player {
     primaryStat = [...statsList].sort((a, b) => (b.appearances || 0) - (a.appearances || 0))[0]
   }
 
-  // Determine season label (e.g. "2026/27" or "2026")
+  // Determine season label (e.g. "2024/25", "2026/27", or "2026")
+  const activeSeasonYear = primaryStat?.season || 2026
   const isCalendar = primaryStat ? primaryStat.isCalendarYear : false
-  const seasonLabel = formatSeasonDisplay(2026, isCalendar)
+  const seasonLabel = formatSeasonDisplay(activeSeasonYear, isCalendar)
 
   const defaultStats: PlayerStats = primaryStat
     ? {
@@ -515,8 +525,13 @@ function transformDbPlayerToPlayer(dbPlayer: any): Player {
         rating: null,
       }
 
-  const teamName = currentClub?.name || (primaryStat?.teamName || '')
-  const teamLogo = currentClub?.logo || (primaryStat?.teamLogo || undefined)
+  // Resolve current team: prioritize current season stats team if currentClub is stale or unaligned
+  const teamName = (primaryStat?.teamName && primaryStat.season >= (dbPlayer.seasonStatistics?.[0]?.season || 0))
+    ? primaryStat.teamName
+    : (currentClub?.name || primaryStat?.teamName || '')
+  const teamLogo = (primaryStat?.teamLogo && primaryStat.season >= (dbPlayer.seasonStatistics?.[0]?.season || 0))
+    ? primaryStat.teamLogo
+    : (currentClub?.logo || primaryStat?.teamLogo || undefined)
   const teamSlug = teamName ? slugify(teamName) : undefined
 
   return {
@@ -554,7 +569,7 @@ function transformDbPlayerToPlayer(dbPlayer: any): Player {
     competitions,
     defaultCompetitionId: primaryStat?.providerLeagueId || null,
     selectedCompetitionId: primaryStat?.providerLeagueId || null,
-    seasonYear: 2026,
+    seasonYear: activeSeasonYear,
     seasonLabel,
   }
 }

@@ -11,7 +11,8 @@ interface LocalizedNewsPageProps {
 
 export async function generateMetadata({ params }: LocalizedNewsPageProps): Promise<Metadata> {
   const { lang } = await params
-  if (lang !== 'en' && lang !== 'ar') {
+  const supportedLangs = ['en', 'ar', 'fr', 'es']
+  if (!supportedLangs.includes(lang)) {
     return {
       title: 'Page Not Found | MyScore24',
       robots: { index: false, follow: false },
@@ -67,7 +68,8 @@ export async function generateMetadata({ params }: LocalizedNewsPageProps): Prom
 
 export default async function LocalizedNewsPage({ params }: LocalizedNewsPageProps) {
   const { lang } = await params
-  if (lang !== 'en' && lang !== 'ar') {
+  const supportedLangs = ['en', 'ar', 'fr', 'es']
+  if (!supportedLangs.includes(lang)) {
     notFound()
   }
 

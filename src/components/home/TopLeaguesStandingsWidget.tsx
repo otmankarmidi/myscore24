@@ -17,13 +17,6 @@ interface LeagueTab {
 
 const TOP_5_LEAGUES: LeagueTab[] = [
   {
-    id: 'botola',
-    nameAr: 'الدوري المغربي الإحترافي إنوي',
-    nameEn: 'Botola Pro Inwi',
-    logo: 'https://media.api-sports.io/football/leagues/200.png',
-    slug: 'botola-pro',
-  },
-  {
     id: 'epl',
     nameAr: 'الدوري الإنجليزي الممتاز',
     nameEn: 'Premier League',
@@ -38,6 +31,20 @@ const TOP_5_LEAGUES: LeagueTab[] = [
     slug: 'la-liga',
   },
   {
+    id: 'seriea',
+    nameAr: 'الدوري الإيطالي - سيري آ',
+    nameEn: 'Serie A',
+    logo: 'https://media.api-sports.io/football/leagues/135.png',
+    slug: 'serie-a',
+  },
+  {
+    id: 'bundesliga',
+    nameAr: 'الدوري الألماني - بوندسليغا',
+    nameEn: 'Bundesliga',
+    logo: 'https://media.api-sports.io/football/leagues/78.png',
+    slug: 'bundesliga',
+  },
+  {
     id: 'ligue1',
     nameAr: 'الدوري الفرنسي - ليغ 1',
     nameEn: 'Ligue 1',
@@ -45,11 +52,11 @@ const TOP_5_LEAGUES: LeagueTab[] = [
     slug: 'ligue-1',
   },
   {
-    id: 'seriea',
-    nameAr: 'الدوري الإيطالي - سيري آ',
-    nameEn: 'Serie A',
-    logo: 'https://media.api-sports.io/football/leagues/135.png',
-    slug: 'serie-a',
+    id: 'botola',
+    nameAr: 'الدوري المغربي الإحترافي',
+    nameEn: 'Botola Pro Inwi',
+    logo: 'https://media.api-sports.io/football/leagues/200.png',
+    slug: 'botola-pro',
   },
 ]
 

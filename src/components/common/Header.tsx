@@ -151,7 +151,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
             </Link>
           </div>
 
-          {/* Desktop Center Navigation Links (Matching Reference Image) */}
+          {/* Desktop Center Navigation Links */}
           <nav className="hidden xl:flex items-center gap-6 mx-2 shrink-0" aria-label="Main navigation">
             <Link
               href="/"
@@ -180,18 +180,6 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
               className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
             >
               {locale === 'ar' ? 'الأخبار' : 'News'}
-            </Link>
-            <Link
-              href="/competitions"
-              className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
-            >
-              {locale === 'ar' ? 'الفرق' : 'Teams'}
-            </Link>
-            <Link
-              href="/news"
-              className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
-            >
-              {locale === 'ar' ? 'اللاعبون' : 'Players'}
             </Link>
             <div className="relative group">
               <button
@@ -440,14 +428,6 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
                 <span className="material-symbols-outlined text-[16px]">dark_mode</span>
               </button>
             </div>
-
-            {/* Sign in Button Matching Image */}
-            <Link
-              href="/admin/login"
-              className="h-8 px-4 rounded-full bg-slate-900 hover:bg-black dark:bg-[#121c2d] dark:hover:bg-[#1c2c46] dark:border dark:border-slate-700 text-white font-bold text-xs transition-all flex items-center justify-center shadow-sm cursor-pointer"
-            >
-              <span>{locale === 'ar' ? 'تسجيل الدخول' : 'Sign in'}</span>
-            </Link>
 
             {/* Mobile Search Button */}
             <button

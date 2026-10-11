@@ -96,7 +96,16 @@ export default function PlayerImage({
 
   // Step 2: External API photo fallback
   const rawApiSrc = directRemote || getPlayerImageUrl(playerId || slug, photo)
-  const apiProxySrc = rawApiSrc && rawApiSrc.startsWith('http') ? getOptimizedImageUrl(rawApiSrc, 120) : ''
+  const pixelSizeMap: Record<string, number> = {
+    xs: 24,
+    sm: 32,
+    md: 40,
+    lg: 56,
+    xl: 112,
+    custom: 64,
+  }
+  const targetPx = pixelSizeMap[size] || 48
+  const apiProxySrc = rawApiSrc && rawApiSrc.startsWith('http') ? getOptimizedImageUrl(rawApiSrc, targetPx) : ''
 
   // Fallback levels:
   // Level 0: Local player headshot (if present)

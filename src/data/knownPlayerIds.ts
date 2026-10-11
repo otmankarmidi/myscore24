@@ -75,6 +75,7 @@ export const KNOWN_API_PLAYER_IDS: Record<string, string> = {
 
   // Manchester City
   'erling-haaland': '1100',
+  'e-haaland': '1100',
   'haaland': '1100',
   '1100': '1100',
   'kevin-de-bruyne': '629',

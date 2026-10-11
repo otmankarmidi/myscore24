@@ -15,7 +15,8 @@ export async function generateMetadata({ params }: LocalizedArticlePageProps): P
   const { lang, slug } = await params
   const decodedSlug = safeDecodeFully(slug)
 
-  if (lang !== 'en' && lang !== 'ar') {
+  const supportedLangs = ['en', 'ar', 'fr', 'es']
+  if (!supportedLangs.includes(lang)) {
     return {
       title: 'Article Not Found | MyScore24',
       robots: { index: false, follow: false },
@@ -100,7 +101,8 @@ export async function generateMetadata({ params }: LocalizedArticlePageProps): P
 
 export default async function LocalizedArticlePage({ params }: LocalizedArticlePageProps) {
   const { lang, slug } = await params
-  if (lang !== 'en' && lang !== 'ar') {
+  const supportedLangs = ['en', 'ar', 'fr', 'es']
+  if (!supportedLangs.includes(lang)) {
     notFound()
   }
 

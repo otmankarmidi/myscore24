@@ -10,7 +10,7 @@ import { NewsArticle } from '@/types/news'
 
 interface NewsClientProps {
   initialArticles: NewsArticle[]
-  language?: 'en' | 'ar'
+  language?: string
 }
 
 export default function NewsClient({ initialArticles, language = 'en' }: NewsClientProps) {

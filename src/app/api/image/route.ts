@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
 import fs from 'fs'
 import path from 'path'
+import sharp from 'sharp'
 
 // Cache folder under .next/cache or process.cwd()
 const CACHE_DIR = path.join(process.cwd(), '.next', 'cache', 'optimized-images')
@@ -24,17 +25,20 @@ const ALLOWED_HOSTS = [
   'upload.wikimedia.org',
   'commons.wikimedia.org',
   'flagcdn.com',
+  'images.unsplash.com',
   'myscore24.com',
   'www.myscore24.com',
   'localhost',
 ]
 
 function isHostAllowed(hostname: string): boolean {
+  const h = hostname.toLowerCase()
   return (
-    ALLOWED_HOSTS.includes(hostname.toLowerCase()) ||
-    hostname.endsWith('.api-sports.io') ||
-    hostname.endsWith('.wikimedia.org') ||
-    hostname.endsWith('.flagcdn.com')
+    ALLOWED_HOSTS.includes(h) ||
+    h.endsWith('.api-sports.io') ||
+    h.endsWith('.wikimedia.org') ||
+    h.endsWith('.flagcdn.com') ||
+    h.endsWith('.unsplash.com')
   )
 }
 
@@ -66,22 +70,29 @@ export async function GET(request: NextRequest) {
     return new NextResponse('Host not permitted', { status: 403 })
   }
 
+  // Determine preferred format based on Accept header (AVIF > WebP)
+  const accept = request.headers.get('accept') || ''
+  const isAvifSupported = accept.includes('image/avif')
+  const ext = isAvifSupported ? 'avif' : 'webp'
+  const contentType = isAvifSupported ? 'image/avif' : 'image/webp'
+
   // Generate cache key
   const hash = crypto
     .createHash('sha256')
-    .update(`${targetUrl}_w${width}_q${quality}`)
+    .update(`${targetUrl}_w${width}_q${quality}_${ext}`)
     .digest('hex')
-  const cachePath = path.join(CACHE_DIR, `${hash}.webp`)
+  const cachePath = path.join(CACHE_DIR, `${hash}.${ext}`)
 
   // 1. Check disk cache
   try {
     if (fs.existsSync(cachePath)) {
       const cachedBuffer = fs.readFileSync(cachePath)
-      return new NextResponse(cachedBuffer, {
+      return new NextResponse(new Uint8Array(cachedBuffer), {
         headers: {
-          'Content-Type': 'image/webp',
+          'Content-Type': contentType,
           'Cache-Control': 'public, max-age=2592000, immutable',
           'ETag': `"${hash}"`,
+          'Vary': 'Accept',
           'X-Image-Cache': 'HIT',
         },
       })
@@ -109,56 +120,61 @@ export async function GET(request: NextRequest) {
 
     const sourceBuffer = Buffer.from(await res.arrayBuffer())
 
-    // 3. Process with sharp if available on host, otherwise proxy raw source directly
+    // 3. Process with sharp
     try {
-      // Dynamic require with fallback
-      const sharpModName = 'sharp'
-      // @ts-ignore
-      const sharpModule = typeof require !== 'undefined' ? require(sharpModName) : null
-      if (sharpModule) {
-        const webpBuffer = await sharpModule(sourceBuffer)
-          .resize({
-            width,
-            fit: 'inside',
-            withoutEnlargement: true,
+      let pipeline = sharp(sourceBuffer).resize({
+        width,
+        fit: 'inside',
+        withoutEnlargement: true,
+      })
+
+      let optimizedBuffer: Buffer
+      if (isAvifSupported) {
+        optimizedBuffer = await pipeline
+          .avif({
+            quality: Math.max(quality - 10, 50), // AVIF delivers higher fidelity at lower Q
+            effort: 4,
           })
+          .toBuffer()
+      } else {
+        optimizedBuffer = await pipeline
           .webp({
             quality,
             effort: 4,
           })
           .toBuffer()
-
-        try {
-          ensureCacheDir()
-          fs.writeFile(cachePath, webpBuffer, () => {})
-        } catch {
-          // Non-fatal
-        }
-
-        return new NextResponse(webpBuffer, {
-          headers: {
-            'Content-Type': 'image/webp',
-            'Cache-Control': 'public, max-age=2592000, immutable',
-            'ETag': `"${hash}"`,
-            'X-Image-Cache': 'MISS',
-          },
-        })
       }
-    } catch {
-      // Fall through to streaming raw buffer
+
+      try {
+        ensureCacheDir()
+        fs.writeFile(cachePath, optimizedBuffer, () => {})
+      } catch {
+        // Non-fatal cache write
+      }
+
+      return new NextResponse(new Uint8Array(optimizedBuffer), {
+        headers: {
+          'Content-Type': contentType,
+          'Cache-Control': 'public, max-age=2592000, immutable',
+          'ETag': `"${hash}"`,
+          'Vary': 'Accept',
+          'X-Image-Cache': 'MISS',
+        },
+      })
+    } catch (sharpErr) {
+      console.warn('Sharp transformation failed, serving fallback:', sharpErr)
     }
 
-    const contentType = res.headers.get('content-type') || 'image/png'
-    return new NextResponse(sourceBuffer, {
+    const rawContentType = res.headers.get('content-type') || 'image/png'
+    return new NextResponse(new Uint8Array(sourceBuffer), {
       headers: {
-        'Content-Type': contentType,
+        'Content-Type': rawContentType,
         'Cache-Control': 'public, max-age=2592000, immutable',
         'ETag': `"${hash}"`,
       },
     })
   } catch (err: any) {
     console.error('Image optimization failed for', targetUrl, err)
-    // Redirect to original URL if transformation fails
     return NextResponse.redirect(targetUrl, 302)
   }
 }

@@ -72,13 +72,10 @@ const nextConfig = {
         destination: '/privacy-policy',
         permanent: true,
       },
-    ]
-  },
-  async rewrites() {
-    return [
       {
         source: '/competition/:slug*',
         destination: '/league/:slug*',
+        permanent: true,
       },
     ]
   },
