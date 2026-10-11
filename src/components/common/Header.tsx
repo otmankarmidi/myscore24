@@ -10,7 +10,6 @@ import PlayerImage from '@/components/common/PlayerImage'
 import TeamLogo from '@/components/common/TeamLogo'
 import CompetitionLogo from '@/components/common/CompetitionLogo'
 import { trackSearch } from '@/lib/analytics'
-import { useTheme } from '@/hooks/useTheme'
 import { Locale } from '@/types/common'
 import { MatchAlert } from '@/types/alerts'
 
@@ -39,7 +38,6 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
   const { label, changeLocale, locale, t } = useLanguage()
   const { totalFavorites } = useFavorites()
   const { selectedTimezone, setTimezonePreference } = useTimezone()
-  const { theme, toggle: toggleTheme, isDark } = useTheme()
 
   const [internalQuery, setInternalQuery] = useState(searchQuery)
   const [isOpen, setIsOpen] = useState(false)
@@ -372,18 +370,6 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
 
           {/* Actions & Utilities Matching Reference Image Header */}
           <div className="flex items-center gap-2 shrink-0">
-            {/* Theme Toggle Pill */}
-            <button
-              onClick={toggleTheme}
-              className="h-8 w-8 rounded-full bg-[#F5F5F5] dark:bg-[#121c2d] hover:bg-[#F3ECFA] dark:hover:bg-[#19273f] text-[#6425A6] dark:text-amber-400 flex items-center justify-center transition-colors border border-[#E5E5E5] dark:border-slate-800"
-              title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-              aria-label="Toggle theme"
-            >
-              <span className="material-symbols-outlined text-[17px]">
-                {isDark ? 'light_mode' : 'dark_mode'}
-              </span>
-            </button>
-
             {/* Language picker pill */}
             <div className="relative group flex">
               <button

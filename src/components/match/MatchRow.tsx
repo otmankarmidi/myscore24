@@ -174,7 +174,7 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
             {/* Home Score */}
             <div className="flex items-center gap-1.5 shrink-0">
               {isFlashingGoal && (lastScoringSide === 'home' || !lastScoringSide) && (
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-primary text-black animate-bounce shadow">
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-[#6425A6] text-white animate-bounce shadow">
                   GOAL!
                 </span>
               )}
@@ -198,7 +198,7 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
             {/* Away Score */}
             <div className="flex items-center gap-1.5 shrink-0">
               {isFlashingGoal && (lastScoringSide === 'away' || !lastScoringSide) && (
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-primary text-black animate-bounce shadow">
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-[#6425A6] text-white animate-bounce shadow">
                   GOAL!
                 </span>
               )}

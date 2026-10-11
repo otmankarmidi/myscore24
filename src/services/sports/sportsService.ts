@@ -291,7 +291,40 @@ export const sportsService = {
     // 1. Try to resolve API-Football numeric ID
     let numericPlayerId = resolveApiFootballPlayerId(normSlug)
 
-    // 2. If not directly in known IDs, check CSV player database for an ID match or name match
+    // 2. Database-first fetch & sync via playerService with current 2024/25 season
+    if (numericPlayerId) {
+      try {
+        const { getOrSyncPlayerProfile } = await import('./playerService')
+        const player = await getOrSyncPlayerProfile(Number(numericPlayerId), normSlug)
+        if (player) {
+          if (!/^\d+$/.test(normSlug)) {
+            player.slug = normSlug
+          }
+          return player
+        }
+      } catch (err) {
+        console.error(`Failed to fetch/sync stats for player ${numericPlayerId}:`, err)
+      }
+    }
+
+    // 3. Curated 2024/25 season players (Lamine Yamal, Haaland, Mbappé, Saka, Raphinha, Salah, Vinicius, Bellingham, Hakimi, Palmer)
+    const mockP = await provider.getPlayerBySlug(normSlug)
+    if (mockP) {
+      return normalizePlayer(mockP)
+    }
+
+    // 4. Manifest fallback for FC Barcelona & Real Madrid players
+    let match: any = null
+    try {
+      const allManifest = (await import('@/lib/playerMatcher')).getAllManifestPlayers()
+      match = allManifest.find(
+        (mp) => mp.slug === normSlug || mp.id.toLowerCase() === normSlug || mp.full_name.toLowerCase().includes(normSlug)
+      )
+    } catch {
+      // Non-fatal
+    }
+
+    // 5. Fallback to player database
     let csvMatch: any = null
     try {
       const csvStatsList: any[] = (await import('@/data/player_stats_db.json')).default
@@ -312,33 +345,6 @@ export const sportsService = {
       if (!numericPlayerId && csvMatch?.Id && /^\d+$/.test(String(csvMatch.Id))) {
         numericPlayerId = String(csvMatch.Id)
       }
-    } catch {
-      // Non-fatal
-    }
-
-    // 3. Database-first fetch & sync via playerService with 2026 season
-    if (numericPlayerId) {
-      try {
-        const { getOrSyncPlayerProfile } = await import('./playerService')
-        const player = await getOrSyncPlayerProfile(Number(numericPlayerId), normSlug)
-        if (player) {
-          if (!/^\d+$/.test(normSlug)) {
-            player.slug = normSlug
-          }
-          return player
-        }
-      } catch (err) {
-        console.error(`Failed to fetch/sync stats for player ${numericPlayerId}:`, err)
-      }
-    }
-
-    // 4. Manifest fallback for FC Barcelona & Real Madrid players
-    let match: any = null
-    try {
-      const allManifest = (await import('@/lib/playerMatcher')).getAllManifestPlayers()
-      match = allManifest.find(
-        (mp) => mp.slug === normSlug || mp.id.toLowerCase() === normSlug || mp.full_name.toLowerCase().includes(normSlug)
-      )
     } catch {
       // Non-fatal
     }
@@ -373,14 +379,11 @@ export const sportsService = {
         teamName: csvMatch?.['Team name'] || match?.club || 'Team',
         teamSlug: match?.club_key || 'team',
         marketValue: undefined,
+        seasonLabel: '2024/25',
         stats: { appearances, goals, assists, yellowCards, redCards, minutesPlayed, rating },
         seasonStats: { appearances, goals, assists, yellowCards, redCards, minutesPlayed, rating },
       }
     }
-
-    // 5. Final fallback to mock provider only if nothing else found
-    const d = await provider.getPlayerBySlug(normSlug)
-    if (d) return normalizePlayer(d)
 
     return null
   },

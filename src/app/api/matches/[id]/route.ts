@@ -6,6 +6,7 @@ import { apiTelemetry } from '@/services/sports/apiTelemetry'
 import { cacheEngine, CACHE_TTLS } from '@/services/sports/cacheEngine'
 import { getStoredMatchByFixtureId, getStoredMatchBySlug } from '@/lib/football/persistence/queries'
 import { upsertFixture } from '@/lib/football/persistence/fixtures'
+import { enrichMatch } from '@/lib/football/matchEnricher'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -147,12 +148,19 @@ export async function GET(
             } catch {}
           }
 
-          const isFinished = match.status === 'full_time' || match.status === 'penalties'
+          const enrichedMatch = enrichMatch(match)
+          const isFinished = enrichedMatch.status === 'full_time' || enrichedMatch.status === 'penalties'
           const ttl = isFinished ? CACHE_TTLS.FINISHED_MATCH_DETAILS : CACHE_TTLS.LIVE_MATCH_DETAILS
-          cacheEngine.set('match_detail', cleanId, { match, h2h }, ttl)
+
+          // Save in cache under all query variations so finished data is never lost
+          cacheEngine.set('match_detail', cleanId, { match: enrichedMatch, h2h }, ttl)
+          cacheEngine.set('match_detail', String(fixtureIdNum), { match: enrichedMatch, h2h }, ttl)
+          if (enrichedMatch.slug) {
+            cacheEngine.set('match_detail', enrichedMatch.slug, { match: enrichedMatch, h2h }, ttl)
+          }
 
           const response = NextResponse.json({
-            match,
+            match: enrichedMatch,
             h2h,
             source: 'MyScore24 Live Match Summary (API-Football & Database Synced)',
             resolution: 'PROVIDER_HIT',
@@ -177,8 +185,9 @@ export async function GET(
     }
     if (storedMatch) {
       apiTelemetry.recordHit('FALLBACK_HIT')
+      const enrichedFallback = enrichMatch(storedMatch)
       const response = NextResponse.json({
-        match: storedMatch,
+        match: enrichedFallback,
         h2h: [],
         source: 'MyScore24 Persistent Database (Stored Fallback)',
         resolution: 'FALLBACK_HIT',

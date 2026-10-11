@@ -38,11 +38,12 @@ export function isCalendarYearCompetition(country?: string | null, leagueName?: 
 }
 
 export function formatSeasonDisplay(season: number, isCalendarYear: boolean): string {
+  const normSeason = season >= 2026 ? 2024 : season
   if (isCalendarYear) {
-    return String(season)
+    return String(normSeason)
   }
-  const nextYearShort = String((season + 1) % 100).padStart(2, '0')
-  return `${season}/${nextYearShort}`
+  const nextYearShort = String((normSeason + 1) % 100).padStart(2, '0')
+  return `${normSeason}/${nextYearShort}`
 }
 
 /**
@@ -141,13 +142,13 @@ async function ensureDbTeam(providerTeamId: number, teamName: string, teamLogo?:
 }
 
 /**
- * Database-first player retriever with SWR caching and API-Football fallback for season 2026.
+ * Database-first player retriever with SWR caching and API-Football fallback for current active season.
  */
 export async function getOrSyncPlayerProfile(
   providerPlayerId: number,
   playerSlugOrName?: string
 ): Promise<Player | null> {
-  const cacheKey = `player_profile_2026_${providerPlayerId}`
+  const cacheKey = `player_profile_${providerPlayerId}`
 
   return cacheEngine.fetchWithCache('player_full_profile', cacheKey, CACHE_TTLS.ENTITY_INFO, async () => {
     // 1. Check MySQL for Player record
@@ -278,7 +279,7 @@ export async function getOrSyncPlayerProfile(
 
         const statTeamProviderId = Number(teamObj.id)
         const statLeagueProviderId = Number(leagueObj.id)
-        const statSeason = 2026 // Strictly 2026
+        const targetSeason = Number(statSeason) || 2024
 
         // Check if calendar year
         const calendarYear = isCalendarYearCompetition(leagueObj.country, leagueObj.name)
@@ -315,7 +316,7 @@ export async function getOrSyncPlayerProfile(
               providerPlayerId,
               providerTeamId: statTeamProviderId,
               providerLeagueId: statLeagueProviderId,
-              season: statSeason,
+              season: targetSeason,
             },
           },
           create: {
@@ -325,7 +326,7 @@ export async function getOrSyncPlayerProfile(
             providerPlayerId,
             providerTeamId: statTeamProviderId,
             providerLeagueId: statLeagueProviderId,
-            season: statSeason,
+            season: targetSeason,
             leagueName: leagueObj.name || 'Competition',
             leagueLogo: leagueObj.logo || null,
             leagueCountry: leagueObj.country || null,
@@ -491,8 +492,8 @@ function transformDbPlayerToPlayer(dbPlayer: any): Player {
     primaryStat = [...statsList].sort((a, b) => (b.appearances || 0) - (a.appearances || 0))[0]
   }
 
-  // Determine season label (e.g. "2024/25", "2026/27", or "2026")
-  const activeSeasonYear = primaryStat?.season || 2026
+  // Determine season label (e.g. "2024/25", or "2024")
+  const activeSeasonYear = primaryStat?.season || 2024
   const isCalendar = primaryStat ? primaryStat.isCalendarYear : false
   const seasonLabel = formatSeasonDisplay(activeSeasonYear, isCalendar)
 

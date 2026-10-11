@@ -15,7 +15,6 @@ import TopMatchesBar from '@/components/home/TopMatchesBar'
 import HomeNewsMagazine from '@/components/home/HomeNewsMagazine'
 import TopLeaguesStandingsWidget from '@/components/home/TopLeaguesStandingsWidget'
 import LeagueVideoNewsGrid from '@/components/home/LeagueVideoNewsGrid'
-import LeagueBannersShowcase from '@/components/home/LeagueBannersShowcase'
 import MobileQuickLeaguesBar from '@/components/common/MobileQuickLeaguesBar'
 import { sportsService } from '@/services/sports/sportsService'
 import { useLanguage } from '@/context/LanguageContext'
@@ -305,14 +304,8 @@ export default function HomeClient({
           {/* Mobile Favorite Leagues & Quick Links Bar (Parity with Desktop Sidebars) */}
           <MobileQuickLeaguesBar />
 
-          {/* Section matching Image 1: Top Leagues Full-Width Banners (only if articles linked) */}
-          <LeagueBannersShowcase articles={currentArticles} />
-
-          {/* Section: دوريات وبطولات (League Video & News Grids) */}
+          {/* Section: دوريات وبطولات (League Video & News Grids with Purple SVG Bar Headers) */}
           <LeagueVideoNewsGrid articles={currentArticles} />
-
-          {/* Section matching Image 2: ترتيب أحسن 5 دوريات (Top 5 Leagues Standings) — Moved below articles */}
-          <TopLeaguesStandingsWidget />
 
           {/* Section: Live Scores & Match Center (Matching Image 3) */}
           <section className="space-y-3 pt-2" aria-label="Match Center">
@@ -388,6 +381,9 @@ export default function HomeClient({
             </div>
           )}
           </section>
+
+          {/* Top 5 Leagues Standings Widget — Positioned below Match Center & Live Scores */}
+          <TopLeaguesStandingsWidget />
         </main>
 
         {/* Right Info Sidebar */}

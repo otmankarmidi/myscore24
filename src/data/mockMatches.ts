@@ -1,6 +1,7 @@
 import { Match } from '@/types/match'
 import { mockTeams } from './mockTeams'
 import { mockLeagues } from './mockLeagues'
+import { enrichMatch } from '@/lib/football/matchEnricher'
 
 const t = (id: string) => mockTeams.find(tm => tm.id === id)!
 const l = (id: string) => mockLeagues.find(lg => lg.id === id)!
@@ -153,10 +154,60 @@ export const mockMatches: Match[] = [
     status: 'full_time',
     kickoff: '2026-09-21T14:00:00Z',
     events: [
-      { id: 'e7', minute: 14, type: 'goal', team: 'home', playerName: 'Bukayo Saka' },
-      { id: 'e8', minute: 38, type: 'goal', team: 'home', playerName: 'Kai Havertz' },
-      { id: 'e9', minute: 76, type: 'goal', team: 'home', playerName: 'Declan Rice' },
+      { id: 'e7', minute: 14, type: 'goal', team: 'home', playerName: 'Bukayo Saka', detail: 'Left foot shot' },
+      { id: 'e8', minute: 38, type: 'goal', team: 'home', playerName: 'Kai Havertz', detail: 'Header' },
+      { id: 'e9', minute: 76, type: 'goal', team: 'home', playerName: 'Declan Rice', detail: 'Long range' },
+      { id: 'e9b', minute: 54, type: 'yellow_card', team: 'away', playerName: 'Moisés Caicedo' },
     ],
+    statistics: {
+      possession: { home: 62, away: 38 },
+      shots: { home: 18, away: 7 },
+      shotsOnTarget: { home: 8, away: 2 },
+      corners: { home: 7, away: 3 },
+      fouls: { home: 9, away: 14 },
+      yellowCards: { home: 1, away: 3 },
+      redCards: { home: 0, away: 0 },
+      offsides: { home: 2, away: 1 },
+      xG: { home: 2.85, away: 0.58 },
+      passes: { home: 542, away: 320 },
+      passAccuracy: { home: 89, away: 81 },
+    },
+    lineup: {
+      home: {
+        formation: '4-3-3',
+        startingXI: [
+          { id: 'p-ars-1', name: 'Raya', number: 22, position: 'GK', positionX: 50, positionY: 90, rating: 7.8 },
+          { id: 'p-ars-2', name: 'White', number: 4, position: 'RB', positionX: 80, positionY: 75, rating: 7.5 },
+          { id: 'p-ars-3', name: 'Saliba', number: 2, position: 'CB', positionX: 62, positionY: 80, rating: 8.0 },
+          { id: 'p-ars-4', name: 'Gabriel', number: 6, position: 'CB', positionX: 38, positionY: 80, rating: 7.9 },
+          { id: 'p-ars-5', name: 'Timber', number: 12, position: 'LB', positionX: 20, positionY: 75, rating: 7.6 },
+          { id: 'p-ars-6', name: 'Ødegaard', number: 8, position: 'CM', positionX: 65, positionY: 60, rating: 8.4 },
+          { id: 'p-ars-7', name: 'Partey', number: 5, position: 'DM', positionX: 50, positionY: 65, rating: 7.7 },
+          { id: 'p-ars-8', name: 'Rice', number: 41, position: 'CM', positionX: 35, positionY: 60, rating: 8.6 },
+          { id: 'p-ars-9', name: 'Saka', number: 7, position: 'RW', positionX: 82, positionY: 42, rating: 8.9 },
+          { id: 'p-ars-10', name: 'Havertz', number: 29, position: 'ST', positionX: 50, positionY: 35, rating: 8.5 },
+          { id: 'p-ars-11', name: 'Martinelli', number: 11, position: 'LW', positionX: 18, positionY: 42, rating: 7.8 },
+        ],
+        substitutes: [],
+      },
+      away: {
+        formation: '4-2-3-1',
+        startingXI: [
+          { id: 'p-che-1', name: 'Sánchez', number: 1, position: 'GK', positionX: 50, positionY: 10, rating: 6.2 },
+          { id: 'p-che-2', name: 'Gusto', number: 27, position: 'RB', positionX: 80, positionY: 25, rating: 6.4 },
+          { id: 'p-che-3', name: 'Fofana', number: 29, position: 'CB', positionX: 62, positionY: 20, rating: 6.1 },
+          { id: 'p-che-4', name: 'Colwill', number: 6, position: 'CB', positionX: 38, positionY: 20, rating: 6.3 },
+          { id: 'p-che-5', name: 'Cucurella', number: 3, position: 'LB', positionX: 20, positionY: 25, rating: 6.5 },
+          { id: 'p-che-6', name: 'Caicedo', number: 25, position: 'DM', positionX: 60, positionY: 35, rating: 6.8 },
+          { id: 'p-che-7', name: 'Fernández', number: 8, position: 'DM', positionX: 40, positionY: 35, rating: 6.5 },
+          { id: 'p-che-8', name: 'Madueke', number: 11, position: 'RW', positionX: 82, positionY: 50, rating: 6.4 },
+          { id: 'p-che-9', name: 'Palmer', number: 20, position: 'AM', positionX: 50, positionY: 50, rating: 7.1 },
+          { id: 'p-che-10', name: 'Sancho', number: 19, position: 'LW', positionX: 18, positionY: 50, rating: 6.6 },
+          { id: 'p-che-11', name: 'Jackson', number: 15, position: 'ST', positionX: 50, positionY: 65, rating: 6.3 },
+        ],
+        substitutes: [],
+      },
+    },
   },
   // ─── La Liga ──────────────────────────────────────────────────────────────
   {
@@ -247,6 +298,61 @@ export const mockMatches: Match[] = [
     score: { home: 2, away: 1, halftime: { home: 1, away: 0 } },
     status: 'full_time',
     kickoff: '2026-09-21T14:00:00Z',
+    events: [
+      { id: 'e-far-1', minute: 28, type: 'goal', team: 'home', playerName: 'Amine Zouhzouh', detail: 'Curled shot' },
+      { id: 'e-far-2', minute: 64, type: 'goal', team: 'away', playerName: 'Youssef El Fahli', detail: 'Header' },
+      { id: 'e-far-3', minute: 81, type: 'goal', team: 'home', playerName: 'Mohamed Hrimat', detail: 'Penalty' },
+      { id: 'e-far-4', minute: 73, type: 'yellow_card', team: 'away', playerName: 'Issoufou Dayo' },
+    ],
+    statistics: {
+      possession: { home: 55, away: 45 },
+      shots: { home: 13, away: 8 },
+      shotsOnTarget: { home: 5, away: 3 },
+      corners: { home: 6, away: 4 },
+      fouls: { home: 14, away: 16 },
+      yellowCards: { home: 2, away: 3 },
+      redCards: { home: 0, away: 0 },
+      offsides: { home: 1, away: 2 },
+      xG: { home: 1.95, away: 1.12 },
+      passes: { home: 410, away: 345 },
+      passAccuracy: { home: 84, away: 79 },
+    },
+    lineup: {
+      home: {
+        formation: '4-3-3',
+        startingXI: [
+          { id: 'p-far-1', name: 'Benabid', number: 1, position: 'GK', positionX: 50, positionY: 90, rating: 7.4 },
+          { id: 'p-far-2', name: 'Moufid', number: 2, position: 'RB', positionX: 80, positionY: 75, rating: 7.2 },
+          { id: 'p-far-3', name: 'Tarhat', number: 5, position: 'CB', positionX: 62, positionY: 80, rating: 7.5 },
+          { id: 'p-far-4', name: 'Boyomo', number: 4, position: 'CB', positionX: 38, positionY: 80, rating: 7.3 },
+          { id: 'p-far-5', name: 'Imane', number: 3, position: 'LB', positionX: 20, positionY: 75, rating: 7.1 },
+          { id: 'p-far-6', name: 'Hrimat', number: 6, position: 'CM', positionX: 65, positionY: 60, rating: 8.2 },
+          { id: 'p-far-7', name: 'Drak', number: 8, position: 'DM', positionX: 50, positionY: 65, rating: 7.3 },
+          { id: 'p-far-8', name: 'Naji', number: 10, position: 'CM', positionX: 35, positionY: 60, rating: 7.4 },
+          { id: 'p-far-9', name: 'Zouhzouh', number: 7, position: 'RW', positionX: 82, positionY: 42, rating: 8.5 },
+          { id: 'p-far-10', name: 'Igmane', number: 9, position: 'ST', positionX: 50, positionY: 35, rating: 7.6 },
+          { id: 'p-far-11', name: 'Hammoudan', number: 11, position: 'LW', positionX: 18, positionY: 42, rating: 7.5 },
+        ],
+        substitutes: [],
+      },
+      away: {
+        formation: '4-3-3',
+        startingXI: [
+          { id: 'p-rsb-1', name: 'Hamiani', number: 1, position: 'GK', positionX: 50, positionY: 10, rating: 6.8 },
+          { id: 'p-rsb-2', name: 'Baadi', number: 2, position: 'RB', positionX: 80, positionY: 25, rating: 6.7 },
+          { id: 'p-rsb-3', name: 'Dayo', number: 4, position: 'CB', positionX: 62, positionY: 20, rating: 7.0 },
+          { id: 'p-rsb-4', name: 'Tahif', number: 5, position: 'CB', positionX: 38, positionY: 20, rating: 6.8 },
+          { id: 'p-rsb-5', name: 'Lamlioui', number: 3, position: 'LB', positionX: 20, positionY: 25, rating: 6.6 },
+          { id: 'p-rsb-6', name: 'Camara', number: 6, position: 'CM', positionX: 65, positionY: 40, rating: 6.9 },
+          { id: 'p-rsb-7', name: 'El Morabit', number: 8, position: 'DM', positionX: 50, positionY: 35, rating: 7.0 },
+          { id: 'p-rsb-8', name: 'Khairi', number: 10, position: 'CM', positionX: 35, positionY: 40, rating: 6.7 },
+          { id: 'p-rsb-9', name: 'Zghoudi', number: 7, position: 'RW', positionX: 82, positionY: 58, rating: 6.8 },
+          { id: 'p-rsb-10', name: 'El Fahli', number: 9, position: 'ST', positionX: 50, positionY: 65, rating: 7.8 },
+          { id: 'p-rsb-11', name: 'Bassene', number: 11, position: 'LW', positionX: 18, positionY: 58, rating: 6.9 },
+        ],
+        substitutes: [],
+      },
+    },
   },
   // ─── Champions League ─────────────────────────────────────────────────────
   {
@@ -273,7 +379,10 @@ export const mockMatches: Match[] = [
   },
 ]
 
-export const getMatchBySlug = (slug: string) => mockMatches.find(m => m.slug === slug)
+export const getMatchBySlug = (slug: string) => {
+  const m = mockMatches.find(match => match.slug === slug || match.id === slug)
+  return m ? enrichMatch(m) : undefined
+}
 export const getLiveMatches = () => mockMatches.filter(m => m.status === 'live' || m.status === 'half_time')
 export const getMatchesByLeague = (leagueId: string) => mockMatches.filter(m => m.league.id === leagueId)
 export const getMatchesByStatus = (status: string): Match[] => {

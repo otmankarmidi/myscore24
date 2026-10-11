@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { NewsArticle } from '@/types/news'
 import { normalizeArticleImageUrl } from '@/lib/newsImage'
 import { useLanguage } from '@/context/LanguageContext'
+import styles from '@/components/common/PurpleDesignBar.module.css'
 
 interface LeagueSectionConfig {
   id: string
@@ -116,28 +117,31 @@ export default function LeagueVideoNewsGrid({ articles = [] }: LeagueVideoNewsGr
 
         return (
           <section key={section.id} className="w-full space-y-3.5">
-            {/* Branded League Header Banner (Matching Image 3) */}
+            {/* Branded League Header Banner with Purple SVG Design Bar */}
             <Link
               href={`/${locale === 'ar' ? 'ar' : 'en'}/news?category=${section.categorySlug}`}
-              className={`w-full rounded-xl px-4 py-3 flex items-center justify-between text-white transition-all shadow-md group ${section.bannerBg} border border-white/10 hover:border-white/20 cursor-pointer`}
+              className={`${styles['purple-bar']} group transition-transform duration-200 hover:scale-[1.008] hover:brightness-110 active:scale-[0.995] text-white no-underline`}
+              dir={isAr ? 'rtl' : 'ltr'}
             >
-              <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 relative shrink-0">
+              <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 relative shrink-0 flex items-center justify-center">
                   <Image
                     src={section.logo}
                     alt={section.titleEn}
-                    width={28}
-                    height={28}
-                    className="object-contain drop-shadow"
+                    width={34}
+                    height={34}
+                    className="object-contain drop-shadow-md"
                   />
                 </div>
-                <h2 className="text-sm sm:text-base md:text-lg font-black tracking-tight">
+                <h2 className="text-base sm:text-lg md:text-xl font-black font-geist text-white tracking-tight truncate m-0">
                   {isAr ? section.titleAr : section.titleEn}
                 </h2>
               </div>
 
-              <div className="flex items-center gap-1.5 text-xs text-white/80 group-hover:text-white transition-colors">
-                <span className="material-symbols-outlined text-base rtl:rotate-180">chevron_right</span>
+              <div className="flex items-center text-white/80 group-hover:text-white group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-all shrink-0">
+                <span className="material-symbols-outlined text-2xl font-bold rtl:rotate-180">
+                  chevron_right
+                </span>
               </div>
             </Link>
 

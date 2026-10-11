@@ -28,6 +28,7 @@ import { LeagueStanding, GroupedStanding } from '@/types/standing'
 import { TeamRecentMatchRecord } from '@/lib/football/persistence/queries'
 import { trackMatchOpen } from '@/lib/analytics'
 import { formatDate } from '@/lib/utils'
+import { enrichMatch } from '@/lib/football/matchEnricher'
 
 type MatchTab = 'summary' | 'lineups' | 'h2h' | 'commentary' | 'standings'
 
@@ -51,7 +52,7 @@ export default function MatchDetailClient({
   const { activeTimezone } = useTimezone()
   const { t, locale } = useLanguage()
 
-  const [match, setMatch] = useState<Match | null>(initialMatch || null)
+  const [match, setMatch] = useState<Match | null>(initialMatch ? enrichMatch(initialMatch) : null)
   const [h2hHistory, setH2hHistory] = useState<Match[]>(initialH2h || [])
   const [homeRecentMatches, setHomeRecentMatches] = useState<TeamRecentMatchRecord[]>(initialHomeRecent || [])
   const [awayRecentMatches, setAwayRecentMatches] = useState<TeamRecentMatchRecord[]>(initialAwayRecent || [])
@@ -129,19 +130,22 @@ export default function MatchDetailClient({
           const mergedStats = fresh.statistics || prevMatch?.statistics || undefined
           const mergedLineup = (fresh.lineup?.home?.startingXI?.length)
             ? fresh.lineup
-            : (prevMatch?.lineup?.home?.startingXI?.length ? prevMatch.lineup : fresh.lineup)
+            : (fresh.lineups?.home?.startingXI?.length
+                ? fresh.lineups
+                : (prevMatch?.lineup?.home?.startingXI?.length ? prevMatch.lineup : (prevMatch?.lineups || fresh.lineup || fresh.lineups)))
 
           const mergedCommentary = (fresh.commentary && fresh.commentary.length > 0)
             ? fresh.commentary
             : (prevMatch?.commentary && prevMatch.commentary.length > 0 ? prevMatch.commentary : (fresh.commentary || []))
 
-          return {
+          return enrichMatch({
             ...fresh,
             events: mergedEvents,
             statistics: mergedStats,
             lineup: mergedLineup,
+            lineups: mergedLineup,
             commentary: mergedCommentary,
-          }
+          })
         })
         trackMatchOpen({
           matchId: res.match.id,

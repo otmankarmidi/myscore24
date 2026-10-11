@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { Match, MatchStatus } from '@/types/match'
 import { buildMatchSlug } from '@/lib/football/matchUrl'
+import { enrichMatch } from '@/lib/football/matchEnricher'
 
 function mapDbStatusToMatchStatus(status: string): MatchStatus {
   switch (status.toUpperCase()) {
@@ -56,7 +57,7 @@ export function formatDbMatchToAppMatch(m: any): Match {
   const matchSlug = buildMatchSlug(homeName, awayName, m.providerFixtureId)
   const kickoffDate = new Date(m.kickoff)
 
-  return {
+  return enrichMatch({
     id: String(m.providerFixtureId),
     slug: matchSlug,
     league: {
@@ -113,7 +114,7 @@ export function formatDbMatchToAppMatch(m: any): Match {
     referee: m.referee || undefined,
     round: m.round || undefined,
     isFinal: Boolean(m.isFinal),
-  }
+  })
 }
 
 /**

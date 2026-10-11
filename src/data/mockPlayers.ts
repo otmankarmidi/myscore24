@@ -140,9 +140,13 @@ const basePlayers: Player[] = [
 export const mockPlayers: Player[] = basePlayers.map((p) => {
   const teamName = p.team?.name || p.teamName || ''
   const matched = matchLocalPlayerImage(teamName, p.name, p.id, p.slug)
+  const playerObj: Player = {
+    ...p,
+    seasonLabel: '2024/25',
+  }
   if (matched) {
     return {
-      ...p,
+      ...playerObj,
       image: matched.imagePath,
       imagePath: matched.imagePath,
       imageSourceUrl: matched.imageSourceUrl,
@@ -151,7 +155,7 @@ export const mockPlayers: Player[] = basePlayers.map((p) => {
       slug: matched.slug || p.slug,
     }
   }
-  return p
+  return playerObj
 })
 
 export const getTopScorers = (_leagueId?: string) => {
