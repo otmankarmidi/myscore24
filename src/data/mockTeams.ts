@@ -155,6 +155,16 @@ export const mockTeams: Team[] = [
     countryFlag: '🇪🇸',
     logo: 'https://media.api-sports.io/football/teams/532.png',
   },
+  {
+    id: 'san',
+    slug: 'racing-santander',
+    name: 'Racing Santander',
+    shortName: 'Santander',
+    abbreviation: 'SAN',
+    country: 'Spain',
+    countryFlag: '🇪🇸',
+    logo: 'https://media.api-sports.io/football/teams/730.png',
+  },
 
   // --- Premier League ---
   {
@@ -468,6 +478,26 @@ export const mockTeams: Team[] = [
     country: 'Italy',
     countryFlag: '🇮🇹',
     logo: 'https://media.api-sports.io/football/teams/497.png',
+  },
+  {
+    id: 'com',
+    slug: 'como-1907',
+    name: 'Como',
+    shortName: 'Como',
+    abbreviation: 'COM',
+    country: 'Italy',
+    countryFlag: '🇮🇹',
+    logo: 'https://media.api-sports.io/football/teams/512.png',
+  },
+  {
+    id: 'laz',
+    slug: 'lazio',
+    name: 'Lazio',
+    shortName: 'Lazio',
+    abbreviation: 'LAZ',
+    country: 'Italy',
+    countryFlag: '🇮🇹',
+    logo: 'https://media.api-sports.io/football/teams/487.png',
   },
 
   // --- Ligue 1 ---

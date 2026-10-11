@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Match } from '@/types/match'
 import TeamLogo from '@/components/common/TeamLogo'
 import { useLanguage } from '@/context/LanguageContext'
@@ -224,19 +225,23 @@ export default function TopMatchesBar({
             <button
               type="button"
               onClick={() => onSelectDate(yesterday)}
-              className={`font-semibold transition-colors cursor-pointer px-1 py-0.5 ${
-                isYesterdayActive ? 'text-amber-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+              className={`text-xs font-semibold transition-colors cursor-pointer px-1 py-1 relative ${
+                isYesterdayActive
+                  ? 'text-amber-400 font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-amber-400 after:rounded-full'
+                  : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               {locale === 'ar' ? 'أمس' : locale === 'fr' ? 'Hier' : 'Yesterday'}
             </button>
 
-            {/* Today Button (Active Highlight in Amber as in screenshot) */}
+            {/* Today Button (Active Highlight in Amber with solid underline as in Image 2) */}
             <button
               type="button"
               onClick={() => onSelectDate(today)}
-              className={`font-bold transition-colors cursor-pointer px-1 py-0.5 ${
-                isTodayActive ? 'text-amber-400' : 'text-slate-400 hover:text-slate-200'
+              className={`text-xs font-bold transition-colors cursor-pointer px-1 py-1 relative ${
+                isTodayActive
+                  ? 'text-amber-400 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-amber-400 after:rounded-full'
+                  : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               {locale === 'ar' ? 'اليوم' : locale === 'fr' ? "Aujourd'hui" : 'Today'}
@@ -246,14 +251,16 @@ export default function TopMatchesBar({
             <button
               type="button"
               onClick={() => onSelectDate(tomorrow)}
-              className={`font-semibold transition-colors cursor-pointer px-1 py-0.5 ${
-                isTomorrowActive ? 'text-amber-400 font-bold' : 'text-slate-400 hover:text-slate-200'
+              className={`text-xs font-semibold transition-colors cursor-pointer px-1 py-1 relative ${
+                isTomorrowActive
+                  ? 'text-amber-400 font-bold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-amber-400 after:rounded-full'
+                  : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               {locale === 'ar' ? 'غداً' : locale === 'fr' ? 'Demain' : 'Tomorrow'}
             </button>
 
-            {/* Calendar Icon Button with hidden native date input */}
+            {/* Calendar Icon Button with blue border box (Matching Image 2) */}
             <div className="relative shrink-0 flex items-center">
               <button
                 type="button"
@@ -266,9 +273,9 @@ export default function TopMatchesBar({
                 }}
                 title={locale === 'ar' ? 'اختر تاريخاً' : 'Choose date'}
                 aria-label="Choose date"
-                className="w-7 h-7 rounded bg-[#141a27] border border-slate-800 hover:border-amber-500/70 text-slate-300 hover:text-amber-400 flex items-center justify-center transition-colors cursor-pointer"
+                className="w-7 h-7 rounded-lg bg-[#0e1728] border border-sky-500/70 hover:border-sky-400 text-sky-400 hover:text-sky-300 flex items-center justify-center transition-colors cursor-pointer shadow-sm"
               >
-                <span className="material-symbols-outlined text-base">calendar_month</span>
+                <span className="material-symbols-outlined text-[17px]">calendar_month</span>
               </button>
               <input
                 ref={dateInputRef}
@@ -291,38 +298,37 @@ export default function TopMatchesBar({
                 const el = document.getElementById('matches')
                 if (el) el.scrollIntoView({ behavior: 'smooth' })
               }}
-              className="text-slate-400 hover:text-white transition-colors font-medium flex items-center gap-1 shrink-0 cursor-pointer text-[12px]"
+              className="text-slate-400 hover:text-white transition-colors font-medium flex items-center gap-1 shrink-0 cursor-pointer text-xs"
             >
               <span>{locale === 'ar' ? 'جميع المباريات' : locale === 'fr' ? 'Tous les matchs' : 'All Matches'}</span>
               <span className="material-symbols-outlined text-sm rtl:rotate-180">arrow_forward</span>
             </button>
           </div>
 
-          {/* Secondary Side: Scroll Chevrons < > */}
+          {/* Secondary Side: Scroll Chevrons < > in square boxes (Matching Image 2) */}
           <div className="flex items-center gap-1.5 shrink-0">
             <button
               type="button"
               onClick={() => handleScroll('left')}
               disabled={!canScrollLeft}
               aria-label="Scroll matches left"
-              className="w-7 h-7 rounded bg-[#141a27] border border-slate-800 hover:bg-[#1d2638] text-slate-300 hover:text-white disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center transition-all cursor-pointer shadow-sm"
+              className="w-7 h-7 rounded-lg bg-[#0e1626] border border-[#1e2a40] hover:bg-[#152036] text-slate-400 hover:text-white disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center transition-all cursor-pointer shadow-sm"
             >
-              <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+              <span className="material-symbols-outlined text-[17px]">chevron_left</span>
             </button>
             <button
               type="button"
               onClick={() => handleScroll('right')}
               disabled={!canScrollRight}
               aria-label="Scroll matches right"
-              className="w-7 h-7 rounded bg-[#141a27] border border-slate-800 hover:bg-[#1d2638] text-slate-300 hover:text-white disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center transition-all cursor-pointer shadow-sm"
+              className="w-7 h-7 rounded-lg bg-[#0e1626] border border-[#1e2a40] hover:bg-[#152036] text-slate-400 hover:text-white disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center transition-all cursor-pointer shadow-sm"
             >
-              <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+              <span className="material-symbols-outlined text-[17px]">chevron_right</span>
             </button>
           </div>
         </div>
 
-
-        {/* Cards Track: Clean, Horizontal Scrolling (Matching Uploaded Image) */}
+        {/* Cards Track: Clean, Horizontal Scrolling (Matching Image 2) */}
         <div className="relative flex items-center">
           <div
             ref={scrollRef}
@@ -334,7 +340,7 @@ export default function TopMatchesBar({
               Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className="shrink-0 w-[190px] sm:w-[210px] h-[82px] rounded-lg bg-[#111724] animate-pulse border border-slate-800 p-2.5"
+                  className="shrink-0 w-[205px] sm:w-[218px] h-[82px] rounded-xl bg-[#0c1322] animate-pulse border border-[#182438] p-2.5"
                 />
               ))
             ) : displayMatches.length === 0 ? (
@@ -346,12 +352,13 @@ export default function TopMatchesBar({
                 const live = isLiveStatus(match.status)
                 const isFinished = match.status === 'full_time' || match.status === 'penalties'
                 const isScheduled = match.status === 'scheduled'
-                const matchHref = buildMatchUrl(match)
+                const matchHref = match.slug ? buildMatchUrl(match) : '#'
 
-                // Status / Time text
                 let statusLabel = ''
-                if (isFinished) {
-                  statusLabel = locale === 'ar' ? 'انتهت' : locale === 'fr' ? 'Terminé' : 'FT'
+                if (match.status === 'half_time') {
+                  statusLabel = locale === 'ar' ? 'إ.ن' : 'HT'
+                } else if (match.status === 'full_time') {
+                  statusLabel = locale === 'ar' ? 'انتهت' : 'FT'
                 } else if (live) {
                   statusLabel = match.minute ? `${match.minute}'` : (locale === 'ar' ? 'مباشر' : 'LIVE')
                 } else if (isScheduled) {
@@ -360,26 +367,62 @@ export default function TopMatchesBar({
                   statusLabel = match.status
                 }
 
-                const leagueTitle =
-                  getCleanLeagueDisplayName(match.league, locale) || match.league?.name || 'Football'
+                // League branding & colors (Matching Image 2: Premier League gold, La Liga coral red, Serie A cyan, etc.)
+                const leagueKey = String(match.league?.slug || match.league?.id || '').toLowerCase()
+                const isPl = leagueKey.includes('premier') || leagueKey === 'epl' || leagueKey === '39'
+                const isLaLiga = leagueKey.includes('liga') || leagueKey === 'laliga' || leagueKey === '140'
+                const isSerieA = leagueKey.includes('serie') || leagueKey === '135'
+                const isBotola = leagueKey.includes('botola') || leagueKey === '200'
+
+                const leagueColor = isPl
+                  ? 'text-[#fbbf24]'
+                  : isLaLiga
+                  ? 'text-[#f87171]'
+                  : isSerieA
+                  ? 'text-[#38bdf8]'
+                  : isBotola
+                  ? 'text-[#34d399]'
+                  : 'text-amber-400'
+
+                const leagueDisplay = isLaLiga
+                  ? 'LALIGA'
+                  : isPl
+                  ? 'Premier League'
+                  : isSerieA
+                  ? 'Serie A'
+                  : isBotola
+                  ? 'Botola Pro'
+                  : (getCleanLeagueDisplayName(match.league, locale) || match.league?.name || 'Football')
+
+                const leagueLogo =
+                  match.league?.logo ||
+                  (isPl
+                    ? 'https://media.api-sports.io/football/leagues/39.png'
+                    : isLaLiga
+                    ? 'https://media.api-sports.io/football/leagues/140.png'
+                    : isSerieA
+                    ? 'https://media.api-sports.io/football/leagues/135.png'
+                    : isBotola
+                    ? 'https://media.api-sports.io/football/leagues/200.png'
+                    : undefined)
 
                 return (
                   <Link
                     key={match.id}
                     href={matchHref}
                     prefetch={false}
-                    className="shrink-0 w-[190px] sm:w-[210px] h-[82px] p-2.5 rounded-lg bg-[#0e131d] border border-[#1b2334] hover:border-amber-500/60 hover:bg-[#131a29] transition-all flex flex-col justify-between cursor-pointer group shadow-sm"
+                    className="shrink-0 w-[205px] sm:w-[218px] h-[82px] p-2.5 rounded-xl bg-[#09101d] border border-[#162236] hover:border-slate-500 hover:bg-[#0d1627] transition-all flex flex-col justify-between cursor-pointer group shadow-sm"
                   >
-                    {/* Top Row: Kickoff Time on Left, League Name in Amber on Right */}
+                    {/* Top Row: Kickoff Time on Left, League Name & Official Logo on Right (Matching Image 2) */}
                     <div className="flex items-center justify-between text-[11px] leading-tight gap-1">
-                      {/* Kickoff / Status (Left in RTL) */}
+                      {/* Kickoff / Status */}
                       <span
-                        className={`font-semibold shrink-0 ${
+                        className={`font-semibold shrink-0 text-xs ${
                           live
                             ? 'text-red-400 flex items-center gap-1 font-bold'
                             : isFinished
                             ? 'text-slate-400 font-medium'
-                            : 'text-slate-200 font-bold'
+                            : 'text-slate-200'
                         }`}
                       >
                         {live && (
@@ -388,19 +431,34 @@ export default function TopMatchesBar({
                         {statusLabel}
                       </span>
 
-                      {/* League Name (Amber in Screenshot) */}
-                      <span className="text-amber-400 font-bold truncate max-w-[130px] text-end">
-                        {leagueTitle}
-                      </span>
+                      {/* League Name + Official Logo on Right (Matching Image 2) */}
+                      <div className="flex items-center gap-1.5 shrink-0 max-w-[135px] justify-end">
+                        <span className={`text-[11px] font-bold truncate ${leagueColor}`}>
+                          {leagueDisplay}
+                        </span>
+                        {leagueLogo && (
+                          <div className="w-4 h-4 relative shrink-0">
+                            <Image
+                              src={leagueLogo}
+                              alt={leagueDisplay}
+                              width={16}
+                              height={16}
+                              className="object-contain"
+                            />
+                          </div>
+                        )}
+                      </div>
                     </div>
 
-                    {/* Team 1 Row: Score on Left, Team Name + Logo on Right (in RTL) */}
+                    {/* Team 1 Row: Team Logo + Team Name */}
                     <div className="flex items-center justify-between gap-1 leading-none">
                       {locale === 'ar' ? (
                         <>
-                          <span className="text-xs font-bold text-slate-300 tabular-nums shrink-0">
-                            {isScheduled ? '-' : (match.score?.home ?? 0)}
-                          </span>
+                          {!isScheduled && (
+                            <span className="text-xs font-bold text-slate-200 tabular-nums shrink-0">
+                              {match.score?.home ?? 0}
+                            </span>
+                          )}
                           <div className="flex items-center gap-1.5 min-w-0 justify-end flex-1">
                             <span className="text-xs font-semibold text-white group-hover:text-amber-400 transition-colors truncate">
                               {match.homeTeam?.name || 'Home'}
@@ -424,20 +482,24 @@ export default function TopMatchesBar({
                               {match.homeTeam?.name || 'Home'}
                             </span>
                           </div>
-                          <span className="text-xs font-bold text-slate-300 tabular-nums shrink-0">
-                            {isScheduled ? '-' : (match.score?.home ?? 0)}
-                          </span>
+                          {!isScheduled && (
+                            <span className="text-xs font-bold text-slate-200 tabular-nums shrink-0">
+                              {match.score?.home ?? 0}
+                            </span>
+                          )}
                         </>
                       )}
                     </div>
 
-                    {/* Team 2 Row: Score on Left, Team Name + Logo on Right (in RTL) */}
+                    {/* Team 2 Row: Team Logo + Team Name */}
                     <div className="flex items-center justify-between gap-1 leading-none">
                       {locale === 'ar' ? (
                         <>
-                          <span className="text-xs font-bold text-slate-300 tabular-nums shrink-0">
-                            {isScheduled ? '-' : (match.score?.away ?? 0)}
-                          </span>
+                          {!isScheduled && (
+                            <span className="text-xs font-bold text-slate-200 tabular-nums shrink-0">
+                              {match.score?.away ?? 0}
+                            </span>
+                          )}
                           <div className="flex items-center gap-1.5 min-w-0 justify-end flex-1">
                             <span className="text-xs font-semibold text-white group-hover:text-amber-400 transition-colors truncate">
                               {match.awayTeam?.name || 'Away'}
@@ -461,9 +523,11 @@ export default function TopMatchesBar({
                               {match.awayTeam?.name || 'Away'}
                             </span>
                           </div>
-                          <span className="text-xs font-bold text-slate-300 tabular-nums shrink-0">
-                            {isScheduled ? '-' : (match.score?.away ?? 0)}
-                          </span>
+                          {!isScheduled && (
+                            <span className="text-xs font-bold text-slate-200 tabular-nums shrink-0">
+                              {match.score?.away ?? 0}
+                            </span>
+                          )}
                         </>
                       )}
                     </div>

@@ -139,18 +139,18 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
       onClick={(e) => {
         if (!hasValidId) e.preventDefault()
       }}
-      className={`match-row block p-2 group transition-all duration-300 relative ${
+      className={`match-row block px-3.5 py-2.5 group transition-all duration-200 relative bg-[#080e1a] hover:bg-[#0c1424] ${
         isFlashingGoal
           ? 'animate-score-flash ring-2 ring-primary/80 rounded-lg shadow-[0_0_20px_rgba(204,255,128,0.35)]'
           : ''
       }`}
       aria-label={`${safeHome.name} vs ${safeAway.name}, ${status || 'scheduled'}`}
     >
-      <div className="flex items-center justify-between gap-2">
-        {/* Status column */}
-        <div className="w-14 shrink-0 flex flex-col items-start justify-center gap-0.5">
+      <div className="flex items-center justify-between gap-3">
+        {/* Status / Kickoff column (Matching Image 3: dark rounded box with amber text) */}
+        <div className="w-16 shrink-0 flex flex-col items-center justify-center">
           {status === 'scheduled' ? (
-            <span className="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-geist font-bold text-[11px] tabular-nums">
+            <span className="w-full py-1.5 rounded-lg bg-[#0e1626] border border-[#1b273d] text-center font-geist font-bold text-xs text-amber-400/95 tabular-nums shadow-xs">
               {formatMatchTime(kickoff, activeTimezone, locale)}
             </span>
           ) : (

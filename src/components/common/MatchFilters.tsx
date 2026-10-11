@@ -36,35 +36,36 @@ export default function MatchFilters({
   const offText = t('common.off', 'OFF')
 
   return (
-    <div className="bg-surface-container-low rounded-lg border border-surface-bright/70 px-2.5 py-1.5 flex flex-wrap items-center justify-between gap-2 shadow-xs">
+    <div className="bg-[#0a101d] rounded-xl border border-[#162236] px-3 py-2 flex flex-wrap items-center justify-between gap-2.5 shadow-md">
       {/* Status tabs */}
-      <div className="flex items-center gap-0.5 bg-surface-container-lowest p-0.5 rounded-md">
+      <div className="flex items-center gap-1 bg-[#060b14] p-1 rounded-lg border border-[#141e30]">
         {tabs.map((tab) => {
           const isActive = activeFilter === tab.key
           const isLive = tab.key === 'live'
-
-          const activeClasses = isLive
-            ? 'bg-error-container text-on-error-container font-bold shadow-xs'
-            : 'filter-tab-active shadow-xs'
 
           return (
             <button
               key={tab.key}
               onClick={() => onFilterChange(tab.key)}
-              className={`filter-tab ${isActive ? activeClasses : ''}`}
+              className={`px-3 py-1.5 rounded-md font-geist text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                isActive
+                  ? isLive
+                    ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40 shadow-xs'
+                    : 'bg-[#152033] text-white border border-[#273852] shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-[#0f1726]/60'
+              }`}
               aria-pressed={isActive}
             >
               {isLive && (
-                <span className="inline-flex relative mr-1.5 rtl:mr-0 rtl:ml-1.5">
+                <span className="inline-flex relative">
                   <span
-                    className="live-pulse-ring absolute inline-flex h-2 w-2 rounded-full bg-error opacity-75"
-                    style={{ animation: 'ping 1.5s cubic-bezier(0,0,0.2,1) infinite' }}
+                    className="absolute inline-flex h-2 w-2 rounded-full bg-rose-500 opacity-75 animate-ping"
                   />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-error" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-rose-500" />
                 </span>
               )}
-              {tab.label}{' '}
-              <span className="font-geist text-[10px] font-semibold tabular-nums opacity-75">
+              <span>{tab.label}</span>
+              <span className={`text-[11px] font-bold tabular-nums ${isActive ? 'text-amber-400' : 'text-slate-500'}`}>
                 ({counts[tab.key]})
               </span>
             </button>
@@ -76,21 +77,29 @@ export default function MatchFilters({
       <div className="flex items-center gap-2">
         <button
           onClick={onToggleOdds}
-          className="h-6 px-2 rounded-md bg-surface-container-high hover:bg-surface-container font-geist text-[10px] font-bold uppercase text-outline hover:text-on-surface flex items-center gap-1 transition-colors border border-surface-bright/40"
+          className={`h-7 px-2.5 rounded-lg font-geist text-[11px] font-bold uppercase flex items-center gap-1.5 transition-all border ${
+            oddsOn
+              ? 'bg-amber-400/10 text-amber-400 border-amber-400/30'
+              : 'bg-[#0e1626] text-slate-400 hover:text-slate-200 border-[#1c2940]'
+          }`}
           aria-pressed={oddsOn}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: 13 }}>percent</span>
-          <span>{t('common.odds', 'Odds')}: <strong className="text-on-surface">{oddsOn ? onText : offText}</strong></span>
+          <span className="material-symbols-outlined" style={{ fontSize: 14 }}>percent</span>
+          <span>{t('common.odds', 'Odds')}: <strong className={oddsOn ? 'text-amber-400' : 'text-slate-300'}>{oddsOn ? onText : offText}</strong></span>
         </button>
         <button
           onClick={onToggleSound}
-          className={`h-6 px-2 rounded-md hover:bg-surface-container font-geist text-[10px] font-bold uppercase flex items-center gap-1 transition-colors border border-surface-bright/40 ${soundOn ? 'bg-surface-container-high text-primary' : 'bg-surface-container-high text-outline hover:text-on-surface'}`}
+          className={`h-7 px-2.5 rounded-lg font-geist text-[11px] font-bold uppercase flex items-center gap-1.5 transition-all border ${
+            soundOn
+              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+              : 'bg-[#0e1626] text-slate-400 hover:text-slate-200 border-[#1c2940]'
+          }`}
           aria-pressed={soundOn}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: 13 }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 14 }}>
             {soundOn ? 'volume_up' : 'volume_off'}
           </span>
-          <span>{t('common.sound', 'Sound')}: <strong className={soundOn ? 'text-primary' : 'text-outline'}>{soundOn ? onText : offText}</strong></span>
+          <span>{t('common.sound', 'Sound')}: <strong className={soundOn ? 'text-emerald-400' : 'text-slate-300'}>{soundOn ? onText : offText}</strong></span>
         </button>
       </div>
     </div>
