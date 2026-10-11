@@ -266,7 +266,7 @@ export default function HomeClient({
       {/* Top Application Header */}
       <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
-      {/* Top Matches Carousel Bar (Matching Image 3) */}
+      {/* Top Matches Carousel Bar (Matching Image Style) */}
       <TopMatchesBar
         matches={approvedMatches.length > 0 ? approvedMatches : matches}
         selectedDate={selectedDate}
@@ -274,8 +274,13 @@ export default function HomeClient({
         isLoading={isLoading}
       />
 
-      {/* Main Page Layout Container */}
-      <div className="flex-1 max-w-[1440px] w-full mx-auto px-2 md:px-4 py-4 flex gap-4">
+      {/* Editorial News Magazine Portal (Full Showcase matching uploaded screenshot) */}
+      <div className="w-full max-w-[1440px] mx-auto px-2 sm:px-4 pt-3 pb-2">
+        <HomeNewsMagazine articles={currentArticles} />
+      </div>
+
+      {/* Main Page Layout Container (Match Center + Sidebars) */}
+      <div id="matches" className="flex-1 max-w-[1440px] w-full mx-auto px-2 md:px-4 py-4 flex gap-4">
         {/* Left Navigation Sidebar */}
         <DesktopSidebar />
 
@@ -288,11 +293,8 @@ export default function HomeClient({
               : 'MyScore24 - Live Football Scores, Results & Latest Football News'}
           </h1>
 
-          {/* Editorial News Magazine Portal (Matching Image 1 & Image 2) */}
-          <HomeNewsMagazine articles={currentArticles} />
-
           {/* Section: Live Scores & Match Center */}
-          <section className="space-y-3 pt-4 border-t border-surface-bright/50" aria-label="Match Center">
+          <section className="space-y-3 pt-2" aria-label="Match Center">
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-2">
                 <span className="w-1.5 h-4 rounded-full bg-primary" />
