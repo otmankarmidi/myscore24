@@ -135,8 +135,8 @@ export async function getArticleBySlug(
   article: NewsArticle | null
   metaTitle?: string | null
   metaDescription?: string | null
-  competition?: { id: string; name: string; logo: string | null } | null
-  team?: { id: string; name: string; logo: string | null } | null
+  competition?: { id: string; name: string; logo: string | null; slug?: string } | null
+  team?: { id: string; name: string; logo: string | null; slug?: string } | null
   playerId?: string | null
   matchId?: string | null
   matchSlug?: string | null
@@ -180,21 +180,47 @@ export async function getArticleBySlug(
       (!dbArticle.publishedAt || dbArticle.publishedAt <= new Date())
 
     if (isPublic && dbArticle) {
-      let competition = null
-      let team = null
+      let competition: { id: string; name: string; logo: string | null; slug?: string } | null = null
+      let team: { id: string; name: string; logo: string | null; slug?: string } | null = null
 
       if (dbArticle.competitionId) {
-        competition = await prisma.competition.findFirst({
-          where: { id: dbArticle.competitionId },
-          select: { id: true, name: true, logo: true },
+        const compRecord = await prisma.competition.findFirst({
+          where: {
+            OR: [
+              { id: dbArticle.competitionId },
+              { providerId: parseInt(dbArticle.competitionId, 10) || -1 },
+            ],
+          },
+          select: { id: true, providerId: true, name: true, logo: true },
         })
+        if (compRecord) {
+          competition = {
+            id: String(compRecord.providerId),
+            name: compRecord.name,
+            logo: compRecord.logo,
+            slug: String(compRecord.providerId),
+          }
+        }
       }
 
       if (dbArticle.teamId) {
-        team = await prisma.team.findFirst({
-          where: { id: dbArticle.teamId },
-          select: { id: true, name: true, logo: true },
+        const teamRecord = await prisma.team.findFirst({
+          where: {
+            OR: [
+              { id: dbArticle.teamId },
+              { providerId: parseInt(dbArticle.teamId, 10) || -1 },
+            ],
+          },
+          select: { id: true, providerId: true, name: true, logo: true, code: true },
         })
+        if (teamRecord) {
+          team = {
+            id: String(teamRecord.providerId),
+            name: teamRecord.name,
+            logo: teamRecord.logo,
+            slug: String(teamRecord.providerId),
+          }
+        }
       }
 
       let matchSlug: string | null = null

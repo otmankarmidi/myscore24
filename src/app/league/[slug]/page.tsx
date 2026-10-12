@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import LeagueClient from './LeagueClient'
 
@@ -91,6 +92,10 @@ export async function generateMetadata({ params }: LeaguePageProps): Promise<Met
 export default async function LeaguePage({ params }: LeaguePageProps) {
   const { slug } = await params
   const competition = await getStoredCompetition(slug)
+
+  if (!competition) {
+    notFound()
+  }
 
   const breadcrumbSchema = competition
     ? {

@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next'
 import { prisma } from '@/lib/prisma'
 import { buildMatchSlug } from '@/lib/football/matchUrl'
+import { APPROVED_COMPETITIONS, APPROVED_COMPETITION_IDS } from '@/config/competitions'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -19,7 +20,8 @@ function slugify(text: string): string {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date()
 
-  // 1. Static Core Public Pages
+  // 1. Static Core Public Pages (Meaningful static lastModified to avoid false daily churn)
+  const siteReleaseDate = new Date('2026-09-01T00:00:00Z')
   const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: `${BASE_URL}`,
@@ -65,31 +67,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${BASE_URL}/about`,
-      lastModified: now,
+      lastModified: siteReleaseDate,
       changeFrequency: 'monthly',
       priority: 0.3,
     },
     {
       url: `${BASE_URL}/contact`,
-      lastModified: now,
+      lastModified: siteReleaseDate,
       changeFrequency: 'monthly',
       priority: 0.3,
     },
     {
       url: `${BASE_URL}/privacy-policy`,
-      lastModified: now,
+      lastModified: siteReleaseDate,
       changeFrequency: 'monthly',
       priority: 0.3,
     },
     {
       url: `${BASE_URL}/cookie-policy`,
-      lastModified: now,
+      lastModified: siteReleaseDate,
       changeFrequency: 'monthly',
       priority: 0.3,
     },
     {
       url: `${BASE_URL}/terms`,
-      lastModified: now,
+      lastModified: siteReleaseDate,
       changeFrequency: 'monthly',
       priority: 0.3,
     },
@@ -102,6 +104,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let matchRoutes: MetadataRoute.Sitemap = []
 
   try {
+    const approvedProviderIds = Array.from(APPROVED_COMPETITION_IDS)
+
     const [dbArticles, competitions, teams, matches, completedMatches] = await Promise.all([
       prisma.article.findMany({
         where: {
@@ -115,18 +119,32 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         take: 1000,
       }),
       prisma.competition.findMany({
+        where: {
+          providerId: { in: approvedProviderIds },
+        },
         select: { providerId: true, name: true, updatedAt: true },
-        take: 200,
+        take: 100,
       }),
+      // Priority teams with real names and established venues
       prisma.team.findMany({
+        where: {
+          name: { not: '' },
+          providerId: { gt: 0 },
+        },
         select: { providerId: true, name: true, updatedAt: true },
-        take: 500,
+        orderBy: { updatedAt: 'desc' },
+        take: 300,
       }),
-      // Query upcoming matches first (priority indexing for pre-match SEO)
+      // Query upcoming matches from active approved leagues (next 14 days)
       prisma.match.findMany({
         where: {
           status: { in: ['NS', 'TBD', '1H', '2H', 'HT', 'LIVE'] },
-          kickoff: { gte: new Date(now.getTime() - 24 * 60 * 60 * 1000) },
+          kickoff: {
+            gte: new Date(now.getTime() - 24 * 60 * 60 * 1000),
+            lte: new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000),
+          },
+          homeTeam: { name: { not: '' } },
+          awayTeam: { name: { not: '' } },
         },
         select: {
           providerFixtureId: true,
@@ -137,15 +155,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           awayTeam: { select: { name: true } },
         },
         orderBy: { kickoff: 'asc' },
-        take: 1500,
+        take: 600,
       }),
-      // Query recent completed matches for archive indexing
+      // Query recent completed matches for archive indexing (last 30 days)
       prisma.match.findMany({
         where: {
           OR: [
             { isFinal: true },
             { status: { in: ['FT', 'AET', 'PEN'] } },
           ],
+          kickoff: {
+            gte: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000),
+          },
+          homeTeam: { name: { not: '' } },
+          awayTeam: { name: { not: '' } },
         },
         select: {
           providerFixtureId: true,
@@ -156,30 +179,35 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           awayTeam: { select: { name: true } },
         },
         orderBy: { kickoff: 'desc' },
-        take: 1500,
+        take: 600,
       }),
     ])
 
     if (dbArticles.length > 0) {
       newsRoutes = dbArticles.map((article: any) => ({
         url: `${BASE_URL}/${article.language || 'en'}/news/${encodeURIComponent(article.slug)}`,
-        lastModified: article.updatedAt || article.publishedAt || now,
+        lastModified: article.updatedAt || article.publishedAt || siteReleaseDate,
         changeFrequency: 'daily' as const,
         priority: 0.9,
       }))
     }
 
-    competitionRoutes = competitions.map((c: any) => ({
-      url: `${BASE_URL}/league/${slugify(c.name) || c.providerId}`,
-      lastModified: c.updatedAt || now,
-      changeFrequency: 'daily' as const,
-      priority: 0.8,
-    }))
+    // Include approved competitions using their canonical providerId or slug
+    competitionRoutes = competitions.map((c: any) => {
+      const approvedConfig = APPROVED_COMPETITIONS.find((ac) => ac.id === c.providerId)
+      const routeSlug = approvedConfig?.slug || slugify(c.name) || String(c.providerId)
+      return {
+        url: `${BASE_URL}/league/${routeSlug}`,
+        lastModified: c.updatedAt || siteReleaseDate,
+        changeFrequency: 'daily' as const,
+        priority: 0.8,
+      }
+    })
 
     teamRoutes = teams.map((t: any) => ({
       url: `${BASE_URL}/team/${slugify(t.name) || t.providerId}`,
-      lastModified: t.updatedAt || now,
-      changeFrequency: 'daily' as const,
+      lastModified: t.updatedAt || siteReleaseDate,
+      changeFrequency: 'weekly' as const,
       priority: 0.7,
     }))
 
@@ -200,8 +228,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
       return {
         url: `${BASE_URL}/match/${matchSlug}`,
-        lastModified: m.updatedAt || now,
-        changeFrequency: isLive ? ('always' as const) : isUpcoming ? ('hourly' as const) : ('weekly' as const),
+        lastModified: m.updatedAt || m.kickoff || siteReleaseDate,
+        changeFrequency: isLive ? ('always' as const) : isUpcoming ? ('hourly' as const) : ('monthly' as const),
         priority: isLive ? 0.9 : isUpcoming ? 0.85 : 0.6,
       }
     })
@@ -216,8 +244,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const manifestPlayers = getAllManifestPlayers()
     playerRoutes = manifestPlayers.map((p) => ({
       url: `${BASE_URL}/player/${p.slug}`,
-      lastModified: now,
-      changeFrequency: 'weekly' as const,
+      lastModified: p.collected_at ? new Date(p.collected_at) : siteReleaseDate,
+      changeFrequency: 'monthly' as const,
       priority: 0.6,
     }))
   } catch {

@@ -1,5 +1,7 @@
 import { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
+import { mockTeams } from '@/data/mockTeams'
 import TeamClient from './TeamClient'
 
 export const dynamic = 'force-dynamic'
@@ -53,6 +55,30 @@ async function getStoredTeam(slug: string) {
         },
       })
       if (teamByName) return teamByName
+    }
+
+    // 5. Mock / Curated fallback
+    const normSlug = slug.toLowerCase().trim()
+    const mock = mockTeams.find(
+      (t) =>
+        t.slug === normSlug ||
+        t.id === normSlug ||
+        (normSlug.includes('barcelona') && t.id === 'fcb') ||
+        (normSlug.includes('madrid') && t.id === 'rma')
+    )
+    if (mock) {
+      return {
+        id: mock.id,
+        providerId: Number(mock.id) || 529,
+        name: mock.name,
+        code: mock.abbreviation,
+        country: mock.country,
+        founded: mock.founded || null,
+        national: false,
+        logo: mock.logo || null,
+        venueName: mock.stadium || null,
+        venueCapacity: mock.stadiumCapacity || null,
+      } as any
     }
 
     return null
@@ -116,6 +142,10 @@ export async function generateMetadata({ params }: TeamPageProps): Promise<Metad
 export default async function TeamPage({ params }: TeamPageProps) {
   const { slug } = await params
   const team = await getStoredTeam(slug)
+
+  if (!team) {
+    notFound()
+  }
 
   const sportsTeamSchema = team
     ? {

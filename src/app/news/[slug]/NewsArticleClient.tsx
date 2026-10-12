@@ -16,8 +16,8 @@ import { normalizeArticleImageUrl } from '@/lib/newsImage'
 import ArticleBodyRenderer from '@/components/news/ArticleBodyRenderer'
 
 interface LinkedEntity {
-  competition?: { id: string; name: string; logo: string | null } | null
-  team?: { id: string; name: string; logo: string | null } | null
+  competition?: { id: string; name: string; logo: string | null; slug?: string } | null
+  team?: { id: string; name: string; logo: string | null; slug?: string } | null
   playerId?: string | null
   matchId?: string | null
   matchSlug?: string | null
@@ -271,7 +271,7 @@ export default function NewsArticleClient({
               <div className="flex items-center gap-2">
                 {linkedEntity.competition && (
                   <Link
-                    href={`/league/${linkedEntity.competition.id}`}
+                    href={`/league/${linkedEntity.competition.slug || linkedEntity.competition.id}`}
                     className="px-3 py-1.5 rounded-lg bg-surface-bright text-xs font-semibold text-primary hover:bg-surface-container-highest transition-colors"
                   >
                     View Standings &rarr;
@@ -279,7 +279,7 @@ export default function NewsArticleClient({
                 )}
                 {linkedEntity.team && (
                   <Link
-                    href={`/team/${linkedEntity.team.id}`}
+                    href={`/team/${linkedEntity.team.slug || linkedEntity.team.id}`}
                     className="px-3 py-1.5 rounded-lg bg-surface-bright text-xs font-semibold text-primary hover:bg-surface-container-highest transition-colors"
                   >
                     View Team Hub &rarr;
