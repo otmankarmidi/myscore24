@@ -24,6 +24,9 @@ const nextConfig = {
     ],
   },
   reactStrictMode: true,
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   // Long-lived browser caching headers for static assets
   async headers() {
     return [

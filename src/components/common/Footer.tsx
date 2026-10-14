@@ -93,6 +93,12 @@ export default function Footer() {
                 {isAr ? 'أخبار كرة القدم' : 'Football News'}
               </Link>
             </li>
+            <li>
+              <Link href="/fantasy" className="hover:text-[#ccff80] font-bold hover:underline transition-colors flex items-center gap-1.5">
+                <span>{isAr ? 'فانتازي بريميرليغ' : 'Fantasy Football'}</span>
+                <span className="text-[9px] px-1 py-0.2 rounded bg-black/30 text-[#ccff80] border border-[#ccff80]/40">NEW</span>
+              </Link>
+            </li>
           </ul>
         </div>
 

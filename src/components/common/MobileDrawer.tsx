@@ -181,6 +181,19 @@ export default function MobileDrawer({ isOpen, onClose, onOpenNotifications }: M
         {/* Quick Links / Extras */}
         <div className="pt-2 border-t border-[#E5E5E5] dark:border-slate-800 space-y-1">
           <Link
+            href="/fantasy"
+            onClick={onClose}
+            className="px-3 py-2 rounded-lg bg-[#F5F5F5] dark:bg-[#121a29] border border-[#E5E5E5] dark:border-[#1b263b] hover:bg-[#F3ECFA] flex items-center justify-between text-xs font-bold text-[#171717] dark:text-white min-h-[44px]"
+          >
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-[18px] text-emerald-500">sports_soccer</span>
+              <span>{locale === 'ar' ? 'فانتازي بريميرليغ' : 'Fantasy Football (PL)'}</span>
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold">100M</span>
+            </div>
+            <span className="material-symbols-outlined text-[16px] text-[#6B7280]">chevron_right</span>
+          </Link>
+
+          <Link
             href="/news"
             onClick={onClose}
             className="px-3 py-2 rounded-lg bg-[#F5F5F5] dark:bg-[#121a29] border border-[#E5E5E5] dark:border-[#1b263b] hover:bg-[#F3ECFA] flex items-center justify-between text-xs font-medium text-[#171717] dark:text-slate-200 min-h-[44px]"
