@@ -119,11 +119,11 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
 
   return (
     <>
-      <header className="sticky top-0 left-0 right-0 z-30 bg-white/95 dark:bg-[#0c121e]/95 backdrop-blur-md border-b border-[#E5E5E5] dark:border-[#182335] pt-[env(safe-area-inset-top,0px)] shadow-xs">
-        <div className="max-w-[1480px] mx-auto h-16 sm:h-[70px] px-3 sm:px-5 flex items-center justify-between gap-3 sm:gap-6">
+      <header className="sticky top-0 left-0 right-0 z-30 bg-white/90 dark:bg-[#080C14]/90 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800/80 pt-[env(safe-area-inset-top,0px)] shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-colors">
+        <div className="max-w-[1480px] mx-auto h-16 sm:h-[72px] px-4 sm:px-8 flex items-center justify-between gap-4 sm:gap-8">
           {/* Logo */}
-          <div className="flex items-center gap-2.5 shrink-0">
-            <Link href="/" className="flex items-center gap-2.5 group">
+          <div className="flex items-center gap-3 shrink-0">
+            <Link href="/" className="flex items-center gap-3 group">
               <picture className="shrink-0">
                 <source srcSet="/logo.webp" type="image/webp" />
                 <img
@@ -133,90 +133,98 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
                   height={42}
                   fetchPriority="high"
                   decoding="async"
-                  className="h-10 sm:h-11 w-auto object-contain transition-transform group-hover:scale-105 filter brightness-0 dark:filter-none"
+                  className="h-9 sm:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105 filter brightness-0 dark:filter-none"
                 />
               </picture>
               <div className="flex flex-col leading-none">
-                <span className="font-geist font-extrabold text-[17px] sm:text-[19px] tracking-tight text-[#171717] dark:text-[#dce2f6]">
-                  MyScore<span className="text-[#6425A6] dark:text-primary">24</span>
+                <span className="font-geist font-black text-[18px] sm:text-[20px] tracking-tight text-slate-900 dark:text-white">
+                  MyScore<span className="text-[#5B21B6] dark:text-[#A78BFA]">24</span>
                 </span>
-                <span className="font-geist font-bold text-[9px] sm:text-[10px] tracking-widest text-[#6B7280] dark:text-on-surface-variant uppercase mt-1">
-                  Scores. Stats. Live.
+                <span className="font-geist font-bold text-[9px] sm:text-[10px] tracking-[0.2em] text-slate-400 dark:text-slate-400 uppercase mt-1">
+                  Scores • Stats • Live
                 </span>
               </div>
             </Link>
           </div>
 
           {/* Desktop Center Navigation Links */}
-          <nav className="hidden xl:flex items-center gap-6 mx-2 shrink-0" aria-label="Main navigation">
+          <nav className="hidden xl:flex items-center gap-1.5 mx-4 shrink-0" aria-label="Main navigation">
             <Link
               href="/"
-              className={`text-sm font-bold transition-all py-2 px-1 relative ${
+              className={`text-[13px] font-bold transition-all px-3.5 py-2 rounded-xl relative ${
                 pathname === '/'
-                  ? 'text-[#6425A6] dark:text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-[#6425A6] dark:after:bg-primary after:rounded-full'
-                  : 'text-[#6B7280] dark:text-slate-200 hover:text-[#6425A6] dark:hover:text-white'
+                  ? 'bg-slate-100 text-slate-900 dark:bg-white/10 dark:text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5'
               }`}
             >
               {locale === 'ar' ? 'الرئيسية' : 'Home'}
             </Link>
             <Link
               href="/#matches"
-              className="text-sm font-semibold text-[#6B7280] dark:text-slate-200 hover:text-[#6425A6] dark:hover:text-white transition-colors py-2 px-1"
+              className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5 transition-all px-3.5 py-2 rounded-xl"
             >
               {locale === 'ar' ? 'المباريات' : 'Matches'}
             </Link>
             <Link
               href="/competitions"
-              className="text-sm font-semibold text-[#6B7280] dark:text-slate-200 hover:text-[#6425A6] dark:hover:text-white transition-colors py-2 px-1"
+              className={`text-[13px] font-semibold transition-all px-3.5 py-2 rounded-xl ${
+                pathname === '/competitions'
+                  ? 'bg-slate-100 text-slate-900 dark:bg-white/10 dark:text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5'
+              }`}
             >
               {locale === 'ar' ? 'الدوريات' : 'Leagues'}
             </Link>
             <Link
               href="/news"
-              className="text-sm font-semibold text-[#6B7280] dark:text-slate-200 hover:text-[#6425A6] dark:hover:text-white transition-colors py-2 px-1"
+              className={`text-[13px] font-semibold transition-all px-3.5 py-2 rounded-xl ${
+                pathname === '/news'
+                  ? 'bg-slate-100 text-slate-900 dark:bg-white/10 dark:text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5'
+              }`}
             >
               {locale === 'ar' ? 'الأخبار' : 'News'}
             </Link>
             <Link
               href="/fantasy"
-              className={`text-sm font-semibold transition-colors py-2 px-1 flex items-center gap-1.5 ${
+              className={`text-[13px] font-semibold transition-all px-3.5 py-2 rounded-xl flex items-center gap-2 ${
                 pathname?.startsWith('/fantasy')
-                  ? 'text-[#6425A6] dark:text-emerald-400 font-bold'
-                  : 'text-[#6B7280] dark:text-slate-200 hover:text-[#6425A6] dark:hover:text-white'
+                  ? 'bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 shadow-xs'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-purple-700 dark:hover:text-purple-300 hover:bg-purple-50/50 dark:hover:bg-purple-950/20'
               }`}
             >
-              <span className="material-symbols-outlined text-base text-emerald-500">sports_soccer</span>
+              <span className="material-symbols-outlined text-[16px] text-emerald-500">sports_soccer</span>
               <span>{locale === 'ar' ? 'الفانتازي' : 'Fantasy'}</span>
-              <span className="text-[9px] px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-black border border-emerald-500/30">
+              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 font-extrabold border border-emerald-500/20">
                 PL
               </span>
             </Link>
             <div className="relative group">
               <button
                 type="button"
-                className="text-sm font-semibold text-[#6B7280] dark:text-slate-200 hover:text-[#6425A6] dark:hover:text-white transition-colors flex items-center gap-1 cursor-pointer py-2 px-1"
+                className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5 transition-all px-3 py-2 rounded-xl flex items-center gap-1 cursor-pointer"
               >
                 <span>{locale === 'ar' ? 'المزيد' : 'More'}</span>
-                <span className="material-symbols-outlined text-sm">expand_more</span>
+                <span className="material-symbols-outlined text-[16px] opacity-60 group-hover:opacity-100 transition-opacity">expand_more</span>
               </button>
-              <div className="absolute top-9 right-0 rtl:right-auto rtl:left-0 hidden group-hover:flex flex-col bg-white dark:bg-[#0f1728] border border-[#E5E5E5] dark:border-slate-800 rounded-xl shadow-xl py-1.5 w-40 z-50">
-                <Link href="/favorites" className="px-3.5 py-2 text-xs font-semibold text-[#171717] dark:text-slate-100 hover:bg-[#F3ECFA] dark:hover:bg-slate-800 hover:text-[#6425A6]">
+              <div className="absolute top-11 right-0 rtl:right-auto rtl:left-0 hidden group-hover:flex flex-col bg-white dark:bg-[#11192A] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl py-2 w-44 z-50 animate-scale-spring">
+                <Link href="/favorites" className="px-4 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80 hover:text-[#5B21B6] dark:hover:text-white transition-colors">
                   {t('nav.favorites', 'Favorites')}
                 </Link>
-                <Link href="/about" className="px-3.5 py-2 text-xs font-semibold text-[#171717] dark:text-slate-100 hover:bg-[#F3ECFA] dark:hover:bg-slate-800 hover:text-[#6425A6]">
+                <Link href="/about" className="px-4 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80 hover:text-[#5B21B6] dark:hover:text-white transition-colors">
                   {locale === 'ar' ? 'من نحن' : 'About Us'}
                 </Link>
-                <Link href="/contact" className="px-3.5 py-2 text-xs font-semibold text-[#171717] dark:text-slate-100 hover:bg-[#F3ECFA] dark:hover:bg-slate-800 hover:text-[#6425A6]">
+                <Link href="/contact" className="px-4 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80 hover:text-[#5B21B6] dark:hover:text-white transition-colors">
                   {locale === 'ar' ? 'اتصل بنا' : 'Contact'}
                 </Link>
               </div>
             </div>
           </nav>
 
-          {/* Search Bar — desktop rounded pill */}
-          <div ref={searchContainerRef} className="hidden md:flex items-center flex-1 max-w-xs lg:max-w-sm mx-2 gap-2 relative">
+          {/* Search Bar — desktop rounded pill with spacious padding and focus glow */}
+          <div ref={searchContainerRef} className="hidden md:flex items-center flex-1 max-w-sm lg:max-w-md mx-2 gap-2 relative">
             <div className="relative flex-1 flex items-center">
-              <span className="material-symbols-outlined absolute left-3 rtl:left-auto rtl:right-3 text-[#6425A6] dark:text-slate-400 pointer-events-none" style={{ fontSize: 16 }}>search</span>
+              <span className="material-symbols-outlined absolute left-3.5 rtl:left-auto rtl:right-3.5 text-slate-400 pointer-events-none" style={{ fontSize: 18 }}>search</span>
               <input
                 value={internalQuery}
                 onChange={(e) => handleInputChange(e.target.value)}
@@ -224,12 +232,12 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
                   if (internalQuery.trim().length >= 2) setIsOpen(true)
                 }}
                 onKeyDown={handleKeyDown}
-                className="w-full bg-[#F5F5F5] dark:bg-[#0e1626] border border-[#E5E5E5] dark:border-[#1e2a40] rounded-full pl-9 pr-10 rtl:pl-10 rtl:pr-9 py-1.5 font-inter text-xs text-[#171717] dark:text-white placeholder:text-[#6B7280] dark:placeholder:text-slate-400 focus:outline-none focus:border-[#6425A6] focus:bg-white dark:focus:bg-[#0e1626] transition-colors text-left rtl:text-right"
+                className="w-full bg-slate-100/80 dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 rounded-full pl-10 pr-11 rtl:pl-11 rtl:pr-10 py-2 font-inter text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-[#5B21B6] dark:focus:border-[#A78BFA] focus:bg-white dark:focus:bg-[#0D1320] focus:ring-4 focus:ring-purple-500/10 transition-all text-left rtl:text-right"
                 placeholder={t('common.search_placeholder', 'Search teams, players, leagues...')}
                 type="search"
                 aria-label={t('common.search_placeholder', 'Search')}
               />
-              <kbd className="absolute right-3 rtl:right-auto rtl:left-3 px-1.5 py-0.5 rounded bg-[#152033] font-geist text-[10px] text-slate-400 border border-slate-700">/</kbd>
+              <kbd className="absolute right-3.5 rtl:right-auto rtl:left-3.5 px-2 py-0.5 rounded-md bg-white dark:bg-slate-800 font-mono text-[10px] text-slate-400 border border-slate-200 dark:border-slate-700 shadow-2xs">/</kbd>
             </div>
 
             {/* Instant Search Results Dropdown — Desktop */}
@@ -383,28 +391,28 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
           </div>
 
           {/* Actions & Utilities Matching Reference Image Header */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2.5 shrink-0">
             {/* Language picker pill */}
             <div className="relative group flex">
               <button
-                className="h-8 px-2 sm:px-2.5 rounded-full bg-[#F5F5F5] dark:bg-[#121c2d] hover:bg-[#F3ECFA] dark:hover:bg-[#19273f] text-xs font-bold text-[#171717] dark:text-slate-200 flex items-center gap-0.5 sm:gap-1 transition-colors border border-[#E5E5E5] dark:border-slate-800"
+                className="h-8.5 px-3 rounded-full bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-900 dark:hover:bg-slate-800 text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 transition-all border border-slate-200/80 dark:border-slate-800 cursor-pointer shadow-2xs"
                 aria-label="Select Language"
               >
-                <span className="uppercase text-[11px] sm:text-xs">{label}</span>
-                <span className="material-symbols-outlined text-[#6B7280] dark:text-slate-400" style={{ fontSize: 13 }}>expand_more</span>
+                <span className="uppercase text-[11px] font-bold tracking-wider">{label}</span>
+                <span className="material-symbols-outlined text-slate-400" style={{ fontSize: 15 }}>expand_more</span>
               </button>
-              <div className="absolute right-0 rtl:right-auto rtl:left-0 top-9 hidden group-hover:flex flex-col bg-white dark:bg-[#0f1728] border border-[#E5E5E5] dark:border-slate-800 rounded-xl shadow-xl z-50 min-w-[110px] overflow-hidden py-1">
+              <div className="absolute right-0 rtl:right-auto rtl:left-0 top-10 hidden group-hover:flex flex-col bg-white dark:bg-[#11192A] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-50 min-w-[130px] overflow-hidden py-1.5 animate-scale-spring">
                 {LOCALES.map(l => (
                   <button
                     key={l.code}
                     onClick={() => changeLocale(l.code)}
-                    className={`px-3 py-1.5 text-left rtl:text-right font-geist text-xs font-semibold hover:bg-[#F3ECFA] dark:hover:bg-slate-800 transition-colors flex items-center justify-between gap-2 ${
-                      l.code === locale ? 'text-[#6425A6] dark:text-amber-500 font-bold' : 'text-[#171717] dark:text-slate-300'
+                    className={`px-3.5 py-2 text-left rtl:text-right font-geist text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-colors flex items-center justify-between gap-2 cursor-pointer ${
+                      l.code === locale ? 'text-[#5B21B6] dark:text-[#A78BFA] font-bold bg-purple-50/50 dark:bg-purple-950/20' : 'text-slate-700 dark:text-slate-300'
                     }`}
                   >
                     <span>{l.name}</span>
                     {l.code === locale && (
-                      <span className="material-symbols-outlined text-[#6425A6] dark:text-amber-500" style={{ fontSize: 14 }}>check</span>
+                      <span className="material-symbols-outlined text-[#5B21B6] dark:text-[#A78BFA]" style={{ fontSize: 16 }}>check</span>
                     )}
                   </button>
                 ))}
@@ -414,11 +422,11 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
             {/* Mobile Search Button */}
             <button
               onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-              className="md:hidden w-8 h-8 rounded-full flex items-center justify-center bg-[#F5F5F5] dark:bg-slate-800 text-[#171717] dark:text-slate-200 transition-colors border border-[#E5E5E5] dark:border-slate-700"
+              className="md:hidden w-8.5 h-8.5 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-200 transition-all border border-slate-200/80 dark:border-slate-800 cursor-pointer shadow-2xs"
               title="Search"
               aria-label="Toggle mobile search"
             >
-              <span className="material-symbols-outlined text-base">
+              <span className="material-symbols-outlined text-[18px]">
                 {isMobileSearchOpen ? 'close' : 'search'}
               </span>
             </button>
@@ -426,52 +434,63 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsDrawerOpen(true)}
-              className="xl:hidden w-8 h-8 rounded-full flex items-center justify-center bg-[#F5F5F5] dark:bg-slate-800 text-[#171717] dark:text-slate-200 transition-colors border border-[#E5E5E5] dark:border-slate-700"
+              className="xl:hidden w-8.5 h-8.5 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-200 transition-all border border-slate-200/80 dark:border-slate-800 cursor-pointer shadow-2xs"
               title={t('common.more', 'Menu')}
               aria-label="Open navigation drawer"
             >
-              <span className="material-symbols-outlined text-lg">menu</span>
+              <span className="material-symbols-outlined text-[20px]">menu</span>
             </button>
           </div>
         </div>
 
-        {/* Mobile Horizontal Navigation Bar — exact visual parity with desktop */}
-        <nav className="xl:hidden flex items-center justify-around px-2 border-t border-[#E5E5E5] dark:border-[#182335] bg-white dark:bg-[#0c121e] overflow-x-auto scrollbar-none" aria-label="Mobile main navigation">
+        {/* Mobile Horizontal Navigation Bar — Minimalist pill tabs with smooth bottom line */}
+        <nav className="xl:hidden flex items-center justify-around px-3 py-1.5 border-t border-slate-200/70 dark:border-slate-800/70 bg-white/95 dark:bg-[#080C14]/95 overflow-x-auto scrollbar-none gap-1" aria-label="Mobile main navigation">
           <Link
             href="/"
-            className={`text-xs font-bold transition-all py-2 px-2 relative whitespace-nowrap ${
+            className={`text-xs font-bold transition-all py-1.5 px-3 rounded-lg relative whitespace-nowrap ${
               pathname === '/'
-                ? 'text-[#6425A6] dark:text-white after:absolute after:bottom-0 after:left-1 after:right-1 after:h-[2px] after:bg-[#6425A6] dark:after:bg-primary after:rounded-full'
-                : 'text-[#6B7280] dark:text-slate-200 hover:text-[#6425A6] dark:hover:text-white'
+                ? 'bg-slate-100 text-slate-950 dark:bg-white/10 dark:text-white font-extrabold shadow-2xs'
+                : 'text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white'
             }`}
           >
             {locale === 'ar' ? 'الرئيسية' : 'Home'}
           </Link>
           <Link
             href="/#matches"
-            className="text-xs font-semibold text-[#6B7280] dark:text-slate-200 hover:text-[#6425A6] dark:hover:text-white transition-colors py-2 px-2 whitespace-nowrap"
+            className="text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white transition-colors py-1.5 px-3 rounded-lg whitespace-nowrap"
           >
             {locale === 'ar' ? 'المباريات' : 'Matches'}
           </Link>
           <Link
             href="/competitions"
-            className={`text-xs font-semibold transition-all py-2 px-2 whitespace-nowrap relative ${
+            className={`text-xs font-semibold transition-all py-1.5 px-3 rounded-lg whitespace-nowrap relative ${
               pathname === '/competitions'
-                ? 'text-[#6425A6] dark:text-white after:absolute after:bottom-0 after:left-1 after:right-1 after:h-[2px] after:bg-[#6425A6] dark:after:bg-primary after:rounded-full'
-                : 'text-[#6B7280] dark:text-slate-200 hover:text-[#6425A6] dark:hover:text-white'
+                ? 'bg-slate-100 text-slate-950 dark:bg-white/10 dark:text-white font-extrabold shadow-2xs'
+                : 'text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white'
             }`}
           >
             {locale === 'ar' ? 'الدوريات' : 'Leagues'}
           </Link>
           <Link
             href="/news"
-            className={`text-xs font-semibold transition-all py-2 px-2 whitespace-nowrap relative ${
+            className={`text-xs font-semibold transition-all py-1.5 px-3 rounded-lg whitespace-nowrap relative ${
               pathname === '/news'
-                ? 'text-[#6425A6] dark:text-white after:absolute after:bottom-0 after:left-1 after:right-1 after:h-[2px] after:bg-[#6425A6] dark:after:bg-primary after:rounded-full'
-                : 'text-[#6B7280] dark:text-slate-200 hover:text-[#6425A6] dark:hover:text-white'
+                ? 'bg-slate-100 text-slate-950 dark:bg-white/10 dark:text-white font-extrabold shadow-2xs'
+                : 'text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white'
             }`}
           >
             {locale === 'ar' ? 'الأخبار' : 'News'}
+          </Link>
+          <Link
+            href="/fantasy"
+            className={`text-xs font-semibold transition-all py-1.5 px-3 rounded-lg whitespace-nowrap relative flex items-center gap-1 ${
+              pathname?.startsWith('/fantasy')
+                ? 'bg-purple-100/70 text-purple-900 dark:bg-purple-950/50 dark:text-purple-200 font-extrabold'
+                : 'text-slate-600 dark:text-slate-300 hover:text-purple-700'
+            }`}
+          >
+            <span className="material-symbols-outlined text-[14px] text-emerald-500">sports_soccer</span>
+            <span>{locale === 'ar' ? 'فانتازي' : 'Fantasy'}</span>
           </Link>
           <Link
             href="/favorites"

@@ -282,18 +282,18 @@ export default function HomeClient({
         isLoading={isLoading}
       />
 
-      {/* Editorial News Magazine Portal (Full Showcase matching reference screenshot) */}
-      <div className="w-full max-w-[1440px] mx-auto px-2 sm:px-4 pt-3 pb-2 space-y-6">
+      {/* Editorial News Magazine Portal */}
+      <div className="w-full max-w-[1440px] mx-auto px-2 sm:px-4 pt-4 pb-3 space-y-8">
         <HomeNewsMagazine articles={currentArticles} />
       </div>
 
       {/* Main Page Layout Container (Match Center + Sidebars) */}
-      <div id="matches" className="flex-1 max-w-[1440px] w-full mx-auto px-2 md:px-4 py-4 flex gap-4">
+      <div id="matches" className="flex-1 max-w-[1440px] w-full mx-auto px-2 md:px-4 py-6 flex gap-6">
         {/* Left Navigation Sidebar */}
         <DesktopSidebar />
 
         {/* Center Main Content Stream */}
-        <main className="flex-1 min-w-0 w-full space-y-8">
+        <main className="flex-1 min-w-0 w-full space-y-10">
           {/* Main Meaningful H1 for Google SEO & Accessibility */}
           <h1 className="sr-only">
             {locale === 'ar'
@@ -307,12 +307,12 @@ export default function HomeClient({
           {/* Section: دوريات وبطولات (League Video & News Grids with Purple SVG Bar Headers) */}
           <LeagueVideoNewsGrid articles={currentArticles} />
 
-          {/* Section: Live Scores & Match Center (Matching Image 3) */}
-          <section className="space-y-3 pt-2" aria-label="Match Center">
+          {/* Section: Live Scores & Match Center */}
+          <section className="space-y-4 pt-2" aria-label="Match Center">
             <div className="flex items-center justify-between px-1">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-5 rounded-full bg-[#6425A6] shadow-xs" />
-                <h2 className="text-base sm:text-lg font-extrabold font-geist text-[#171717] dark:text-white tracking-tight">
+              <div className="flex items-center gap-2.5">
+                <span className="w-2.5 h-6 rounded-full bg-purple-600 shadow-xs" />
+                <h2 className="text-base sm:text-xl font-extrabold font-geist text-slate-900 dark:text-white tracking-tight">
                   {activeFilter === 'live'
                     ? t('filters.liveScores', 'Live Football Scores')
                     : activeFilter === 'finished'
@@ -322,7 +322,7 @@ export default function HomeClient({
                     : (locale === 'ar' ? 'مركز المباريات والنتائج المباشرة' : "Today's Match Center & Live Scores")}
                 </h2>
               </div>
-              <span className="text-xs text-[#6B7280] dark:text-slate-300 font-semibold px-2.5 py-1 rounded-md bg-white dark:bg-[#0c121e] border border-[#E5E5E5] dark:border-[#182335] shadow-xs">
+              <span className="text-xs text-slate-600 dark:text-slate-300 font-semibold px-3 py-1.5 rounded-xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-slate-800/80 shadow-xs">
                 {counts.all} {locale === 'ar' ? 'مباراة' : 'matches'}
               </span>
             </div>
@@ -338,7 +338,7 @@ export default function HomeClient({
 
           {/* Content States */}
           {isLoading ? (
-            <div className="space-y-3 bg-surface-container rounded-lg p-3">
+            <div className="space-y-3 bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-4 shadow-xs">
               <SkeletonMatchRow />
               <SkeletonMatchRow />
               <SkeletonMatchRow />

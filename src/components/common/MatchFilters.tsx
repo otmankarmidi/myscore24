@@ -36,9 +36,9 @@ export default function MatchFilters({
   const offText = t('common.off', 'OFF')
 
   return (
-    <div className="bg-white dark:bg-[#0c121e] rounded-xl border border-[#E5E5E5] dark:border-[#182335] px-3 py-2 flex flex-wrap items-center justify-between gap-2.5 shadow-xs">
+    <div className="bg-white dark:bg-[#0F172A] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 px-4 py-3 flex flex-wrap items-center justify-between gap-3 shadow-xs">
       {/* Status tabs */}
-      <div className="flex items-center gap-1 bg-[#F5F5F5] dark:bg-[#080d16] p-1 rounded-lg border border-[#E5E5E5] dark:border-[#182335]">
+      <div className="flex items-center gap-1.5 bg-slate-100/90 dark:bg-[#080C14] p-1.5 rounded-xl border border-slate-200/60 dark:border-slate-800/80">
         {tabs.map((tab) => {
           const isActive = activeFilter === tab.key
           const isLive = tab.key === 'live'
@@ -47,12 +47,12 @@ export default function MatchFilters({
             <button
               key={tab.key}
               onClick={() => onFilterChange(tab.key)}
-              className={`px-3 py-1.5 rounded-md font-geist text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-lg font-geist text-xs font-semibold transition-all duration-200 flex items-center gap-2 cursor-pointer ${
                 isActive
                   ? isLive
                     ? 'bg-rose-50 text-rose-600 border border-rose-200 shadow-xs dark:bg-rose-500/20 dark:text-rose-400 dark:border-rose-500/40'
-                    : 'bg-[#6425A6] text-white shadow-xs dark:bg-[#152033] dark:border dark:border-[#273852]'
-                  : 'text-[#6B7280] dark:text-slate-400 hover:text-[#6425A6] dark:hover:text-white hover:bg-[#F3ECFA] dark:hover:bg-[#101826]'
+                    : 'bg-purple-600 text-white shadow-xs dark:bg-purple-700 dark:text-white'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/70 dark:hover:bg-slate-800/60'
               }`}
               aria-pressed={isActive}
             >
@@ -69,8 +69,8 @@ export default function MatchFilters({
                 isActive
                   ? isLive
                     ? 'text-rose-600 dark:text-rose-400'
-                    : 'text-purple-200 dark:text-amber-400'
-                  : 'text-[#9CA3AF] dark:text-slate-500'
+                    : 'text-purple-100 dark:text-purple-200'
+                  : 'text-slate-400 dark:text-slate-500'
               }`}>
                 ({counts[tab.key]})
               </span>
@@ -80,32 +80,32 @@ export default function MatchFilters({
       </div>
 
       {/* Quick toggles */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2.5">
         <button
           onClick={onToggleOdds}
-          className={`h-7 px-2.5 rounded-lg font-geist text-[11px] font-bold uppercase flex items-center gap-1.5 transition-all border ${
+          className={`h-8 px-3 rounded-xl font-geist text-xs font-semibold flex items-center gap-1.5 transition-all duration-200 border cursor-pointer ${
             oddsOn
-              ? 'bg-[#F3ECFA] text-[#6425A6] border-[#6425A6]/30 dark:bg-amber-400/10 dark:text-amber-400 dark:border-amber-400/30'
-              : 'bg-[#F9FAFB] dark:bg-[#101826] text-[#6B7280] dark:text-slate-400 hover:text-[#171717] dark:hover:text-white border-[#E5E5E5] dark:border-[#182335]'
+              ? 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800/50'
+              : 'bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border-slate-200/80 dark:border-slate-800'
           }`}
           aria-pressed={oddsOn}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: 14 }}>percent</span>
-          <span>{t('common.odds', 'Odds')}: <strong className={oddsOn ? 'text-[#6425A6] dark:text-amber-400' : 'text-[#171717] dark:text-slate-200'}>{oddsOn ? onText : offText}</strong></span>
+          <span className="material-symbols-outlined text-[15px]">percent</span>
+          <span>{t('common.odds', 'Odds')}: <strong className={oddsOn ? 'text-purple-700 dark:text-purple-300' : 'text-slate-900 dark:text-slate-200'}>{oddsOn ? onText : offText}</strong></span>
         </button>
         <button
           onClick={onToggleSound}
-          className={`h-7 px-2.5 rounded-lg font-geist text-[11px] font-bold uppercase flex items-center gap-1.5 transition-all border ${
+          className={`h-8 px-3 rounded-xl font-geist text-xs font-semibold flex items-center gap-1.5 transition-all duration-200 border cursor-pointer ${
             soundOn
-              ? 'bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/30'
-              : 'bg-[#F9FAFB] dark:bg-[#101826] text-[#6B7280] dark:text-slate-400 hover:text-[#171717] dark:hover:text-white border-[#E5E5E5] dark:border-[#182335]'
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/50'
+              : 'bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border-slate-200/80 dark:border-slate-800'
           }`}
           aria-pressed={soundOn}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: 14 }}>
+          <span className="material-symbols-outlined text-[15px]">
             {soundOn ? 'volume_up' : 'volume_off'}
           </span>
-          <span>{t('common.sound', 'Sound')}: <strong className={soundOn ? 'text-emerald-600 dark:text-emerald-400' : 'text-[#171717] dark:text-slate-300'}>{soundOn ? onText : offText}</strong></span>
+          <span>{t('common.sound', 'Sound')}: <strong className={soundOn ? 'text-emerald-700 dark:text-emerald-300' : 'text-slate-900 dark:text-slate-200'}>{soundOn ? onText : offText}</strong></span>
         </button>
       </div>
     </div>

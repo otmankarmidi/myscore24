@@ -31,15 +31,15 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
   const safeMatches = (matches || []).filter(Boolean)
 
   return (
-    <div className="competition-group-container bg-white dark:bg-[#0c121e] rounded-xl border border-[#E5E5E5] dark:border-[#182335] overflow-hidden shadow-xs animate-fade-in divide-y divide-[#E5E5E5] dark:divide-[#182335]">
+    <div className="competition-group-container bg-white dark:bg-[#0F172A] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 overflow-hidden shadow-xs animate-fade-in transition-all duration-200 hover:border-slate-300 dark:hover:border-slate-700">
       {/* Competition header */}
-      <div className="h-10 bg-[#FAFAFA] dark:bg-[#101826] px-3.5 flex items-center justify-between text-[#171717] dark:text-slate-200 border-b border-[#E5E5E5] dark:border-[#182335]">
-        <div className="flex items-center gap-2.5 min-w-0">
-          {/* Clickable Competition Logo with fallback chain */}
+      <div className="h-12 bg-slate-50/80 dark:bg-[#131E33] px-4 flex items-center justify-between text-slate-900 dark:text-slate-100 border-b border-slate-200/80 dark:border-slate-800/80">
+        <div className="flex items-center gap-3 min-w-0">
+          {/* Clickable Competition Logo */}
           <Link
             href={competitionHref}
             prefetch={false}
-            className="flex items-center shrink-0 hover:opacity-80 transition-opacity"
+            className="flex items-center shrink-0 hover:scale-105 transition-transform duration-200"
             aria-label={`${safeName} details`}
           >
             <CompetitionLogo
@@ -49,7 +49,7 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
               countryFlag={league.countryFlag}
               providerId={league.id}
               slug={league.slug}
-              size={22}
+              size={24}
             />
           </Link>
 
@@ -57,34 +57,34 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
           <Link
             href={competitionHref}
             prefetch={false}
-            className="font-geist text-xs uppercase font-extrabold tracking-wider truncate text-[#6425A6] dark:text-primary hover:opacity-80 transition-all"
+            className="font-geist text-[13px] uppercase font-bold tracking-wide truncate text-slate-900 dark:text-slate-100 hover:text-purple-700 dark:hover:text-purple-400 transition-colors"
           >
             {safeName}
           </Link>
 
           {league.currentRound && (
-            <span className="font-geist text-[11px] text-[#6B7280] dark:text-slate-400 font-medium shrink-0">
+            <span className="font-geist text-xs text-slate-500 dark:text-slate-400 font-medium shrink-0">
               • {league.currentRound}
             </span>
           )}
         </div>
 
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-2.5 shrink-0">
           <button
             onClick={() => {
               if (league.slug) toggleLeague(league.slug)
               if (league.id && league.id !== league.slug) toggleLeague(league.id)
             }}
-            className="text-[#9CA3AF] dark:text-slate-500 hover:text-[#6425A6] dark:hover:text-amber-400 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-amber-500 hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-all cursor-pointer"
             title={isFavorited ? t('common.unpinLeague', 'Unpin League') : t('common.pinLeague', 'Pin League')}
             aria-label={`${isFavorited ? 'Unpin' : 'Pin'} ${safeName}`}
           >
             <span
-              className="material-symbols-outlined"
+              className="material-symbols-outlined transition-transform duration-200 hover:scale-110"
               style={{
-                fontSize: 18,
+                fontSize: 19,
                 fontVariationSettings: isFavorited ? "'FILL' 1" : "'FILL' 0",
-                color: isFavorited ? '#6425A6' : undefined,
+                color: isFavorited ? '#F59E0B' : undefined,
               }}
             >
               star
@@ -94,18 +94,18 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
           <Link
             href={competitionHref}
             prefetch={false}
-            className="font-geist text-[11px] uppercase font-bold text-[#6425A6] dark:text-amber-400 hover:opacity-80 transition-colors flex items-center gap-1 group/std"
+            className="px-2.5 py-1 rounded-lg font-geist text-xs font-semibold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-all flex items-center gap-1.5 group/std"
             aria-label={`${t('common.viewStandings', 'View')} ${safeName} ${t('common.standings', 'standings')}`}
           >
-            <span className="material-symbols-outlined text-xs group-hover/std:scale-110 transition-transform">star</span>
-            <span>{t('common.standings', 'STANDINGS')}</span>
-            <span className="material-symbols-outlined rtl:rotate-180 text-xs">chevron_right</span>
+            <span className="material-symbols-outlined text-[14px] group-hover/std:scale-110 transition-transform">leaderboard</span>
+            <span className="tracking-wide uppercase text-[11px] font-bold">{t('common.standings', 'STANDINGS')}</span>
+            <span className="material-symbols-outlined rtl:rotate-180 text-[14px] group-hover/std:translate-x-0.5 rtl:group-hover/std:-translate-x-0.5 transition-transform">chevron_right</span>
           </Link>
         </div>
       </div>
 
       {/* Match rows */}
-      <div className="flex flex-col divide-y divide-[#F5F5F5] dark:divide-[#141e30]">
+      <div className="flex flex-col divide-y divide-slate-100 dark:divide-slate-800/60">
         {safeMatches.map((match) => (
           <MatchRow
             key={match.id}

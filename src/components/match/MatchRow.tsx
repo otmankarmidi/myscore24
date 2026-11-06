@@ -101,35 +101,35 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
 
     if (myScore === null) return 'hidden'
     if (isFlashingGoal && (lastScoringSide === side || !lastScoringSide)) {
-      return 'text-primary scale-125'
+      return 'text-purple-600 dark:text-purple-400 scale-125'
     }
     if (live) {
-      return 'text-error font-extrabold'
+      return 'text-rose-600 dark:text-rose-400 font-extrabold'
     }
     if (isFinished) {
       if (oppScore !== null && myScore < oppScore) {
-        return 'text-on-surface-variant font-semibold'
+        return 'text-slate-400 dark:text-slate-500 font-semibold'
       }
-      return 'text-on-surface font-extrabold'
+      return 'text-slate-900 dark:text-white font-extrabold'
     }
-    return 'text-on-surface font-bold'
+    return 'text-slate-900 dark:text-slate-100 font-bold'
   }
 
   const getTeamNameStyle = (side: 'home' | 'away') => {
     const isHome = side === 'home'
     if (isFinished) {
-      if (isHome && awayWins) return 'text-on-surface-variant font-medium'
-      if (!isHome && homeWins) return 'text-on-surface-variant font-medium'
-      if (isHome && homeWins) return 'font-bold text-on-surface'
-      if (!isHome && awayWins) return 'font-bold text-on-surface'
-      return 'font-semibold text-on-surface'
+      if (isHome && awayWins) return 'text-slate-400 dark:text-slate-500 font-medium'
+      if (!isHome && homeWins) return 'text-slate-400 dark:text-slate-500 font-medium'
+      if (isHome && homeWins) return 'font-bold text-slate-900 dark:text-white'
+      if (!isHome && awayWins) return 'font-bold text-slate-900 dark:text-white'
+      return 'font-semibold text-slate-800 dark:text-slate-200'
     }
     if (live) {
-      if (isHome && homeWins) return 'font-bold text-on-surface'
-      if (!isHome && awayWins) return 'font-bold text-on-surface'
-      return 'font-semibold text-on-surface'
+      if (isHome && homeWins) return 'font-bold text-slate-900 dark:text-white'
+      if (!isHome && awayWins) return 'font-bold text-slate-900 dark:text-white'
+      return 'font-semibold text-slate-800 dark:text-slate-200'
     }
-    return 'font-medium text-on-surface'
+    return 'font-medium text-slate-800 dark:text-slate-200 group-hover:text-purple-700 dark:group-hover:text-purple-300 transition-colors'
   }
 
   return (
@@ -139,18 +139,18 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
       onClick={(e) => {
         if (!hasValidId) e.preventDefault()
       }}
-      className={`match-row block px-3.5 py-2.5 group transition-all duration-200 relative bg-white hover:bg-[#F3ECFA] dark:bg-[#0c121e] dark:hover:bg-[#131d2e] ${
+      className={`match-row block px-4 py-3 sm:py-3.5 group transition-colors duration-150 relative bg-white hover:bg-slate-50/90 dark:bg-[#0F172A] dark:hover:bg-[#131E33] ${
         isFlashingGoal
-          ? 'animate-score-flash ring-2 ring-[#6425A6]/80 rounded-lg shadow-[0_0_20px_rgba(100,37,166,0.35)]'
+          ? 'animate-score-flash ring-2 ring-purple-600/80 rounded-xl shadow-[0_0_24px_rgba(147,51,234,0.3)]'
           : ''
       }`}
       aria-label={`${safeHome.name} vs ${safeAway.name}, ${status || 'scheduled'}`}
     >
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-3.5">
         {/* Status / Kickoff column */}
-        <div className="w-16 shrink-0 flex flex-col items-center justify-center">
+        <div className="w-18 shrink-0 flex flex-col items-center justify-center">
           {status === 'scheduled' ? (
-            <span className="w-full py-1.5 rounded-lg bg-[#F5F5F5] dark:bg-[#101826] border border-[#E5E5E5] dark:border-[#182335] text-center font-geist font-bold text-xs text-[#6425A6] dark:text-amber-400 tabular-nums shadow-xs">
+            <span className="w-full py-1.5 px-1 rounded-xl bg-slate-50 dark:bg-[#131E33] border border-slate-200/80 dark:border-slate-800 text-center font-geist font-bold text-xs text-purple-700 dark:text-purple-300 tabular-nums shadow-xs group-hover:border-purple-300 dark:group-hover:border-purple-800 transition-colors">
               {formatMatchTime(kickoff, activeTimezone, locale)}
             </span>
           ) : (
@@ -159,26 +159,26 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
         </div>
 
         {/* Teams & scores */}
-        <div className="flex-1 flex flex-col min-w-0 gap-1">
+        <div className="flex-1 flex flex-col min-w-0 gap-1.5">
           {/* Home */}
           <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 min-w-0">
+            <div className="flex items-center gap-2.5 min-w-0">
               <TeamLogo name={safeHome.name} abbreviation={safeHome.abbreviation} logo={safeHome.logo} size="xs" />
-              <span className={`font-inter text-[14px] truncate ${getTeamNameStyle('home')}`}>
+              <span className={`font-inter text-[14.5px] truncate ${getTeamNameStyle('home')}`}>
                 {safeHome.name}
               </span>
               {homeReds.map((_, i) => (
-                <span key={i} className="w-2.5 h-3.5 rounded-[1px] inline-block shrink-0" style={{ backgroundColor: 'var(--color-error-container)' }} title="Red card" aria-label="Red card" />
+                <span key={i} className="w-2.5 h-3.5 rounded-[1px] inline-block shrink-0 bg-rose-600 shadow-xs" title="Red card" aria-label="Red card" />
               ))}
             </div>
             {/* Home Score */}
             <div className="flex items-center gap-1.5 shrink-0">
               {isFlashingGoal && (lastScoringSide === 'home' || !lastScoringSide) && (
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-[#6425A6] text-white animate-bounce shadow">
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-purple-600 text-white animate-bounce shadow">
                   GOAL!
                 </span>
               )}
-              <span className={`font-geist text-[18px] tabular-nums leading-none shrink-0 transition-transform ${getScoreStyle('home')}`}>
+              <span className={`font-geist text-[18px] sm:text-[19px] tabular-nums leading-none shrink-0 transition-transform ${getScoreStyle('home')}`}>
                 {homeScore ?? ''}
               </span>
             </div>
@@ -186,23 +186,23 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
 
           {/* Away */}
           <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 min-w-0">
+            <div className="flex items-center gap-2.5 min-w-0">
               <TeamLogo name={safeAway.name} abbreviation={safeAway.abbreviation} logo={safeAway.logo} size="xs" />
-              <span className={`font-inter text-[14px] truncate ${getTeamNameStyle('away')}`}>
+              <span className={`font-inter text-[14.5px] truncate ${getTeamNameStyle('away')}`}>
                 {safeAway.name}
               </span>
               {awayReds.map((_, i) => (
-                <span key={i} className="w-2.5 h-3.5 rounded-[1px] inline-block shrink-0" style={{ backgroundColor: 'var(--color-error-container)' }} title="Red card" aria-label="Red card" />
+                <span key={i} className="w-2.5 h-3.5 rounded-[1px] inline-block shrink-0 bg-rose-600 shadow-xs" title="Red card" aria-label="Red card" />
               ))}
             </div>
             {/* Away Score */}
             <div className="flex items-center gap-1.5 shrink-0">
               {isFlashingGoal && (lastScoringSide === 'away' || !lastScoringSide) && (
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-[#6425A6] text-white animate-bounce shadow">
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-purple-600 text-white animate-bounce shadow">
                   GOAL!
                 </span>
               )}
-              <span className={`font-geist text-[18px] tabular-nums leading-none shrink-0 transition-transform ${getScoreStyle('away')}`}>
+              <span className={`font-geist text-[18px] sm:text-[19px] tabular-nums leading-none shrink-0 transition-transform ${getScoreStyle('away')}`}>
                 {awayScore ?? ''}
               </span>
             </div>
@@ -210,7 +210,7 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
         </div>
 
         {/* Actions: Notifications & Favorite */}
-        <div className="shrink-0 flex items-center gap-1 justify-end">
+        <div className="shrink-0 flex items-center gap-1.5 justify-end">
           <MatchNotificationButton
             matchId={match.id}
             matchLabel={`${homeTeam.name} vs ${awayTeam.name}`}
@@ -226,7 +226,7 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
 
       {/* Event sub-line */}
       {hasEvents ? (
-        <div className="mt-1.5 flex items-center justify-between font-geist text-[10px] text-on-surface-variant gap-2 overflow-hidden">
+        <div className="mt-2 pt-1 border-t border-slate-100 dark:border-slate-800/40 flex items-center justify-between font-geist text-[11px] text-slate-500 dark:text-slate-400 gap-2 overflow-hidden">
           <span className="truncate">
             {homeGoals?.map(g => `⚽ ${g}`).join('  ')}
           </span>

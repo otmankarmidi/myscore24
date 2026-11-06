@@ -24,19 +24,19 @@ export default function MobileQuickLeaguesBar() {
   const favoriteLeagues = mockLeagues.slice(0, 6)
 
   return (
-    <div className="md:hidden w-full space-y-3 px-1 my-2">
+    <div className="md:hidden w-full space-y-3 px-1 my-3">
       {/* Favorite Leagues Card */}
-      <div className="bg-white dark:bg-[#0c121e] rounded-xl border border-[#E5E5E5] dark:border-[#182335] p-3 shadow-xs">
-        <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-[#E5E5E5] dark:border-slate-800">
+      <div className="bg-white dark:bg-[#0F172A] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-3.5 shadow-xs">
+        <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-slate-200/80 dark:border-slate-800/80">
           <div className="flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-sm text-[#6425A6]">star</span>
-            <span className="font-geist text-xs font-black uppercase tracking-wider text-[#6425A6]">
+            <span className="material-symbols-outlined text-[16px] text-amber-500">star</span>
+            <span className="font-geist text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
               {t('common.favorite_leagues', 'Favorite Leagues')}
             </span>
           </div>
           <Link
             href="/competitions"
-            className="text-[11px] font-bold text-[#6425A6] hover:underline flex items-center gap-0.5"
+            className="text-xs font-semibold text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-0.5"
           >
             <span>{isAr ? 'عرض الكل' : 'View All'}</span>
             <span className="material-symbols-outlined text-xs rtl:rotate-180">chevron_right</span>
@@ -50,7 +50,7 @@ export default function MobileQuickLeaguesBar() {
             return (
               <div
                 key={league.id}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#F5F5F5] dark:bg-[#121a29] border border-[#E5E5E5] dark:border-[#1b263b] shrink-0 text-xs hover:bg-[#F3ECFA] transition-colors"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 shrink-0 text-xs hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
                 <Link
                   href={`/league/${league.id || league.slug}`}
@@ -66,23 +66,23 @@ export default function MobileQuickLeaguesBar() {
                     slug={league.slug}
                     size={18}
                   />
-                  <span className="font-bold text-[#171717] dark:text-white truncate max-w-[100px]">
+                  <span className="font-semibold text-slate-800 dark:text-slate-200 truncate max-w-[100px]">
                     {league.name}
                   </span>
                 </Link>
-                <span className="font-geist text-[9px] font-extrabold text-[#6425A6] bg-[#F3ECFA] px-1 rounded">
+                <span className="font-geist text-[9px] font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 px-1 rounded border border-purple-200/50 dark:border-purple-800/40">
                   {league.countryCode}
                 </span>
                 <button
                   onClick={() => toggleLeague(league.slug)}
-                  className="text-[#9CA3AF] hover:text-[#6425A6] transition-colors"
+                  className="text-slate-400 hover:text-amber-500 transition-colors cursor-pointer"
                   aria-label={`${isFav ? 'Remove' : 'Add'} ${league.name}`}
                 >
                   <span
                     className="material-symbols-outlined text-[15px]"
                     style={{
                       fontVariationSettings: isFav ? "'FILL' 1" : "'FILL' 0",
-                      color: isFav ? '#6425A6' : undefined,
+                      color: isFav ? '#F59E0B' : undefined,
                     }}
                   >
                     star
@@ -94,15 +94,15 @@ export default function MobileQuickLeaguesBar() {
         </div>
 
         {/* Quick Links Row */}
-        <div className="mt-2.5 pt-2 border-t border-[#F5F5F5] dark:border-slate-800 flex items-center gap-2 overflow-x-auto scrollbar-none">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[#6B7280] dark:text-slate-400 shrink-0">
+        <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-2 overflow-x-auto scrollbar-none">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 shrink-0">
             {isAr ? 'روابط سريعة:' : 'Quick:'}
           </span>
           {QUICK_LEAGUES.map((item) => (
             <Link
               key={item.name}
               href={item.href}
-              className="flex items-center gap-1 px-2 py-1 rounded-md bg-[#F9FAFB] dark:bg-[#101726] border border-[#E5E5E5] dark:border-slate-800 text-[11px] font-semibold text-[#171717] dark:text-slate-200 hover:text-[#6425A6] hover:bg-[#F3ECFA] shrink-0 transition-colors"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 text-[11px] font-medium text-slate-700 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-300 hover:bg-slate-100 dark:hover:bg-slate-800 shrink-0 transition-colors"
             >
               <img
                 src={item.icon}

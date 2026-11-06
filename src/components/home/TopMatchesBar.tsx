@@ -90,21 +90,21 @@ export default function TopMatchesBar({
   return (
     <section
       aria-label="Matches Top Bar"
-      className="w-full max-w-[1440px] mx-auto px-2 sm:px-4 mt-3 mb-2 select-none"
+      className="w-full max-w-[1440px] mx-auto px-2 sm:px-4 mt-4 mb-3 select-none"
     >
-      {/* Container matching light reference design */}
-      <div className="rounded-2xl bg-white dark:bg-[#0c121e] border border-[#E5E5E5] dark:border-[#182335] p-2.5 sm:p-3 flex items-center gap-3 overflow-hidden shadow-xs">
+      {/* Container */}
+      <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-slate-800/80 p-3 sm:p-3.5 flex items-center gap-3.5 overflow-hidden shadow-xs">
         {/* Left Section: Live & Upcoming Title + Scroll Left Chevron */}
-        <div className="shrink-0 flex items-center gap-3 pe-3 border-e border-[#E5E5E5] dark:border-slate-800/80">
+        <div className="shrink-0 flex items-center gap-3 pe-3.5 border-e border-slate-200/80 dark:border-slate-800/80">
           <div className="flex flex-col">
-            <div className="flex items-center gap-1.5 text-[#171717] dark:text-white font-extrabold text-xs sm:text-sm leading-tight">
-              <span className="material-symbols-outlined text-[#6425A6] dark:text-orange-500 text-base">local_fire_department</span>
+            <div className="flex items-center gap-1.5 text-slate-900 dark:text-white font-extrabold text-xs sm:text-sm leading-tight">
+              <span className="material-symbols-outlined text-purple-600 dark:text-amber-400 text-base">local_fire_department</span>
               <span className="flex flex-col">
                 <span>{isAr ? 'مباشر و' : 'Live &'}</span>
                 <span>{isAr ? 'قادم' : 'Upcoming'}</span>
               </span>
             </div>
-            <span className="text-[10px] sm:text-[11px] text-[#6B7280] dark:text-slate-400 font-medium whitespace-nowrap mt-0.5">
+            <span className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap mt-0.5">
               {isAr ? 'أهم مباريات اليوم' : locale === 'fr' ? 'Meilleurs matchs' : "Today's top matches"}
             </span>
           </div>
@@ -114,7 +114,7 @@ export default function TopMatchesBar({
             onClick={() => handleScroll('left')}
             disabled={!canScrollLeft}
             aria-label="Scroll matches left"
-            className="w-7 h-7 rounded-full bg-[#F5F5F5] dark:bg-[#141d2e] hover:bg-[#F3ECFA] dark:hover:bg-[#1d2a42] border border-[#E5E5E5] dark:border-slate-700/60 text-[#171717] dark:text-slate-300 hover:text-[#6425A6] dark:hover:text-white disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center transition-all cursor-pointer shadow-xs shrink-0"
+            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 hover:text-purple-600 dark:hover:text-white disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center transition-all cursor-pointer shadow-xs shrink-0"
           >
             <span className="material-symbols-outlined text-base rtl:rotate-180">chevron_left</span>
           </button>
@@ -123,18 +123,18 @@ export default function TopMatchesBar({
         {/* Center Cards Track with CSS scroll-snap */}
         <div
           ref={scrollRef}
-          className="flex-1 flex items-center gap-2.5 overflow-x-auto scrollbar-none py-0.5 scroll-smooth snap-x snap-mandatory"
+          className="flex-1 flex items-center gap-3 overflow-x-auto scrollbar-none py-1 scroll-smooth snap-x snap-mandatory"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {isLoading ? (
             Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
-                className="shrink-0 w-[190px] sm:w-[205px] h-[78px] rounded-xl bg-[#F5F5F5] dark:bg-[#121a29] animate-pulse border border-[#E5E5E5] dark:border-[#1b263b] p-2.5 snap-start"
+                className="shrink-0 w-[195px] sm:w-[215px] h-[86px] rounded-2xl bg-slate-100 dark:bg-slate-800/60 animate-pulse border border-slate-200/80 dark:border-slate-800 p-3 snap-start"
               />
             ))
           ) : displayMatches.length === 0 ? (
-            <div className="w-full py-4 text-center text-xs text-[#6B7280] dark:text-slate-400 font-medium">
+            <div className="w-full py-4 text-center text-xs text-slate-500 dark:text-slate-400 font-medium">
               {isAr ? 'لا توجد مباريات مجدولة لهذا اليوم' : 'No matches scheduled for this date'}
             </div>
           ) : (
@@ -179,26 +179,26 @@ export default function TopMatchesBar({
                   key={match.id}
                   href={matchHref}
                   prefetch={false}
-                  className="shrink-0 w-[190px] sm:w-[205px] h-[78px] p-2 sm:p-2.5 rounded-xl bg-[#F9FAFB] dark:bg-[#121a29] border border-[#E5E5E5] dark:border-[#1b263b] hover:border-[#6425A6]/40 hover:bg-[#F3ECFA] dark:hover:bg-[#162134] transition-all flex flex-col justify-between cursor-pointer group shadow-xs snap-start"
+                  className="shrink-0 w-[195px] sm:w-[215px] h-[86px] p-2.5 sm:p-3 rounded-2xl bg-slate-50/80 hover:bg-white dark:bg-[#131E33] dark:hover:bg-[#18263F] border border-slate-200/80 dark:border-slate-800/80 hover:border-purple-300 dark:hover:border-purple-700/60 hover:shadow-md transition-all duration-200 flex flex-col justify-between cursor-pointer group snap-start"
                 >
                   {/* Top Row: Kickoff / Live badge on Left, League name & logo on Right */}
                   <div className="flex items-center justify-between text-[11px] leading-tight gap-1">
                     <div className="flex items-center gap-1.5 shrink-0">
-                      <span className="font-bold text-xs text-[#171717] dark:text-slate-200">{timeStr}</span>
+                      <span className="font-bold text-xs text-slate-900 dark:text-slate-100">{timeStr}</span>
                       {live && (
-                        <span className="px-1.5 py-0.5 rounded bg-red-600 text-[9px] font-black text-white uppercase tracking-wider animate-pulse">
+                        <span className="px-1.5 py-0.5 rounded bg-rose-600 text-[9px] font-black text-white uppercase tracking-wider animate-pulse">
                           LIVE
                         </span>
                       )}
                       {isFinished && (
-                        <span className="text-[10px] font-bold text-[#6B7280] dark:text-slate-400">
+                        <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">
                           {isAr ? 'انتهت' : 'FT'}
                         </span>
                       )}
                     </div>
 
                     <div className="flex items-center gap-1.5 shrink-0 max-w-[110px] justify-end">
-                      <span className="text-[10px] font-semibold text-[#6B7280] dark:text-slate-400 truncate">
+                      <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 truncate">
                         {leagueDisplay}
                       </span>
                       {leagueLogo && (
@@ -219,18 +219,18 @@ export default function TopMatchesBar({
 
                   {/* Team 1 Row */}
                   <div className="flex items-center justify-between gap-1 leading-none">
-                    <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
                       <TeamLogo
                         logo={match.homeTeam?.logo}
                         name={match.homeTeam?.name || 'Home'}
                         size="xs"
                       />
-                      <span className="text-xs font-semibold text-[#171717] dark:text-white group-hover:text-[#6425A6] dark:group-hover:text-amber-400 transition-colors truncate">
+                      <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors truncate">
                         {match.homeTeam?.name || 'Home'}
                       </span>
                     </div>
                     {!isScheduled && (
-                      <span className="text-xs font-bold text-[#171717] dark:text-slate-200 tabular-nums shrink-0">
+                      <span className="text-xs font-bold text-slate-900 dark:text-white tabular-nums shrink-0">
                         {match.score?.home ?? 0}
                       </span>
                     )}
@@ -238,18 +238,18 @@ export default function TopMatchesBar({
 
                   {/* Team 2 Row */}
                   <div className="flex items-center justify-between gap-1 leading-none">
-                    <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
                       <TeamLogo
                         logo={match.awayTeam?.logo}
                         name={match.awayTeam?.name || 'Away'}
                         size="xs"
                       />
-                      <span className="text-xs font-semibold text-[#171717] dark:text-white group-hover:text-[#6425A6] dark:group-hover:text-amber-400 transition-colors truncate">
+                      <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors truncate">
                         {match.awayTeam?.name || 'Away'}
                       </span>
                     </div>
                     {!isScheduled && (
-                      <span className="text-xs font-bold text-[#171717] dark:text-slate-200 tabular-nums shrink-0">
+                      <span className="text-xs font-bold text-slate-900 dark:text-white tabular-nums shrink-0">
                         {match.score?.away ?? 0}
                       </span>
                     )}
@@ -267,7 +267,7 @@ export default function TopMatchesBar({
             onClick={() => handleScroll('right')}
             disabled={!canScrollRight}
             aria-label="Scroll matches right"
-            className="w-7 h-7 rounded-full bg-[#F5F5F5] dark:bg-[#141d2e] hover:bg-[#F3ECFA] dark:hover:bg-[#1d2a42] border border-[#E5E5E5] dark:border-slate-700/60 text-[#171717] dark:text-slate-300 hover:text-[#6425A6] dark:hover:text-white disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center transition-all cursor-pointer shadow-xs shrink-0"
+            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200/80 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 hover:text-purple-600 dark:hover:text-white disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center transition-all cursor-pointer shadow-xs shrink-0"
           >
             <span className="material-symbols-outlined text-base rtl:rotate-180">chevron_right</span>
           </button>
