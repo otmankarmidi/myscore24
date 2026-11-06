@@ -139,7 +139,7 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
       onClick={(e) => {
         if (!hasValidId) e.preventDefault()
       }}
-      className={`match-row block px-4 py-3.5 sm:py-4 group transition-all duration-200 relative bg-white/35 hover:bg-white/80 dark:bg-transparent dark:hover:bg-white/5 hover:backdrop-blur-md ${
+      className={`match-row block px-4 py-3.5 sm:py-4 group transition-all duration-300 relative bg-white/35 hover:bg-white/90 dark:bg-transparent dark:hover:bg-white/8 hover:backdrop-blur-md hover:translate-x-1 rtl:hover:-translate-x-1 ${
         isFlashingGoal
           ? 'animate-score-flash ring-2 ring-purple-500 rounded-2xl shadow-[0_0_30px_rgba(139,92,246,0.4)]'
           : ''

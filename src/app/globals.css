@@ -469,15 +469,29 @@ html.dark .apple-glass-card {
 }
 
 .apple-glass-card:hover {
-  transform: translateY(-3px) scale(1.008);
-  border-color: rgba(139, 92, 246, 0.4);
-  box-shadow: 0 20px 45px -10px rgba(124, 58, 237, 0.14), 0 10px 15px -3px rgba(0, 0, 0, 0.04), inset 0 1px 2px 0 rgba(255, 255, 255, 1);
+  transform: translateY(-4px) scale(1.01);
+  border-color: rgba(139, 92, 246, 0.45);
+  box-shadow: 0 20px 45px -10px rgba(124, 58, 237, 0.16), 0 10px 20px -3px rgba(0, 0, 0, 0.04), inset 0 1px 2px 0 rgba(255, 255, 255, 1);
 }
 
 html.dark .apple-glass-card:hover {
-  transform: translateY(-3px) scale(1.008);
-  border-color: rgba(167, 139, 250, 0.4);
-  box-shadow: 0 22px 50px -10px rgba(0, 0, 0, 0.7), 0 0 25px rgba(139, 92, 246, 0.2), inset 0 1px 2px 0 rgba(255, 255, 255, 0.2);
+  transform: translateY(-4px) scale(1.01);
+  border-color: rgba(167, 139, 250, 0.45);
+  box-shadow: 0 22px 50px -10px rgba(0, 0, 0, 0.7), 0 0 28px rgba(139, 92, 246, 0.25), inset 0 1px 2px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Interactive Card Fade & Spring Hover Lift */
+.apple-hover-lift {
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.3s ease;
+}
+
+.apple-hover-lift:hover {
+  transform: translateY(-3px) scale(1.006);
+  box-shadow: 0 16px 36px -8px rgba(31, 38, 135, 0.08);
+}
+
+html.dark .apple-hover-lift:hover {
+  box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.6), 0 0 20px rgba(139, 92, 246, 0.15);
 }
 
 /* Apple Segmented Control Pill with Specular Highlight */

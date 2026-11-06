@@ -31,7 +31,7 @@ export default function CompetitionGroup({ league, matches, defaultExpanded = tr
   const safeMatches = (matches || []).filter(Boolean)
 
   return (
-    <div className="competition-group-container apple-glass rounded-3xl border border-white/60 dark:border-white/10 overflow-hidden shadow-[0_10px_35px_-5px_rgba(31,38,135,0.06)] dark:shadow-[0_12px_40px_-5px_rgba(0,0,0,0.5)] animate-fade-in transition-all duration-300">
+    <div className="competition-group-container apple-glass rounded-3xl border border-white/60 dark:border-white/10 overflow-hidden shadow-[0_10px_35px_-5px_rgba(31,38,135,0.06)] dark:shadow-[0_12px_40px_-5px_rgba(0,0,0,0.5)] animate-fade-in transition-all duration-300 hover:shadow-[0_18px_45px_-8px_rgba(139,92,246,0.12)] dark:hover:shadow-[0_18px_45px_-8px_rgba(139,92,246,0.25)] hover:border-purple-500/30">
       {/* Competition header */}
       <div className="h-13 bg-white/40 dark:bg-white/5 backdrop-blur-xl px-4 sm:px-5 flex items-center justify-between text-slate-900 dark:text-slate-100 border-b border-white/50 dark:border-white/10">
         <div className="flex items-center gap-3 min-w-0">

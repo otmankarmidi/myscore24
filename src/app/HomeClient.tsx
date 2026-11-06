@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from 'react'
 import Header from '@/components/common/Header'
 import DesktopSidebar from '@/components/common/DesktopSidebar'
 import RightSidebar from '@/components/common/RightSidebar'
+import ScrollReveal from '@/components/common/ScrollReveal'
 import MobileBottomNavigation from '@/components/common/MobileBottomNavigation'
 import DateSelector from '@/components/common/DateSelector'
 import MatchFilters from '@/components/common/MatchFilters'
@@ -14,7 +15,6 @@ import ErrorState from '@/components/common/ErrorState'
 import TopMatchesBar from '@/components/home/TopMatchesBar'
 import HomeNewsMagazine from '@/components/home/HomeNewsMagazine'
 import TopLeaguesStandingsWidget from '@/components/home/TopLeaguesStandingsWidget'
-import LeagueVideoNewsGrid from '@/components/home/LeagueVideoNewsGrid'
 import MobileQuickLeaguesBar from '@/components/common/MobileQuickLeaguesBar'
 import { sportsService } from '@/services/sports/sportsService'
 import { useLanguage } from '@/context/LanguageContext'
@@ -291,7 +291,9 @@ export default function HomeClient({
 
       {/* Editorial News Magazine Portal */}
       <div className="w-full max-w-[1440px] mx-auto px-2 sm:px-4 pt-4 pb-3 space-y-8">
-        <HomeNewsMagazine articles={currentArticles} />
+        <ScrollReveal direction="up" delay={50}>
+          <HomeNewsMagazine articles={currentArticles} />
+        </ScrollReveal>
       </div>
 
       {/* Main Page Layout Container (Match Center + Sidebars) */}
@@ -310,9 +312,6 @@ export default function HomeClient({
 
           {/* Mobile Favorite Leagues & Quick Links Bar (Parity with Desktop Sidebars) */}
           <MobileQuickLeaguesBar />
-
-          {/* Section: دوريات وبطولات (League Video & News Grids with Purple SVG Bar Headers) */}
-          <LeagueVideoNewsGrid articles={currentArticles} />
 
           {/* Section: Live Scores & Match Center */}
           <section className="space-y-4 pt-2" aria-label="Match Center">
@@ -390,7 +389,9 @@ export default function HomeClient({
           </section>
 
           {/* Top 5 Leagues Standings Widget — Positioned below Match Center & Live Scores */}
-          <TopLeaguesStandingsWidget />
+          <ScrollReveal direction="up" delay={80}>
+            <TopLeaguesStandingsWidget />
+          </ScrollReveal>
         </main>
 
         {/* Right Info Sidebar */}
