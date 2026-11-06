@@ -270,7 +270,7 @@ export default function HomeClient({
   }, [approvedMatches])
 
   return (
-    <div className="min-h-screen flex flex-col bg-surface text-on-surface pb-20 md:pb-6 relative overflow-x-hidden">
+    <div className="min-h-screen flex flex-col bg-surface text-on-surface pb-20 md:pb-6 relative">
       {/* Apple-Style Atmospheric Ambient Glass Glows (Morphing mesh blobs) */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden z-0" aria-hidden="true">
         <div className="absolute -top-32 left-[15%] w-[620px] h-[620px] bg-gradient-to-tr from-purple-500/15 via-indigo-500/10 to-pink-500/15 rounded-full blur-[110px] animate-morph-blob" />
