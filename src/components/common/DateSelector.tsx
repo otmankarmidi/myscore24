@@ -34,13 +34,13 @@ export default function DateSelector({ selectedDate, onDateChange, onSelectDate 
   const todayLabel = t('common.today', 'TODAY')
 
   return (
-    <div className="bg-white dark:bg-[#0F172A] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-2 sm:p-2.5 flex items-center justify-between gap-2 shadow-xs">
-      <div className="flex items-center gap-1 overflow-x-auto scrollbar-none min-w-0">
+    <div className="apple-glass rounded-3xl p-2.5 sm:p-3 flex items-center justify-between gap-2 shadow-[0_10px_35px_-5px_rgba(31,38,135,0.05)] dark:shadow-[0_10px_35px_-5px_rgba(0,0,0,0.5)]">
+      <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none min-w-0">
         {/* Previous day arrow */}
         <button
           type="button"
           onClick={handlePrevDay}
-          className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-purple-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0 cursor-pointer"
+          className="w-8 h-8 rounded-full apple-segmented-track flex items-center justify-center text-slate-500 hover:text-purple-600 dark:hover:text-purple-400 transition-all shrink-0 cursor-pointer hover:scale-105 active:scale-95"
           title="Previous day"
           aria-label="Previous day"
         >
@@ -54,33 +54,33 @@ export default function DateSelector({ selectedDate, onDateChange, onSelectDate 
             <button
               key={i}
               onClick={() => handleSelect(date)}
-              className={`px-3 py-1.5 rounded-xl flex flex-col items-center leading-tight transition-all duration-200 shrink-0 cursor-pointer ${
+              className={`px-3.5 py-1.5 rounded-2xl flex flex-col items-center leading-tight transition-all duration-300 shrink-0 cursor-pointer ${
                 selected
-                  ? 'bg-purple-600 text-white shadow-xs font-bold scale-[1.02]'
+                  ? 'apple-segmented-active font-bold scale-[1.05]'
                   : today
-                  ? 'border border-purple-300/80 dark:border-purple-800/60 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/40'
-                  : 'hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  ? 'apple-glass border-purple-500/40 text-purple-700 dark:text-purple-300 font-semibold'
+                  : 'hover:bg-white/50 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
               }`}
               aria-label={`Select ${formatDayDate(date, locale)}${today ? ` (${todayLabel})` : ''}`}
               aria-pressed={selected}
             >
               {today && !selected && (
-                <span className="text-[10px] font-geist font-extrabold tracking-wider text-purple-600 dark:text-purple-400 uppercase">
+                <span className="text-[10px] font-geist font-black tracking-wider apple-gradient-text uppercase">
                   {todayLabel}
                 </span>
               )}
               {today && selected && (
-                <span className="text-[10px] font-geist font-extrabold tracking-wider text-purple-100 uppercase">
+                <span className="text-[10px] font-geist font-black tracking-wider text-purple-600 dark:text-purple-300 uppercase">
                   {todayLabel}
                 </span>
               )}
               {!today && (
-                <span className="font-geist font-bold text-[10px] uppercase tracking-wider">
+                <span className="font-geist font-bold text-[10px] uppercase tracking-wider text-slate-400">
                   {formatDayName(date, locale)}
                 </span>
               )}
               <span className={`font-geist font-bold text-xs sm:text-[13px] tabular-nums mt-0.5 ${
-                selected ? 'text-white' : 'text-slate-900 dark:text-slate-200'
+                selected ? 'text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-200'
               }`}>
                 {formatDayDate(date, locale)}
               </span>
@@ -92,7 +92,7 @@ export default function DateSelector({ selectedDate, onDateChange, onSelectDate 
         <button
           type="button"
           onClick={handleNextDay}
-          className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-purple-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0 cursor-pointer"
+          className="w-8 h-8 rounded-full apple-segmented-track flex items-center justify-center text-slate-500 hover:text-purple-600 dark:hover:text-purple-400 transition-all shrink-0 cursor-pointer hover:scale-105 active:scale-95"
           title="Next day"
           aria-label="Next day"
         >
@@ -101,14 +101,14 @@ export default function DateSelector({ selectedDate, onDateChange, onSelectDate 
       </div>
 
       <div className="flex items-center gap-2 pl-2 rtl:pl-0 rtl:pr-2 shrink-0">
-        <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 font-geist text-xs text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-slate-800" title={t('common.displayTimezone', 'Active Timezone')}>
+        <div className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full apple-segmented-track font-geist text-xs text-slate-600 dark:text-slate-300" title={t('common.displayTimezone', 'Active Timezone')}>
           <span className="material-symbols-outlined text-[14px] text-purple-600 dark:text-purple-400">schedule</span>
           <span className="font-bold truncate max-w-[100px]">
             {selectedTimezone === 'auto' ? t('common.timezoneAuto', 'Local') : activeTimezone.split('/')[1] || activeTimezone}
           </span>
         </div>
         <button
-          className="w-8 h-8 rounded-xl bg-slate-50 dark:bg-slate-800/60 flex items-center justify-center text-slate-400 hover:text-purple-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-slate-200/80 dark:border-slate-800 cursor-pointer"
+          className="w-8 h-8 rounded-full apple-segmented-track flex items-center justify-center text-slate-500 hover:text-purple-600 dark:hover:text-purple-400 transition-all cursor-pointer hover:scale-105 active:scale-95"
           title="Open calendar"
           aria-label="Open date picker"
         >

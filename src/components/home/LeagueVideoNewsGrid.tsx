@@ -165,7 +165,7 @@ export default function LeagueVideoNewsGrid({ articles = [] }: LeagueVideoNewsGr
                 return (
                   <article
                     key={art.id}
-                    className="rounded-xl overflow-hidden bg-white dark:bg-[#0c121e] border border-[#E5E5E5] dark:border-[#182335] hover:border-[#6425A6]/50 transition-all shadow-xs group flex flex-col justify-between"
+                    className="rounded-2xl overflow-hidden apple-glass-card group flex flex-col justify-between shadow-xs transition-all duration-300"
                   >
                     <Link
                       href={`/${art.language || (locale === 'ar' ? 'ar' : 'en')}/news/${encodeURIComponent(art.slug)}`}
@@ -183,20 +183,20 @@ export default function LeagueVideoNewsGrid({ articles = [] }: LeagueVideoNewsGr
                         />
 
                         {/* Video Play Circle Icon in Bottom Corner */}
-                        <div className="absolute bottom-2 end-2 w-7 h-7 rounded-full bg-black/65 border border-white/40 flex items-center justify-center text-white shadow-md pointer-events-none group-hover:bg-[#6425A6] group-hover:text-white group-hover:border-[#6425A6] transition-colors">
-                          <span className="material-symbols-outlined text-[16px] leading-none">play_arrow</span>
+                        <div className="absolute bottom-2.5 end-2.5 w-8 h-8 rounded-full apple-glass flex items-center justify-center text-white shadow-lg pointer-events-none group-hover:scale-110 group-hover:bg-[#6425A6] transition-all duration-300">
+                          <span className="material-symbols-outlined text-[18px] leading-none">play_arrow</span>
                         </div>
                       </div>
 
                       {/* Card Content Below Image */}
-                      <div className="p-3 space-y-1.5">
+                      <div className="p-3.5 space-y-1.5">
                         {/* League Tag */}
-                        <div className="text-[11px] font-bold text-[#6B7280] dark:text-slate-400 group-hover:text-[#6425A6] dark:group-hover:text-amber-400 transition-colors">
+                        <div className="text-[11px] font-bold text-[#6B7280] dark:text-purple-300/80 group-hover:text-[#6425A6] dark:group-hover:text-purple-300 transition-colors">
                           {categoryLabel}
                         </div>
 
                         {/* Headline */}
-                        <h3 className="text-xs sm:text-sm font-bold text-[#171717] dark:text-white group-hover:text-[#6425A6] dark:group-hover:text-amber-400 transition-colors line-clamp-2 leading-snug">
+                        <h3 className="text-xs sm:text-sm font-bold text-[#171717] dark:text-white group-hover:text-[#6425A6] dark:group-hover:text-purple-300 transition-colors line-clamp-2 leading-snug">
                           {art.title}
                         </h3>
                       </div>

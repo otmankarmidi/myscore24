@@ -139,9 +139,9 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
       onClick={(e) => {
         if (!hasValidId) e.preventDefault()
       }}
-      className={`match-row block px-4 py-3 sm:py-3.5 group transition-colors duration-150 relative bg-white hover:bg-slate-50/90 dark:bg-[#0F172A] dark:hover:bg-[#131E33] ${
+      className={`match-row block px-4 py-3.5 sm:py-4 group transition-all duration-200 relative bg-white/35 hover:bg-white/80 dark:bg-transparent dark:hover:bg-white/5 hover:backdrop-blur-md ${
         isFlashingGoal
-          ? 'animate-score-flash ring-2 ring-purple-600/80 rounded-xl shadow-[0_0_24px_rgba(147,51,234,0.3)]'
+          ? 'animate-score-flash ring-2 ring-purple-500 rounded-2xl shadow-[0_0_30px_rgba(139,92,246,0.4)]'
           : ''
       }`}
       aria-label={`${safeHome.name} vs ${safeAway.name}, ${status || 'scheduled'}`}
@@ -150,7 +150,7 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
         {/* Status / Kickoff column */}
         <div className="w-18 shrink-0 flex flex-col items-center justify-center">
           {status === 'scheduled' ? (
-            <span className="w-full py-1.5 px-1 rounded-xl bg-slate-50 dark:bg-[#131E33] border border-slate-200/80 dark:border-slate-800 text-center font-geist font-bold text-xs text-purple-700 dark:text-purple-300 tabular-nums shadow-xs group-hover:border-purple-300 dark:group-hover:border-purple-800 transition-colors">
+            <span className="w-full py-1.5 px-1 rounded-full apple-segmented-track text-center font-geist font-bold text-xs text-purple-700 dark:text-purple-300 tabular-nums shadow-2xs group-hover:scale-105 transition-all">
               {formatMatchTime(kickoff, activeTimezone, locale)}
             </span>
           ) : (

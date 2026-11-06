@@ -187,23 +187,23 @@ export default function RightSidebar() {
   }, [])
 
   return (
-    <aside className="hidden lg:flex w-80 shrink-0 flex-col gap-5">
-      {/* Top Matches Widget */}
-      <div className="bg-white dark:bg-[#0F172A] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 overflow-hidden shadow-xs">
-        <div className="px-4 py-3 bg-slate-50/80 dark:bg-[#131E33] border-b border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between">
+    <aside className="hidden lg:flex w-80 shrink-0 flex-col gap-6">
+      {/* Top Matches Widget — Apple Glass Card */}
+      <div className="apple-glass rounded-3xl overflow-hidden shadow-[0_12px_36px_rgba(31,38,135,0.06)] dark:shadow-[0_14px_40px_rgba(0,0,0,0.5)] border border-white/60 dark:border-white/10">
+        <div className="px-4 py-3 bg-white/40 dark:bg-white/5 backdrop-blur-xl border-b border-white/50 dark:border-white/10 flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
-            <span className="material-symbols-outlined text-[17px] text-purple-600 dark:text-amber-400">local_fire_department</span>
+            <span className="material-symbols-outlined text-[17px] apple-gradient-text animate-pulse">local_fire_department</span>
             <span>Top Matches</span>
-            <span className="px-1.5 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200/60 dark:border-purple-800/40 text-[10px] font-mono font-bold leading-none">
+            <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-[9.5px] font-mono font-black leading-none shadow-2xs">
               TOP 3
             </span>
           </div>
-          <Link href="/live" className="text-xs text-purple-600 dark:text-purple-400 hover:underline font-semibold">
+          <Link href="/live" className="text-xs apple-gradient-text font-bold hover:underline">
             View All
           </Link>
         </div>
 
-        <div className="divide-y divide-slate-100 dark:divide-slate-800/60">
+        <div className="divide-y divide-white/40 dark:divide-white/5">
           {topMatches.length === 0 ? (
             <div className="p-4 text-center text-xs text-slate-500 dark:text-slate-400 font-medium">
               No top matches available
@@ -222,13 +222,13 @@ export default function RightSidebar() {
                   onClick={(e) => {
                     if (!hasValidId) e.preventDefault()
                   }}
-                  className="p-3.5 flex items-center justify-between hover:bg-slate-50/80 dark:hover:bg-[#131E33] transition-colors group"
+                  className="p-3.5 flex items-center justify-between hover:bg-white/60 dark:hover:bg-white/5 transition-all group"
                 >
                   {/* Teams & Scores Column */}
                   <div className="flex-1 min-w-0 space-y-2 pr-2.5">
                     {/* Small League Tag */}
                     {match.league?.name && (
-                      <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium truncate">
+                      <div className="text-[10px] text-slate-400 dark:text-slate-400 font-medium truncate">
                         {match.league.name}
                       </div>
                     )}
@@ -275,7 +275,7 @@ export default function RightSidebar() {
                   </div>
 
                   {/* Status / Kickoff Column */}
-                  <div className="shrink-0 pl-2.5 border-l border-slate-200/80 dark:border-slate-800/80 flex items-center justify-end">
+                  <div className="shrink-0 pl-2.5 border-l border-white/50 dark:border-white/10 flex items-center justify-end">
                     {renderStatusBadge(match)}
                   </div>
                 </Link>
@@ -285,9 +285,9 @@ export default function RightSidebar() {
         </div>
       </div>
 
-      {/* Quick Links Widget */}
-      <div className="bg-white dark:bg-[#0F172A] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 overflow-hidden shadow-xs">
-        <div className="px-4 py-3 bg-slate-50/80 dark:bg-[#131E33] border-b border-slate-200/80 dark:border-slate-800/80 flex items-center gap-2">
+      {/* Quick Links Widget — Apple Glass Card */}
+      <div className="apple-glass rounded-3xl overflow-hidden shadow-[0_12px_36px_rgba(31,38,135,0.06)] dark:shadow-[0_14px_40px_rgba(0,0,0,0.5)] border border-white/60 dark:border-white/10">
+        <div className="px-4 py-3 bg-white/40 dark:bg-white/5 backdrop-blur-xl border-b border-white/50 dark:border-white/10 flex items-center gap-2">
           <span className="material-symbols-outlined text-[17px] text-purple-600 dark:text-purple-400">link</span>
           <span className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">Quick Links</span>
         </div>
@@ -297,7 +297,7 @@ export default function RightSidebar() {
               key={link.name}
               href={link.href}
               prefetch={false}
-              className="px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-purple-700 dark:hover:text-purple-300 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 flex items-center gap-2.5 transition-colors group"
+              className="px-3 py-2 rounded-2xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-300 hover:bg-white/60 dark:hover:bg-white/10 flex items-center gap-2.5 transition-all group"
             >
               <img
                 src={link.icon}
@@ -306,12 +306,12 @@ export default function RightSidebar() {
                 height={20}
                 loading="lazy"
                 decoding="async"
-                className="w-5 h-5 object-contain shrink-0"
+                className="w-5 h-5 object-contain shrink-0 group-hover:scale-110 transition-transform"
                 onError={(e) => {
                   (e.currentTarget as HTMLElement).style.visibility = 'hidden'
                 }}
               />
-              <span className="truncate group-hover:text-purple-700 dark:group-hover:text-purple-300 transition-colors">{link.name}</span>
+              <span className="truncate group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors">{link.name}</span>
             </Link>
           ))}
         </div>

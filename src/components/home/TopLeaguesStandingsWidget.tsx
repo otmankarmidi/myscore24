@@ -71,22 +71,22 @@ export default function TopLeaguesStandingsWidget() {
   return (
     <section
       aria-label="Top 5 Leagues Standings"
-      className="w-full rounded-2xl bg-white dark:bg-[#0c121e] border border-[#E5E5E5] dark:border-[#182335] p-4 sm:p-5 select-none shadow-xs space-y-4"
+      className="w-full rounded-3xl apple-glass p-5 select-none space-y-4 transition-all duration-300"
     >
       {/* Header Row: Title on primary side, League Switcher in center, More link on secondary side */}
-      <div className="flex items-center justify-between gap-3 flex-wrap border-b border-[#E5E5E5] dark:border-slate-800/70 pb-3.5">
+      <div className="flex items-center justify-between gap-3 flex-wrap border-b border-white/60 dark:border-white/10 pb-3.5">
         {/* Primary Side: Section Title with Trophy Icon */}
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-[#F3ECFA] dark:bg-slate-800/70 border border-[#6425A6]/20 dark:border-slate-700/60 flex items-center justify-center text-[#6425A6] dark:text-slate-300">
-            <span className="material-symbols-outlined text-base">emoji_events</span>
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl apple-segmented-track flex items-center justify-center text-[#6425A6] dark:text-purple-300 shadow-xs">
+            <span className="material-symbols-outlined text-lg">emoji_events</span>
           </div>
-          <h2 className="text-base sm:text-lg font-black text-[#171717] dark:text-white">
+          <h2 className="text-base sm:text-lg font-black tracking-tight text-[#171717] dark:text-white">
             {isAr ? 'ترتيب أحسن 5 دوريات' : 'Top 5 Leagues Standings'}
           </h2>
         </div>
 
         {/* Center: Circular League Selectors */}
-        <div className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto scrollbar-none py-1">
+        <div className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto scrollbar-none py-1 apple-segmented-track rounded-full p-1">
           {TOP_5_LEAGUES.map((league) => {
             const isActive = league.id === activeLeagueId
             return (
@@ -96,19 +96,19 @@ export default function TopLeaguesStandingsWidget() {
                 onClick={() => setActiveLeagueId(league.id)}
                 title={isAr ? league.nameAr : league.nameEn}
                 aria-label={isAr ? league.nameAr : league.nameEn}
-                className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full p-1.5 flex items-center justify-center transition-all cursor-pointer shrink-0 ${
+                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full p-1.5 flex items-center justify-center transition-all duration-300 cursor-pointer shrink-0 ${
                   isActive
-                    ? 'bg-[#F3ECFA] dark:bg-[#1e2538] ring-2 ring-[#6425A6] dark:ring-purple-500/80 shadow-sm scale-105'
-                    : 'bg-[#F5F5F5] dark:bg-[#141926] hover:bg-[#F3ECFA] dark:hover:bg-[#1c2234] border border-[#E5E5E5] dark:border-slate-800 opacity-80 hover:opacity-100'
+                    ? 'apple-segmented-active scale-105 shadow-md'
+                    : 'hover:bg-white/40 dark:hover:bg-white/10 opacity-75 hover:opacity-100 hover:scale-102'
                 }`}
               >
                 <div className="relative w-full h-full flex items-center justify-center">
                   <Image
                     src={league.logo}
                     alt={league.nameEn}
-                    width={28}
-                    height={28}
-                    className={`object-contain filter ${
+                    width={26}
+                    height={26}
+                    className={`object-contain filter transition-transform duration-300 ${
                       league.id === 'epl' || league.id === 'ligue1' ? 'filter brightness-0 dark:invert' : 'brightness-105'
                     }`}
                   />
@@ -121,7 +121,7 @@ export default function TopLeaguesStandingsWidget() {
         {/* Secondary Side: View More Standings Pill Button */}
         <Link
           href={`/league/${activeLeague.slug}`}
-          className="px-3.5 py-1.5 rounded-full bg-[#F3ECFA] dark:bg-[#101e30] border border-[#6425A6]/30 dark:border-sky-800/50 hover:bg-[#6425A6] hover:text-white text-[#6425A6] dark:text-sky-400 font-bold text-xs transition-all flex items-center gap-1 shadow-xs shrink-0 cursor-pointer"
+          className="px-4 py-1.5 rounded-full apple-glass text-[#6425A6] dark:text-purple-300 hover:text-white hover:bg-gradient-to-r hover:from-[#6425A6] hover:to-[#9333ea] font-bold text-xs transition-all duration-300 flex items-center gap-1 shadow-xs shrink-0 cursor-pointer hover:scale-105 active:scale-95"
         >
           <span>{isAr ? 'المزيد' : 'More'}</span>
           <span className="material-symbols-outlined text-[15px] rtl:rotate-180">arrow_forward</span>
@@ -139,7 +139,7 @@ export default function TopLeaguesStandingsWidget() {
       <div className="w-full overflow-x-auto scrollbar-none">
         <table className="w-full text-xs text-[#6B7280] dark:text-slate-300 text-center border-collapse">
           <thead>
-            <tr className="text-[#6B7280] dark:text-slate-400 font-semibold border-b border-[#E5E5E5] dark:border-slate-800/60 text-[11px] sm:text-xs">
+            <tr className="text-[#6B7280] dark:text-slate-400 font-semibold border-b border-white/60 dark:border-white/10 text-[11px] sm:text-xs">
               {isAr ? (
                 <>
                   <th className="py-2.5 px-2 text-start font-bold text-[#171717] dark:text-white">الفريق</th>
@@ -161,11 +161,11 @@ export default function TopLeaguesStandingsWidget() {
               <th className="py-2.5 px-1.5 sm:px-2 font-bold text-[#6425A6] dark:text-purple-400">{isAr ? 'ن' : 'Pts'}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#F5F5F5] dark:divide-slate-800/40">
+          <tbody className="divide-y divide-white/40 dark:divide-white/5">
             {standingsData.map((row) => (
               <tr
                 key={row.position}
-                className="hover:bg-[#F3ECFA] dark:hover:bg-[#141a27] transition-colors rounded-lg group"
+                className="hover:bg-white/60 dark:hover:bg-white/10 transition-colors duration-200 rounded-lg group"
               >
                 {isAr ? (
                   <>

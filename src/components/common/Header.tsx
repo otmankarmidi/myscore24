@@ -119,7 +119,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
 
   return (
     <>
-      <header className="sticky top-0 left-0 right-0 z-30 bg-white/90 dark:bg-[#080C14]/90 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800/80 pt-[env(safe-area-inset-top,0px)] shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-colors">
+      <header className="sticky top-0 left-0 right-0 z-30 apple-glass border-b border-white/50 dark:border-white/10 pt-[env(safe-area-inset-top,0px)] shadow-[0_8px_32px_0_rgba(31,38,135,0.04)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] transition-all">
         <div className="max-w-[1480px] mx-auto h-16 sm:h-[72px] px-4 sm:px-8 flex items-center justify-between gap-4 sm:gap-8">
           {/* Logo */}
           <div className="flex items-center gap-3 shrink-0">
@@ -133,12 +133,12 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
                   height={42}
                   fetchPriority="high"
                   decoding="async"
-                  className="h-9 sm:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105 filter brightness-0 dark:filter-none"
+                  className="h-9 sm:h-10 w-auto object-contain transition-all duration-300 group-hover:scale-105 group-hover:rotate-[-2deg] filter brightness-0 dark:filter-none drop-shadow-xs"
                 />
               </picture>
               <div className="flex flex-col leading-none">
-                <span className="font-geist font-black text-[18px] sm:text-[20px] tracking-tight text-slate-900 dark:text-white">
-                  MyScore<span className="text-[#5B21B6] dark:text-[#A78BFA]">24</span>
+                <span className="font-geist font-black text-[18px] sm:text-[21px] tracking-tight text-slate-900 dark:text-white flex items-center">
+                  MyScore<span className="apple-gradient-text ml-0.5">24</span>
                 </span>
                 <span className="font-geist font-bold text-[9px] sm:text-[10px] tracking-[0.2em] text-slate-400 dark:text-slate-400 uppercase mt-1">
                   Scores • Stats • Live
@@ -147,81 +147,81 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
             </Link>
           </div>
 
-          {/* Desktop Center Navigation Links */}
-          <nav className="hidden xl:flex items-center gap-1.5 mx-4 shrink-0" aria-label="Main navigation">
+          {/* Desktop Center Navigation Links — Apple Capsule Segmented Bar */}
+          <nav className="hidden xl:flex items-center gap-1 p-1.5 rounded-full apple-segmented-track" aria-label="Main navigation">
             <Link
               href="/"
-              className={`text-[13px] font-bold transition-all px-3.5 py-2 rounded-xl relative ${
+              className={`text-[13px] font-semibold transition-all px-4 py-1.5 rounded-full relative ${
                 pathname === '/'
-                  ? 'bg-slate-100 text-slate-900 dark:bg-white/10 dark:text-white shadow-xs'
-                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5'
+                  ? 'apple-segmented-active font-bold scale-[1.02]'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10'
               }`}
             >
               {locale === 'ar' ? 'الرئيسية' : 'Home'}
             </Link>
             <Link
               href="/#matches"
-              className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5 transition-all px-3.5 py-2 rounded-xl"
+              className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10 transition-all px-4 py-1.5 rounded-full"
             >
               {locale === 'ar' ? 'المباريات' : 'Matches'}
             </Link>
             <Link
               href="/competitions"
-              className={`text-[13px] font-semibold transition-all px-3.5 py-2 rounded-xl ${
+              className={`text-[13px] font-semibold transition-all px-4 py-1.5 rounded-full ${
                 pathname === '/competitions'
-                  ? 'bg-slate-100 text-slate-900 dark:bg-white/10 dark:text-white shadow-xs'
-                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5'
+                  ? 'apple-segmented-active font-bold scale-[1.02]'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10'
               }`}
             >
               {locale === 'ar' ? 'الدوريات' : 'Leagues'}
             </Link>
             <Link
               href="/news"
-              className={`text-[13px] font-semibold transition-all px-3.5 py-2 rounded-xl ${
+              className={`text-[13px] font-semibold transition-all px-4 py-1.5 rounded-full ${
                 pathname === '/news'
-                  ? 'bg-slate-100 text-slate-900 dark:bg-white/10 dark:text-white shadow-xs'
-                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5'
+                  ? 'apple-segmented-active font-bold scale-[1.02]'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10'
               }`}
             >
               {locale === 'ar' ? 'الأخبار' : 'News'}
             </Link>
             <Link
               href="/fantasy"
-              className={`text-[13px] font-semibold transition-all px-3.5 py-2 rounded-xl flex items-center gap-2 ${
+              className={`text-[13px] font-semibold transition-all px-4 py-1.5 rounded-full flex items-center gap-1.5 ${
                 pathname?.startsWith('/fantasy')
-                  ? 'bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 shadow-xs'
-                  : 'text-slate-600 dark:text-slate-300 hover:text-purple-700 dark:hover:text-purple-300 hover:bg-purple-50/50 dark:hover:bg-purple-950/20'
+                  ? 'apple-segmented-active font-bold text-purple-600 dark:text-purple-300 scale-[1.02]'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-300 hover:bg-white/50 dark:hover:bg-white/10'
               }`}
             >
-              <span className="material-symbols-outlined text-[16px] text-emerald-500">sports_soccer</span>
+              <span className="material-symbols-outlined text-[15px] text-emerald-500">sports_soccer</span>
               <span>{locale === 'ar' ? 'الفانتازي' : 'Fantasy'}</span>
-              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 font-extrabold border border-emerald-500/20">
+              <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 font-extrabold border border-emerald-500/25">
                 PL
               </span>
             </Link>
             <div className="relative group">
               <button
                 type="button"
-                className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5 transition-all px-3 py-2 rounded-xl flex items-center gap-1 cursor-pointer"
+                className="text-[13px] font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10 transition-all px-3 py-1.5 rounded-full flex items-center gap-1 cursor-pointer"
               >
                 <span>{locale === 'ar' ? 'المزيد' : 'More'}</span>
-                <span className="material-symbols-outlined text-[16px] opacity-60 group-hover:opacity-100 transition-opacity">expand_more</span>
+                <span className="material-symbols-outlined text-[15px] opacity-60 group-hover:opacity-100 transition-opacity">expand_more</span>
               </button>
-              <div className="absolute top-11 right-0 rtl:right-auto rtl:left-0 hidden group-hover:flex flex-col bg-white dark:bg-[#11192A] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl py-2 w-44 z-50 animate-scale-spring">
-                <Link href="/favorites" className="px-4 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80 hover:text-[#5B21B6] dark:hover:text-white transition-colors">
+              <div className="absolute top-11 right-0 rtl:right-auto rtl:left-0 hidden group-hover:flex flex-col apple-glass rounded-2xl shadow-2xl py-2 w-44 z-50 animate-scale-spring">
+                <Link href="/favorites" className="px-4 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-white/60 dark:hover:bg-white/10 hover:text-purple-600 dark:hover:text-purple-300 transition-colors">
                   {t('nav.favorites', 'Favorites')}
                 </Link>
-                <Link href="/about" className="px-4 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80 hover:text-[#5B21B6] dark:hover:text-white transition-colors">
+                <Link href="/about" className="px-4 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-white/60 dark:hover:bg-white/10 hover:text-purple-600 dark:hover:text-purple-300 transition-colors">
                   {locale === 'ar' ? 'من نحن' : 'About Us'}
                 </Link>
-                <Link href="/contact" className="px-4 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80 hover:text-[#5B21B6] dark:hover:text-white transition-colors">
+                <Link href="/contact" className="px-4 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-white/60 dark:hover:bg-white/10 hover:text-purple-600 dark:hover:text-purple-300 transition-colors">
                   {locale === 'ar' ? 'اتصل بنا' : 'Contact'}
                 </Link>
               </div>
             </div>
           </nav>
 
-          {/* Search Bar — desktop rounded pill with spacious padding and focus glow */}
+          {/* Search Bar — Apple Spotlight Glass Capsule */}
           <div ref={searchContainerRef} className="hidden md:flex items-center flex-1 max-w-sm lg:max-w-md mx-2 gap-2 relative">
             <div className="relative flex-1 flex items-center">
               <span className="material-symbols-outlined absolute left-3.5 rtl:left-auto rtl:right-3.5 text-slate-400 pointer-events-none" style={{ fontSize: 18 }}>search</span>
@@ -232,12 +232,12 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
                   if (internalQuery.trim().length >= 2) setIsOpen(true)
                 }}
                 onKeyDown={handleKeyDown}
-                className="w-full bg-slate-100/80 dark:bg-slate-900/80 border border-slate-200/90 dark:border-slate-800 rounded-full pl-10 pr-11 rtl:pl-11 rtl:pr-10 py-2 font-inter text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-[#5B21B6] dark:focus:border-[#A78BFA] focus:bg-white dark:focus:bg-[#0D1320] focus:ring-4 focus:ring-purple-500/10 transition-all text-left rtl:text-right"
+                className="w-full bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border border-white/60 dark:border-white/10 shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] rounded-full pl-10 pr-11 rtl:pl-11 rtl:pr-10 py-2 font-inter text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-purple-500/50 dark:focus:border-purple-400/50 focus:bg-white dark:focus:bg-[#0D1527] focus:ring-4 focus:ring-purple-500/15 focus:shadow-[0_0_20px_rgba(139,92,246,0.15)] transition-all text-left rtl:text-right"
                 placeholder={t('common.search_placeholder', 'Search teams, players, leagues...')}
                 type="search"
                 aria-label={t('common.search_placeholder', 'Search')}
               />
-              <kbd className="absolute right-3.5 rtl:right-auto rtl:left-3.5 px-2 py-0.5 rounded-md bg-white dark:bg-slate-800 font-mono text-[10px] text-slate-400 border border-slate-200 dark:border-slate-700 shadow-2xs">/</kbd>
+              <kbd className="absolute right-3.5 rtl:right-auto rtl:left-3.5 px-2 py-0.5 rounded-full bg-white/80 dark:bg-slate-800 font-mono text-[10px] text-slate-400 border border-slate-200/60 dark:border-slate-700 shadow-2xs">/</kbd>
             </div>
 
             {/* Instant Search Results Dropdown — Desktop */}

@@ -63,9 +63,9 @@ export default function DesktopSidebar() {
   const favoriteLeagues = mockLeagues.slice(0, 6)
 
   return (
-    <aside className="w-[240px] shrink-0 h-[calc(100vh-4.5rem)] sticky top-[72px] py-4 overflow-y-auto border-r rtl:border-r-0 rtl:border-l border-slate-200/80 dark:border-slate-800/80 pr-3 rtl:pr-0 rtl:pl-3 hidden md:block">
+    <aside className="w-[245px] shrink-0 h-[calc(100vh-4.5rem)] sticky top-[72px] py-4 overflow-y-auto border-r rtl:border-r-0 rtl:border-l border-white/40 dark:border-white/10 pr-3 rtl:pr-0 rtl:pl-3 hidden md:block">
       {/* Main Navigation */}
-      <nav className="flex flex-col gap-1 mb-6" aria-label={t('nav.scores', 'Main navigation')}>
+      <nav className="flex flex-col gap-1.5 mb-6" aria-label={t('nav.scores', 'Main navigation')}>
         {navItems.map(item => {
           const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href)
           return (
@@ -73,15 +73,15 @@ export default function DesktopSidebar() {
               key={item.href}
               href={item.href}
               aria-current={isActive ? 'page' : undefined}
-              className={`flex items-center justify-between px-3 py-2 rounded-xl transition-all duration-150 ${
+              className={`flex items-center justify-between px-3.5 py-2.5 rounded-2xl transition-all duration-300 ${
                 isActive
-                  ? 'bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 font-semibold shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-slate-800/60 font-medium'
+                  ? 'apple-glass border-purple-500/40 text-purple-700 dark:text-purple-300 font-bold scale-[1.02] shadow-[0_4px_16px_rgba(139,92,246,0.12)]'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10 font-medium'
               }`}
             >
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-3">
                 <span
-                  className="material-symbols-outlined text-[19px] transition-transform group-hover:scale-105"
+                  className="material-symbols-outlined text-[20px] transition-transform group-hover:scale-110"
                   style={{
                     fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0",
                     color: isActive ? undefined : 'currentColor',
@@ -92,7 +92,7 @@ export default function DesktopSidebar() {
                 <span className="font-inter text-[13.5px]">{item.label}</span>
               </div>
               {item.badge && (
-                <span className="px-2 py-0.5 rounded-lg bg-purple-600 text-white font-geist text-[10px] font-bold tracking-widest uppercase shadow-xs">
+                <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-geist text-[10px] font-black tracking-widest uppercase shadow-2xs">
                   {item.badge}
                 </span>
               )}
@@ -103,7 +103,7 @@ export default function DesktopSidebar() {
                 </span>
               )}
               {item.favBadge && totalFavorites > 0 && (
-                <span className="font-geist text-[11px] font-bold text-purple-700 dark:text-purple-300 bg-purple-100 dark:bg-purple-900/50 px-2 py-0.5 rounded-lg">
+                <span className="font-geist text-[11px] font-bold text-purple-700 dark:text-purple-300 apple-glass px-2 py-0.5 rounded-full">
                   {totalFavorites}
                 </span>
               )}
@@ -114,7 +114,7 @@ export default function DesktopSidebar() {
 
       {/* Favorite Leagues */}
       <div className="mb-6">
-        <div className="px-3 py-1 font-geist text-[11px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center justify-between">
+        <div className="px-3.5 py-1 font-geist text-[11px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center justify-between">
           <span>{t('common.favorite_leagues', 'Favorite Leagues')}</span>
           <span className="material-symbols-outlined text-[15px]">tune</span>
         </div>
@@ -122,12 +122,12 @@ export default function DesktopSidebar() {
           {favoriteLeagues.map(league => (
             <div
               key={league.id}
-              className="flex items-center justify-between gap-2 px-2.5 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 transition-colors group"
+              className="flex items-center justify-between gap-2 px-3 py-2 rounded-2xl text-slate-700 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-white/10 transition-all group"
             >
               <Link
                 href={`/league/${league.id || league.slug}`}
                 prefetch={false}
-                className="flex items-center gap-2.5 min-w-0 flex-1 group-hover:text-purple-700 dark:group-hover:text-purple-300 transition-colors"
+                className="flex items-center gap-2.5 min-w-0 flex-1 group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors"
               >
                 <CompetitionLogo
                   logo={league.logo}
@@ -144,12 +144,12 @@ export default function DesktopSidebar() {
                 </span>
               </Link>
               <div className="flex items-center gap-1.5 shrink-0">
-                <span className="font-geist text-[10px] font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 px-1.5 py-0.5 rounded-md border border-purple-200/50 dark:border-purple-800/40">
+                <span className="font-geist text-[10px] font-bold text-purple-700 dark:text-purple-300 apple-segmented-track px-1.5 py-0.5 rounded-full">
                   {league.countryCode}
                 </span>
                 <button
                   onClick={() => toggleLeague(league.slug)}
-                  className="p-1 rounded text-slate-400 hover:text-amber-500 transition-colors cursor-pointer"
+                  className="p-1 rounded-full text-slate-400 hover:text-amber-500 transition-colors cursor-pointer hover:scale-110 active:scale-95"
                   aria-label={`${isFavoriteLeague(league.slug) ? 'Remove' : 'Add'} ${league.name} from favorites`}
                 >
                   <span
@@ -170,7 +170,7 @@ export default function DesktopSidebar() {
 
       {/* Countries */}
       <div>
-        <div className="px-3 py-1 font-geist text-[11px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center justify-between">
+        <div className="px-3.5 py-1 font-geist text-[11px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center justify-between">
           <span>{t('common.countries', 'Countries')}</span>
           <span className="material-symbols-outlined text-[15px]">expand_more</span>
         </div>
@@ -179,7 +179,7 @@ export default function DesktopSidebar() {
             <Link
               key={c.name}
               href={`/competitions?country=${c.name.toLowerCase()}`}
-              className="flex items-center justify-between px-2.5 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 transition-colors group"
+              className="flex items-center justify-between px-3 py-2 rounded-2xl text-slate-700 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-white/10 transition-all group"
             >
               <div className="flex items-center gap-2.5 min-w-0 flex-1">
                 <CountryFlag
@@ -188,11 +188,11 @@ export default function DesktopSidebar() {
                   height={15}
                   className="shrink-0 rounded-xs"
                 />
-                <span className="truncate text-[13px] font-medium group-hover:text-purple-700 dark:group-hover:text-purple-300 transition-colors">
+                <span className="truncate text-[13px] font-medium group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors">
                   {t(`countries.${c.name}`, c.name)}
                 </span>
               </div>
-              <span className="font-geist text-[11px] font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full tabular-nums shrink-0">
+              <span className="font-geist text-[11px] font-bold text-slate-500 dark:text-slate-400 apple-segmented-track px-2 py-0.5 rounded-full tabular-nums shrink-0">
                 {c.count}
               </span>
             </Link>

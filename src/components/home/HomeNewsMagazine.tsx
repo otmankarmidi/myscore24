@@ -110,7 +110,7 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
         {/* Dominant Hero Card (62% desktop / 8 cols) */}
         <div className="lg:col-span-8 flex flex-col">
-          <div className="group relative w-full h-[420px] sm:h-[470px] md:h-[510px] rounded-3xl overflow-hidden bg-slate-900 border border-[#E5E5E5] dark:border-[#182335] shadow-xs flex flex-col justify-end p-6 sm:p-8 md:p-10">
+          <div className="group relative w-full h-[420px] sm:h-[470px] md:h-[510px] rounded-3xl overflow-hidden bg-slate-900 border border-white/40 dark:border-white/10 shadow-xl flex flex-col justify-end p-6 sm:p-8 md:p-10">
             {/* Background Hero Image with high-priority responsive optimization */}
             <Image
               src={heroImage}
@@ -129,7 +129,7 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
             <div className="relative z-10 max-w-2xl space-y-3">
               {/* Category pill & Timestamp */}
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-purple-300">
-                <span className="bg-[#6425A6]/80 text-white px-2 py-0.5 rounded-full text-[10px]">{heroArticle.category || 'ANALYSIS'}</span>
+                <span className="apple-glass text-white px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider">{heroArticle.category || 'ANALYSIS'}</span>
                 <span className="text-white/40">•</span>
                 <span className="text-white/70 font-medium lowercase first-letter:uppercase">
                   {formatTimeAgo(heroArticle.publishedAt, locale)}
@@ -154,7 +154,7 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
               <div className="pt-2 flex items-center justify-between gap-4 flex-wrap">
                 <Link
                   href={`/${heroArticle.language || 'en'}/news/${encodeURIComponent(heroArticle.slug)}`}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#6425A6] hover:bg-[#521c8c] text-white font-bold text-xs sm:text-sm transition-all shadow-md active:scale-95 cursor-pointer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-[#6425A6] to-[#9333ea] hover:brightness-110 text-white font-bold text-xs sm:text-sm transition-all shadow-lg active:scale-95 cursor-pointer hover:scale-102"
                 >
                   <span>{isAr ? 'اقرأ المقال كاملاً' : 'Read Full Story'}</span>
                   <span className="material-symbols-outlined text-base rtl:rotate-180">arrow_forward</span>
@@ -163,12 +163,12 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
                 {/* Left/Right Round Chevrons + Progress Bars */}
                 {featuredArticles.length > 1 && (
                   <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 apple-segmented-track rounded-full p-0.5">
                       <button
                         type="button"
                         onClick={handlePrevHero}
                         aria-label="Previous story"
-                        className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
+                        className="w-7 h-7 rounded-full text-white/90 hover:bg-white/20 flex items-center justify-center transition-colors cursor-pointer"
                       >
                         <span className="material-symbols-outlined text-sm rtl:rotate-180">chevron_left</span>
                       </button>
@@ -176,7 +176,7 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
                         type="button"
                         onClick={handleNextHero}
                         aria-label="Next story"
-                        className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/25 border border-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
+                        className="w-7 h-7 rounded-full text-white/90 hover:bg-white/20 flex items-center justify-center transition-colors cursor-pointer"
                       >
                         <span className="material-symbols-outlined text-sm rtl:rotate-180">chevron_right</span>
                       </button>
@@ -190,8 +190,8 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
                           type="button"
                           onClick={() => setHeroIndex(idx)}
                           aria-label={`Go to slide ${idx + 1}`}
-                          className={`h-1 rounded-full transition-all cursor-pointer ${
-                            idx === heroIndex ? 'w-6 bg-purple-400' : 'w-4 bg-white/30 hover:bg-white/50'
+                          className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                            idx === heroIndex ? 'w-6 bg-purple-400 shadow-sm' : 'w-3 bg-white/30 hover:bg-white/50'
                           }`}
                         />
                       ))}
@@ -205,15 +205,15 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
 
         {/* Latest News Sidebar Card (38% desktop / 4 cols) */}
         <div className="lg:col-span-4 flex flex-col">
-          <div className="h-full rounded-3xl bg-white dark:bg-[#0c121e] border border-[#E5E5E5] dark:border-[#182335] shadow-xs p-5 sm:p-6 flex flex-col justify-between">
+          <div className="h-full rounded-3xl apple-glass shadow-xs p-5 sm:p-6 flex flex-col justify-between">
             {/* Header: "Latest News" on left, "View All News ->" on right */}
-            <div className="flex items-center justify-between pb-3.5 border-b border-[#E5E5E5] dark:border-slate-800/80">
+            <div className="flex items-center justify-between pb-3.5 border-b border-white/60 dark:border-white/10">
               <h2 className="text-xl font-black text-[#171717] dark:text-white tracking-tight">
                 {isAr ? 'آخر الأخبار' : 'Latest News'}
               </h2>
               <Link
                 href={`/${isAr ? 'ar' : 'en'}/news`}
-                className="text-xs font-bold text-[#6425A6] dark:text-slate-400 hover:opacity-80 transition-colors flex items-center gap-1 cursor-pointer"
+                className="text-xs font-bold text-[#6425A6] dark:text-purple-300 hover:opacity-80 transition-colors flex items-center gap-1 cursor-pointer"
               >
                 <span>{isAr ? 'عرض الكل' : 'View All News'}</span>
                 <span className="material-symbols-outlined text-sm rtl:rotate-180">arrow_forward</span>
@@ -319,7 +319,7 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
               return (
                 <article
                   key={story.id}
-                  className="rounded-2xl overflow-hidden bg-white dark:bg-[#0c121e] border border-[#E5E5E5] dark:border-[#182335] shadow-xs hover:border-[#6425A6]/40 hover:shadow-sm transition-all group flex flex-col justify-between"
+                  className="rounded-2xl overflow-hidden apple-glass-card shadow-xs group flex flex-col justify-between"
                 >
                   <Link
                     href={`/${story.language || 'en'}/news/${encodeURIComponent(story.slug)}`}
@@ -336,7 +336,7 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
                       />
                     </div>
                     <div className="p-3.5 space-y-1.5">
-                      <h3 className="text-xs sm:text-[13px] font-bold text-[#171717] dark:text-white group-hover:text-[#6425A6] dark:group-hover:text-amber-400 transition-colors line-clamp-2 leading-snug">
+                      <h3 className="text-xs sm:text-[13px] font-bold text-[#171717] dark:text-white group-hover:text-[#6425A6] dark:group-hover:text-purple-300 transition-colors line-clamp-2 leading-snug">
                         {story.title}
                       </h3>
                     </div>
@@ -349,16 +349,16 @@ export default function HomeNewsMagazine({ articles = [] }: HomeNewsMagazineProp
 
         {/* Trending Side Widget (4 cols) matching reference image */}
         <div className="lg:col-span-4 flex flex-col">
-          <div className="rounded-3xl bg-white dark:bg-[#0c121e] border border-[#E5E5E5] dark:border-[#182335] shadow-xs p-5 space-y-3.5">
+          <div className="rounded-3xl apple-glass shadow-xs p-5 space-y-3.5">
             {/* Header: Flame Icon + "Trending" + "Today v" dropdown pill */}
-            <div className="flex items-center justify-between pb-2.5 border-b border-[#E5E5E5] dark:border-slate-800/80">
+            <div className="flex items-center justify-between pb-2.5 border-b border-white/60 dark:border-white/10">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-[#6425A6] dark:text-orange-500 text-lg">local_fire_department</span>
+                <span className="material-symbols-outlined text-orange-500 text-lg">local_fire_department</span>
                 <h3 className="text-base font-black text-[#171717] dark:text-white">
                   {isAr ? 'الأكثر تداولاً' : 'Trending'}
                 </h3>
               </div>
-              <div className="px-2.5 py-1 rounded-full bg-[#F5F5F5] dark:bg-[#121c2d] border border-[#E5E5E5] dark:border-slate-800 text-[11px] font-bold text-[#171717] dark:text-slate-300 flex items-center gap-1">
+              <div className="px-3 py-1 rounded-full apple-segmented-track text-[11px] font-bold text-[#171717] dark:text-slate-300 flex items-center gap-1">
                 <span>{isAr ? 'اليوم' : 'Today'}</span>
                 <span className="material-symbols-outlined text-xs text-[#6B7280] dark:text-slate-400">expand_more</span>
               </div>
