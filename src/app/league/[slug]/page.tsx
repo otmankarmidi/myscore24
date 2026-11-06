@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
+import { APPROVED_COMPETITIONS } from '@/config/competitions'
 import LeagueClient from './LeagueClient'
 
 interface LeaguePageProps {
@@ -16,6 +17,28 @@ async function getStoredCompetition(slug: string) {
         include: { country: true },
       })
       if (comp) return comp
+    }
+
+    // Check slug against approved competitions config
+    const approved = APPROVED_COMPETITIONS.find(
+      (c) => c.slug.toLowerCase() === slug.toLowerCase() || (c.aliases && c.aliases.some((a) => a.toLowerCase() === slug.toLowerCase()))
+    )
+    if (approved) {
+      const comp = await prisma.competition.findUnique({
+        where: { providerId: approved.id },
+        include: { country: true },
+      })
+      if (comp) return comp
+
+      // Return synthetic competition representation from config if not yet synchronized in DB
+      return {
+        id: `comp-${approved.id}`,
+        providerId: approved.id,
+        name: approved.name,
+        type: 'LEAGUE',
+        logo: approved.localLogo || '',
+        country: { name: approved.country },
+      } as any
     }
 
     const cleanName = slug.replace(/-/g, ' ').trim()
@@ -42,14 +65,10 @@ export async function generateMetadata({ params }: LeaguePageProps): Promise<Met
   const competition = await getStoredCompetition(slug)
 
   if (!competition) {
-    const formattedSlug = slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
     return {
-      title: `${formattedSlug} - Football Competition | MyScore24`,
-      description: `Follow ${formattedSlug} live football fixtures, match scores, standings, and statistics on MyScore24.`,
-      alternates: {
-        canonical: `https://www.myscore24.com/league/${slug}`,
-      },
-      robots: { index: false, follow: true },
+      title: 'Competition Not Found | MyScore24',
+      description: 'The requested football competition or league could not be found.',
+      robots: { index: false, follow: false },
     }
   }
 

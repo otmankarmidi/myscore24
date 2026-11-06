@@ -92,14 +92,10 @@ export async function generateMetadata({ params }: TeamPageProps): Promise<Metad
   const team = await getStoredTeam(slug)
 
   if (!team) {
-    const formattedSlug = slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
     return {
-      title: `${formattedSlug} - Football Club | MyScore24`,
-      description: `Follow ${formattedSlug} football fixtures, live scores, squad roster, and match statistics on MyScore24.`,
-      alternates: {
-        canonical: `https://www.myscore24.com/team/${slug}`,
-      },
-      robots: { index: false, follow: true },
+      title: 'Team Not Found | MyScore24',
+      description: 'The requested football club or team could not be found.',
+      robots: { index: false, follow: false },
     }
   }
 

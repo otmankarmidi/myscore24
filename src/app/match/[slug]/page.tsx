@@ -32,12 +32,9 @@ export async function generateMetadata({ params }: MatchPageProps): Promise<Meta
 
   if (!match) {
     return {
-      title: 'Match Details | MyScore24',
-      description: 'Live scores, football stats, lineups, and head-to-head match details on MyScore24.',
-      alternates: {
-        canonical: `https://www.myscore24.com/match/${slug}`,
-      },
-      robots: { index: false, follow: true },
+      title: 'Match Not Found | MyScore24',
+      description: 'The requested football match could not be found.',
+      robots: { index: false, follow: false },
     }
   }
 
