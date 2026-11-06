@@ -94,9 +94,8 @@ export default function Footer() {
               </Link>
             </li>
             <li>
-              <Link href="/fantasy" className="hover:text-purple-300 font-semibold hover:underline transition-colors inline-flex items-center gap-1.5">
-                <span>{isAr ? 'فانتازي بريميرليغ' : 'Fantasy Football'}</span>
-                <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-purple-950 text-purple-300 border border-purple-800 font-bold">NEW</span>
+              <Link href="/favorites" className="hover:text-white hover:underline transition-colors block">
+                {isAr ? 'المفضلة' : 'Favorites'}
               </Link>
             </li>
           </ul>

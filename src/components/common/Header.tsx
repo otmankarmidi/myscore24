@@ -186,18 +186,14 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
               {locale === 'ar' ? 'الأخبار' : 'News'}
             </Link>
             <Link
-              href="/fantasy"
+              href="/favorites"
               className={`text-[13px] font-semibold transition-all px-4 py-1.5 rounded-full flex items-center gap-1.5 ${
-                pathname?.startsWith('/fantasy')
-                  ? 'apple-segmented-active font-bold text-purple-600 dark:text-purple-300 scale-[1.02]'
-                  : 'text-slate-600 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-300 hover:bg-white/50 dark:hover:bg-white/10'
+                pathname === '/favorites'
+                  ? 'apple-segmented-active font-bold scale-[1.02]'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10'
               }`}
             >
-              <span className="material-symbols-outlined text-[15px] text-emerald-500">sports_soccer</span>
-              <span>{locale === 'ar' ? 'الفانتازي' : 'Fantasy'}</span>
-              <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 font-extrabold border border-emerald-500/25">
-                PL
-              </span>
+              <span>{t('nav.favorites', 'Favorites')}</span>
             </Link>
             <div className="relative group">
               <button
@@ -480,17 +476,6 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
             }`}
           >
             {locale === 'ar' ? 'الأخبار' : 'News'}
-          </Link>
-          <Link
-            href="/fantasy"
-            className={`text-xs font-semibold transition-all py-1.5 px-3 rounded-lg whitespace-nowrap relative flex items-center gap-1 ${
-              pathname?.startsWith('/fantasy')
-                ? 'bg-purple-100/70 text-purple-900 dark:bg-purple-950/50 dark:text-purple-200 font-extrabold'
-                : 'text-slate-600 dark:text-slate-300 hover:text-purple-700'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[14px] text-emerald-500">sports_soccer</span>
-            <span>{locale === 'ar' ? 'فانتازي' : 'Fantasy'}</span>
           </Link>
           <Link
             href="/favorites"
