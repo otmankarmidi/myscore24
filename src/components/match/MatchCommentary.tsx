@@ -22,13 +22,13 @@ function getCommentaryIcon(type: CommentaryItem['type']) {
     case 'card':
       return { icon: 'style', color: 'text-amber-400' }
     case 'var':
-      return { icon: 'live_tv', color: 'text-purple-400' }
+      return { icon: 'live_tv', color: 'text-brand-400' }
     case 'sub':
       return { icon: 'published_with_changes', color: 'text-sky-400' }
     case 'whistle':
       return { icon: 'sports', color: 'text-secondary' }
     default:
-      return { icon: 'chat_bubble_outline', color: 'text-on-surface-variant' }
+      return { icon: 'chat', color: 'text-on-surface-variant' }
   }
 }
 

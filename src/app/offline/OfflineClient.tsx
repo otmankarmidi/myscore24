@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 export default function OfflineClient() {
   return (
-    <div className="min-h-screen bg-surface text-on-surface flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen text-on-surface flex flex-col items-center justify-center p-4">
       <div className="max-w-md w-full bg-surface-container border border-surface-bright/70 rounded-2xl p-6 sm:p-8 text-center space-y-5 shadow-2xl">
         <div className="w-16 h-16 mx-auto rounded-2xl bg-surface-container-high border border-surface-bright flex items-center justify-center">
           <span className="material-symbols-outlined text-4xl text-primary">wifi_off</span>

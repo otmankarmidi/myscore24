@@ -13,11 +13,11 @@ import { Inter } from 'next/font/google'
 const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-inter',
+  variable: '--font-inter-loaded',
 })
 
 export const viewport: Viewport = {
-  themeColor: '#FFFFFF',
+  themeColor: '#F2F3F7',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
@@ -133,7 +133,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-screen bg-surface text-on-surface font-inter antialiased flex flex-col">
+      <body className="min-h-screen text-on-surface font-inter antialiased flex flex-col">
         <GoogleAnalytics />
         <LanguageProvider>
           <TimezoneProvider>

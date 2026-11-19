@@ -23,7 +23,7 @@ export default function MatchStatusBadge({ status, minute, size = 'sm' }: MatchS
 
   return (
     <span
-      className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded font-geist font-bold tabular-nums ${textSize} ${bgClass}`}
+      className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full font-geist font-bold tabular-nums ${textSize} ${bgClass}`}
       role="status"
       aria-label={`Match status: ${label}${minute ? ` ${minute} minutes` : ''}`}
     >

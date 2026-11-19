@@ -116,7 +116,7 @@ export default function PwaManager() {
         >
           <div className="flex items-center gap-2 min-w-0">
             <span className="material-symbols-outlined text-primary text-lg shrink-0">
-              system_update
+              add_circle
             </span>
             <div className="text-xs min-w-0 truncate">
               <p className="font-bold">Update available</p>

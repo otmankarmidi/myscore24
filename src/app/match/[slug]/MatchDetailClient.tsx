@@ -252,7 +252,7 @@ export default function MatchDetailClient({
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col bg-surface text-on-surface">
+      <div className="min-h-screen flex flex-col text-on-surface">
         <Header />
         <div className="flex-1 max-w-[1440px] w-full mx-auto px-4 py-8 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
@@ -271,7 +271,7 @@ export default function MatchDetailClient({
   if (errorInfo || !match) {
     const errorCode = errorInfo?.code || 'MATCH_NOT_FOUND'
     return (
-      <div className="min-h-screen flex flex-col bg-surface text-on-surface">
+      <div className="min-h-screen flex flex-col text-on-surface">
         <Header />
         <div className="flex-1 max-w-[1440px] w-full mx-auto px-4 py-16 flex items-center justify-center">
           <div className="flex flex-col items-center justify-center p-8 bg-surface-container rounded-xl border border-surface-bright max-w-md w-full text-center shadow-lg">
@@ -315,7 +315,7 @@ export default function MatchDetailClient({
   const isFavorited = isMatchFavorite(match.id)
 
   return (
-    <div className="min-h-screen flex flex-col bg-surface text-on-surface pb-20 md:pb-6">
+    <div className="min-h-screen flex flex-col text-on-surface pb-20 md:pb-6">
       <Header />
 
       <div className="flex-1 max-w-[1440px] w-full mx-auto px-2 md:px-4 py-4 flex gap-4">

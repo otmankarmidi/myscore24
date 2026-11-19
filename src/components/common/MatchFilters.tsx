@@ -36,9 +36,9 @@ export default function MatchFilters({
   const offText = t('common.off', 'OFF')
 
   return (
-    <div className="apple-glass rounded-3xl px-4 py-3 sm:py-3.5 flex flex-wrap items-center justify-between gap-3 shadow-[0_10px_35px_-5px_rgba(31,38,135,0.05)] dark:shadow-[0_10px_35px_-5px_rgba(0,0,0,0.5)]">
+    <div className="flex flex-wrap items-center justify-between gap-3">
       {/* Status tabs — Apple Segmented Control */}
-      <div className="flex items-center gap-1 apple-segmented-track p-1.5 rounded-full">
+      <div className="flex items-center gap-0.5 apple-segmented-track p-1 rounded-full max-w-full overflow-x-auto scrollbar-none">
         {tabs.map((tab) => {
           const isActive = activeFilter === tab.key
           const isLive = tab.key === 'live'
@@ -47,32 +47,32 @@ export default function MatchFilters({
             <button
               key={tab.key}
               onClick={() => onFilterChange(tab.key)}
-              className={`px-4 py-1.5 rounded-full font-geist text-xs font-semibold transition-all duration-300 flex items-center gap-2 cursor-pointer ${
+              className={`px-3.5 sm:px-4 h-8 rounded-full font-geist text-[13px] font-semibold transition-all duration-300 flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
                 isActive
                   ? isLive
-                    ? 'bg-gradient-to-r from-rose-500 to-pink-600 text-white shadow-[0_2px_12px_rgba(244,63,94,0.4)] scale-[1.03] font-bold'
-                    : 'apple-segmented-active font-bold scale-[1.03]'
-                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/10'
+                    ? 'bg-[#FF3B30] text-white shadow-[0_4px_12px_-2px_rgba(255,59,48,0.55)] font-bold'
+                    : 'apple-segmented-active font-bold'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
               }`}
               aria-pressed={isActive}
             >
               {isLive && (
                 <span className="inline-flex relative">
                   <span
-                    className="absolute inline-flex h-2 w-2 rounded-full bg-white opacity-75 animate-ping"
+                    className={`absolute inline-flex h-1.5 w-1.5 rounded-full opacity-75 animate-ping ${isActive ? "bg-white" : "bg-[#FF3B30]"}`}
                   />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
+                  <span className={`relative inline-flex h-1.5 w-1.5 rounded-full ${isActive ? "bg-white" : "bg-[#FF3B30]"}`} />
                 </span>
               )}
               <span>{tab.label}</span>
-              <span className={`text-[11px] font-bold tabular-nums ${
+              <span className={`text-[11px] font-semibold tabular-nums ${
                 isActive
                   ? isLive
                     ? 'text-white/90'
-                    : 'text-purple-600 dark:text-purple-300'
+                    : 'text-brand-600 dark:text-brand-300'
                   : 'text-slate-400 dark:text-slate-500'
               }`}>
-                ({counts[tab.key]})
+                {counts[tab.key]}
               </span>
             </button>
           )
@@ -83,10 +83,10 @@ export default function MatchFilters({
       <div className="flex items-center gap-2.5">
         <button
           onClick={onToggleOdds}
-          className={`h-8 px-3.5 rounded-full font-geist text-xs font-semibold flex items-center gap-2 transition-all duration-200 border cursor-pointer hover:scale-105 active:scale-95 ${
+          className={`h-9 px-3.5 rounded-full font-geist text-xs font-semibold flex items-center gap-2 transition-all duration-200 cursor-pointer active:scale-95 ${
             oddsOn
-              ? 'apple-glass-card border-purple-500/40 text-purple-700 dark:text-purple-300 shadow-[0_0_15px_rgba(139,92,246,0.15)] font-bold'
-              : 'apple-segmented-track text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+              ? 'apple-glass-card border-brand-500/40 text-brand-700 dark:text-brand-300 shadow-[0_0_15px_rgba(10,108,255,0.15)] font-bold'
+              : 'apple-glass text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
           }`}
           aria-pressed={oddsOn}
         >
@@ -95,10 +95,10 @@ export default function MatchFilters({
         </button>
         <button
           onClick={onToggleSound}
-          className={`h-8 px-3.5 rounded-full font-geist text-xs font-semibold flex items-center gap-2 transition-all duration-200 border cursor-pointer hover:scale-105 active:scale-95 ${
+          className={`h-9 px-3.5 rounded-full font-geist text-xs font-semibold flex items-center gap-2 transition-all duration-200 cursor-pointer active:scale-95 ${
             soundOn
               ? 'apple-glass-card border-emerald-500/40 text-emerald-700 dark:text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.15)] font-bold'
-              : 'apple-segmented-track text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+              : 'apple-glass text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
           }`}
           aria-pressed={soundOn}
         >

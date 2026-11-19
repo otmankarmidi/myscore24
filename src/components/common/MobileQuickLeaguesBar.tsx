@@ -26,8 +26,8 @@ export default function MobileQuickLeaguesBar() {
   return (
     <div className="md:hidden w-full space-y-3 px-1 my-3">
       {/* Favorite Leagues Card */}
-      <div className="bg-white dark:bg-[#0F172A] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-3.5 shadow-xs">
-        <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-slate-200/80 dark:border-slate-800/80">
+      <div className="apple-glass rounded-[22px] p-3.5">
+        <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-slate-900/[0.06] dark:border-white/[0.07]">
           <div className="flex items-center gap-1.5">
             <span className="material-symbols-outlined text-[16px] text-amber-500">star</span>
             <span className="font-geist text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
@@ -36,7 +36,7 @@ export default function MobileQuickLeaguesBar() {
           </div>
           <Link
             href="/competitions"
-            className="text-xs font-semibold text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-0.5"
+            className="text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline flex items-center gap-0.5"
           >
             <span>{isAr ? 'عرض الكل' : 'View All'}</span>
             <span className="material-symbols-outlined text-xs rtl:rotate-180">chevron_right</span>
@@ -50,7 +50,7 @@ export default function MobileQuickLeaguesBar() {
             return (
               <div
                 key={league.id}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 shrink-0 text-xs hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 dark:bg-white/[0.06] border border-slate-900/[0.06] dark:border-white/[0.08] shrink-0 text-xs hover:bg-white dark:hover:bg-white/10 transition-colors"
               >
                 <Link
                   href={`/league/${league.id || league.slug}`}
@@ -70,7 +70,7 @@ export default function MobileQuickLeaguesBar() {
                     {league.name}
                   </span>
                 </Link>
-                <span className="font-geist text-[9px] font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 px-1 rounded border border-purple-200/50 dark:border-purple-800/40">
+                <span className="font-geist text-[9px] font-bold text-brand-700 dark:text-brand-300 bg-brand-50 dark:bg-brand-950/60 px-1 rounded border border-brand-200/50 dark:border-brand-800/40">
                   {league.countryCode}
                 </span>
                 <button
@@ -94,7 +94,7 @@ export default function MobileQuickLeaguesBar() {
         </div>
 
         {/* Quick Links Row */}
-        <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-2 overflow-x-auto scrollbar-none">
+        <div className="mt-3 pt-2.5 border-t border-slate-900/[0.06] dark:border-white/[0.07] flex items-center gap-2 overflow-x-auto scrollbar-none">
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 shrink-0">
             {isAr ? 'روابط سريعة:' : 'Quick:'}
           </span>
@@ -102,7 +102,7 @@ export default function MobileQuickLeaguesBar() {
             <Link
               key={item.name}
               href={item.href}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 text-[11px] font-medium text-slate-700 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-300 hover:bg-slate-100 dark:hover:bg-slate-800 shrink-0 transition-colors"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-[rgba(118,118,128,0.10)] dark:bg-white/[0.06] text-[11px] font-medium text-slate-700 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-300 hover:bg-[rgba(118,118,128,0.18)] shrink-0 transition-colors"
             >
               <img
                 src={item.icon}

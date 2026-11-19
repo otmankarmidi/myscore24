@@ -135,8 +135,8 @@ export function formatRelativeDate(dateString: string, locale = 'en'): string {
 
 export function getStatusBgClass(status: MatchStatus): string {
   switch (status) {
-    case 'live':       return 'bg-error-container text-on-error-container'
-    case 'half_time':  return 'bg-surface-container-high text-primary font-bold'
+    case 'live':       return 'bg-[#FF3B30]/10 text-[#E0261C] dark:text-[#FF6961]'
+    case 'half_time':  return 'bg-amber-500/12 text-amber-700 dark:text-amber-300 font-bold'
     case 'full_time':  return 'bg-surface-container-high text-on-surface-variant font-medium'
     case 'extra_time': return 'bg-error-container text-on-error-container font-bold'
     case 'penalties':  return 'bg-error-container text-on-error-container font-bold'

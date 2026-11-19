@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-surface text-on-surface">
+    <div className="min-h-screen flex flex-col text-on-surface">
       <Header />
 
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-8 md:py-12 space-y-8">
@@ -64,7 +64,7 @@ export default function ContactPage() {
             {/* 1. General Enquiries */}
             <div className="bg-surface-container rounded-xl border border-surface-bright p-5 space-y-2">
               <div className="flex items-center gap-2 text-primary">
-                <span className="material-symbols-outlined text-xl">chat_bubble_outline</span>
+                <span className="material-symbols-outlined text-xl">chat</span>
                 <h3 className="font-bold text-sm text-on-surface">General Enquiries</h3>
               </div>
               <p className="text-xs text-on-surface-variant leading-relaxed">

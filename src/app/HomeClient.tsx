@@ -13,6 +13,7 @@ import SkeletonMatchRow from '@/components/common/SkeletonLoader'
 import EmptyState from '@/components/common/EmptyState'
 import ErrorState from '@/components/common/ErrorState'
 import TopMatchesBar from '@/components/home/TopMatchesBar'
+import HomeSpotlight from '@/components/home/HomeSpotlight'
 import HomeNewsMagazine from '@/components/home/HomeNewsMagazine'
 import TopLeaguesStandingsWidget from '@/components/home/TopLeaguesStandingsWidget'
 import MobileQuickLeaguesBar from '@/components/common/MobileQuickLeaguesBar'
@@ -270,18 +271,18 @@ export default function HomeClient({
   }, [approvedMatches])
 
   return (
-    <div className="min-h-screen flex flex-col bg-surface text-on-surface pb-20 md:pb-6 relative">
-      {/* Apple-Style Atmospheric Ambient Glass Glows (Morphing mesh blobs) */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden z-0" aria-hidden="true">
-        <div className="absolute -top-32 left-[15%] w-[620px] h-[620px] bg-gradient-to-tr from-purple-500/15 via-indigo-500/10 to-pink-500/15 rounded-full blur-[110px] animate-morph-blob" />
-        <div className="absolute top-[650px] right-[5%] w-[520px] h-[520px] bg-gradient-to-br from-cyan-500/10 via-emerald-500/10 to-purple-500/12 rounded-full blur-[100px] animate-morph-blob [animation-delay:-5s]" />
-        <div className="absolute top-[1400px] left-[8%] w-[560px] h-[560px] bg-gradient-to-tr from-pink-500/10 via-purple-600/10 to-blue-500/10 rounded-full blur-[105px] animate-morph-blob [animation-delay:-10s]" />
-      </div>
-
+    <div className="min-h-screen flex flex-col text-on-surface pb-24 md:pb-6 relative">
       {/* Top Application Header */}
       <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
-      {/* Top Matches Carousel Bar (Matching Image Style) */}
+      {/* Spotlight hero: featured match + today at a glance */}
+      <HomeSpotlight
+        matches={approvedMatches.length > 0 ? approvedMatches : matches}
+        selectedDate={selectedDate}
+        isLoading={isLoading}
+      />
+
+      {/* Top Matches Carousel Bar */}
       <TopMatchesBar
         matches={approvedMatches.length > 0 ? approvedMatches : matches}
         selectedDate={selectedDate}
@@ -315,20 +316,20 @@ export default function HomeClient({
 
           {/* Section: Live Scores & Match Center */}
           <section className="space-y-4 pt-2" aria-label="Match Center">
-            <div className="flex items-center justify-between px-1">
-              <div className="flex items-center gap-2.5">
-                <span className="w-2.5 h-6 rounded-full bg-purple-600 shadow-xs" />
-                <h2 className="text-base sm:text-xl font-extrabold font-geist text-slate-900 dark:text-white tracking-tight">
+            <div className="flex items-end justify-between gap-3 px-1">
+              <div className="min-w-0">
+                <p className="eyebrow">{locale === 'ar' ? 'مركز المباريات' : locale === 'fr' ? 'Centre de match' : 'Match centre'}</p>
+                <h2 className="font-geist text-[22px] sm:text-[28px] leading-tight font-extrabold tracking-[-0.03em] text-slate-900 dark:text-white mt-0.5">
                   {activeFilter === 'live'
                     ? t('filters.liveScores', 'Live Football Scores')
                     : activeFilter === 'finished'
                     ? t('filters.finishedMatches', 'Finished Football Results')
                     : activeFilter === 'upcoming'
                     ? t('filters.upcomingFixtures', 'Upcoming Football Fixtures')
-                    : (locale === 'ar' ? 'مركز المباريات والنتائج المباشرة' : "Today's Match Center & Live Scores")}
+                    : (locale === 'ar' ? 'النتائج المباشرة' : locale === 'fr' ? 'Scores en direct' : 'Live scores')}
                 </h2>
               </div>
-              <span className="text-xs text-slate-600 dark:text-slate-300 font-semibold px-3 py-1.5 rounded-xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-slate-800/80 shadow-xs">
+              <span className="shrink-0 text-[12px] text-slate-600 dark:text-slate-300 font-semibold h-8 px-3.5 inline-flex items-center rounded-full apple-glass tabular-nums">
                 {counts.all} {locale === 'ar' ? 'مباراة' : 'matches'}
               </span>
             </div>
@@ -344,7 +345,7 @@ export default function HomeClient({
 
           {/* Content States */}
           {isLoading ? (
-            <div className="space-y-3 bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-4 shadow-xs">
+            <div className="space-y-3 apple-glass rounded-[24px] p-4">
               <SkeletonMatchRow />
               <SkeletonMatchRow />
               <SkeletonMatchRow />

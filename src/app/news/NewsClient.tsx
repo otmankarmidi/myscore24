@@ -33,7 +33,7 @@ export default function NewsClient({ initialArticles, language = 'en' }: NewsCli
   const listNews = filteredNews.filter((n) => n.id !== featured?.id)
 
   return (
-    <div className="min-h-screen flex flex-col bg-surface text-on-surface pb-20 md:pb-6">
+    <div className="min-h-screen flex flex-col text-on-surface pb-20 md:pb-6">
       <Header />
 
       <div className="flex-1 max-w-[1440px] w-full mx-auto px-2 md:px-4 py-4 flex gap-4">

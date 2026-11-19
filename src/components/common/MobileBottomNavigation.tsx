@@ -17,7 +17,7 @@ export default function MobileBottomNavigation() {
 
   return (
     <nav
-      className="fixed bottom-3 left-3 right-3 z-40 md:hidden h-16 apple-floating-island rounded-full flex items-center px-2 shadow-[0_16px_40px_-10px_rgba(0,0,0,0.15)] dark:shadow-[0_16px_40px_-10px_rgba(0,0,0,0.7)]"
+      className="fixed bottom-[max(12px,env(safe-area-inset-bottom))] left-3 right-3 z-40 md:hidden h-[62px] apple-floating-island rounded-[28px] flex items-center px-1.5"
       aria-label="Mobile navigation"
     >
       <div className="w-full h-full flex items-center justify-around">
@@ -28,15 +28,15 @@ export default function MobileBottomNavigation() {
               key={tab.href}
               href={tab.href}
               aria-current={isActive ? 'page' : undefined}
-              className={`flex-1 min-w-0 flex flex-col items-center justify-center gap-0.5 transition-all duration-300 min-h-[44px] touch-manipulation px-1 py-1 rounded-full relative ${
+              className={`flex-1 min-w-0 flex flex-col items-center justify-center gap-0.5 transition-all duration-300 min-h-[48px] touch-manipulation px-1 py-1 rounded-[22px] relative ${
                 isActive
-                  ? 'apple-segmented-active text-purple-700 dark:text-purple-300 font-bold scale-[1.06]'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  ? 'bg-brand-500/12 text-brand-600 dark:text-brand-300 font-bold'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white active:scale-95'
               }`}
             >
               <div className="relative">
                 <span
-                  className="material-symbols-outlined text-[20px] shrink-0 transition-transform duration-200"
+                  className="material-symbols-outlined text-[22px] shrink-0 transition-transform duration-200"
                   style={{
                     fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0",
                   }}
@@ -44,12 +44,12 @@ export default function MobileBottomNavigation() {
                   {tab.icon}
                 </span>
                 {tab.live && (
-                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-rose-500 border border-white dark:border-[#0D1527] animate-pulse shadow-[0_0_8px_rgba(244,63,94,0.6)]" />
+                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-rose-500 border border-white dark:border-[#1C1C1E] animate-pulse shadow-[0_0_8px_rgba(244,63,94,0.6)]" />
                 )}
               </div>
               <span
                 className={`font-geist text-[9.5px] sm:text-[10.5px] ${
-                  isActive ? 'font-black' : 'font-medium'
+                  isActive ? 'font-bold' : 'font-medium'
                 } tracking-tight truncate max-w-full block text-center`}
               >
                 {tab.label}

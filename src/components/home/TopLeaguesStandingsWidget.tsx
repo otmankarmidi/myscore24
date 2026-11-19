@@ -71,13 +71,13 @@ export default function TopLeaguesStandingsWidget() {
   return (
     <section
       aria-label="Top 5 Leagues Standings"
-      className="w-full rounded-3xl apple-glass p-5 select-none space-y-4 transition-all duration-300"
+      className="w-full rounded-[24px] apple-glass p-5 sm:p-6 select-none space-y-4 transition-all duration-300"
     >
       {/* Header Row: Title on primary side, League Switcher in center, More link on secondary side */}
       <div className="flex items-center justify-between gap-3 flex-wrap border-b border-white/60 dark:border-white/10 pb-3.5">
         {/* Primary Side: Section Title with Trophy Icon */}
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl apple-segmented-track flex items-center justify-center text-[#6425A6] dark:text-purple-300 shadow-xs">
+          <div className="w-8 h-8 rounded-xl apple-segmented-track flex items-center justify-center text-[#0A6CFF] dark:text-brand-300 shadow-xs">
             <span className="material-symbols-outlined text-lg">emoji_events</span>
           </div>
           <h2 className="text-base sm:text-lg font-black tracking-tight text-[#171717] dark:text-white">
@@ -121,7 +121,7 @@ export default function TopLeaguesStandingsWidget() {
         {/* Secondary Side: View More Standings Pill Button */}
         <Link
           href={`/league/${activeLeague.slug}`}
-          className="px-4 py-1.5 rounded-full apple-glass text-[#6425A6] dark:text-purple-300 hover:text-white hover:bg-gradient-to-r hover:from-[#6425A6] hover:to-[#9333ea] font-bold text-xs transition-all duration-300 flex items-center gap-1 shadow-xs shrink-0 cursor-pointer hover:scale-105 active:scale-95"
+          className="px-4 py-1.5 rounded-full apple-glass text-[#0A6CFF] dark:text-brand-300 hover:text-white hover:bg-[#0A6CFF] font-bold text-xs transition-all duration-300 flex items-center gap-1 shadow-xs shrink-0 cursor-pointer hover:scale-105 active:scale-95"
         >
           <span>{isAr ? 'المزيد' : 'More'}</span>
           <span className="material-symbols-outlined text-[15px] rtl:rotate-180">arrow_forward</span>
@@ -158,7 +158,7 @@ export default function TopLeaguesStandingsWidget() {
               <th className="py-2.5 px-2 font-medium hidden sm:table-cell">{isAr ? 'له' : 'GF'}</th>
               <th className="py-2.5 px-2 font-medium hidden sm:table-cell">{isAr ? 'عليه' : 'GA'}</th>
               <th className="py-2.5 px-1.5 sm:px-2 font-medium">{isAr ? 'الفرق' : 'GD'}</th>
-              <th className="py-2.5 px-1.5 sm:px-2 font-bold text-[#6425A6] dark:text-purple-400">{isAr ? 'ن' : 'Pts'}</th>
+              <th className="py-2.5 px-1.5 sm:px-2 font-bold text-[#0A6CFF] dark:text-brand-400">{isAr ? 'ن' : 'Pts'}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/40 dark:divide-white/5">
@@ -177,7 +177,7 @@ export default function TopLeaguesStandingsWidget() {
                           name={row.team?.name || ''}
                           size="xs"
                         />
-                        <span className="font-bold text-[#171717] dark:text-white group-hover:text-[#6425A6] dark:group-hover:text-amber-400 transition-colors truncate">
+                        <span className="font-bold text-[#171717] dark:text-white group-hover:text-[#0A6CFF] dark:group-hover:text-amber-400 transition-colors truncate">
                           {row.team?.name}
                         </span>
                       </div>
@@ -203,7 +203,7 @@ export default function TopLeaguesStandingsWidget() {
                           name={row.team?.name || ''}
                           size="xs"
                         />
-                        <span className="font-bold text-[#171717] dark:text-white group-hover:text-[#6425A6] dark:group-hover:text-amber-400 transition-colors truncate">
+                        <span className="font-bold text-[#171717] dark:text-white group-hover:text-[#0A6CFF] dark:group-hover:text-amber-400 transition-colors truncate">
                           {row.team?.name}
                         </span>
                       </div>
@@ -247,7 +247,7 @@ export default function TopLeaguesStandingsWidget() {
                 </td>
 
                 {/* Points */}
-                <td className="py-2.5 px-1.5 sm:px-2 font-black text-[#6425A6] dark:text-purple-400 tabular-nums text-sm">
+                <td className="py-2.5 px-1.5 sm:px-2 font-black text-[#0A6CFF] dark:text-brand-400 tabular-nums text-sm">
                   {row.points}
                 </td>
               </tr>

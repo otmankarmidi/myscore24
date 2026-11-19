@@ -75,7 +75,7 @@ export default function DesktopSidebar() {
               aria-current={isActive ? 'page' : undefined}
               className={`flex items-center justify-between px-3.5 py-2.5 rounded-2xl transition-all duration-300 ${
                 isActive
-                  ? 'apple-glass border-purple-500/40 text-purple-700 dark:text-purple-300 font-bold scale-[1.02] shadow-[0_4px_16px_rgba(139,92,246,0.12)]'
+                  ? 'apple-glass border-brand-500/40 text-brand-700 dark:text-brand-300 font-bold scale-[1.02] shadow-[0_4px_16px_rgba(10,108,255,0.12)]'
                   : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10 font-medium'
               }`}
             >
@@ -92,7 +92,7 @@ export default function DesktopSidebar() {
                 <span className="font-inter text-[13.5px]">{item.label}</span>
               </div>
               {item.badge && (
-                <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-geist text-[10px] font-black tracking-widest uppercase shadow-2xs">
+                <span className="px-2 py-0.5 rounded-full bg-brand-600 text-white font-geist text-[10px] font-bold tracking-wider uppercase">
                   {item.badge}
                 </span>
               )}
@@ -103,7 +103,7 @@ export default function DesktopSidebar() {
                 </span>
               )}
               {item.favBadge && totalFavorites > 0 && (
-                <span className="font-geist text-[11px] font-bold text-purple-700 dark:text-purple-300 apple-glass px-2 py-0.5 rounded-full">
+                <span className="font-geist text-[11px] font-bold text-brand-700 dark:text-brand-300 apple-glass px-2 py-0.5 rounded-full">
                   {totalFavorites}
                 </span>
               )}
@@ -127,7 +127,7 @@ export default function DesktopSidebar() {
               <Link
                 href={`/league/${league.id || league.slug}`}
                 prefetch={false}
-                className="flex items-center gap-2.5 min-w-0 flex-1 group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors"
+                className="flex items-center gap-2.5 min-w-0 flex-1 group-hover:text-brand-600 dark:group-hover:text-brand-300 transition-colors"
               >
                 <CompetitionLogo
                   logo={league.logo}
@@ -144,7 +144,7 @@ export default function DesktopSidebar() {
                 </span>
               </Link>
               <div className="flex items-center gap-1.5 shrink-0">
-                <span className="font-geist text-[10px] font-bold text-purple-700 dark:text-purple-300 apple-segmented-track px-1.5 py-0.5 rounded-full">
+                <span className="font-geist text-[10px] font-bold text-brand-700 dark:text-brand-300 apple-segmented-track px-1.5 py-0.5 rounded-full">
                   {league.countryCode}
                 </span>
                 <button
@@ -188,7 +188,7 @@ export default function DesktopSidebar() {
                   height={15}
                   className="shrink-0 rounded-xs"
                 />
-                <span className="truncate text-[13px] font-medium group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors">
+                <span className="truncate text-[13px] font-medium group-hover:text-brand-600 dark:group-hover:text-brand-300 transition-colors">
                   {t(`countries.${c.name}`, c.name)}
                 </span>
               </div>

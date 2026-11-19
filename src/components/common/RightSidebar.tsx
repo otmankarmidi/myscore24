@@ -107,7 +107,7 @@ function filterTopMatches(allMatches: Match[]): Match[] {
 function renderStatusBadge(match: Match) {
   if (match.status === 'live') {
     return (
-      <span className="px-1.5 py-0.5 rounded bg-error/20 text-error font-mono text-[11px] font-bold animate-pulse flex items-center gap-1 shrink-0">
+      <span className="px-2 py-0.5 rounded-full bg-error/20 text-error font-geist tabular-nums text-[11px] font-bold animate-pulse flex items-center gap-1 shrink-0">
         <span className="w-1.5 h-1.5 rounded-full bg-error animate-ping" />
         {match.minute ? `${match.minute}'` : 'LIVE'}
       </span>
@@ -115,28 +115,28 @@ function renderStatusBadge(match: Match) {
   }
   if (match.status === 'half_time') {
     return (
-      <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 font-mono text-[11px] font-bold shrink-0">
+      <span className="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 font-geist tabular-nums text-[11px] font-bold shrink-0">
         HT
       </span>
     )
   }
   if (match.status === 'full_time') {
     return (
-      <span className="px-1.5 py-0.5 rounded bg-surface-container-highest text-on-surface-variant font-mono text-[11px] font-semibold shrink-0">
+      <span className="px-2 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant font-geist tabular-nums text-[11px] font-semibold shrink-0">
         FT
       </span>
     )
   }
   if (match.status === 'extra_time') {
     return (
-      <span className="px-1.5 py-0.5 rounded bg-error/20 text-error font-mono text-[11px] font-bold shrink-0">
+      <span className="px-2 py-0.5 rounded-full bg-error/20 text-error font-geist tabular-nums text-[11px] font-bold shrink-0">
         ET
       </span>
     )
   }
   if (match.status === 'penalties') {
     return (
-      <span className="px-1.5 py-0.5 rounded bg-error/20 text-error font-mono text-[11px] font-bold shrink-0">
+      <span className="px-2 py-0.5 rounded-full bg-error/20 text-error font-geist tabular-nums text-[11px] font-bold shrink-0">
         PEN
       </span>
     )
@@ -145,7 +145,7 @@ function renderStatusBadge(match: Match) {
   // Scheduled / Upcoming: Display kickoff time deterministically (UTC / en-GB 24h format)
   const timeStr = match.kickoffTime || (match.kickoff ? formatMatchTime(match.kickoff, 'UTC', 'en') : '19:00')
   return (
-    <span className="font-mono text-body-sm text-on-surface-variant font-medium shrink-0">
+    <span className="font-geist tabular-nums text-body-sm text-on-surface-variant font-medium shrink-0">
       {timeStr}
     </span>
   )
@@ -189,12 +189,12 @@ export default function RightSidebar() {
   return (
     <aside className="hidden lg:flex w-80 shrink-0 flex-col gap-6">
       {/* Top Matches Widget — Apple Glass Card */}
-      <div className="apple-glass rounded-3xl overflow-hidden shadow-[0_12px_36px_rgba(31,38,135,0.06)] dark:shadow-[0_14px_40px_rgba(0,0,0,0.5)] border border-white/60 dark:border-white/10">
-        <div className="px-4 py-3 bg-white/40 dark:bg-white/5 backdrop-blur-xl border-b border-white/50 dark:border-white/10 flex items-center justify-between">
+      <div className="apple-glass rounded-[24px] overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-900/[0.06] dark:border-white/[0.07] flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
             <span className="material-symbols-outlined text-[17px] apple-gradient-text animate-pulse">local_fire_department</span>
             <span>Top Matches</span>
-            <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-[9.5px] font-mono font-black leading-none shadow-2xs">
+            <span className="px-2 py-0.5 rounded-full bg-brand-500/12 text-brand-600 dark:text-brand-300 text-[10px] font-bold leading-none shadow-2xs">
               TOP 3
             </span>
           </div>
@@ -222,7 +222,7 @@ export default function RightSidebar() {
                   onClick={(e) => {
                     if (!hasValidId) e.preventDefault()
                   }}
-                  className="p-3.5 flex items-center justify-between hover:bg-white/60 dark:hover:bg-white/5 transition-all group"
+                  className="p-3.5 flex items-center justify-between hover:bg-white/70 dark:hover:bg-white/[0.04] transition-all group"
                 >
                   {/* Teams & Scores Column */}
                   <div className="flex-1 min-w-0 space-y-2 pr-2.5">
@@ -242,12 +242,12 @@ export default function RightSidebar() {
                           logo={match.homeTeam.logo}
                           size="xs"
                         />
-                        <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors truncate max-w-[110px] sm:max-w-[150px] lg:max-w-[110px]">
+                        <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-brand-600 dark:group-hover:text-brand-300 transition-colors truncate max-w-[110px] sm:max-w-[150px] lg:max-w-[110px]">
                           {match.homeTeam.name}
                         </span>
                       </div>
                       {!isScheduled && (
-                        <span className="font-mono font-bold text-xs text-slate-900 dark:text-white tabular-nums">
+                        <span className="font-geist font-extrabold text-[13px] text-slate-900 dark:text-white tabular-nums">
                           {match.score.home ?? 0}
                         </span>
                       )}
@@ -262,12 +262,12 @@ export default function RightSidebar() {
                           logo={match.awayTeam.logo}
                           size="xs"
                         />
-                        <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors truncate max-w-[110px] sm:max-w-[150px] lg:max-w-[110px]">
+                        <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-brand-600 dark:group-hover:text-brand-300 transition-colors truncate max-w-[110px] sm:max-w-[150px] lg:max-w-[110px]">
                           {match.awayTeam.name}
                         </span>
                       </div>
                       {!isScheduled && (
-                        <span className="font-mono font-bold text-xs text-slate-900 dark:text-white tabular-nums">
+                        <span className="font-geist font-extrabold text-[13px] text-slate-900 dark:text-white tabular-nums">
                           {match.score.away ?? 0}
                         </span>
                       )}
@@ -286,9 +286,9 @@ export default function RightSidebar() {
       </div>
 
       {/* Quick Links Widget — Apple Glass Card */}
-      <div className="apple-glass rounded-3xl overflow-hidden shadow-[0_12px_36px_rgba(31,38,135,0.06)] dark:shadow-[0_14px_40px_rgba(0,0,0,0.5)] border border-white/60 dark:border-white/10">
-        <div className="px-4 py-3 bg-white/40 dark:bg-white/5 backdrop-blur-xl border-b border-white/50 dark:border-white/10 flex items-center gap-2">
-          <span className="material-symbols-outlined text-[17px] text-purple-600 dark:text-purple-400">link</span>
+      <div className="apple-glass rounded-[24px] overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-900/[0.06] dark:border-white/[0.07] flex items-center gap-2">
+          <span className="material-symbols-outlined text-[17px] text-brand-600 dark:text-brand-400">link</span>
           <span className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">Quick Links</span>
         </div>
         <div className="p-2.5 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-1 gap-1.5">
@@ -297,7 +297,7 @@ export default function RightSidebar() {
               key={link.name}
               href={link.href}
               prefetch={false}
-              className="px-3 py-2 rounded-2xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-300 hover:bg-white/60 dark:hover:bg-white/10 flex items-center gap-2.5 transition-all group"
+              className="px-3 py-2 rounded-2xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-300 hover:bg-white/60 dark:hover:bg-white/10 flex items-center gap-2.5 transition-all group"
             >
               <img
                 src={link.icon}
@@ -311,7 +311,7 @@ export default function RightSidebar() {
                   (e.currentTarget as HTMLElement).style.visibility = 'hidden'
                 }}
               />
-              <span className="truncate group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors">{link.name}</span>
+              <span className="truncate group-hover:text-brand-600 dark:group-hover:text-brand-300 transition-colors">{link.name}</span>
             </Link>
           ))}
         </div>

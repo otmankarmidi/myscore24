@@ -13,7 +13,7 @@ export const metadata = {
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen flex flex-col bg-surface text-on-surface">
+    <div className="min-h-screen flex flex-col text-on-surface">
       <Header />
       <main className="flex-1 flex flex-col items-center justify-center px-4 py-16 text-center max-w-lg mx-auto">
         <div className="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center border border-surface-bright mb-4">

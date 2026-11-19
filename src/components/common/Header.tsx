@@ -119,8 +119,8 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
 
   return (
     <>
-      <header className="sticky top-0 left-0 right-0 z-30 apple-glass border-b border-white/50 dark:border-white/10 pt-[env(safe-area-inset-top,0px)] shadow-[0_8px_32px_0_rgba(31,38,135,0.04)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] transition-all">
-        <div className="max-w-[1480px] mx-auto h-16 sm:h-[72px] px-4 sm:px-8 flex items-center justify-between gap-4 sm:gap-8">
+      <header className="sticky top-0 left-0 right-0 z-30 bg-white/72 dark:bg-black/60 backdrop-blur-2xl backdrop-saturate-[1.8] border-b border-slate-900/[0.07] dark:border-white/[0.08] pt-[env(safe-area-inset-top,0px)] transition-all">
+        <div className="max-w-[1480px] mx-auto h-14 sm:h-16 px-4 sm:px-6 flex items-center justify-between gap-4 sm:gap-8">
           {/* Logo */}
           <div className="flex items-center gap-3 shrink-0">
             <Link href="/" className="flex items-center gap-3 group">
@@ -133,14 +133,14 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
                   height={42}
                   fetchPriority="high"
                   decoding="async"
-                  className="h-9 sm:h-10 w-auto object-contain transition-all duration-300 group-hover:scale-105 group-hover:rotate-[-2deg] filter brightness-0 dark:filter-none drop-shadow-xs"
+                  className="h-8 sm:h-9 w-auto object-contain transition-all duration-300 group-hover:scale-105 group-hover:rotate-[-2deg] filter brightness-0 dark:filter-none drop-shadow-xs"
                 />
               </picture>
               <div className="flex flex-col leading-none">
-                <span className="font-geist font-black text-[18px] sm:text-[21px] tracking-tight text-slate-900 dark:text-white flex items-center">
+                <span className="font-geist font-extrabold text-[18px] sm:text-[20px] tracking-[-0.03em] text-slate-900 dark:text-white flex items-center">
                   MyScore<span className="apple-gradient-text ml-0.5">24</span>
                 </span>
-                <span className="font-geist font-bold text-[9px] sm:text-[10px] tracking-[0.2em] text-slate-400 dark:text-slate-400 uppercase mt-1">
+                <span className="hidden sm:block font-geist font-semibold text-[9px] tracking-[0.22em] text-slate-400 dark:text-slate-500 uppercase mt-1">
                   Scores • Stats • Live
                 </span>
               </div>
@@ -148,7 +148,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
           </div>
 
           {/* Desktop Center Navigation Links — Apple Capsule Segmented Bar */}
-          <nav className="hidden xl:flex items-center gap-1 p-1.5 rounded-full apple-segmented-track" aria-label="Main navigation">
+          <nav className="hidden xl:flex items-center gap-0.5 p-1 rounded-full apple-segmented-track" aria-label="Main navigation">
             <Link
               href="/"
               className={`text-[13px] font-semibold transition-all px-4 py-1.5 rounded-full relative ${
@@ -204,13 +204,13 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
                 <span className="material-symbols-outlined text-[15px] opacity-60 group-hover:opacity-100 transition-opacity">expand_more</span>
               </button>
               <div className="absolute top-11 right-0 rtl:right-auto rtl:left-0 hidden group-hover:flex flex-col apple-glass rounded-2xl shadow-2xl py-2 w-44 z-50 animate-scale-spring">
-                <Link href="/favorites" className="px-4 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-white/60 dark:hover:bg-white/10 hover:text-purple-600 dark:hover:text-purple-300 transition-colors">
+                <Link href="/favorites" className="px-4 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-white/60 dark:hover:bg-white/10 hover:text-brand-600 dark:hover:text-brand-300 transition-colors">
                   {t('nav.favorites', 'Favorites')}
                 </Link>
-                <Link href="/about" className="px-4 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-white/60 dark:hover:bg-white/10 hover:text-purple-600 dark:hover:text-purple-300 transition-colors">
+                <Link href="/about" className="px-4 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-white/60 dark:hover:bg-white/10 hover:text-brand-600 dark:hover:text-brand-300 transition-colors">
                   {locale === 'ar' ? 'من نحن' : 'About Us'}
                 </Link>
-                <Link href="/contact" className="px-4 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-white/60 dark:hover:bg-white/10 hover:text-purple-600 dark:hover:text-purple-300 transition-colors">
+                <Link href="/contact" className="px-4 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-white/60 dark:hover:bg-white/10 hover:text-brand-600 dark:hover:text-brand-300 transition-colors">
                   {locale === 'ar' ? 'اتصل بنا' : 'Contact'}
                 </Link>
               </div>
@@ -228,7 +228,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
                   if (internalQuery.trim().length >= 2) setIsOpen(true)
                 }}
                 onKeyDown={handleKeyDown}
-                className="w-full bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border border-white/60 dark:border-white/10 shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] rounded-full pl-10 pr-11 rtl:pl-11 rtl:pr-10 py-2 font-inter text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-purple-500/50 dark:focus:border-purple-400/50 focus:bg-white dark:focus:bg-[#0D1527] focus:ring-4 focus:ring-purple-500/15 focus:shadow-[0_0_20px_rgba(139,92,246,0.15)] transition-all text-left rtl:text-right"
+                className="w-full bg-[rgba(118,118,128,0.12)] dark:bg-[rgba(118,118,128,0.24)] border border-transparent rounded-full pl-10 pr-11 rtl:pl-11 rtl:pr-10 h-9 font-inter text-[13px] text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-brand-500/50 dark:focus:border-brand-400/50 focus:bg-white dark:focus:bg-[#1C1C1E] focus:ring-4 focus:ring-brand-500/15 focus:shadow-[0_0_20px_rgba(10,108,255,0.15)] transition-all text-left rtl:text-right"
                 placeholder={t('common.search_placeholder', 'Search teams, players, leagues...')}
                 type="search"
                 aria-label={t('common.search_placeholder', 'Search')}
@@ -238,7 +238,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
 
             {/* Instant Search Results Dropdown — Desktop */}
             {isOpen && internalQuery.trim().length >= 2 && (
-              <div className="absolute left-0 right-0 top-full mt-1.5 bg-surface-container border border-surface-bright/70 rounded-xl shadow-2xl z-50 overflow-hidden max-h-[420px] overflow-y-auto">
+              <div className="absolute left-0 right-0 top-full mt-2 apple-floating-island rounded-2xl z-50 overflow-hidden max-h-[420px] overflow-y-auto animate-scale-spring">
                 {isSearching && (
                   <div className="p-3 text-center text-xs text-on-surface-variant flex items-center justify-center gap-2">
                     <span className="material-symbols-outlined text-sm text-primary animate-spin">sports_soccer</span>
@@ -391,24 +391,24 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
             {/* Language picker pill */}
             <div className="relative group flex">
               <button
-                className="h-8.5 px-3 rounded-full bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-900 dark:hover:bg-slate-800 text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 transition-all border border-slate-200/80 dark:border-slate-800 cursor-pointer shadow-2xs"
+                className="h-9 px-3 rounded-full bg-[rgba(118,118,128,0.12)] hover:bg-[rgba(118,118,128,0.2)] dark:bg-[rgba(118,118,128,0.24)] text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 transition-all cursor-pointer"
                 aria-label="Select Language"
               >
                 <span className="uppercase text-[11px] font-bold tracking-wider">{label}</span>
                 <span className="material-symbols-outlined text-slate-400" style={{ fontSize: 15 }}>expand_more</span>
               </button>
-              <div className="absolute right-0 rtl:right-auto rtl:left-0 top-10 hidden group-hover:flex flex-col bg-white dark:bg-[#11192A] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-50 min-w-[130px] overflow-hidden py-1.5 animate-scale-spring">
+              <div className="absolute right-0 rtl:right-auto rtl:left-0 top-10 hidden group-hover:flex flex-col apple-floating-island rounded-2xl z-50 min-w-[140px] overflow-hidden py-1.5 animate-scale-spring">
                 {LOCALES.map(l => (
                   <button
                     key={l.code}
                     onClick={() => changeLocale(l.code)}
                     className={`px-3.5 py-2 text-left rtl:text-right font-geist text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-colors flex items-center justify-between gap-2 cursor-pointer ${
-                      l.code === locale ? 'text-[#5B21B6] dark:text-[#A78BFA] font-bold bg-purple-50/50 dark:bg-purple-950/20' : 'text-slate-700 dark:text-slate-300'
+                      l.code === locale ? 'text-[#0A6CFF] dark:text-[#5EB0FF] font-bold bg-brand-50/50 dark:bg-brand-950/20' : 'text-slate-700 dark:text-slate-300'
                     }`}
                   >
                     <span>{l.name}</span>
                     {l.code === locale && (
-                      <span className="material-symbols-outlined text-[#5B21B6] dark:text-[#A78BFA]" style={{ fontSize: 16 }}>check</span>
+                      <span className="material-symbols-outlined text-[#0A6CFF] dark:text-[#5EB0FF]" style={{ fontSize: 16 }}>check</span>
                     )}
                   </button>
                 ))}
@@ -418,7 +418,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
             {/* Mobile Search Button */}
             <button
               onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-              className="md:hidden w-8.5 h-8.5 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-200 transition-all border border-slate-200/80 dark:border-slate-800 cursor-pointer shadow-2xs"
+              className="md:hidden w-8.5 h-8.5 rounded-full flex items-center justify-center bg-[rgba(118,118,128,0.12)] dark:bg-[rgba(118,118,128,0.24)] text-slate-800 dark:text-slate-200 transition-all cursor-pointer active:scale-90"
               title="Search"
               aria-label="Toggle mobile search"
             >
@@ -430,7 +430,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsDrawerOpen(true)}
-              className="xl:hidden w-8.5 h-8.5 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-200 transition-all border border-slate-200/80 dark:border-slate-800 cursor-pointer shadow-2xs"
+              className="xl:hidden w-8.5 h-8.5 rounded-full flex items-center justify-center bg-[rgba(118,118,128,0.12)] dark:bg-[rgba(118,118,128,0.24)] text-slate-800 dark:text-slate-200 transition-all cursor-pointer active:scale-90"
               title={t('common.more', 'Menu')}
               aria-label="Open navigation drawer"
             >
@@ -440,12 +440,12 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
         </div>
 
         {/* Mobile Horizontal Navigation Bar — Minimalist pill tabs with smooth bottom line */}
-        <nav className="xl:hidden flex items-center justify-around px-3 py-1.5 border-t border-slate-200/70 dark:border-slate-800/70 bg-white/95 dark:bg-[#080C14]/95 overflow-x-auto scrollbar-none gap-1" aria-label="Mobile main navigation">
+        <nav className="xl:hidden flex items-center justify-start sm:justify-center px-3 py-1.5 border-t border-slate-900/[0.05] dark:border-white/[0.06] overflow-x-auto scrollbar-none gap-1" aria-label="Mobile main navigation">
           <Link
             href="/"
-            className={`text-xs font-bold transition-all py-1.5 px-3 rounded-lg relative whitespace-nowrap ${
+            className={`text-xs font-bold transition-all py-1.5 px-3.5 rounded-full relative whitespace-nowrap ${
               pathname === '/'
-                ? 'bg-slate-100 text-slate-950 dark:bg-white/10 dark:text-white font-extrabold shadow-2xs'
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-black font-bold'
                 : 'text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white'
             }`}
           >
@@ -453,15 +453,15 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
           </Link>
           <Link
             href="/#matches"
-            className="text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white transition-colors py-1.5 px-3 rounded-lg whitespace-nowrap"
+            className="text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white transition-colors py-1.5 px-3.5 rounded-full whitespace-nowrap"
           >
             {locale === 'ar' ? 'المباريات' : 'Matches'}
           </Link>
           <Link
             href="/competitions"
-            className={`text-xs font-semibold transition-all py-1.5 px-3 rounded-lg whitespace-nowrap relative ${
+            className={`text-xs font-semibold transition-all py-1.5 px-3.5 rounded-full whitespace-nowrap relative ${
               pathname === '/competitions'
-                ? 'bg-slate-100 text-slate-950 dark:bg-white/10 dark:text-white font-extrabold shadow-2xs'
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-black font-bold'
                 : 'text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white'
             }`}
           >
@@ -469,9 +469,9 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
           </Link>
           <Link
             href="/news"
-            className={`text-xs font-semibold transition-all py-1.5 px-3 rounded-lg whitespace-nowrap relative ${
+            className={`text-xs font-semibold transition-all py-1.5 px-3.5 rounded-full whitespace-nowrap relative ${
               pathname === '/news'
-                ? 'bg-slate-100 text-slate-950 dark:bg-white/10 dark:text-white font-extrabold shadow-2xs'
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-black font-bold'
                 : 'text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white'
             }`}
           >
@@ -479,10 +479,10 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
           </Link>
           <Link
             href="/favorites"
-            className={`text-xs font-semibold transition-all py-2 px-2 whitespace-nowrap relative ${
+            className={`text-xs font-semibold transition-all py-1.5 px-3.5 rounded-full whitespace-nowrap relative ${
               pathname === '/favorites'
-                ? 'text-[#6425A6] dark:text-white after:absolute after:bottom-0 after:left-1 after:right-1 after:h-[2px] after:bg-[#6425A6] dark:after:bg-primary after:rounded-full'
-                : 'text-[#6B7280] dark:text-slate-200 hover:text-[#6425A6] dark:hover:text-white'
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-black font-bold'
+                : 'text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white'
             }`}
           >
             {t('nav.favorites', 'Favorites')}
@@ -491,7 +491,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
 
         {/* Mobile Search Bar Expansion */}
         {isMobileSearchOpen && (
-          <div ref={mobileSearchRef} className="md:hidden px-3 py-2 bg-surface-container border-b border-surface-bright/60 relative">
+          <div ref={mobileSearchRef} className="md:hidden px-3 py-2 border-t border-slate-900/[0.05] dark:border-white/[0.06] relative">
             <div className="relative flex items-center">
               <span className="material-symbols-outlined absolute left-2.5 rtl:left-auto rtl:right-2.5 text-on-surface-variant pointer-events-none" style={{ fontSize: 16 }}>search</span>
               <input
@@ -499,7 +499,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
                 value={internalQuery}
                 onChange={(e) => handleInputChange(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="w-full bg-surface-container-low border border-surface-bright/40 rounded-lg pl-8 pr-8 rtl:pl-8 rtl:pr-8 py-2 font-inter text-xs text-on-surface placeholder:text-outline focus:outline-none focus:border-primary transition-colors text-left rtl:text-right"
+                className="w-full bg-[rgba(118,118,128,0.12)] dark:bg-[rgba(118,118,128,0.24)] border border-transparent rounded-full pl-8 pr-8 rtl:pl-8 rtl:pr-8 py-2 font-inter text-xs text-on-surface placeholder:text-outline focus:outline-none focus:border-primary transition-colors text-left rtl:text-right"
                 placeholder={t('common.search_placeholder', 'Search teams, players, leagues...')}
                 type="search"
                 aria-label={t('common.search_placeholder', 'Search')}
@@ -508,7 +508,7 @@ export default function Header({ searchQuery = '', onSearchChange }: HeaderProps
 
             {/* Mobile Instant Search Results Dropdown */}
             {isOpen && internalQuery.trim().length >= 2 && (
-              <div className="mt-2 bg-surface-container border border-surface-bright/60 rounded-xl shadow-2xl overflow-hidden max-h-[360px] overflow-y-auto">
+              <div className="mt-2 apple-floating-island rounded-2xl overflow-hidden max-h-[360px] overflow-y-auto">
                 {isSearching && (
                   <div className="p-3 text-center text-xs text-on-surface-variant flex items-center justify-center gap-2">
                     <span className="material-symbols-outlined text-sm text-primary animate-spin">sports_soccer</span>

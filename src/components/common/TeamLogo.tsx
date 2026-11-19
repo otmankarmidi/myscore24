@@ -7,7 +7,7 @@ interface TeamLogoProps {
   name: string
   abbreviation?: string
   logo?: string
-  size?: 'xs' | 'sm' | 'md' | 'lg'
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 }
 
 const sizes = {
@@ -15,6 +15,7 @@ const sizes = {
   sm: { container: 'w-6 h-6', text: 'text-[9px]', img: 24 },
   md: { container: 'w-8 h-8', text: 'text-[11px]', img: 32 },
   lg: { container: 'w-12 h-12', text: 'text-[13px]', img: 48 },
+  xl: { container: 'w-14 h-14 sm:w-16 sm:h-16', text: 'text-[15px]', img: 64 },
 }
 
 export default function TeamLogo({ name, abbreviation, logo, size = 'sm' }: TeamLogoProps) {
@@ -40,7 +41,7 @@ export default function TeamLogo({ name, abbreviation, logo, size = 'sm' }: Team
 
   return (
     <span
-      className={`${s.container} rounded-full bg-surface-bright flex items-center justify-center font-geist font-bold text-on-surface shrink-0 ${s.text}`}
+      className={`${s.container} rounded-full bg-slate-200/70 dark:bg-white/10 flex items-center justify-center font-geist font-bold text-slate-600 dark:text-slate-200 shrink-0 ${s.text}`}
       aria-label={name}
       title={name}
     >

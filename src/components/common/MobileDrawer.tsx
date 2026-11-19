@@ -58,12 +58,12 @@ export default function MobileDrawer({ isOpen, onClose, onOpenNotifications }: M
         {/* Header Drag Bar / Close */}
         <div className="flex items-center justify-between pb-2 border-b border-[#E5E5E5] dark:border-slate-800">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[#6425A6]">tune</span>
+            <span className="material-symbols-outlined text-[#0A6CFF]">tune</span>
             <h3 className="font-bold text-sm font-geist text-[#171717] dark:text-white">{t('common.more', 'Settings & Options')}</h3>
           </div>
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-[#F5F5F5] dark:bg-slate-800 hover:bg-[#F3ECFA] text-[#171717] dark:text-slate-200 flex items-center justify-center active:scale-95 transition-colors min-w-[36px] min-h-[36px] border border-[#E5E5E5] dark:border-slate-700"
+            className="w-9 h-9 rounded-full bg-[#F5F5F5] dark:bg-slate-800 hover:bg-[#EAF3FF] text-[#171717] dark:text-slate-200 flex items-center justify-center active:scale-95 transition-colors min-w-[36px] min-h-[36px] border border-[#E5E5E5] dark:border-slate-700"
             aria-label={t('common.close', 'Close settings')}
           >
             <span className="material-symbols-outlined text-[20px]">close</span>
@@ -90,7 +90,7 @@ export default function MobileDrawer({ isOpen, onClose, onOpenNotifications }: M
                 type="button"
                 onClick={handleInstallClick}
                 disabled={installing}
-                className="py-2 px-3.5 rounded-lg bg-[#6425A6] text-white font-geist font-bold text-xs hover:bg-[#521c85] active:scale-95 transition-all shadow-md shrink-0 flex items-center gap-1.5 min-h-[36px]"
+                className="py-2 px-3.5 rounded-lg bg-[#0A6CFF] text-white font-geist font-bold text-xs hover:bg-[#521c85] active:scale-95 transition-all shadow-md shrink-0 flex items-center gap-1.5 min-h-[36px]"
               >
                 <span className="material-symbols-outlined text-sm">
                   {isIOS ? 'add_box' : 'download'}
@@ -102,12 +102,12 @@ export default function MobileDrawer({ isOpen, onClose, onOpenNotifications }: M
             {/* iOS Safari Instructions Accordion/Card */}
             {showIOSInstructions && isIOS && (
               <div className="p-3 rounded-lg bg-white dark:bg-[#0c121e] border border-[#E5E5E5] dark:border-slate-800 text-xs space-y-2 animate-fade-in text-[#6B7280] dark:text-slate-400">
-                <p className="font-bold text-[#6425A6] text-[11px] uppercase tracking-wider">
+                <p className="font-bold text-[#0A6CFF] text-[11px] uppercase tracking-wider">
                   How to install on iPhone &amp; iPad:
                 </p>
                 <ol className="space-y-1.5 pl-4 list-decimal text-[11px]">
                   <li>
-                    Tap the <strong>Share</strong> button <span className="font-mono text-[#6425A6]">[↑]</span> at the bottom of Safari.
+                    Tap the <strong>Share</strong> button <span className="font-mono text-[#0A6CFF]">[↑]</span> at the bottom of Safari.
                   </li>
                   <li>
                     Scroll down and tap <strong>Add to Home Screen</strong> <span className="material-symbols-outlined text-xs align-middle">add_box</span>.
@@ -123,7 +123,7 @@ export default function MobileDrawer({ isOpen, onClose, onOpenNotifications }: M
 
         {/* 1. Language Selection */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold uppercase tracking-wider text-[#6425A6] block">
+          <label className="text-xs font-bold uppercase tracking-wider text-[#0A6CFF] block">
             {t('common.language', 'Language')}
           </label>
           <div className="grid grid-cols-3 gap-2">
@@ -135,8 +135,8 @@ export default function MobileDrawer({ isOpen, onClose, onOpenNotifications }: M
                 }}
                 className={`py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 border transition-all min-h-[44px] touch-manipulation ${
                   locale === l.code
-                    ? 'bg-[#F3ECFA] text-[#6425A6] border-[#6425A6] font-bold shadow-xs'
-                    : 'bg-[#F5F5F5] dark:bg-[#121a29] border-[#E5E5E5] dark:border-[#1b263b] text-[#171717] dark:text-slate-200 hover:text-[#6425A6]'
+                    ? 'bg-[#EAF3FF] text-[#0A6CFF] border-[#0A6CFF] font-bold shadow-xs'
+                    : 'bg-[#F5F5F5] dark:bg-[#121a29] border-[#E5E5E5] dark:border-[#1b263b] text-[#171717] dark:text-slate-200 hover:text-[#0A6CFF]'
                 }`}
               >
                 <span>{l.flag}</span>
@@ -148,13 +148,13 @@ export default function MobileDrawer({ isOpen, onClose, onOpenNotifications }: M
 
         {/* 2. Timezone Selector */}
         <div className="space-y-1.5">
-          <label className="text-xs font-bold uppercase tracking-wider text-[#6425A6] block">
+          <label className="text-xs font-bold uppercase tracking-wider text-[#0A6CFF] block">
             {t('common.displayTimezone', 'Timezone Preference')}
           </label>
           <select
             value={selectedTimezone}
             onChange={(e) => setTimezonePreference(e.target.value)}
-            className="w-full py-2.5 px-3 rounded-lg bg-[#F5F5F5] dark:bg-[#121a29] border border-[#E5E5E5] dark:border-[#1b263b] text-[#171717] dark:text-slate-100 text-xs font-medium focus:outline-none focus:border-[#6425A6] min-h-[44px]"
+            className="w-full py-2.5 px-3 rounded-lg bg-[#F5F5F5] dark:bg-[#121a29] border border-[#E5E5E5] dark:border-[#1b263b] text-[#171717] dark:text-slate-100 text-xs font-medium focus:outline-none focus:border-[#0A6CFF] min-h-[44px]"
           >
             {TIMEZONE_OPTIONS.map((tz) => (
               <option key={tz.value} value={tz.value}>
@@ -171,9 +171,9 @@ export default function MobileDrawer({ isOpen, onClose, onOpenNotifications }: M
               onClose()
               onOpenNotifications()
             }}
-            className="w-full py-2.5 px-3 rounded-lg bg-[#F5F5F5] dark:bg-[#121a29] border border-[#E5E5E5] dark:border-[#1b263b] text-[#171717] dark:text-white hover:bg-[#F3ECFA] flex items-center justify-center gap-2 text-xs font-semibold min-h-[44px] touch-manipulation"
+            className="w-full py-2.5 px-3 rounded-lg bg-[#F5F5F5] dark:bg-[#121a29] border border-[#E5E5E5] dark:border-[#1b263b] text-[#171717] dark:text-white hover:bg-[#EAF3FF] flex items-center justify-center gap-2 text-xs font-semibold min-h-[44px] touch-manipulation"
           >
-            <span className="material-symbols-outlined text-[18px] text-[#6425A6]">notifications</span>
+            <span className="material-symbols-outlined text-[18px] text-[#0A6CFF]">notifications</span>
             <span>{t('common.notifications', 'Match Alerts')}</span>
           </button>
         </div>
@@ -183,10 +183,10 @@ export default function MobileDrawer({ isOpen, onClose, onOpenNotifications }: M
           <Link
             href="/news"
             onClick={onClose}
-            className="px-3 py-2 rounded-lg bg-[#F5F5F5] dark:bg-[#121a29] border border-[#E5E5E5] dark:border-[#1b263b] hover:bg-[#F3ECFA] flex items-center justify-between text-xs font-medium text-[#171717] dark:text-slate-200 min-h-[44px]"
+            className="px-3 py-2 rounded-lg bg-[#F5F5F5] dark:bg-[#121a29] border border-[#E5E5E5] dark:border-[#1b263b] hover:bg-[#EAF3FF] flex items-center justify-between text-xs font-medium text-[#171717] dark:text-slate-200 min-h-[44px]"
           >
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-[18px] text-[#6425A6]">newspaper</span>
+              <span className="material-symbols-outlined text-[18px] text-[#0A6CFF]">newspaper</span>
               <span>{t('nav.news', 'Football News')}</span>
             </div>
             <span className="material-symbols-outlined text-[16px] text-[#6B7280]">chevron_right</span>
@@ -195,7 +195,7 @@ export default function MobileDrawer({ isOpen, onClose, onOpenNotifications }: M
           <Link
             href="/privacy-policy"
             onClick={onClose}
-            className="px-3 py-2 rounded-lg bg-[#F5F5F5] dark:bg-[#121a29] border border-[#E5E5E5] dark:border-[#1b263b] hover:bg-[#F3ECFA] flex items-center justify-between text-xs font-medium text-[#171717] dark:text-slate-200 min-h-[44px]"
+            className="px-3 py-2 rounded-lg bg-[#F5F5F5] dark:bg-[#121a29] border border-[#E5E5E5] dark:border-[#1b263b] hover:bg-[#EAF3FF] flex items-center justify-between text-xs font-medium text-[#171717] dark:text-slate-200 min-h-[44px]"
           >
             <div className="flex items-center gap-2">
               <span className="material-symbols-outlined text-[18px] text-[#6B7280]">shield</span>

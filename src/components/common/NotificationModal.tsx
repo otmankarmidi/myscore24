@@ -121,7 +121,7 @@ export default function NotificationModal({ isOpen, onClose }: NotificationModal
 
         {/* Preference Toggles */}
         <div className="space-y-2">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-[#6425A6]">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-[#0A6CFF]">
             {t('common.alertPreferences', 'Match Alert Events')}
           </h4>
 

@@ -251,7 +251,7 @@ export function LiveAlertManager() {
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <span className="text-lg leading-none select-none">{alertMeta.icon}</span>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black tracking-wider uppercase bg-[#F3ECFA] text-[#6425A6] font-geist">
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black tracking-wider uppercase bg-[#EAF3FF] text-[#0A6CFF] font-geist">
                 {alertMeta.title}
               </span>
             </div>
@@ -318,7 +318,7 @@ export function LiveAlertManager() {
 
           {/* Bottom Bar: Action link & Branding */}
           <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
-            <span className="text-xs font-bold text-[#6425A6] flex items-center gap-1.5 hover:underline">
+            <span className="text-xs font-bold text-[#0A6CFF] flex items-center gap-1.5 hover:underline">
               <span>{t('common.viewMatch', 'Open Match')}</span>
               <svg className="w-3.5 h-3.5 rtl:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -332,7 +332,7 @@ export function LiveAlertManager() {
           {/* Subtle Progress Bar */}
           <div className="absolute bottom-0 inset-x-0 h-[2px] bg-slate-100 overflow-hidden">
             <div
-              className="h-full bg-[#6425A6] transition-all duration-[6400ms] ease-linear"
+              className="h-full bg-[#0A6CFF] transition-all duration-[6400ms] ease-linear"
               style={{ width: `${toastProgress}%` }}
             />
           </div>

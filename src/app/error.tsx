@@ -15,7 +15,7 @@ export default function Error({
   }, [error])
 
   return (
-    <div className="min-h-screen bg-surface text-on-surface flex items-center justify-center p-4">
+    <div className="min-h-screen text-on-surface flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-surface-container border border-surface-bright rounded-2xl p-6 text-center shadow-2xl space-y-4">
         <div className="w-14 h-14 mx-auto rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
           <span className="material-symbols-outlined text-[28px]">warning</span>

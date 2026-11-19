@@ -40,7 +40,7 @@ export default function DateSelector({ selectedDate, onDateChange, onSelectDate 
         <button
           type="button"
           onClick={handlePrevDay}
-          className="w-8 h-8 rounded-full apple-segmented-track flex items-center justify-center text-slate-500 hover:text-purple-600 dark:hover:text-purple-400 transition-all shrink-0 cursor-pointer hover:scale-105 active:scale-95"
+          className="w-8 h-8 rounded-full apple-segmented-track flex items-center justify-center text-slate-500 hover:text-brand-600 dark:hover:text-brand-400 transition-all shrink-0 cursor-pointer hover:scale-105 active:scale-95"
           title="Previous day"
           aria-label="Previous day"
         >
@@ -58,7 +58,7 @@ export default function DateSelector({ selectedDate, onDateChange, onSelectDate 
                 selected
                   ? 'apple-segmented-active font-bold scale-[1.05]'
                   : today
-                  ? 'apple-glass border-purple-500/40 text-purple-700 dark:text-purple-300 font-semibold'
+                  ? 'apple-glass border-brand-500/40 text-brand-700 dark:text-brand-300 font-semibold'
                   : 'hover:bg-white/50 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
               }`}
               aria-label={`Select ${formatDayDate(date, locale)}${today ? ` (${todayLabel})` : ''}`}
@@ -70,7 +70,7 @@ export default function DateSelector({ selectedDate, onDateChange, onSelectDate 
                 </span>
               )}
               {today && selected && (
-                <span className="text-[10px] font-geist font-black tracking-wider text-purple-600 dark:text-purple-300 uppercase">
+                <span className="text-[10px] font-geist font-black tracking-wider text-brand-600 dark:text-brand-300 uppercase">
                   {todayLabel}
                 </span>
               )}
@@ -92,7 +92,7 @@ export default function DateSelector({ selectedDate, onDateChange, onSelectDate 
         <button
           type="button"
           onClick={handleNextDay}
-          className="w-8 h-8 rounded-full apple-segmented-track flex items-center justify-center text-slate-500 hover:text-purple-600 dark:hover:text-purple-400 transition-all shrink-0 cursor-pointer hover:scale-105 active:scale-95"
+          className="w-8 h-8 rounded-full apple-segmented-track flex items-center justify-center text-slate-500 hover:text-brand-600 dark:hover:text-brand-400 transition-all shrink-0 cursor-pointer hover:scale-105 active:scale-95"
           title="Next day"
           aria-label="Next day"
         >
@@ -102,13 +102,13 @@ export default function DateSelector({ selectedDate, onDateChange, onSelectDate 
 
       <div className="flex items-center gap-2 pl-2 rtl:pl-0 rtl:pr-2 shrink-0">
         <div className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full apple-segmented-track font-geist text-xs text-slate-600 dark:text-slate-300" title={t('common.displayTimezone', 'Active Timezone')}>
-          <span className="material-symbols-outlined text-[14px] text-purple-600 dark:text-purple-400">schedule</span>
+          <span className="material-symbols-outlined text-[14px] text-brand-600 dark:text-brand-400">schedule</span>
           <span className="font-bold truncate max-w-[100px]">
             {selectedTimezone === 'auto' ? t('common.timezoneAuto', 'Local') : activeTimezone.split('/')[1] || activeTimezone}
           </span>
         </div>
         <button
-          className="w-8 h-8 rounded-full apple-segmented-track flex items-center justify-center text-slate-500 hover:text-purple-600 dark:hover:text-purple-400 transition-all cursor-pointer hover:scale-105 active:scale-95"
+          className="w-8 h-8 rounded-full apple-segmented-track flex items-center justify-center text-slate-500 hover:text-brand-600 dark:hover:text-brand-400 transition-all cursor-pointer hover:scale-105 active:scale-95"
           title="Open calendar"
           aria-label="Open date picker"
         >

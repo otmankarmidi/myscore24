@@ -135,7 +135,7 @@ export default function MatchBroadcastAndInfo({ match, standings }: MatchBroadca
             className="flex items-center gap-1 text-on-surface hover:text-primary transition-colors text-left rtl:text-right"
           >
             <span className="material-symbols-outlined text-[16px] text-on-surface-variant rtl:rotate-180">
-              arrow_back_ios
+              chevron_left
             </span>
             <span className="font-semibold text-xs md:text-sm text-on-surface line-clamp-1">
               {compDetails}
@@ -163,7 +163,7 @@ export default function MatchBroadcastAndInfo({ match, standings }: MatchBroadca
           <div className="flex flex-col items-start rtl:items-end gap-1">
             <div className="flex items-center gap-1.5 font-bold text-sm text-on-surface">
               <span className="material-symbols-outlined text-[16px] text-on-surface-variant rtl:rotate-180">
-                arrow_back_ios
+                chevron_left
               </span>
               <span>{isRtl ? refereeProfile.nameAr || refereeProfile.name : refereeProfile.name}</span>
               <span className="text-base leading-none select-none">{refereeProfile.flag}</span>

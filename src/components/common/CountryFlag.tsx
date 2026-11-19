@@ -80,7 +80,7 @@ export default function CountryFlag({
       }}
       title={country || code}
     >
-      public
+      shield
     </span>
   )
 }

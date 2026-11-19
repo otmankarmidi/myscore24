@@ -101,18 +101,18 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
 
     if (myScore === null) return 'hidden'
     if (isFlashingGoal && (lastScoringSide === side || !lastScoringSide)) {
-      return 'text-purple-600 dark:text-purple-400 scale-125'
+      return 'text-brand-600 dark:text-brand-400 scale-125 font-extrabold'
     }
     if (live) {
-      return 'text-rose-600 dark:text-rose-400 font-extrabold'
+      return 'text-[#E0261C] dark:text-[#FF6961] font-extrabold'
     }
     if (isFinished) {
       if (oppScore !== null && myScore < oppScore) {
-        return 'text-slate-400 dark:text-slate-500 font-semibold'
+        return 'text-slate-400 dark:text-slate-500 font-bold'
       }
       return 'text-slate-900 dark:text-white font-extrabold'
     }
-    return 'text-slate-900 dark:text-slate-100 font-bold'
+    return 'text-slate-900 dark:text-slate-100 font-extrabold'
   }
 
   const getTeamNameStyle = (side: 'home' | 'away') => {
@@ -129,7 +129,7 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
       if (!isHome && awayWins) return 'font-bold text-slate-900 dark:text-white'
       return 'font-semibold text-slate-800 dark:text-slate-200'
     }
-    return 'font-medium text-slate-800 dark:text-slate-200 group-hover:text-purple-700 dark:group-hover:text-purple-300 transition-colors'
+    return 'font-medium text-slate-800 dark:text-slate-200 group-hover:text-brand-700 dark:group-hover:text-brand-300 transition-colors'
   }
 
   return (
@@ -139,18 +139,20 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
       onClick={(e) => {
         if (!hasValidId) e.preventDefault()
       }}
-      className={`match-row block px-4 py-3.5 sm:py-4 group transition-all duration-300 relative bg-white/35 hover:bg-white/90 dark:bg-transparent dark:hover:bg-white/8 hover:backdrop-blur-md hover:translate-x-1 rtl:hover:-translate-x-1 ${
+      className={`match-row block px-4 sm:px-5 py-3 sm:py-3.5 group transition-colors duration-200 relative hover:bg-white/70 dark:hover:bg-white/[0.04] ${
+        live ? 'before:absolute before:inset-y-3 before:start-0 before:w-[3px] before:rounded-full before:bg-[#FF3B30]' : ''
+      } ${
         isFlashingGoal
-          ? 'animate-score-flash ring-2 ring-purple-500 rounded-2xl shadow-[0_0_30px_rgba(139,92,246,0.4)]'
+          ? 'animate-score-flash ring-2 ring-brand-500 rounded-2xl shadow-[0_0_30px_rgba(10,108,255,0.4)]'
           : ''
       }`}
       aria-label={`${safeHome.name} vs ${safeAway.name}, ${status || 'scheduled'}`}
     >
       <div className="flex items-center justify-between gap-3.5">
         {/* Status / Kickoff column */}
-        <div className="w-18 shrink-0 flex flex-col items-center justify-center">
+        <div className="w-14 sm:w-16 shrink-0 flex flex-col items-center justify-center border-e border-slate-900/[0.06] dark:border-white/[0.07] pe-3 me-0.5 self-stretch">
           {status === 'scheduled' ? (
-            <span className="w-full py-1.5 px-1 rounded-full apple-segmented-track text-center font-geist font-bold text-xs text-purple-700 dark:text-purple-300 tabular-nums shadow-2xs group-hover:scale-105 transition-all">
+            <span className="w-full text-center font-geist font-semibold text-[13px] text-slate-700 dark:text-slate-200 tabular-nums">
               {formatMatchTime(kickoff, activeTimezone, locale)}
             </span>
           ) : (
@@ -163,22 +165,22 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
           {/* Home */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2.5 min-w-0">
-              <TeamLogo name={safeHome.name} abbreviation={safeHome.abbreviation} logo={safeHome.logo} size="xs" />
-              <span className={`font-inter text-[14.5px] truncate ${getTeamNameStyle('home')}`}>
+              <TeamLogo name={safeHome.name} abbreviation={safeHome.abbreviation} logo={safeHome.logo} size="sm" />
+              <span className={`font-inter text-[14.5px] tracking-[-0.01em] truncate ${getTeamNameStyle('home')}`}>
                 {safeHome.name}
               </span>
               {homeReds.map((_, i) => (
-                <span key={i} className="w-2.5 h-3.5 rounded-[1px] inline-block shrink-0 bg-rose-600 shadow-xs" title="Red card" aria-label="Red card" />
+                <span key={i} className="w-2.5 h-3.5 rounded-[1px] inline-block shrink-0 bg-[#FF3B30] rounded-[2px]" title="Red card" aria-label="Red card" />
               ))}
             </div>
             {/* Home Score */}
             <div className="flex items-center gap-1.5 shrink-0">
               {isFlashingGoal && (lastScoringSide === 'home' || !lastScoringSide) && (
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-purple-600 text-white animate-bounce shadow">
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-brand-600 text-white animate-bounce shadow">
                   GOAL!
                 </span>
               )}
-              <span className={`font-geist text-[18px] sm:text-[19px] tabular-nums leading-none shrink-0 transition-transform ${getScoreStyle('home')}`}>
+              <span className={`font-geist text-[17px] sm:text-[18px] tabular-nums leading-none shrink-0 transition-transform ${getScoreStyle('home')}`}>
                 {homeScore ?? ''}
               </span>
             </div>
@@ -187,22 +189,22 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
           {/* Away */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2.5 min-w-0">
-              <TeamLogo name={safeAway.name} abbreviation={safeAway.abbreviation} logo={safeAway.logo} size="xs" />
-              <span className={`font-inter text-[14.5px] truncate ${getTeamNameStyle('away')}`}>
+              <TeamLogo name={safeAway.name} abbreviation={safeAway.abbreviation} logo={safeAway.logo} size="sm" />
+              <span className={`font-inter text-[14.5px] tracking-[-0.01em] truncate ${getTeamNameStyle('away')}`}>
                 {safeAway.name}
               </span>
               {awayReds.map((_, i) => (
-                <span key={i} className="w-2.5 h-3.5 rounded-[1px] inline-block shrink-0 bg-rose-600 shadow-xs" title="Red card" aria-label="Red card" />
+                <span key={i} className="w-2.5 h-3.5 rounded-[1px] inline-block shrink-0 bg-[#FF3B30] rounded-[2px]" title="Red card" aria-label="Red card" />
               ))}
             </div>
             {/* Away Score */}
             <div className="flex items-center gap-1.5 shrink-0">
               {isFlashingGoal && (lastScoringSide === 'away' || !lastScoringSide) && (
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-purple-600 text-white animate-bounce shadow">
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-brand-600 text-white animate-bounce shadow">
                   GOAL!
                 </span>
               )}
-              <span className={`font-geist text-[18px] sm:text-[19px] tabular-nums leading-none shrink-0 transition-transform ${getScoreStyle('away')}`}>
+              <span className={`font-geist text-[17px] sm:text-[18px] tabular-nums leading-none shrink-0 transition-transform ${getScoreStyle('away')}`}>
                 {awayScore ?? ''}
               </span>
             </div>
@@ -226,7 +228,7 @@ export default function MatchRow({ match, isFavorited, onToggleFavorite }: Match
 
       {/* Event sub-line */}
       {hasEvents ? (
-        <div className="mt-2 pt-1 border-t border-slate-100 dark:border-slate-800/40 flex items-center justify-between font-geist text-[11px] text-slate-500 dark:text-slate-400 gap-2 overflow-hidden">
+        <div className="mt-2 ms-[4.25rem] sm:ms-[5rem] flex items-center justify-between font-geist text-[11px] text-slate-500 dark:text-slate-400 gap-2 overflow-hidden">
           <span className="truncate">
             {homeGoals?.map(g => `⚽ ${g}`).join('  ')}
           </span>

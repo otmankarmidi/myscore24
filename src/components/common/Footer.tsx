@@ -24,7 +24,7 @@ export default function Footer() {
 
   return (
     <footer
-      className="w-full bg-[#0B0F19] text-slate-300 mt-auto pt-14 pb-28 md:pb-12 px-4 sm:px-6 lg:px-8 relative z-10 border-t border-slate-800/80 shadow-2xl"
+      className="w-full bg-white/55 dark:bg-black/50 backdrop-blur-2xl text-slate-600 dark:text-slate-500 dark:text-slate-400 mt-auto pt-14 pb-28 md:pb-12 px-4 sm:px-6 lg:px-8 relative z-10 border-t border-slate-900/[0.07] dark:border-white/[0.08]"
       dir={isAr ? 'rtl' : 'ltr'}
     >
       <div className="max-w-[1440px] mx-auto grid grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-12 mb-10">
@@ -38,13 +38,13 @@ export default function Footer() {
               height={34}
               loading="lazy"
               decoding="async"
-              className="w-8 h-8 object-contain shrink-0 brightness-0 invert drop-shadow"
+              className="w-8 h-8 object-contain shrink-0 brightness-0 dark:invert"
             />
-            <span className="text-xl font-black font-geist text-white tracking-tight uppercase">
-              MyScore<span className="text-purple-400">24</span>
+            <span className="text-xl font-extrabold font-geist text-slate-900 dark:text-white tracking-[-0.03em]">
+              MyScore<span className="apple-gradient-text">24</span>
             </span>
           </div>
-          <p className="text-xs text-slate-400 leading-relaxed font-normal">
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-normal">
             {isAr
               ? 'نتائج كرة القدم المباشرة والترتيب وجدول المباريات والإحصائيات والأخبار الموثوقة لجميع البطولات العالمية.'
               : 'Real-time live football scores, standings, fixtures, results, top scorers, match statistics, and verified football news across global competitions.'}
@@ -52,7 +52,7 @@ export default function Footer() {
           <div className="pt-1">
             <a
               href="mailto:contact@myscore24.com"
-              className="text-xs text-slate-400 hover:text-white font-mono transition-colors inline-flex items-center gap-2 hover:underline"
+              className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-mono transition-colors inline-flex items-center gap-2 hover:underline"
             >
               <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -64,37 +64,37 @@ export default function Footer() {
 
         {/* Navigation */}
         <div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-4 pb-2 border-b border-slate-800">
+          <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-900 dark:text-white mb-4 pb-2 border-b border-slate-900/[0.07] dark:border-white/[0.08]">
             {t('nav.scores', 'Scores')}
           </h3>
-          <ul className="space-y-2.5 text-xs text-slate-400">
+          <ul className="space-y-2.5 text-xs text-slate-500 dark:text-slate-400">
             <li>
-              <Link href="/" className="hover:text-white hover:underline transition-colors block">
+              <Link href="/" className="hover:text-slate-900 dark:hover:text-white hover:underline transition-colors block">
                 {isAr ? 'النتائج المباشرة' : 'Live Scores'}
               </Link>
             </li>
             <li>
-              <Link href="/fixtures" className="hover:text-white hover:underline transition-colors block">
+              <Link href="/fixtures" className="hover:text-slate-900 dark:hover:text-white hover:underline transition-colors block">
                 {isAr ? 'جدول المباريات' : 'Fixtures'}
               </Link>
             </li>
             <li>
-              <Link href="/results" className="hover:text-white hover:underline transition-colors block">
+              <Link href="/results" className="hover:text-slate-900 dark:hover:text-white hover:underline transition-colors block">
                 {isAr ? 'النتائج النهائية' : 'Results'}
               </Link>
             </li>
             <li>
-              <Link href="/competitions" className="hover:text-white hover:underline transition-colors block">
+              <Link href="/competitions" className="hover:text-slate-900 dark:hover:text-white hover:underline transition-colors block">
                 {isAr ? 'البطولات' : 'Competitions'}
               </Link>
             </li>
             <li>
-              <Link href="/news" className="hover:text-white hover:underline transition-colors block">
+              <Link href="/news" className="hover:text-slate-900 dark:hover:text-white hover:underline transition-colors block">
                 {isAr ? 'أخبار كرة القدم' : 'Football News'}
               </Link>
             </li>
             <li>
-              <Link href="/favorites" className="hover:text-white hover:underline transition-colors block">
+              <Link href="/favorites" className="hover:text-slate-900 dark:hover:text-white hover:underline transition-colors block">
                 {isAr ? 'المفضلة' : 'Favorites'}
               </Link>
             </li>
@@ -103,32 +103,32 @@ export default function Footer() {
 
         {/* Top Leagues */}
         <div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-4 pb-2 border-b border-slate-800">
+          <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-900 dark:text-white mb-4 pb-2 border-b border-slate-900/[0.07] dark:border-white/[0.08]">
             {isAr ? 'أبرز الدوريات' : 'Top Leagues'}
           </h3>
-          <ul className="space-y-2.5 text-xs text-slate-400">
+          <ul className="space-y-2.5 text-xs text-slate-500 dark:text-slate-400">
             <li>
-              <Link href="/league/39" className="hover:text-white hover:underline transition-colors block">
+              <Link href="/league/39" className="hover:text-slate-900 dark:hover:text-white hover:underline transition-colors block">
                 {isAr ? 'الدوري الإنجليزي الممتاز' : 'Premier League'}
               </Link>
             </li>
             <li>
-              <Link href="/league/140" className="hover:text-white hover:underline transition-colors block">
+              <Link href="/league/140" className="hover:text-slate-900 dark:hover:text-white hover:underline transition-colors block">
                 {isAr ? 'الدوري الإسباني' : 'La Liga'}
               </Link>
             </li>
             <li>
-              <Link href="/league/2" className="hover:text-white hover:underline transition-colors block">
+              <Link href="/league/2" className="hover:text-slate-900 dark:hover:text-white hover:underline transition-colors block">
                 {isAr ? 'دوري أبطال أوروبا' : 'UEFA Champions League'}
               </Link>
             </li>
             <li>
-              <Link href="/league/135" className="hover:text-white hover:underline transition-colors block">
+              <Link href="/league/135" className="hover:text-slate-900 dark:hover:text-white hover:underline transition-colors block">
                 {isAr ? 'الدوري الإيطالي' : 'Serie A'}
               </Link>
             </li>
             <li>
-              <Link href="/league/78" className="hover:text-white hover:underline transition-colors block">
+              <Link href="/league/78" className="hover:text-slate-900 dark:hover:text-white hover:underline transition-colors block">
                 {isAr ? 'الدوري الألماني' : 'Bundesliga'}
               </Link>
             </li>
@@ -137,17 +137,17 @@ export default function Footer() {
 
         {/* Company */}
         <div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-4 pb-2 border-b border-slate-800">
+          <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-900 dark:text-white mb-4 pb-2 border-b border-slate-900/[0.07] dark:border-white/[0.08]">
             {isAr ? 'عن المنصة' : 'Company'}
           </h3>
-          <ul className="space-y-2.5 text-xs text-slate-400">
+          <ul className="space-y-2.5 text-xs text-slate-500 dark:text-slate-400">
             <li>
-              <Link href="/about" className="hover:text-white hover:underline transition-colors block">
+              <Link href="/about" className="hover:text-slate-900 dark:hover:text-white hover:underline transition-colors block">
                 {isAr ? 'من نحن' : 'About Us'}
               </Link>
             </li>
             <li>
-              <Link href="/contact" className="hover:text-white hover:underline transition-colors block">
+              <Link href="/contact" className="hover:text-slate-900 dark:hover:text-white hover:underline transition-colors block">
                 {isAr ? 'اتصل بنا' : 'Contact Us'}
               </Link>
             </li>
@@ -156,22 +156,22 @@ export default function Footer() {
 
         {/* Legal */}
         <div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-white mb-4 pb-2 border-b border-slate-800">
+          <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-900 dark:text-white mb-4 pb-2 border-b border-slate-900/[0.07] dark:border-white/[0.08]">
             {isAr ? 'قانوني' : 'Legal'}
           </h3>
-          <ul className="space-y-2.5 text-xs text-slate-400">
+          <ul className="space-y-2.5 text-xs text-slate-500 dark:text-slate-400">
             <li>
-              <Link href="/privacy-policy" className="hover:text-white hover:underline transition-colors block">
+              <Link href="/privacy-policy" className="hover:text-slate-900 dark:hover:text-white hover:underline transition-colors block">
                 {isAr ? 'سياسة الخصوصية' : 'Privacy Policy'}
               </Link>
             </li>
             <li>
-              <Link href="/cookie-policy" className="hover:text-white hover:underline transition-colors block">
+              <Link href="/cookie-policy" className="hover:text-slate-900 dark:hover:text-white hover:underline transition-colors block">
                 {isAr ? 'سياسة ملفات الارتباط' : 'Cookie Policy'}
               </Link>
             </li>
             <li>
-              <Link href="/terms" className="hover:text-white hover:underline transition-colors block">
+              <Link href="/terms" className="hover:text-slate-900 dark:hover:text-white hover:underline transition-colors block">
                 {isAr ? 'شروط الاستخدام' : 'Terms of Use'}
               </Link>
             </li>
@@ -179,7 +179,7 @@ export default function Footer() {
               <button
                 type="button"
                 onClick={openCookieSettings}
-                className="hover:text-white text-left rtl:text-right transition-colors cursor-pointer inline-flex items-center gap-1 hover:underline text-slate-400"
+                className="hover:text-slate-900 dark:hover:text-white text-left rtl:text-right transition-colors cursor-pointer inline-flex items-center gap-1 hover:underline text-slate-500 dark:text-slate-400"
               >
                 <span>{isAr ? 'إعدادات ملفات الارتباط' : 'Cookie Settings'}</span>
               </button>
@@ -188,11 +188,11 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="max-w-[1440px] mx-auto pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <div className="max-w-[1440px] mx-auto pt-8 border-t border-slate-900/[0.07] dark:border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
         <button
           type="button"
           onClick={scrollToTop}
-          className="group inline-flex items-center gap-1.5 text-slate-300 font-semibold hover:text-white transition-colors cursor-pointer"
+          className="group inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-300 font-semibold hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
         >
           <svg
             className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform shrink-0"
