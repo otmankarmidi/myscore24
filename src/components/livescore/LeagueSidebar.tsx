@@ -59,16 +59,17 @@ export default function LeagueSidebar({ todaysLeagues, activeLeague, onLeagueCha
       <li key={l.id}>
         <button
           onClick={() => onLeagueChange(active ? null : l.id)}
-          className={`gl-row w-full h-10 px-3 rounded-xl flex items-center gap-3 text-start ${active ? 'gl-row-active' : ''}`}
+          className={`ui-press relative w-full h-10 px-3 rounded-lg flex items-center gap-3 text-start ${active ? 'bg-brand-soft text-brand-ink' : 'hover:bg-hover text-ink'}`}
           aria-pressed={active}
         >
-          <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center shrink-0">
+          <span className={`absolute start-0 top-2 bottom-2 w-[3px] rounded-full bg-brand transition-transform duration-300 ${active ? 'scale-y-100' : 'scale-y-0'}`} aria-hidden="true" />
+          <span className="w-6 h-6 rounded-md bg-white border border-line flex items-center justify-center shrink-0">
             <CompetitionLogo logo={l.logo} name={l.name} size={16} showBackground={false} />
           </span>
           <span className="flex-1 min-w-0">
-            <span className="block truncate text-[13.5px] font-medium text-white/90">{l.name}</span>
+            <span className={`block truncate text-[13.5px] ${active ? 'font-semibold' : 'font-medium'}`}>{l.name}</span>
           </span>
-          {count > 0 && <span className="text-[11px] font-semibold tabular-nums text-white/45">{count}</span>}
+          {count > 0 && <span className={`min-w-6 h-5 px-1.5 rounded-md text-[11px] font-bold tabular-nums inline-flex items-center justify-center ${active ? 'bg-brand text-white' : 'bg-canvas text-ink-2'}`}>{count}</span>}
         </button>
       </li>
     )
@@ -77,16 +78,16 @@ export default function LeagueSidebar({ todaysLeagues, activeLeague, onLeagueCha
   return (
     <aside className="space-y-3" aria-label="Leagues">
       {pinned.length > 0 && (
-        <section className="gl-panel rounded-2xl p-2">
-          <p className="gl-eyebrow px-3 pt-2 pb-1.5">{ar ? 'المثبتة' : 'Pinned'}</p>
+        <section className="ui-card rounded-2xl p-2">
+          <p className="ui-eyebrow px-3 pt-2 pb-1.5">{ar ? 'المثبتة' : 'Pinned'}</p>
           <ul>{pinned.map(leagueRow)}</ul>
         </section>
       )}
 
-      <section className="gl-panel rounded-2xl p-2">
+      <section className="ui-card rounded-2xl p-2">
         <div className="flex items-center justify-between px-3 pt-2 pb-1.5">
-          <p className="gl-eyebrow">{ar ? 'أهم البطولات' : 'Top leagues'}</p>
-          <Link href="/competitions" className="text-[11.5px] font-semibold text-accent-cyan hover:underline">
+          <p className="ui-eyebrow">{ar ? 'أهم البطولات' : 'Top leagues'}</p>
+          <Link href="/competitions" className="text-[12px] font-semibold text-brand hover:underline">
             {ar ? 'الكل' : 'All'}
           </Link>
         </div>
@@ -94,8 +95,8 @@ export default function LeagueSidebar({ todaysLeagues, activeLeague, onLeagueCha
       </section>
 
       {countries.length > 0 && (
-        <section className="gl-panel rounded-2xl p-2">
-          <p className="gl-eyebrow px-3 pt-2 pb-1.5">{ar ? 'الدول اليوم' : "Today's countries"}</p>
+        <section className="ui-card rounded-2xl p-2">
+          <p className="ui-eyebrow px-3 pt-2 pb-1.5">{ar ? 'الدول اليوم' : "Today's countries"}</p>
           <ul>
             {(showAllCountries ? countries : countries.slice(0, 8)).map((c) => {
               const league = todaysLeagues.find((t) => (t.league.country || 'World') === c.country)?.league
@@ -104,20 +105,20 @@ export default function LeagueSidebar({ todaysLeagues, activeLeague, onLeagueCha
                 <li key={c.country}>
                   <button
                     onClick={() => key && onLeagueChange(activeLeague === key ? null : key)}
-                    className={`gl-row w-full h-10 px-3 rounded-xl flex items-center gap-3 text-start ${key && activeLeague === key ? 'gl-row-active' : ''}`}
+                    className={`ui-press w-full h-10 px-3 rounded-lg flex items-center gap-3 text-start ${key && activeLeague === key ? 'bg-brand-soft text-brand-ink' : 'hover:bg-hover text-ink'}`}
                   >
-                    <span className="w-6 h-6 rounded-full overflow-hidden bg-white/10 flex items-center justify-center shrink-0">
+                    <span className="w-6 h-6 rounded-md overflow-hidden bg-canvas flex items-center justify-center shrink-0">
                       <CountryFlag country={c.country} flagUrl={c.flag} width={24} height={24} className="w-6 h-6 object-cover" />
                     </span>
-                    <span className="flex-1 truncate text-[13.5px] font-medium text-white/85">{c.country}</span>
-                    <span className="text-[11px] font-semibold tabular-nums text-white/45">{c.count}</span>
+                    <span className="flex-1 truncate text-[13.5px] font-medium">{c.country}</span>
+                    <span className="min-w-6 h-5 px-1.5 rounded-md bg-canvas text-[11px] font-bold tabular-nums text-ink-2 inline-flex items-center justify-center">{c.count}</span>
                   </button>
                 </li>
               )
             })}
           </ul>
           {countries.length > 8 && (
-            <button onClick={() => setShowAllCountries((v) => !v)} className="w-full h-9 text-[12px] font-semibold text-white/60 hover:text-white">
+            <button onClick={() => setShowAllCountries((v) => !v)} className="ui-press w-full h-9 rounded-lg text-[12px] font-semibold text-ink-2 hover:text-brand hover:bg-hover">
               {showAllCountries ? (ar ? 'أقل' : 'Show less') : ar ? 'المزيد' : `Show all (${countries.length})`}
             </button>
           )}
@@ -125,7 +126,7 @@ export default function LeagueSidebar({ todaysLeagues, activeLeague, onLeagueCha
       )}
 
       {todaysLeagues.length > 0 && (
-        <p className="px-3 text-[11.5px] text-white/35 leading-relaxed">
+        <p className="px-3 text-[11.5px] text-ink-3 leading-relaxed">
           {ar ? 'اضغط على بطولة لتصفية المباريات.' : 'Tap a league to filter the match list.'}{' '}
           {todaysLeagues.map(({ league }) => getCleanLeagueDisplayName(league, locale) || league.name).length} {ar ? 'بطولة اليوم' : 'competitions today'}
         </p>

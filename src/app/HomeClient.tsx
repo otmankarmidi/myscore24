@@ -1,13 +1,13 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import TopBar from '@/components/glass/TopBar'
-import TabBar from '@/components/glass/TabBar'
-import LeagueSidebar from '@/components/glass/LeagueSidebar'
-import { DateBar, StatusFilter, TournamentGroup } from '@/components/glass/MatchList'
-import MatchPanel from '@/components/glass/MatchPanel'
-import NewsCard from '@/components/glass/NewsCard'
-import { isFinished, isLive, isUpcoming, leagueKey, pickFeatured } from '@/components/glass/matchUtils'
+import TopBar from '@/components/livescore/TopBar'
+import TabBar from '@/components/livescore/TabBar'
+import LeagueSidebar from '@/components/livescore/LeagueSidebar'
+import { DateBar, StatusFilter, TournamentGroup } from '@/components/livescore/MatchList'
+import MatchPanel from '@/components/livescore/MatchPanel'
+import NewsCard from '@/components/livescore/NewsCard'
+import { isFinished, isLive, isUpcoming, leagueKey, pickFeatured } from '@/components/livescore/matchUtils'
 import ErrorState from '@/components/common/ErrorState'
 import { sportsService } from '@/services/sports/sportsService'
 import { useLanguage } from '@/context/LanguageContext'
@@ -168,7 +168,7 @@ export default function HomeClient({
     <div className="min-h-screen flex flex-col">
       <TopBar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
-      <div className="flex-1 w-full max-w-[1440px] mx-auto px-3 sm:px-5 pt-4 sm:pt-5 pb-28 lg:pb-10">
+      <div className="flex-1 w-full max-w-[1440px] mx-auto px-3 sm:px-5 pt-4 sm:pt-5 pb-24 lg:pb-10">
         <h1 className="sr-only">
           {ar
             ? 'موقع MyScore24 - نتائج المباريات المباشرة وأحدث أخبار كرة القدم العالمية'
@@ -188,7 +188,7 @@ export default function HomeClient({
             {/* Phone/tablet league chips (sidebar is desktop-only) */}
             {todaysLeagues.length > 0 && (
               <div className="lg:hidden flex gap-2 overflow-x-auto scrollbar-none -mx-3 px-3">
-                <button onClick={() => setActiveLeague(null)} className={`shrink-0 h-9 px-4 rounded-full text-[12.5px] font-semibold ${activeLeague === null ? 'gl-chip-active' : 'gl-chip'}`}>
+                <button onClick={() => setActiveLeague(null)} className={`ui-press shrink-0 h-9 px-4 rounded-lg text-[12.5px] font-semibold border ${activeLeague === null ? 'bg-ink text-white border-ink' : 'bg-card text-ink-2 border-line'}`}>
                   {ar ? 'الكل' : 'All'}
                 </button>
                 {todaysLeagues.map(({ league, count }) => {
@@ -197,7 +197,7 @@ export default function HomeClient({
                     <button
                       key={key}
                       onClick={() => setActiveLeague(activeLeague === key ? null : key)}
-                      className={`shrink-0 h-9 px-3.5 rounded-full text-[12.5px] font-semibold whitespace-nowrap ${activeLeague === key ? 'gl-chip-active' : 'gl-chip'}`}
+                      className={`ui-press shrink-0 h-9 px-3.5 rounded-lg text-[12.5px] font-semibold whitespace-nowrap border ${activeLeague === key ? 'bg-ink text-white border-ink' : 'bg-card text-ink-2 border-line'}`}
                     >
                       {league.name} <span className="opacity-60 tabular-nums">{count}</span>
                     </button>
@@ -209,7 +209,7 @@ export default function HomeClient({
             {isLoading && groups.length === 0 ? (
               <div className="space-y-3">
                 {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="gl-panel rounded-2xl p-3 space-y-2">
+                  <div key={i} className="ui-card rounded-2xl p-3 space-y-2">
                     <div className="h-8 w-48 skeleton" />
                     <div className="h-14 skeleton" />
                     <div className="h-14 skeleton" />
@@ -223,20 +223,21 @@ export default function HomeClient({
                 onRetry={() => setSelectedDate(new Date(selectedDate))}
               />
             ) : groups.length === 0 ? (
-              <div className="gl-panel rounded-2xl py-14 px-6 text-center">
-                <span className="material-symbols-outlined text-[40px] text-white/25">sports_soccer</span>
-                <p className="mt-3 text-[15px] font-semibold text-white">
+              <div className="ui-card rounded-2xl py-14 px-6 text-center ui-enter">
+                <span className="material-symbols-outlined text-[44px] text-line-strong">sports_soccer</span>
+                <p className="mt-3 text-[15px] font-semibold text-ink">
                   {searchQuery
                     ? t('common.noSearchResults', 'No matches for that search')
                     : status === 'live'
                     ? t('common.noLiveMatches', 'Nothing live right now')
                     : t('common.noMatchesFound', 'No matches on this day')}
                 </p>
-                <p className="mt-1 text-[13px] text-white/45">{t('common.selectAnotherDate', 'Try another date or filter.')}</p>
+                <p className="mt-1 text-[13px] text-ink-3">{t('common.selectAnotherDate', 'Try another date or filter.')}</p>
               </div>
             ) : (
-              groups.map(({ league, matches: ms }) => (
+              groups.map(({ league, matches: ms }, i) => (
                 <TournamentGroup
+                  index={i}
                   key={String(league.id || league.slug)}
                   league={league}
                   matches={ms}
@@ -253,7 +254,7 @@ export default function HomeClient({
           </main>
 
           {/* Right — match detail + news */}
-          <div className="hidden lg:block sticky top-[124px] max-h-[calc(100vh-140px)] overflow-y-auto scrollbar-none space-y-4 rounded-3xl">
+          <div className="hidden lg:block sticky top-[124px] max-h-[calc(100vh-140px)] overflow-y-auto scrollbar-none space-y-4 rounded-2xl">
             <MatchPanel match={selectedMatch} />
             <NewsCard articles={articles} />
           </div>
