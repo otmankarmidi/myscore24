@@ -1,22 +1,14 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
-import Header from '@/components/common/Header'
-import DesktopSidebar from '@/components/common/DesktopSidebar'
-import RightSidebar from '@/components/common/RightSidebar'
-import ScrollReveal from '@/components/common/ScrollReveal'
-import MobileBottomNavigation from '@/components/common/MobileBottomNavigation'
-import DateSelector from '@/components/common/DateSelector'
-import MatchFilters from '@/components/common/MatchFilters'
-import CompetitionGroup from '@/components/match/CompetitionGroup'
-import SkeletonMatchRow from '@/components/common/SkeletonLoader'
-import EmptyState from '@/components/common/EmptyState'
+import { useEffect, useMemo, useState } from 'react'
+import TopBar from '@/components/glass/TopBar'
+import TabBar from '@/components/glass/TabBar'
+import LeagueSidebar from '@/components/glass/LeagueSidebar'
+import { DateBar, StatusFilter, TournamentGroup } from '@/components/glass/MatchList'
+import MatchPanel from '@/components/glass/MatchPanel'
+import NewsCard from '@/components/glass/NewsCard'
+import { isFinished, isLive, isUpcoming, leagueKey, pickFeatured } from '@/components/glass/matchUtils'
 import ErrorState from '@/components/common/ErrorState'
-import TopMatchesBar from '@/components/home/TopMatchesBar'
-import HomeSpotlight from '@/components/home/HomeSpotlight'
-import HomeNewsMagazine from '@/components/home/HomeNewsMagazine'
-import TopLeaguesStandingsWidget from '@/components/home/TopLeaguesStandingsWidget'
-import MobileQuickLeaguesBar from '@/components/common/MobileQuickLeaguesBar'
 import { sportsService } from '@/services/sports/sportsService'
 import { useLanguage } from '@/context/LanguageContext'
 import { Match } from '@/types/match'
@@ -37,370 +29,238 @@ export default function HomeClient({
   latestArticlesAr = [],
 }: HomeClientProps) {
   const { t, locale } = useLanguage()
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
+  const ar = locale === 'ar'
 
+  // ── News (server-rendered, refreshed on refocus / after 2 min) ─────────
   const [articlesEn, setArticlesEn] = useState<NewsArticle[]>(latestArticles)
   const [articlesAr, setArticlesAr] = useState<NewsArticle[]>(latestArticlesAr)
 
   useEffect(() => {
-    if (latestArticles && latestArticles.length > 0) {
-      setArticlesEn(latestArticles)
-    }
-  }, [latestArticles])
-
-  useEffect(() => {
-    if (latestArticlesAr && latestArticlesAr.length > 0) {
-      setArticlesAr(latestArticlesAr)
-    }
-  }, [latestArticlesAr])
-
-  // Client-side refresh for news on tab refocus or after idle duration
-  useEffect(() => {
-    let isCancelled = false
-
-    async function refreshLatestNews() {
+    let cancelled = false
+    async function refreshNews() {
       try {
-        const [resEn, resAr] = await Promise.all([
+        const [en, arRes] = await Promise.all([
           fetch('/api/news?language=en&limit=16').then((r) => (r.ok ? r.json() : null)),
           fetch('/api/news?language=ar&limit=16').then((r) => (r.ok ? r.json() : null)),
         ])
-        if (isCancelled) return
-        if (resEn?.articles && resEn.articles.length > 0) {
-          setArticlesEn(resEn.articles)
-        }
-        if (resAr?.articles && resAr.articles.length > 0) {
-          setArticlesAr(resAr.articles)
-        }
+        if (cancelled) return
+        if (en?.articles?.length) setArticlesEn(en.articles)
+        if (arRes?.articles?.length) setArticlesAr(arRes.articles)
       } catch {
-        // Silent background fallback
+        // keep server-rendered articles
       }
     }
-
-    const handleVisibility = () => {
-      if (document.visibilityState === 'visible' && !isCancelled) {
-        refreshLatestNews()
-      }
-    }
-    document.addEventListener('visibilitychange', handleVisibility)
-
-    // Background refresh after 2 minutes of active browsing
-    const timer = setTimeout(refreshLatestNews, 120000)
-
+    const onVisible = () => document.visibilityState === 'visible' && !cancelled && refreshNews()
+    document.addEventListener('visibilitychange', onVisible)
+    const timer = setTimeout(refreshNews, 120000)
     return () => {
-      isCancelled = true
+      cancelled = true
       clearTimeout(timer)
-      document.removeEventListener('visibilitychange', handleVisibility)
+      document.removeEventListener('visibilitychange', onVisible)
     }
   }, [])
+  const articles = ar && articlesAr.length > 0 ? articlesAr : articlesEn
 
-  // Select news matching active locale, falling back to English if Arabic articles not available
-  const currentArticles =
-    locale === 'ar' && articlesAr.length > 0 ? articlesAr : articlesEn
-  const [activeFilter, setActiveFilter] = useState<'all' | 'live' | 'upcoming' | 'finished'>('all')
-  const [soundOn, setSoundOn] = useState(false)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [isLoading, setIsLoading] = useState(initialTrendingMatches.length === 0)
-  const [hasError, setHasError] = useState(false)
-  const [apiErrorMessage, setApiErrorMessage] = useState<string | null>(null)
+  // ── Matches for the selected day (polled every 15s for today) ──────────
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
   const [matches, setMatches] = useState<Match[]>(initialTrendingMatches)
+  const [isLoading, setIsLoading] = useState(initialTrendingMatches.length === 0)
+  const [error, setError] = useState<string | null>(null)
 
-  // Load data for the selected date (uses client-side memory cache for returning visits)
   useEffect(() => {
-    let isCancelled = false
-
-    async function loadData() {
-      // Only show full loading skeleton if we have zero matches to show
-      if (matches.length === 0) {
-        setIsLoading(true)
-      }
-      setHasError(false)
-      setApiErrorMessage(null)
-
+    let cancelled = false
+    async function load() {
+      setIsLoading(true)
+      setError(null)
       try {
         const result = await sportsService.getMatchesByDateWithSource(selectedDate)
-        if (isCancelled) return
-
+        if (cancelled) return
         setMatches(result.matches || [])
-        if (result.error) {
-          setApiErrorMessage(result.error)
-        }
-      } catch (err: any) {
-        if (isCancelled) return
-        console.error('Failed to load home matches:', err)
-        setHasError(true)
-        setApiErrorMessage(err?.message || 'Failed to fetch match data')
+        if (result.error && !(result.matches || []).length) setError(result.error)
+      } catch (err: unknown) {
+        if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to fetch match data')
       } finally {
-        if (!isCancelled) {
-          setIsLoading(false)
-        }
+        if (!cancelled) setIsLoading(false)
       }
     }
+    load()
+    if (!isToday(selectedDate)) return () => { cancelled = true }
 
-    loadData()
-
-    // Setup auto-polling every 15 seconds for today's view to keep live scores & elapsed minutes up to date
-    let pollInterval: NodeJS.Timeout | null = null
-
-    if (isToday(selectedDate)) {
-      pollInterval = setInterval(async () => {
-        if (isCancelled) return
-        try {
-          const fresh = await sportsService.getMatchesByDateWithSource(selectedDate, true)
-          if (!isCancelled && fresh.matches && fresh.matches.length > 0) {
-            setMatches(fresh.matches)
-          }
-        } catch {
-          // Silent background poll error
-        }
-      }, 15000)
-
-      const handleVisibilityChange = () => {
-        if (document.visibilityState === 'visible' && !isCancelled) {
-          sportsService
-            .getMatchesByDateWithSource(selectedDate, true)
-            .then((fresh) => {
-              if (!isCancelled && fresh.matches && fresh.matches.length > 0) {
-                setMatches(fresh.matches)
-              }
-            })
-            .catch(() => {})
-        }
-      }
-
-      document.addEventListener('visibilitychange', handleVisibilityChange)
-
-      return () => {
-        isCancelled = true
-        if (pollInterval) clearInterval(pollInterval)
-        document.removeEventListener('visibilitychange', handleVisibilityChange)
-      }
-    }
-
+    const refresh = () =>
+      sportsService
+        .getMatchesByDateWithSource(selectedDate, true)
+        .then((fresh) => {
+          if (!cancelled && fresh.matches?.length) setMatches(fresh.matches)
+        })
+        .catch(() => {})
+    const poll = setInterval(refresh, 15000)
+    const onVisible = () => document.visibilityState === 'visible' && refresh()
+    document.addEventListener('visibilitychange', onVisible)
     return () => {
-      isCancelled = true
-      if (pollInterval) clearInterval(pollInterval)
+      cancelled = true
+      clearInterval(poll)
+      document.removeEventListener('visibilitychange', onVisible)
     }
   }, [selectedDate])
 
-  // 1. Filter dataset BEFORE rendering: Only approved competitions (Big 5, Europe, International)
-  const approvedMatches = useMemo(() => {
-    return matches.filter((m) => isApprovedCompetition(m.league))
-  }, [matches])
+  // ── Filters & grouping ────────────────────────────────────────────────
+  const [status, setStatus] = useState<StatusFilter>('all')
+  const [activeLeague, setActiveLeague] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedId, setSelectedId] = useState<string | null>(null)
 
-  // 2. Filter matches based on active tab & search query on the already-loaded data (0 extra requests)
-  const filteredMatches = useMemo(() => {
-    return approvedMatches.filter((m) => {
-      // Status Filter
-      if (activeFilter === 'live') {
-        const isLive = m.status === 'live' || m.status === 'half_time' || m.status === 'extra_time'
-        if (!isLive) return false
-      } else if (activeFilter === 'upcoming') {
-        if (m.status !== 'scheduled') return false
-      } else if (activeFilter === 'finished') {
-        const isFinished = m.status === 'full_time' || m.status === 'penalties'
-        if (!isFinished) return false
-      }
+  const approved = useMemo(() => matches.filter((m) => isApprovedCompetition(m.league)), [matches])
 
-      // Search Query Filter
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase().trim()
-        const matchHome = m.homeTeam?.name?.toLowerCase().includes(q)
-        const matchAway = m.awayTeam?.name?.toLowerCase().includes(q)
-        const matchLeague = m.league?.name?.toLowerCase().includes(q)
-        if (!matchHome && !matchAway && !matchLeague) return false
-      }
+  const counts = useMemo(
+    () => ({
+      all: approved.length,
+      live: approved.filter(isLive).length,
+      upcoming: approved.filter(isUpcoming).length,
+      finished: approved.filter(isFinished).length,
+    }),
+    [approved]
+  )
 
-      return true
+  const todaysLeagues = useMemo(() => {
+    const map = new Map<string, { league: League; count: number }>()
+    approved.forEach((m) => {
+      const k = leagueKey(m)
+      const e = map.get(k)
+      if (e) e.count++
+      else map.set(k, { league: m.league, count: 1 })
     })
-  }, [approvedMatches, activeFilter, searchQuery])
+    return [...map.values()].sort((a, b) => getCompetitionPriority(a.league) - getCompetitionPriority(b.league))
+  }, [approved])
 
-  // 3. Group filtered matches by League & Sort by Priority (Big 5 highest, then Europe, then International)
-  const groupedByLeague = useMemo(() => {
+  const groups = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim()
     const map = new Map<string, { league: League; matches: Match[] }>()
-
-    filteredMatches.forEach((match) => {
-      const leagueKey = String(match.league?.id || match.league?.slug || 'misc')
-      if (!map.has(leagueKey)) {
-        map.set(leagueKey, {
-          league: match.league,
-          matches: [],
-        })
-      }
-      map.get(leagueKey)!.matches.push(match)
+    approved.forEach((m) => {
+      if (status === 'live' && !isLive(m)) return
+      if (status === 'upcoming' && !isUpcoming(m)) return
+      if (status === 'finished' && !isFinished(m)) return
+      if (activeLeague && leagueKey(m) !== activeLeague) return
+      if (q && !`${m.homeTeam?.name} ${m.awayTeam?.name} ${m.league?.name}`.toLowerCase().includes(q)) return
+      const k = leagueKey(m)
+      if (!map.has(k)) map.set(k, { league: m.league, matches: [] })
+      map.get(k)!.matches.push(m)
     })
+    const statusRank = (m: Match) => (isLive(m) ? 0 : isUpcoming(m) ? 1 : 2)
+    return [...map.values()]
+      .map((g) => ({
+        ...g,
+        matches: g.matches.sort((a, b) => statusRank(a) - statusRank(b) || new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime()),
+      }))
+      .sort((a, b) => {
+        const p = getCompetitionPriority(a.league) - getCompetitionPriority(b.league)
+        return p !== 0 ? p : (a.league.name || '').localeCompare(b.league.name || '')
+      })
+  }, [approved, status, activeLeague, searchQuery])
 
-    const groups = Array.from(map.values())
-
-    // Prioritize Big 5 (1-5), Europe (10-12), International (20-27)
-    groups.sort((a, b) => {
-      const pA = getCompetitionPriority(a.league)
-      const pB = getCompetitionPriority(b.league)
-      if (pA !== pB) return pA - pB
-      return (a.league.name || '').localeCompare(b.league.name || '')
-    })
-
-    return groups
-  }, [filteredMatches])
-
-  // Progressive rendering for long lists: first 8 groups mount immediately, rest mount after first paint
-  const [renderLimit, setRenderLimit] = useState<number>(8)
-
-  useEffect(() => {
-    if (groupedByLeague.length > 8) {
-      const timer = setTimeout(() => {
-        setRenderLimit(groupedByLeague.length)
-      }, 120)
-      return () => clearTimeout(timer)
-    } else {
-      setRenderLimit(8)
-    }
-  }, [groupedByLeague.length])
-
-  const visibleGroups = useMemo(() => {
-    return groupedByLeague.slice(0, renderLimit)
-  }, [groupedByLeague, renderLimit])
-
-  // 4. Counts for filter badges calculated strictly on approved matches
-  const counts = useMemo(() => {
-    return {
-      all: approvedMatches.length,
-      live: approvedMatches.filter((m) => m.status === 'live' || m.status === 'half_time' || m.status === 'extra_time').length,
-      upcoming: approvedMatches.filter((m) => m.status === 'scheduled').length,
-      finished: approvedMatches.filter((m) => m.status === 'full_time' || m.status === 'penalties').length,
-    }
-  }, [approvedMatches])
+  // Right panel shows the clicked match, else the featured one; kept fresh by polling
+  const pool = approved.length ? approved : matches
+  const selectedMatch = useMemo(
+    () => pool.find((m) => m.id === selectedId) || pickFeatured(pool),
+    [pool, selectedId]
+  )
 
   return (
-    <div className="min-h-screen flex flex-col text-on-surface pb-24 md:pb-6 relative">
-      {/* Top Application Header */}
-      <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+    <div className="min-h-screen flex flex-col">
+      <TopBar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
-      {/* Spotlight hero: featured match + today at a glance */}
-      <HomeSpotlight
-        matches={approvedMatches.length > 0 ? approvedMatches : matches}
-        selectedDate={selectedDate}
-        isLoading={isLoading}
-      />
+      <div className="flex-1 w-full max-w-[1440px] mx-auto px-3 sm:px-5 pt-4 sm:pt-5 pb-28 lg:pb-10">
+        <h1 className="sr-only">
+          {ar
+            ? 'موقع MyScore24 - نتائج المباريات المباشرة وأحدث أخبار كرة القدم العالمية'
+            : 'MyScore24 - Live Football Scores, Results & Latest Football News'}
+        </h1>
 
-      {/* Top Matches Carousel Bar */}
-      <TopMatchesBar
-        matches={approvedMatches.length > 0 ? approvedMatches : matches}
-        selectedDate={selectedDate}
-        onSelectDate={setSelectedDate}
-        isLoading={isLoading}
-      />
+        <div className="grid gap-4 lg:grid-cols-[240px_minmax(0,1fr)_380px] xl:grid-cols-[260px_minmax(0,1fr)_420px] items-start">
+          {/* Left — leagues */}
+          <div className="hidden lg:block sticky top-[124px] max-h-[calc(100vh-140px)] overflow-y-auto scrollbar-none">
+            <LeagueSidebar todaysLeagues={todaysLeagues} activeLeague={activeLeague} onLeagueChange={setActiveLeague} />
+          </div>
 
-      {/* Editorial News Magazine Portal */}
-      <div className="w-full max-w-[1440px] mx-auto px-2 sm:px-4 pt-4 pb-3 space-y-8">
-        <ScrollReveal direction="up" delay={50}>
-          <HomeNewsMagazine articles={currentArticles} />
-        </ScrollReveal>
-      </div>
+          {/* Center — matches */}
+          <main className="min-w-0 space-y-3" id="matches">
+            <DateBar selectedDate={selectedDate} onSelectDate={setSelectedDate} status={status} onStatusChange={setStatus} counts={counts} />
 
-      {/* Main Page Layout Container (Match Center + Sidebars) */}
-      <div id="matches" className="flex-1 max-w-[1440px] w-full mx-auto px-2 md:px-4 py-6 flex gap-6">
-        {/* Left Navigation Sidebar */}
-        <DesktopSidebar />
-
-        {/* Center Main Content Stream */}
-        <main className="flex-1 min-w-0 w-full space-y-10">
-          {/* Main Meaningful H1 for Google SEO & Accessibility */}
-          <h1 className="sr-only">
-            {locale === 'ar'
-              ? 'موقع MyScore24 - نتائج المباريات المباشرة وأحدث أخبار كرة القدم العالمية'
-              : 'MyScore24 - Live Football Scores, Results & Latest Football News'}
-          </h1>
-
-          {/* Mobile Favorite Leagues & Quick Links Bar (Parity with Desktop Sidebars) */}
-          <MobileQuickLeaguesBar />
-
-          {/* Section: Live Scores & Match Center */}
-          <section className="space-y-4 pt-2" aria-label="Match Center">
-            <div className="flex items-end justify-between gap-3 px-1">
-              <div className="min-w-0">
-                <p className="eyebrow">{locale === 'ar' ? 'مركز المباريات' : locale === 'fr' ? 'Centre de match' : 'Match centre'}</p>
-                <h2 className="font-geist text-[22px] sm:text-[28px] leading-tight font-extrabold tracking-[-0.03em] text-slate-900 dark:text-white mt-0.5">
-                  {activeFilter === 'live'
-                    ? t('filters.liveScores', 'Live Football Scores')
-                    : activeFilter === 'finished'
-                    ? t('filters.finishedMatches', 'Finished Football Results')
-                    : activeFilter === 'upcoming'
-                    ? t('filters.upcomingFixtures', 'Upcoming Football Fixtures')
-                    : (locale === 'ar' ? 'النتائج المباشرة' : locale === 'fr' ? 'Scores en direct' : 'Live scores')}
-                </h2>
+            {/* Phone/tablet league chips (sidebar is desktop-only) */}
+            {todaysLeagues.length > 0 && (
+              <div className="lg:hidden flex gap-2 overflow-x-auto scrollbar-none -mx-3 px-3">
+                <button onClick={() => setActiveLeague(null)} className={`shrink-0 h-9 px-4 rounded-full text-[12.5px] font-semibold ${activeLeague === null ? 'gl-chip-active' : 'gl-chip'}`}>
+                  {ar ? 'الكل' : 'All'}
+                </button>
+                {todaysLeagues.map(({ league, count }) => {
+                  const key = String(league.id || league.slug)
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => setActiveLeague(activeLeague === key ? null : key)}
+                      className={`shrink-0 h-9 px-3.5 rounded-full text-[12.5px] font-semibold whitespace-nowrap ${activeLeague === key ? 'gl-chip-active' : 'gl-chip'}`}
+                    >
+                      {league.name} <span className="opacity-60 tabular-nums">{count}</span>
+                    </button>
+                  )
+                })}
               </div>
-              <span className="shrink-0 text-[12px] text-slate-600 dark:text-slate-300 font-semibold h-8 px-3.5 inline-flex items-center rounded-full apple-glass tabular-nums">
-                {counts.all} {locale === 'ar' ? 'مباراة' : 'matches'}
-              </span>
-            </div>
+            )}
 
-            {/* Filter Bar */}
-            <MatchFilters
-              activeFilter={activeFilter}
-              onFilterChange={setActiveFilter}
-              counts={counts}
-              soundOn={soundOn}
-              onToggleSound={() => setSoundOn(!soundOn)}
-            />
-
-          {/* Content States */}
-          {isLoading ? (
-            <div className="space-y-3 apple-glass rounded-[24px] p-4">
-              <SkeletonMatchRow />
-              <SkeletonMatchRow />
-              <SkeletonMatchRow />
-              <SkeletonMatchRow />
-            </div>
-          ) : hasError ? (
-            <ErrorState
-              title={t('common.errorLive', 'Live football data is temporarily unavailable.')}
-              description={apiErrorMessage || t('common.errorLiveDesc', 'Please try selecting a different date or click retry.')}
-              onRetry={() => setSelectedDate(new Date(selectedDate))}
-            />
-          ) : groupedByLeague.length === 0 ? (
-            <EmptyState
-              title={
-                searchQuery
-                  ? t('common.noSearchResults', 'No search results')
-                  : activeFilter === 'live'
-                  ? t('common.noLiveMatches', 'No live matches right now')
-                  : activeFilter === 'upcoming'
-                  ? t('common.noUpcomingMatches', 'No upcoming matches scheduled')
-                  : t('common.noMatchesFound', 'No matches found for this date')
-              }
-              description={
-                searchQuery
-                  ? t('common.tryDifferentSearch', 'Try searching for a different team or competition.')
-                  : activeFilter === 'live'
-                  ? t('common.checkUpcoming', 'Check the upcoming tab to see scheduled kickoff times.')
-                  : t('common.selectAnotherDate', 'Select another date on the calendar above.')
-              }
-            />
-          ) : (
-            <div className="space-y-4">
-              {visibleGroups.map(({ league, matches }) => (
-                <CompetitionGroup
-                  key={league.id || league.slug}
+            {isLoading && groups.length === 0 ? (
+              <div className="space-y-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="gl-panel rounded-2xl p-3 space-y-2">
+                    <div className="h-8 w-48 skeleton" />
+                    <div className="h-14 skeleton" />
+                    <div className="h-14 skeleton" />
+                  </div>
+                ))}
+              </div>
+            ) : error ? (
+              <ErrorState
+                title={t('common.errorLive', 'Live football data is temporarily unavailable.')}
+                description={error}
+                onRetry={() => setSelectedDate(new Date(selectedDate))}
+              />
+            ) : groups.length === 0 ? (
+              <div className="gl-panel rounded-2xl py-14 px-6 text-center">
+                <span className="material-symbols-outlined text-[40px] text-white/25">sports_soccer</span>
+                <p className="mt-3 text-[15px] font-semibold text-white">
+                  {searchQuery
+                    ? t('common.noSearchResults', 'No matches for that search')
+                    : status === 'live'
+                    ? t('common.noLiveMatches', 'Nothing live right now')
+                    : t('common.noMatchesFound', 'No matches on this day')}
+                </p>
+                <p className="mt-1 text-[13px] text-white/45">{t('common.selectAnotherDate', 'Try another date or filter.')}</p>
+              </div>
+            ) : (
+              groups.map(({ league, matches: ms }) => (
+                <TournamentGroup
+                  key={String(league.id || league.slug)}
                   league={league}
-                  matches={matches}
+                  matches={ms}
+                  selectedId={selectedMatch?.id ?? null}
+                  onSelect={(m) => setSelectedId(m.id)}
                 />
-              ))}
+              ))
+            )}
+
+            {/* News for phones/tablets (desktop shows it in the right column) */}
+            <div className="lg:hidden pt-2">
+              <NewsCard articles={articles} />
             </div>
-          )}
-          </section>
+          </main>
 
-          {/* Top 5 Leagues Standings Widget — Positioned below Match Center & Live Scores */}
-          <ScrollReveal direction="up" delay={80}>
-            <TopLeaguesStandingsWidget />
-          </ScrollReveal>
-        </main>
-
-        {/* Right Info Sidebar */}
-        <RightSidebar />
+          {/* Right — match detail + news */}
+          <div className="hidden lg:block sticky top-[124px] max-h-[calc(100vh-140px)] overflow-y-auto scrollbar-none space-y-4 rounded-3xl">
+            <MatchPanel match={selectedMatch} />
+            <NewsCard articles={articles} />
+          </div>
+        </div>
       </div>
 
-      {/* Mobile Bottom Navigation Bar */}
-      <MobileBottomNavigation />
+      <TabBar />
     </div>
   )
 }

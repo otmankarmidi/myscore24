@@ -17,7 +17,7 @@ const inter = Inter({
 })
 
 export const viewport: Viewport = {
-  themeColor: '#F2F3F7',
+  themeColor: '#0B0F2E',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
@@ -95,7 +95,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`light scroll-smooth ${inter.variable}`}>
+    <html lang="en" className={`dark scroll-smooth ${inter.variable}`}>
       <head>
         {/* Preconnect to external image CDNs for instant crest & player photo loading */}
         <link rel="dns-prefetch" href="https://media.api-sports.io" />
@@ -126,8 +126,8 @@ export default function RootLayout({
                   document.documentElement.lang = 'fr';
                   document.documentElement.dir = 'ltr';
                 }
-                document.documentElement.classList.remove('dark');
-                document.documentElement.classList.add('light');
+                document.documentElement.classList.remove('light');
+                document.documentElement.classList.add('dark');
               } catch(e) {}
             `,
           }}
